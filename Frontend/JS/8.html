@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Prototypes - Chapter 8</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            margin: 25px 0 15px 0;
+            font-size: 1.5em;
+        }
+        
+        .section h4 {
+            color: #666;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+        
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow-x: auto;
+            position: relative;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+        
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .number { color: #d19a66; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+        .property { color: #e06c75; }
+        
+        .visual-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f1f3f5;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .note strong {
+            color: #856404;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .warning strong {
+            color: #721c24;
+        }
+        
+        .tip {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .tip strong {
+            color: #0c5460;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .success strong {
+            color: #155724;
+        }
+        
+        .interactive-demo {
+            background: white;
+            border: 2px solid #764ba2;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .interactive-demo button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        
+        .interactive-demo button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .output {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+        
+        .prototype-chain {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .proto-object {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .proto-object h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .proto-property {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 3px solid #667eea;
+            font-family: monospace;
+        }
+        
+        .proto-arrow {
+            text-align: center;
+            font-size: 32px;
+            color: #667eea;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .proto-label {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin: 5px 0;
+        }
+        
+        .inheritance-diagram {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .inherits-box {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .inherits-arrow {
+            text-align: center;
+            color: #667eea;
+            font-size: 20px;
+            margin: 5px 0;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧬 Chapter 8: Prototypes and Inheritance</h1>
+            <p>Master JavaScript's Inheritance Model</p>
+        </header>
+        
+        <div class="content">
+            <!-- Section 1: What are Prototypes -->
+            <div class="section" id="what-are-prototypes">
+                <h2>🎯 1. What are Prototypes?</h2>
+                
+                <p><strong>Prototypes</strong> are the mechanism by which JavaScript objects inherit features from one another. Every JavaScript object has an internal property called <code>[[Prototype]]</code> that links to another object.</p>
+                
+                <div class="note">
+                    <strong>💡 Key Concept:</strong> JavaScript doesn't have traditional "classes" like Java or C++. Instead, it uses <strong>prototypal inheritance</strong> - objects inherit directly from other objects!
+                </div>
+                
+                <h3>1.1 The Prototype Property</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Every function has a 'prototype' property</span>
+<span class="keyword">function</span> <span class="function">Person</span>(name) {
+    <span class="keyword">this</span>.name = name;
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="keyword">typeof</span> Person.prototype);  <span class="comment">// "object"</span>
+<span class="function">console</span>.<span class="function">log</span>(Person.prototype);  
+<span class="comment">// { constructor: Person }</span>
+
+<span class="comment">// Objects created with 'new' get their [[Prototype]] from constructor's prototype</span>
+<span class="keyword">const</span> person1 = <span class="keyword">new</span> <span class="function">Person</span>(<span class="string">"Alice"</span>);
+
+<span class="comment">// person1's internal [[Prototype]] points to Person.prototype</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">Object</span>.<span class="function">getPrototypeOf</span>(person1) === Person.prototype);  <span class="comment">// true</span></code>
+                </div>
+                
+                <div class="prototype-chain">
+                    <h4 style="text-align: center; color: #667eea; margin-bottom: 20px;">🔗 Basic Prototype Relationship</h4>
+                    
+                    <div class="proto-object">
+                        <h4>Person (Constructor Function)</h4>
+                        <div class="proto-property">prototype: { ... }</div>
+                    </div>
+                    
+                    <div class="proto-arrow">↓ creates</div>
+                    
+                    <div class="proto-object">
+                        <h4>person1 (Instance)</h4>
+                        <div class="proto-property">name: "Alice"</div>
+                        <div class="proto-property">[[Prototype]]: → Person.prototype</div>
+                    </div>
+                </div>
+                
+                <h3>1.2 Why Prototypes?</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Without prototypes - methods duplicated for each instance</span>
+<span class="keyword">function</span> <span class="function">Person1</span>(name) {
+    <span class="keyword">this</span>.name = name;
+    <span class="keyword">this</span>.greet = <span class="keyword">function</span>() {  <span class="comment">// ❌ New function for EACH instance</span>
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Hi, I'm ${<span class="keyword">this</span>.name}`</span>);
+    };
+}
+
+<span class="keyword">const</span> p1 = <span class="keyword">new</span> <span class="function">Person1</span>(<span class="string">"Alice"</span>);
+<span class="keyword">const</span> p2 = <span class="keyword">new</span> <span class="function">Person1</span>(<span class="string">"Bob"</span>);
+<span class="function">console</span>.<span class="function">log</span>(p1.greet === p2.greet);  <span class="comment">// false - different functions!</span>
+
+<span class="comment">// With prototypes - method shared across all instances</span>
+<span class="keyword">function</span> <span class="function">Person2</span>(name) {
+    <span class="keyword">this</span>.name = name;
+}
+
+Person2.prototype.greet = <span class="keyword">function</span>() {  <span class="comment">// ✅ Shared method</span>
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Hi, I'm ${<span class="keyword">this</span>.name}`</span>);
+};
+
+<span class="keyword">const</span> p3 = <span class="keyword">new</span> <span class="function">Person2</span>(<span class="string">"Alice"</span>);
+<span class="keyword">const</span> p4 = <span class="keyword">new</span> <span class="function">Person2</span>(<span class="string">"Bob"</span>);
+<span class="function">console</span>.<span class="function">log</span>(p3.greet === p4.greet);  <span class="comment">// true - same function! ✅</span></code>
+                </div>
+                
+                <div class="success">
+                    <strong>✅ Benefits of Prototypes:</strong>
+                    <ul>
+                        <li>Memory efficiency - methods shared, not duplicated</li>
+                        <li>Dynamic updates - change prototype affects all instances</li>
+                        <li>Inheritance chain - objects can inherit from other objects</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 2: Prototype Chain -->
+            <div class="section" id="prototype-chain">
+                <h2>⛓️ 2. The Prototype Chain</h2>
+                
+                <p>When you try to access a property on an object, JavaScript first looks on the object itself. If not found, it looks at the object's prototype, then the prototype's prototype, and so on up the chain.</p>
+                
+                <h3>2.1 Property Lookup</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">Person</span>(name) {
+    <span class="keyword">this</span>.name = name;
+}
+
+Person.prototype.species = <span class="string">"Homo sapiens"</span>;
+Person.prototype.greet = <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="string">`Hello, I'm ${<span class="keyword">this</span>.name}`</span>;
+};
+
+<span class="keyword">const</span> alice = <span class="keyword">new</span> <span class="function">Person</span>(<span class="string">"Alice"</span>);
+
+<span class="comment">// Property lookup process:</span>
+<span class="function">console</span>.<span class="function">log</span>(alice.name);     <span class="comment">// "Alice" - found on alice directly</span>
+<span class="function">console</span>.<span class="function">log</span>(alice.species);  <span class="comment">// "Homo sapiens" - found on Person.prototype</span>
+<span class="function">console</span>.<span class="function">log</span>(alice.<span class="function">toString</span>());  <span class="comment">// "[object Object]" - found on Object.prototype</span>
+<span class="function">console</span>.<span class="function">log</span>(alice.xyz);      <span class="comment">// undefined - not found anywhere in chain</span></code>
+                </div>
+                
+                <div class="prototype-chain">
+                    <h4 style="text-align: center; color: #667eea; margin-bottom: 20px;">🔍 Property Lookup Process</h4>
+                    
+                    <div class="proto-object">
+                        <h4>alice <span class="proto-label">Instance</span></h4>
+                        <div class="proto-property">name: "Alice"</div>
+                        <div class="proto-property">[[Prototype]]: → Person.prototype</div>
+                    </div>
+                    
+                    <div class="proto-arrow">↓ if not found, look here</div>
+                    
+                    <div class="proto-object">
+                        <h4>Person.prototype <span class="proto-label">Prototype Object</span></h4>
+                        <div class="proto-property">species: "Homo sapiens"</div>
+                        <div class="proto-property">greet: function</div>
+                        <div class="proto-property">constructor: Person</div>
+                        <div class="proto-property">[[Prototype]]: → Object.prototype</div>
+                    </div>
+                    
+                    <div class="proto-arrow">↓ if not found, look here</div>
+                    
+                    <div class="proto-object">
+                        <h4>Object.prototype <span class="proto-label">Root Prototype</span></h4>
+                        <div class="proto-property">toString: function</div>
+                        <div class="proto-property">valueOf: function</div>
+                        <div class="proto-property">hasOwnProperty: function</div>
+                        <div class="proto-property">[[Prototype]]: → null</div>
+                    </div>
+                    
+                    <div class="proto-arrow">↓ end of chain</div>
+                    
+                    <div class="proto-object" style="background: #f8d7da; border-color: #dc3545;">
+                        <h4>null <span class="proto-label">End</span></h4>
+                        <p style="margin: 0;">If property not found by here → undefined</p>
+                    </div>
+                </div>
+                
+                <h3>2.2 Checking Property Location</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">Person</span>(name) {
+    <span class="keyword">this</span>.name = name;
+}
+
+Person.prototype.species = <span class="string">"Homo sapiens"</span>;
+
+<span class="keyword">const</span> alice = <span class="keyword">new</span> <span class="function">Person</span>(<span class="string">"Alice"</span>);
+
+<span class="comment">// hasOwnProperty - checks if property is directly on object</span>
+<span class="function">console</span>.<span class="function">log</span>(alice.<span class="function">hasOwnProperty</span>(<span class="string">"name"</span>));     <span class="comment">// true (own property)</span>
+<span class="function">console</span>.<span class="function">log</span>(alice.<span class="function">hasOwnProperty</span>(<span class="string">"species"</span>));  <span class="comment">// false (inherited)</span>
+
+<span class="comment">// in operator - checks entire prototype chain</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"name"</span> <span class="keyword">in</span> alice);     <span class="comment">// true</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"species"</span> <span class="keyword">in</span> alice);  <span class="comment">// true (found in chain)</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"toString"</span> <span class="keyword">in</span> alice); <span class="comment">// true (from Object.prototype)</span></code>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 Interview Tip:</strong> Use <code>hasOwnProperty()</code> to check if a property belongs directly to the object, not inherited through the prototype chain. This is crucial when iterating over object properties!
+                </div>
+            </div>
+
+            <!-- Section 3: __proto__ vs prototype -->
+            <div class="section" id="proto-vs-prototype">
+                <h2>🔀 3. <code>__proto__</code> vs <code>prototype</code></h2>
+                
+                <div class="warning">
+                    <strong>⚠️ Most Confusing Part!</strong> These two are different and serve different purposes!
+                </div>
+                
+                <h3>3.1 Understanding the Difference</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">Person</span>(name) {
+    <span class="keyword">this</span>.name = name;
+}
+
+<span class="keyword">const</span> alice = <span class="keyword">new</span> <span class="function">Person</span>(<span class="string">"Alice"</span>);
+
+<span class="comment">// 'prototype' - property of CONSTRUCTOR FUNCTION</span>
+<span class="function">console</span>.<span class="function">log</span>(Person.prototype);  <span class="comment">// Object with constructor property</span>
+<span class="function">console</span>.<span class="function">log</span>(alice.prototype);   <span class="comment">// undefined (instances don't have it!)</span>
+
+<span class="comment">// '__proto__' - property of OBJECT INSTANCES</span>
+<span class="function">console</span>.<span class="function">log</span>(alice.__proto__);    <span class="comment">// Same as Person.prototype</span>
+<span class="function">console</span>.<span class="function">log</span>(Person.__proto__);   <span class="comment">// Function.prototype (Person is a function)</span>
+
+<span class="comment">// They point to the same object!</span>
+<span class="function">console</span>.<span class="function">log</span>(alice.__proto__ === Person.prototype);  <span class="comment">// true</span></code>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th><code>prototype</code></th>
+                            <th><code>__proto__</code></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Exists on</strong></td>
+                            <td>Constructor functions</td>
+                            <td>All objects (instances)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Purpose</strong></td>
+                            <td>Template for instances</td>
+                            <td>Links to parent prototype</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Type</strong></td>
+                            <td>Object</td>
+                            <td>Reference to another object</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Modifiable</strong></td>
+                            <td>✅ Yes (add methods here)</td>
+                            <td>⚠️ Yes but discouraged</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Standard</strong></td>
+                            <td>✅ Standard property</td>
+                            <td>❌ Non-standard (use getPrototypeOf)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="visual-box">
+                    <h4>Visual Representation</h4>
+                    <div class="code-block">
+<code><span class="comment">// Constructor Function</span>
+Person
+  ├─ prototype: { ... }  <span class="comment">← Used as template for new instances</span>
+  └─ __proto__: Function.prototype
+
+<span class="comment">// Instance</span>
+alice
+  ├─ name: "Alice"
+  └─ __proto__: Person.prototype  <span class="comment">← Links to constructor's prototype</span>
+
+<span class="comment">// The Connection:</span>
+alice.__proto__ === Person.prototype  <span class="comment">// true!</span></code>
+                    </div>
+                </div>
+                
+                <h3>3.2 Modern Approach</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// ❌ Old way (avoid __proto__)</span>
+<span class="keyword">const</span> alice = <span class="keyword">new</span> <span class="function">Person</span>(<span class="string">"Alice"</span>);
+<span class="function">console</span>.<span class="function">log</span>(alice.__proto__);
+
+<span class="comment">// ✅ Modern way (use Object methods)</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">Object</span>.<span class="function">getPrototypeOf</span>(alice));  <span class="comment">// Get prototype</span>
+<span class="function">Object</span>.<span class="function">setPrototypeOf</span>(alice, someOtherProto);  <span class="comment">// Set prototype (rarely needed)</span>
+
+<span class="comment">// Check if one object is in another's prototype chain</span>
+<span class="function">console</span>.<span class="function">log</span>(Person.prototype.<span class="function">isPrototypeOf</span>(alice));  <span class="comment">// true</span></code>
+                </div>
+                
+                <div class="note">
+                    <strong>💡 Best Practice:</strong> Use <code>Object.getPrototypeOf()</code> instead of <code>__proto__</code>. While <code>__proto__</code> is widely supported, it's not part of the formal ECMAScript standard.
+                </div>
+            </div>
+
+            <!-- Section 4: Constructor Property -->
+            <div class="section" id="constructor">
+                <h2>🏗️ 4. Constructor Property</h2>
+                
+                <p>Every prototype has a <code>constructor</code> property that points back to the constructor function.</p>
+                
+                <h3>4.1 Understanding Constructor</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">Person</span>(name) {
+    <span class="keyword">this</span>.name = name;
+}
+
+<span class="comment">// prototype has constructor property</span>
+<span class="function">console</span>.<span class="function">log</span>(Person.prototype.constructor === Person);  <span class="comment">// true</span>
+
+<span class="keyword">const</span> alice = <span class="keyword">new</span> <span class="function">Person</span>(<span class="string">"Alice"</span>);
+
+<span class="comment">// Instances inherit constructor through prototype chain</span>
+<span class="function">console</span>.<span class="function">log</span>(alice.constructor === Person);  <span class="comment">// true</span>
+
+<span class="comment">// Can create new instances using constructor</span>
+<span class="keyword">const</span> bob = <span class="keyword">new</span> alice.<span class="function">constructor</span>(<span class="string">"Bob"</span>);
+<span class="function">console</span>.<span class="function">log</span>(bob.name);  <span class="comment">// "Bob"</span></code>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Common Mistake:</strong> Overwriting prototype breaks constructor reference!
+                </div>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">Person</span>(name) {
+    <span class="keyword">this</span>.name = name;
+}
+
+<span class="comment">// ❌ BAD: Completely replace prototype</span>
+Person.prototype = {
+    greet: <span class="keyword">function</span>() {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Hi, I'm ${<span class="keyword">this</span>.name}`</span>);
+    }
+};
+
+<span class="keyword">const</span> alice = <span class="keyword">new</span> <span class="function">Person</span>(<span class="string">"Alice"</span>);
+<span class="function">console</span>.<span class="function">log</span>(alice.constructor === Person);  <span class="comment">// false! (now Object)</span>
+
+<span class="comment">// ✅ GOOD: Fix by restoring constructor</span>
+<span class="keyword">function</span> <span class="function">Person2</span>(name) {
+    <span class="keyword">this</span>.name = name;
+}
+
+Person2.prototype = {
+    constructor: Person2,  <span class="comment">// Restore constructor!</span>
+    greet: <span class="keyword">function</span>() {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Hi, I'm ${<span class="keyword">this</span>.name}`</span>);
+    }
+};
+
+<span class="keyword">const</span> bob = <span class="keyword">new</span> <span class="function">Person2</span>(<span class="string">"Bob"</span>);
+<span class="function">console</span>.<span class="function">log</span>(bob.constructor === Person2);  <span class="comment">// true ✅</span></code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Prototype Chain Explorer</h4>
+                    <button onclick="explorePrototype()">Explore Prototype Chain</button>
+                    <div class="output" id="prototypeOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 5: Object.create -->
+            <div class="section" id="object-create">
+                <h2>🎨 5. Object.create()</h2>
+                
+                <p><code>Object.create()</code> creates a new object with the specified prototype object, providing direct control over inheritance.</p>
+                
+                <h3>5.1 Basic Usage</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Create object with specific prototype</span>
+<span class="keyword">const</span> personProto = {
+    greet: <span class="keyword">function</span>() {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Hello, I'm ${<span class="keyword">this</span>.name}`</span>);
+    }
+};
+
+<span class="comment">// alice's prototype is personProto</span>
+<span class="keyword">const</span> alice = <span class="function">Object</span>.<span class="function">create</span>(personProto);
+alice.name = <span class="string">"Alice"</span>;
+
+alice.<span class="function">greet</span>();  <span class="comment">// "Hello, I'm Alice"</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">Object</span>.<span class="function">getPrototypeOf</span>(alice) === personProto);  <span class="comment">// true</span>
+
+<span class="comment">// Create object with null prototype (no inheritance)</span>
+<span class="keyword">const</span> obj = <span class="function">Object</span>.<span class="function">create</span>(<span class="keyword">null</span>);
+<span class="function">console</span>.<span class="function">log</span>(obj.<span class="function">toString</span>);  <span class="comment">// undefined (no Object.prototype methods!)</span></code>
+                </div>
+                
+                <h3>5.2 Prototypal Inheritance Pattern</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Modern prototypal inheritance pattern</span>
+<span class="keyword">const</span> animal = {
+    type: <span class="string">"Animal"</span>,
+    speak: <span class="keyword">function</span>() {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`${<span class="keyword">this</span>.name} makes a sound`</span>);
+    }
+};
+
+<span class="comment">// Dog inherits from animal</span>
+<span class="keyword">const</span> dog = <span class="function">Object</span>.<span class="function">create</span>(animal);
+dog.name = <span class="string">"Buddy"</span>;
+dog.bark = <span class="keyword">function</span>() {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Woof!"</span>);
+};
+
+dog.<span class="function">speak</span>();  <span class="comment">// "Buddy makes a sound" (inherited)</span>
+dog.<span class="function">bark</span>();   <span class="comment">// "Woof!" (own method)</span>
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">Object</span>.<span class="function">getPrototypeOf</span>(dog) === animal);  <span class="comment">// true</span></code>
+                </div>
+                
+                <h3>5.3 Object.create() with Properties</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Second parameter: property descriptors</span>
+<span class="keyword">const</span> proto = {
+    greet: <span class="keyword">function</span>() {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Hello, ${<span class="keyword">this</span>.name}`</span>);
+    }
+};
+
+<span class="keyword">const</span> person = <span class="function">Object</span>.<span class="function">create</span>(proto, {
+    name: {
+        value: <span class="string">"Alice"</span>,
+        writable: <span class="keyword">true</span>,
+        enumerable: <span class="keyword">true</span>,
+        configurable: <span class="keyword">true</span>
+    },
+    age: {
+        value: <span class="number">25</span>,
+        writable: <span class="keyword">true</span>
+    }
+});
+
+<span class="function">console</span>.<span class="function">log</span>(person.name);  <span class="comment">// "Alice"</span>
+<span class="function">console</span>.<span class="function">log</span>(person.age);   <span class="comment">// 25</span>
+person.<span class="function">greet</span>();  <span class="comment">// "Hello, Alice"</span></code>
+                </div>
+            </div>
+
+            <!-- Section 6: Prototypal Inheritance -->
+            <div class="section" id="inheritance">
+                <h2>👨‍👩‍👧 6. Implementing Inheritance</h2>
+                
+                <h3>6.1 Classical Pattern (ES5)</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Parent constructor</span>
+<span class="keyword">function</span> <span class="function">Animal</span>(name) {
+    <span class="keyword">this</span>.name = name;
+}
+
+Animal.prototype.eat = <span class="keyword">function</span>() {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`${<span class="keyword">this</span>.name} is eating`</span>);
+};
+
+<span class="comment">// Child constructor</span>
+<span class="keyword">function</span> <span class="function">Dog</span>(name, breed) {
+    <span class="comment">// Call parent constructor</span>
+    <span class="function">Animal</span>.<span class="function">call</span>(<span class="keyword">this</span>, name);  <span class="comment">// Inherit properties</span>
+    <span class="keyword">this</span>.breed = breed;
+}
+
+<span class="comment">// Set up prototype chain - Dog inherits from Animal</span>
+Dog.prototype = <span class="function">Object</span>.<span class="function">create</span>(Animal.prototype);
+Dog.prototype.constructor = Dog;  <span class="comment">// Fix constructor</span>
+
+<span class="comment">// Add child-specific methods</span>
+Dog.prototype.bark = <span class="keyword">function</span>() {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Woof!"</span>);
+};
+
+<span class="keyword">const</span> buddy = <span class="keyword">new</span> <span class="function">Dog</span>(<span class="string">"Buddy"</span>, <span class="string">"Golden Retriever"</span>);
+
+buddy.<span class="function">eat</span>();   <span class="comment">// "Buddy is eating" (inherited)</span>
+buddy.<span class="function">bark</span>();  <span class="comment">// "Woof!" (own method)</span>
+<span class="function">console</span>.<span class="function">log</span>(buddy.name);   <span class="comment">// "Buddy"</span>
+<span class="function">console</span>.<span class="function">log</span>(buddy.breed);  <span class="comment">// "Golden Retriever"</span></code>
+                </div>
+                
+                <div class="inheritance-diagram">
+                    <h4 style="color: #667eea; margin-bottom: 15px;">Inheritance Chain Visualization</h4>
+                    
+                    <div class="inherits-box">
+                        <strong>buddy</strong> (Dog instance)
+                        <div class="proto-property">name: "Buddy"</div>
+                        <div class="proto-property">breed: "Golden Retriever"</div>
+                    </div>
+                    
+                    <div class="inherits-arrow">↑ [[Prototype]]</div>
+                    
+                    <div class="inherits-box">
+                        <strong>Dog.prototype</strong>
+                        <div class="proto-property">bark: function</div>
+                        <div class="proto-property">constructor: Dog</div>
+                    </div>
+                    
+                    <div class="inherits-arrow">↑ [[Prototype]]</div>
+                    
+                    <div class="inherits-box">
+                        <strong>Animal.prototype</strong>
+                        <div class="proto-property">eat: function</div>
+                        <div class="proto-property">constructor: Animal</div>
+                    </div>
+                    
+                    <div class="inherits-arrow">↑ [[Prototype]]</div>
+                    
+                    <div class="inherits-box">
+                        <strong>Object.prototype</strong>
+                        <div class="proto-property">toString: function</div>
+                        <div class="proto-property">valueOf: function</div>
+                        <div class="proto-property">hasOwnProperty: function</div>
+                    </div>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 Key Steps for Inheritance:</strong>
+                    <ol>
+                        <li>Call parent constructor with <code>call()</code> or <code>apply()</code></li>
+                        <li>Set child prototype to <code>Object.create(Parent.prototype)</code></li>
+                        <li>Restore constructor: <code>Child.prototype.constructor = Child</code></li>
+                        <li>Add child-specific methods to prototype</li>
+                    </ol>
+                </div>
+                
+                <h3>6.2 Method Overriding</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">Animal</span>(name) {
+    <span class="keyword">this</span>.name = name;
+}
+
+Animal.prototype.speak = <span class="keyword">function</span>() {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`${<span class="keyword">this</span>.name} makes a sound`</span>);
+};
+
+<span class="keyword">function</span> <span class="function">Dog</span>(name) {
+    <span class="function">Animal</span>.<span class="function">call</span>(<span class="keyword">this</span>, name);
+}
+
+Dog.prototype = <span class="function">Object</span>.<span class="function">create</span>(Animal.prototype);
+Dog.prototype.constructor = Dog;
+
+<span class="comment">// Override parent method</span>
+Dog.prototype.speak = <span class="keyword">function</span>() {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`${<span class="keyword">this</span>.name} barks`</span>);
+};
+
+<span class="keyword">const</span> animal = <span class="keyword">new</span> <span class="function">Animal</span>(<span class="string">"Generic"</span>);
+<span class="keyword">const</span> dog = <span class="keyword">new</span> <span class="function">Dog</span>(<span class="string">"Buddy"</span>);
+
+animal.<span class="function">speak</span>();  <span class="comment">// "Generic makes a sound"</span>
+dog.<span class="function">speak</span>();     <span class="comment">// "Buddy barks" (overridden)</span></code>
+                </div>
+                
+                <h3>6.3 Calling Parent Methods</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">Animal</span>(name) {
+    <span class="keyword">this</span>.name = name;
+}
+
+Animal.prototype.speak = <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="string">`${<span class="keyword">this</span>.name} makes a sound`</span>;
+};
+
+<span class="keyword">function</span> <span class="function">Dog</span>(name, breed) {
+    <span class="function">Animal</span>.<span class="function">call</span>(<span class="keyword">this</span>, name);
+    <span class="keyword">this</span>.breed = breed;
+}
+
+Dog.prototype = <span class="function">Object</span>.<span class="function">create</span>(Animal.prototype);
+Dog.prototype.constructor = Dog;
+
+Dog.prototype.speak = <span class="keyword">function</span>() {
+    <span class="comment">// Call parent method</span>
+    <span class="keyword">const</span> parentMsg = Animal.prototype.speak.<span class="function">call</span>(<span class="keyword">this</span>);
+    <span class="keyword">return</span> <span class="string">`${parentMsg} and barks!`</span>;
+};
+
+<span class="keyword">const</span> buddy = <span class="keyword">new</span> <span class="function">Dog</span>(<span class="string">"Buddy"</span>, <span class="string">"Golden Retriever"</span>);
+<span class="function">console</span>.<span class="function">log</span>(buddy.<span class="function">speak</span>());
+<span class="comment">// "Buddy makes a sound and barks!"</span></code>
+                </div>
+            </div>
+
+            <!-- Section 7: instanceof and isPrototypeOf -->
+            <div class="section" id="checking">
+                <h2>🔎 7. Checking Inheritance</h2>
+                
+                <h3>7.1 instanceof Operator</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">Animal</span>(name) {
+    <span class="keyword">this</span>.name = name;
+}
+
+<span class="keyword">function</span> <span class="function">Dog</span>(name) {
+    <span class="function">Animal</span>.<span class="function">call</span>(<span class="keyword">this</span>, name);
+}
+
+Dog.prototype = <span class="function">Object</span>.<span class="function">create</span>(Animal.prototype);
+Dog.prototype.constructor = Dog;
+
+<span class="keyword">const</span> buddy = <span class="keyword">new</span> <span class="function">Dog</span>(<span class="string">"Buddy"</span>);
+
+<span class="comment">// instanceof checks if object's prototype chain includes constructor's prototype</span>
+<span class="function">console</span>.<span class="function">log</span>(buddy <span class="keyword">instanceof</span> Dog);     <span class="comment">// true</span>
+<span class="function">console</span>.<span class="function">log</span>(buddy <span class="keyword">instanceof</span> Animal);  <span class="comment">// true (through chain)</span>
+<span class="function">console</span>.<span class="function">log</span>(buddy <span class="keyword">instanceof</span> <span class="function">Object</span>); <span class="comment">// true (everything inherits from Object)</span>
+
+<span class="comment">// Works with built-in types</span>
+<span class="function">console</span>.<span class="function">log</span>([] <span class="keyword">instanceof</span> <span class="function">Array</span>);   <span class="comment">// true</span>
+<span class="function">console</span>.<span class="function">log</span>({} <span class="keyword">instanceof</span> <span class="function">Object</span>);  <span class="comment">// true</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="keyword">function</span>(){} <span class="keyword">instanceof</span> <span class="function">Function</span>);  <span class="comment">// true</span></code>
+                </div>
+                
+                <h3>7.2 isPrototypeOf() Method</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">Animal</span>(name) {
+    <span class="keyword">this</span>.name = name;
+}
+
+<span class="keyword">const</span> buddy = <span class="keyword">new</span> <span class="function">Animal</span>(<span class="string">"Buddy"</span>);
+
+<span class="comment">// Check if object is in another object's prototype chain</span>
+<span class="function">console</span>.<span class="function">log</span>(Animal.prototype.<span class="function">isPrototypeOf</span>(buddy));  <span class="comment">// true</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">Object</span>.prototype.<span class="function">isPrototypeOf</span>(buddy));  <span class="comment">// true</span>
+
+<span class="comment">// More flexible than instanceof</span>
+<span class="keyword">const</span> obj1 = {};
+<span class="keyword">const</span> obj2 = <span class="function">Object</span>.<span class="function">create</span>(obj1);
+
+<span class="function">console</span>.<span class="function">log</span>(obj1.<span class="function">isPrototypeOf</span>(obj2));  <span class="comment">// true</span></code>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>instanceof</th>
+                            <th>isPrototypeOf()</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Syntax</strong></td>
+                            <td><code>obj instanceof Constructor</code></td>
+                            <td><code>proto.isPrototypeOf(obj)</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Checks</strong></td>
+                            <td>Constructor's prototype in chain</td>
+                            <td>If object is in chain</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Works with</strong></td>
+                            <td>Constructor functions</td>
+                            <td>Any object</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use case</strong></td>
+                            <td>Check instance type</td>
+                            <td>Check prototype relationship</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Inheritance Checker</h4>
+                    <button onclick="checkInheritance()">Test instanceof</button>
+                    <button onclick="checkPrototype()">Test isPrototypeOf</button>
+                    <div class="output" id="checkOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 8: Summary -->
+            <div class="section" id="summary">
+                <h2>📝 Chapter Summary & Interview Questions</h2>
+                
+                <h3>Key Takeaways:</h3>
+                <ol>
+                    <li><strong>Prototypes</strong> enable inheritance - objects inherit from other objects</li>
+                    <li><strong>Prototype Chain</strong> - property lookup traverses up the chain to null</li>
+                    <li><strong>prototype</strong> - property of constructor functions (template)</li>
+                    <li><strong>__proto__</strong> - property of instances (link to parent)</li>
+                    <li><strong>Object.create()</strong> - creates object with specific prototype</li>
+                    <li><strong>Constructor property</strong> - points back to constructor function</li>
+                    <li><strong>instanceof</strong> - checks if constructor's prototype is in chain</li>
+                    <li><strong>Memory efficiency</strong> - methods shared through prototype</li>
+                </ol>
+                
+                <h3>The Prototype Pattern:</h3>
+                <div class="code-block">
+<code><span class="comment">// 1. Constructor</span>
+<span class="keyword">function</span> <span class="function">Person</span>(name) {
+    <span class="keyword">this</span>.name = name;  <span class="comment">// Instance property</span>
+}
+
+<span class="comment">// 2. Methods on prototype (shared)</span>
+Person.prototype.greet = <span class="keyword">function</span>() {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Hi, I'm ${<span class="keyword">this</span>.name}`</span>);
+};
+
+<span class="comment">// 3. Create instance</span>
+<span class="keyword">const</span> alice = <span class="keyword">new</span> <span class="function">Person</span>(<span class="string">"Alice"</span>);
+
+<span class="comment">// 4. Verify relationships</span>
+alice.__proto__ === Person.prototype  <span class="comment">// true</span>
+alice <span class="keyword">instanceof</span> Person  <span class="comment">// true</span>
+alice.<span class="function">hasOwnProperty</span>(<span class="string">"name"</span>)  <span class="comment">// true</span>
+alice.<span class="function">hasOwnProperty</span>(<span class="string">"greet"</span>)  <span class="comment">// false (inherited)</span></code>
+                </div>
+                
+                <h3>Common Interview Questions:</h3>
+                <div class="visual-box">
+                    <ol>
+                        <li><strong>Q:</strong> What is a prototype in JavaScript?<br>
+                            <strong>A:</strong> A prototype is an object from which other objects inherit properties and methods. Every object has an internal [[Prototype]] link.</li>
+                        
+                        <li><strong>Q:</strong> What's the difference between <code>__proto__</code> and <code>prototype</code>?<br>
+                            <strong>A:</strong> <code>prototype</code> is a property of constructor functions used as template. <code>__proto__</code> is a property of instances that links to the constructor's prototype.</li>
+                        
+                        <li><strong>Q:</strong> How does the prototype chain work?<br>
+                            <strong>A:</strong> When accessing a property, JS looks on the object first, then its prototype, then that prototype's prototype, until reaching null.</li>
+                        
+                        <li><strong>Q:</strong> Why use prototypes for methods?<br>
+                            <strong>A:</strong> Memory efficiency - methods are shared across all instances rather than duplicated.</li>
+                        
+                        <li><strong>Q:</strong> How do you implement inheritance in ES5?<br>
+                            <strong>A:</strong> Call parent constructor, set <code>Child.prototype = Object.create(Parent.prototype)</code>, restore constructor.</li>
+                        
+                        <li><strong>Q:</strong> What does <code>instanceof</code> check?<br>
+                            <strong>A:</strong> Whether the constructor's prototype exists anywhere in the object's prototype chain.</li>
+                        
+                        <li><strong>Q:</strong> What's <code>Object.create()</code>?<br>
+                            <strong>A:</strong> Creates a new object with specified prototype, giving direct control over inheritance.</li>
+                    </ol>
+                </div>
+                
+                <div class="success">
+                    <strong>💪 Practice Exercises:</strong>
+                    <ol>
+                        <li>Create a constructor with methods on prototype</li>
+                        <li>Implement inheritance between two constructors</li>
+                        <li>Override a parent method while calling parent implementation</li>
+                        <li>Use Object.create() to set up inheritance</li>
+                        <li>Explain why <code>arr.hasOwnProperty('length')</code> is true</li>
+                        <li>Draw the prototype chain for a custom object</li>
+                        <li>Implement method sharing without duplication</li>
+                        <li>Fix a broken constructor reference</li>
+                    </ol>
+                </div>
+                
+                <div class="tip">
+                    <strong>🎯 Modern Note:</strong> ES6 classes provide a cleaner syntax for this pattern, but they're just syntactic sugar over prototypes. Understanding prototypes is essential because:
+                    <ul>
+                        <li>It's how JavaScript actually works under the hood</li>
+                        <li>It's heavily tested in interviews</li>
+                        <li>You'll encounter it in older codebases</li>
+                        <li>It helps debug inheritance issues</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function explorePrototype() {
+            const output = document.getElementById('prototypeOutput');
+            
+            // Create example hierarchy
+            function Animal(name) {
+                this.name = name;
+            }
+            Animal.prototype.speak = function() {
+                return `${this.name} makes a sound`;
+            };
+            
+            function Dog(name, breed) {
+                Animal.call(this, name);
+                this.breed = breed;
+            }
+            Dog.prototype = Object.create(Animal.prototype);
+            Dog.prototype.constructor = Dog;
+            Dog.prototype.bark = function() {
+                return 'Woof!';
+            };
+            
+            const buddy = new Dog('Buddy', 'Golden Retriever');
+            
+            let result = '=== Prototype Chain Exploration ===\n\n';
+            
+            result += '1. INSTANCE (buddy)\n';
+            result += `   name: "${buddy.name}"\n`;
+            result += `   breed: "${buddy.breed}"\n`;
+            result += `   hasOwnProperty('name'): ${buddy.hasOwnProperty('name')}\n`;
+            result += `   hasOwnProperty('bark'): ${buddy.hasOwnProperty('bark')}\n\n`;
+            
+            result += '2. Dog.prototype\n';
+            result += `   constructor: Dog\n`;
+            result += `   bark: function\n`;
+            result += `   Has speak? ${Dog.prototype.hasOwnProperty('speak')}\n\n`;
+            
+            result += '3. Animal.prototype\n';
+            result += `   constructor: Animal\n`;
+            result += `   speak: function\n\n`;
+            
+            result += '4. CHECKS\n';
+            result += `   buddy instanceof Dog: ${buddy instanceof Dog}\n`;
+            result += `   buddy instanceof Animal: ${buddy instanceof Animal}\n`;
+            result += `   buddy instanceof Object: ${buddy instanceof Object}\n\n`;
+            
+            result += '5. PROTOTYPE LINKS\n';
+            result += `   buddy.__proto__ === Dog.prototype: ${buddy.__proto__ === Dog.prototype}\n`;
+            result += `   Dog.prototype.__proto__ === Animal.prototype: ${Dog.prototype.__proto__ === Animal.prototype}\n`;
+            
+            output.textContent = result;
+        }
+        
+        function checkInheritance() {
+            const output = document.getElementById('checkOutput');
+            
+            function Animal(name) {
+                this.name = name;
+            }
+            
+            function Dog(name) {
+                Animal.call(this, name);
+            }
+            Dog.prototype = Object.create(Animal.prototype);
+            Dog.prototype.constructor = Dog;
+            
+            const buddy = new Dog('Buddy');
+            const cat = { name: 'Whiskers' };
+            
+            let result = '=== instanceof Tests ===\n\n';
+            
+            result += 'const buddy = new Dog("Buddy");\n';
+            result += 'const cat = { name: "Whiskers" };\n\n';
+            
+            result += 'buddy instanceof Dog:\n';
+            result += `  ${buddy instanceof Dog} ✓\n\n`;
+            
+            result += 'buddy instanceof Animal:\n';
+            result += `  ${buddy instanceof Animal} ✓ (through inheritance)\n\n`;
+            
+            result += 'buddy instanceof Object:\n';
+            result += `  ${buddy instanceof Object} ✓ (everything inherits from Object)\n\n`;
+            
+            result += 'cat instanceof Dog:\n';
+            result += `  ${cat instanceof Dog} ✗ (cat is plain object)\n\n`;
+            
+            result += 'How it works:\n';
+            result += 'instanceof checks if constructor\'s prototype\n';
+            result += 'appears anywhere in object\'s prototype chain';
+            
+            output.textContent = result;
+        }
+        
+        function checkPrototype() {
+            const output = document.getElementById('checkOutput');
+            
+            function Animal(name) {
+                this.name = name;
+            }
+            
+            const buddy = new Animal('Buddy');
+            const customProto = { customMethod: function() {} };
+            const customObj = Object.create(customProto);
+            
+            let result = '=== isPrototypeOf Tests ===\n\n';
+            
+            result += '1. Constructor Function Pattern:\n';
+            result += 'const buddy = new Animal("Buddy");\n\n';
+            
+            result += 'Animal.prototype.isPrototypeOf(buddy):\n';
+            result += `  ${Animal.prototype.isPrototypeOf(buddy)} ✓\n\n`;
+            
+            result += 'Object.prototype.isPrototypeOf(buddy):\n';
+            result += `  ${Object.prototype.isPrototypeOf(buddy)} ✓\n\n`;
+            
+            result += '2. Object.create Pattern:\n';
+            result += 'const customObj = Object.create(customProto);\n\n';
+            
+            result += 'customProto.isPrototypeOf(customObj):\n';
+            result += `  ${customProto.isPrototypeOf(customObj)} ✓\n\n`;
+            
+            result += 'Key Difference:\n';
+            result += '- instanceof: works with constructors\n';
+            result += '- isPrototypeOf: works with any object\n';
+            result += '- More flexible for Object.create patterns';
+            
+            output.textContent = result;
+        }
+    </script>
+</body>
+</html>

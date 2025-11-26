@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 14: Distributed File Systems</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+        }
+        
+        .architecture-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .node {
+            display: inline-block;
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            min-width: 120px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .node:hover {
+            transform: scale(1.05);
+        }
+        
+        .client {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+        }
+        
+        .server {
+            background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+        }
+        
+        .master {
+            background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);
+            border: 3px solid #7b1fa2;
+        }
+        
+        .chunk {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 5px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .file-block {
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px;
+            display: inline-block;
+            font-weight: bold;
+        }
+        
+        .replica-block {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin: 3px;
+            display: inline-block;
+            font-size: 0.85em;
+        }
+        
+        .layer-diagram {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .arrow {
+            text-align: center;
+            font-size: 1.5em;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .cache-visual {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .cache-level {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📁 Chapter 14: Distributed File Systems</h1>
+        
+        <div class="problem-box">
+            <h3>🤔 The Storage Challenge</h3>
+            <p style="font-size: 1.2em;"><strong>How do we store petabytes of data reliably and efficiently?</strong></p>
+            <p>Single disk = ~20 TB max. Google processes exabytes. Need to:</p>
+            <ul style="margin-top: 10px;">
+                <li>Store files larger than any single disk</li>
+                <li>Provide fault tolerance (disks fail frequently at scale!)</li>
+                <li>Enable parallel access (thousands of clients)</li>
+                <li>Make it look like a normal file system</li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>Solution:</strong> Distributed file systems that span thousands of machines!</p>
+        </div>
+        
+        <h2>1️⃣ File System Fundamentals</h2>
+        
+        <div class="definition">
+            <h4>What is a File System?</h4>
+            <p>A <strong>file system</strong> organizes and stores files on storage devices, providing:</p>
+            <ul style="margin-top: 10px;">
+                <li><strong>Naming:</strong> Hierarchical namespace (directories/files)</li>
+                <li><strong>Storage:</strong> Map files to physical blocks on disk</li>
+                <li><strong>Access:</strong> Read, write, append, delete operations</li>
+                <li><strong>Metadata:</strong> File size, permissions, timestamps</li>
+                <li><strong>Consistency:</strong> Ensure data integrity</li>
+            </ul>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>File System Layers</h4>
+            
+            <div class="layer-diagram" style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); color: white;">
+                <h4>Application Layer</h4>
+                <p>Programs use simple API: open(), read(), write(), close()</p>
+            </div>
+            
+            <div class="arrow">↓</div>
+            
+            <div class="layer-diagram" style="background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%); color: white;">
+                <h4>File System Interface</h4>
+                <p>POSIX API: /home/user/document.txt</p>
+            </div>
+            
+            <div class="arrow">↓</div>
+            
+            <div class="layer-diagram" style="background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%); color: white;">
+                <h4>Virtual File System (VFS)</h4>
+                <p>Abstract layer supporting multiple file systems</p>
+            </div>
+            
+            <div class="arrow">↓</div>
+            
+            <div class="layer-diagram" style="background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%); color: white;">
+                <h4>Physical File System</h4>
+                <p>Map files to disk blocks, manage metadata</p>
+            </div>
+            
+            <div class="arrow">↓</div>
+            
+            <div class="layer-diagram">
+                <h4>Storage Devices</h4>
+                <p>HDD, SSD, Network Storage</p>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>Distributed File System Requirements:</h4>
+            <ul>
+                <li><strong>Transparency:</strong> Looks like local file system</li>
+                <li><strong>Scalability:</strong> Handle huge files and many clients</li>
+                <li><strong>Fault Tolerance:</strong> Survive disk/node failures</li>
+                <li><strong>Performance:</strong> High throughput, parallel access</li>
+                <li><strong>Consistency:</strong> Coordinate concurrent access</li>
+            </ul>
+        </div>
+        
+        <h2>2️⃣ Network File System (NFS)</h2>
+        
+        <div class="definition">
+            <h4>What is NFS?</h4>
+            <p><strong>NFS</strong> (Network File System) allows a computer to access files over a network as if they were on local storage.</p>
+            <p><strong>Developed by:</strong> Sun Microsystems (1984)</p>
+            <p><strong>Still used:</strong> Enterprise networks, Unix/Linux systems</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>NFS Architecture</h4>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; align-items: center;">
+                    <div>
+                        <div class="node client">NFS Client<br>(Your Computer)</div>
+                        <div style="margin-top: 15px; background: #e3f2fd; padding: 10px; border-radius: 5px;">
+                            Runs: open(), read(), write()
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5em; color: #667eea; font-weight: bold;">
+                            ← Network →<br>
+                            <small style="font-size: 0.6em;">RPC calls</small>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="node server">NFS Server<br>(Remote Machine)</div>
+                        <div style="margin-top: 15px; background: #fff3e0; padding: 10px; border-radius: 5px;">
+                            Has: Actual files on disk
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin-top: 30px;">
+                    <strong>How it works:</strong>
+                    <ol style="text-align: left; max-width: 600px; margin: 10px auto;">
+                        <li>Client mounts remote directory: <code>mount server:/data /mnt/nfs</code></li>
+                        <li>Access files: <code>cat /mnt/nfs/file.txt</code></li>
+                        <li>Looks local, but RPC calls go to server</li>
+                        <li>Server processes requests, returns data</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>NFS Key Design Decisions:</h4>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>1. Stateless Server</strong>
+                <p>Server doesn't remember client state (no open file table)</p>
+                <ul style="margin-top: 10px;">
+                    <li>✅ Simple recovery (server crash = just restart)</li>
+                    <li>✅ No cleanup needed when client crashes</li>
+                    <li>❌ Performance overhead (must send full context each time)</li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>2. Client-Side Caching</strong>
+                <p>Clients cache file blocks and metadata locally</p>
+                <ul style="margin-top: 10px;">
+                    <li>✅ Reduces network traffic</li>
+                    <li>✅ Better performance</li>
+                    <li>❌ Consistency issues (cache staleness)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ NFS Limitations:</h4>
+            <ul>
+                <li><strong>Single server:</strong> Not truly distributed (one NFS server)</li>
+                <li><strong>Weak consistency:</strong> Cached data can be stale</li>
+                <li><strong>Limited scalability:</strong> Server is bottleneck</li>
+                <li><strong>Network latency:</strong> Every operation is RPC call</li>
+            </ul>
+        </div>
+        
+        <h2>3️⃣ Google File System (GFS)</h2>
+        
+        <div class="definition">
+            <h4>Designed for Google's Needs</h4>
+            <p><strong>GFS</strong> is Google's proprietary distributed file system, designed for massive scale and specific workload patterns.</p>
+            <p><strong>Assumptions:</strong></p>
+            <ul style="margin-top: 10px;">
+                <li>Failures are the norm (component failures are common)</li>
+                <li>Huge files (multi-GB files are typical)</li>
+                <li>Large streaming reads and sequential writes</li>
+                <li>Concurrent appends by multiple clients</li>
+            </ul>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>GFS Architecture</h4>
+            
+            <div style="margin: 30px 0;">
+                <div style="text-align: center;">
+                    <div class="node master">GFS Master<br>(Single)</div>
+                    <div style="margin: 10px 0; color: #666;">
+                        Stores: Metadata, namespace, chunk locations
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <div style="font-size: 1.2em; color: #667eea; font-weight: bold;">↓ Metadata queries ↓</div>
+                    <div style="font-size: 1.2em; color: #667eea; font-weight: bold; margin-top: 10px;">Data flow bypasses master →</div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px; align-items: center;">
+                    <div style="text-align: center;">
+                        <div class="node client">GFS Clients</div>
+                        <div style="margin-top: 10px; color: #666;">
+                            Applications
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                        <div class="node server">ChunkServer 1</div>
+                        <div class="node server">ChunkServer 2</div>
+                        <div class="node server">ChunkServer 3</div>
+                        <div class="node server">ChunkServer ...</div>
+                        <div class="node server">ChunkServer N</div>
+                    </div>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin-top: 30px;">
+                    <strong>Key insight:</strong> Metadata (small) goes through master. Data (large) goes directly between client and chunkservers!
+                </div>
+            </div>
+        </div>
+        
+        <h3>📦 GFS Chunks</h3>
+        
+        <div class="key-point">
+            <h4>Chunking Strategy</h4>
+            <p>Files divided into fixed-size <strong>64 MB chunks</strong>. Each chunk:</p>
+            <ul>
+                <li>Stored on multiple chunkservers (typically 3 replicas)</li>
+                <li>Has globally unique 64-bit chunk handle</li>
+                <li>Replicated across different racks for fault tolerance</li>
+            </ul>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>File Chunking Example</h4>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <strong>File: "video.mp4" (200 MB)</strong>
+                
+                <div style="margin: 20px 0;">
+                    <strong>Split into chunks:</strong>
+                    <div style="margin: 15px 0;">
+                        <div class="file-block">Chunk 0<br>0-64 MB</div>
+                        <div class="file-block">Chunk 1<br>64-128 MB</div>
+                        <div class="file-block">Chunk 2<br>128-192 MB</div>
+                        <div class="file-block">Chunk 3<br>192-200 MB</div>
+                    </div>
+                </div>
+                
+                <strong>Each chunk replicated 3x:</strong>
+                
+                <div style="margin: 20px 0; background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                    <strong>Chunk 0:</strong>
+                    <div style="margin: 10px 0;">
+                        <div class="replica-block">Server 1</div>
+                        <div class="replica-block">Server 5</div>
+                        <div class="replica-block">Server 9</div>
+                    </div>
+                </div>
+                
+                <div style="margin: 20px 0; background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                    <strong>Chunk 1:</strong>
+                    <div style="margin: 10px 0;">
+                        <div class="replica-block">Server 2</div>
+                        <div class="replica-block">Server 6</div>
+                        <div class="replica-block">Server 10</div>
+                    </div>
+                </div>
+                
+                <p style="margin-top: 20px;"><em>And so on...</em></p>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>📖 GFS Read Operation</h4>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Client wants to read bytes 100MB-101MB from video.mp4</strong>
+                
+                <ol style="margin-top: 15px;">
+                    <li><strong>Client → Master:</strong> "Where is chunk 1 (64-128MB)?"</li>
+                    <li><strong>Master → Client:</strong> "Chunk 1 is on servers 2, 6, 10"</li>
+                    <li><strong>Client:</strong> Selects closest server (say, Server 2)</li>
+                    <li><strong>Client → Server 2:</strong> "Give me bytes 36MB-37MB of chunk 1"</li>
+                    <li><strong>Server 2 → Client:</strong> Returns requested data</li>
+                    <li><strong>Client:</strong> Caches chunk location for future reads</li>
+                </ol>
+                
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                    <strong>Performance:</strong> Master only involved for metadata! Bulk data transfer bypasses master.
+                </div>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>✍️ GFS Write Operation (Record Append)</h4>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>GFS optimized for append (add to end of file)</strong>
+                
+                <ol style="margin-top: 15px;">
+                    <li><strong>Client → Master:</strong> "Where to append to file X?"</li>
+                    <li><strong>Master:</strong> Identifies last chunk and its replicas</li>
+                    <li><strong>Master:</strong> Grants <strong>lease</strong> to one replica (becomes primary)</li>
+                    <li><strong>Client → All replicas:</strong> Pushes data</li>
+                    <li><strong>Client → Primary:</strong> "Commit the append"</li>
+                    <li><strong>Primary:</strong> Assigns offset, writes data</li>
+                    <li><strong>Primary → Secondaries:</strong> "Write at this offset"</li>
+                    <li><strong>Secondaries → Primary:</strong> Acknowledge</li>
+                    <li><strong>Primary → Client:</strong> Success!</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>✅ GFS Advantages:</h4>
+            <ul>
+                <li><strong>Huge scale:</strong> Petabytes across thousands of machines</li>
+                <li><strong>Fault tolerance:</strong> 3x replication, automatic recovery</li>
+                <li><strong>High throughput:</strong> Optimized for large sequential access</li>
+                <li><strong>Simple master:</strong> Centralized metadata management</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ GFS Limitations:</h4>
+            <ul>
+                <li><strong>Single master:</strong> Potential bottleneck and SPOF</li>
+                <li><strong>Not POSIX compliant:</strong> Relaxed consistency for appends</li>
+                <li><strong>Large chunk size:</strong> Poor for small files</li>
+                <li><strong>Designed for Google:</strong> Specific workload assumptions</li>
+            </ul>
+        </div>
+        
+        <h2>4️⃣ Hadoop Distributed File System (HDFS)</h2>
+        
+        <div class="definition">
+            <h4>Open-Source GFS Inspired</h4>
+            <p><strong>HDFS</strong> is the storage layer of Apache Hadoop, inspired by GFS. Powers big data processing across the industry.</p>
+            <p><strong>Design goals:</strong> Store huge files, high throughput, fault tolerance, commodity hardware</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>HDFS Architecture</h4>
+            
+            <div style="margin: 30px 0;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div class="node master">NameNode<br>(Master)</div>
+                    <div style="margin: 10px 0; max-width: 400px; margin: 10px auto; background: white; padding: 10px; border-radius: 5px;">
+                        <strong>Stores:</strong>
+                        <ul style="text-align: left;">
+                            <li>Namespace (directory tree)</li>
+                            <li>File → Block mapping</li>
+                            <li>Block → DataNode mapping</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <div style="font-size: 1.2em; color: #667eea; font-weight: bold;">
+                        Metadata ↕ | Data flows directly →
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                    <div style="text-align: center;">
+                        <div class="node client">HDFS Client</div>
+                    </div>
+                    
+                    <div style="flex: 1; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                        <div class="node server" style="font-size: 0.9em;">DataNode 1</div>
+                        <div class="node server" style="font-size: 0.9em;">DataNode 2</div>
+                        <div class="node server" style="font-size: 0.9em;">DataNode 3</div>
+                        <div class="node server" style="font-size: 0.9em;">DataNode ...</div>
+                        <div class="node server" style="font-size: 0.9em;">DataNode N</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h3>🧱 HDFS Blocks</h3>
+        
+        <div class="key-point">
+            <h4>Block-Based Storage</h4>
+            <ul>
+                <li><strong>Default block size:</strong> 128 MB (much larger than OS blocks!)</li>
+                <li><strong>Why so large?</strong> Minimize metadata, optimize for streaming</li>
+                <li><strong>Replication factor:</strong> 3 (default)</li>
+                <li><strong>Placement:</strong> Rack-aware (replicas on different racks)</li>
+            </ul>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>HDFS Replication Strategy</h4>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <strong>Replica Placement (Rack Awareness):</strong>
+                
+                <div style="margin: 20px 0;">
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #2196f3;">
+                        <strong>Replica 1:</strong> Same node as writer (local)
+                    </div>
+                    <div style="background: #fff3e0; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #ff9800;">
+                        <strong>Replica 2:</strong> Different node in SAME rack
+                    </div>
+                    <div style="background: #f3e5f5; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #9c27b0;">
+                        <strong>Replica 3:</strong> Different node in DIFFERENT rack
+                    </div>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                    <strong>Why this strategy?</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>✅ Survives entire rack failure</li>
+                        <li>✅ Good write bandwidth (2 replicas on same rack switch)</li>
+                        <li>✅ Good read bandwidth (can read from any replica)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// HDFS Client API Example (Java)
+Configuration conf = new Configuration();
+FileSystem hdfs = FileSystem.get(conf);
+
+// Write a file
+Path filePath = new Path("/user/data/input.txt");
+FSDataOutputStream out = hdfs.create(filePath);
+out.writeBytes("Hello, HDFS!");
+out.close();
+
+// Read a file
+FSDataInputStream in = hdfs.open(filePath);
+byte[] buffer = new byte[1024];
+int bytesRead = in.read(buffer);
+in.close();
+
+// List files
+FileStatus[] files = hdfs.listStatus(new Path("/user/data/"));
+for (FileStatus file : files) {
+    System.out.println(file.getPath() + " - " + file.getLen() + " bytes");
+}
+
+// Get block locations (for MapReduce optimization)
+BlockLocation[] blocks = hdfs.getFileBlockLocations(filePath, 0, fileSize);
+// MapReduce can schedule tasks on nodes that have the blocks!</code></pre>
+        
+        <div class="key-point">
+            <h4>✅ HDFS Advantages:</h4>
+            <ul>
+                <li><strong>Proven at scale:</strong> Yahoo, Facebook run HDFS clusters with thousands of nodes</li>
+                <li><strong>Fault tolerance:</strong> Automatic replication, failure detection</li>
+                <li><strong>Data locality:</strong> Move computation to data (MapReduce optimization)</li>
+                <li><strong>Open source:</strong> Active community, well-documented</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ HDFS Limitations:</h4>
+            <ul>
+                <li><strong>Single NameNode:</strong> SPOF (mitigated by HA NameNode in newer versions)</li>
+                <li><strong>Write-once model:</strong> No random writes (append only)</li>
+                <li><strong>High latency:</strong> Not for low-latency reads (designed for throughput)</li>
+                <li><strong>Small files problem:</strong> Many small files overwhelm NameNode</li>
+            </ul>
+        </div>
+        
+        <h2>5️⃣ Object Storage (Amazon S3)</h2>
+        
+        <div class="definition">
+            <h4>Different Paradigm: Objects, Not Files</h4>
+            <p><strong>Object storage</strong> organizes data as objects (not files/blocks). Each object has:</p>
+            <ul style="margin-top: 10px;">
+                <li><strong>Data:</strong> The actual content (blob)</li>
+                <li><strong>Metadata:</strong> Key-value pairs (content-type, user-defined tags)</li>
+                <li><strong>Unique ID:</strong> Global identifier (URL or key)</li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>No hierarchy:</strong> Flat namespace with keys (buckets contain objects)</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>S3 Architecture</h4>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <strong>S3 Structure:</strong>
+                
+                <div style="margin: 20px 0; font-family: monospace; font-size: 0.95em;">
+                    <strong>Bucket:</strong> my-photos<br>
+                    └── <strong>Object:</strong> vacation/beach.jpg<br>
+                    │   ├── Data: [JPEG bytes]<br>
+                    │   └── Metadata: {content-type: "image/jpeg", year: "2024"}<br>
+                    └── <strong>Object:</strong> vacation/sunset.jpg<br>
+                        ├── Data: [JPEG bytes]<br>
+                        └── Metadata: {content-type: "image/jpeg"}
+                </div>
+                
+                <div style="background: #fff3e0; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                    <strong>Note:</strong> "vacation/" looks like a folder, but it's just part of the key!<br>
+                    S3 is actually flat - no real directories.
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>S3 Design Principles:</h4>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>1. Eventually Consistent (originally)</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Writes may not be immediately visible</li>
+                    <li>Optimized for availability (AP in CAP)</li>
+                    <li><em>Note: S3 now offers strong consistency (2020 update)</em></li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>2. Simple API</strong>
+                <ul style="margin-top: 10px;">
+                    <li>PUT(bucket, key, data) - Upload object</li>
+                    <li>GET(bucket, key) - Download object</li>
+                    <li>DELETE(bucket, key) - Remove object</li>
+                    <li>LIST(bucket, prefix) - List objects</li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>3. Extreme Durability</strong>
+                <ul style="margin-top: 10px;">
+                    <li>99.999999999% (11 nines) durability</li>
+                    <li>Objects replicated across multiple facilities</li>
+                    <li>Automatic integrity checking</li>
+                </ul>
+            </div>
+        </div>
+        
+        <pre><code>// Amazon S3 API Example (JavaScript)
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3();
+
+// Upload file
+await s3.putObject({
+    Bucket: 'my-bucket',
+    Key: 'photos/vacation.jpg',
+    Body: fileBuffer,
+    Metadata: {
+        'year': '2024',
+        'location': 'Hawaii'
+    }
+}).promise();
+
+// Download file
+const result = await s3.getObject({
+    Bucket: 'my-bucket',
+    Key: 'photos/vacation.jpg'
+}).promise();
+
+console.log('File size:', result.ContentLength);
+console.log('Metadata:', result.Metadata);
+
+// List objects with prefix
+const list = await s3.listObjectsV2({
+    Bucket: 'my-bucket',
+    Prefix: 'photos/'
+}).promise();
+
+console.log('Objects:', list.Contents.map(obj => obj.Key));
+
+// Delete object
+await s3.deleteObject({
+    Bucket: 'my-bucket',
+    Key: 'photos/old.jpg'
+}).promise();</code></pre>
+        
+        <h3>🆚 File System vs Object Storage</h3>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Aspect</th>
+                <th>File System (HDFS)</th>
+                <th>Object Storage (S3)</th>
+            </tr>
+            <tr>
+                <td><strong>Organization</strong></td>
+                <td>Hierarchical (directories/files)</td>
+                <td>Flat (buckets/objects with keys)</td>
+            </tr>
+            <tr>
+                <td><strong>Access</strong></td>
+                <td>POSIX-like (open, read, write)</td>
+                <td>HTTP REST API (GET, PUT, DELETE)</td>
+            </tr>
+            <tr>
+                <td><strong>Updates</strong></td>
+                <td>Append supported</td>
+                <td>Whole object replacement only</td>
+            </tr>
+            <tr>
+                <td><strong>Metadata</strong></td>
+                <td>Limited (permissions, timestamps)</td>
+                <td>Rich (custom key-value pairs)</td>
+            </tr>
+            <tr>
+                <td><strong>Consistency</strong></td>
+                <td>Strong for namespace</td>
+                <td>Strong (as of 2020)</td>
+            </tr>
+            <tr>
+                <td><strong>Use Case</strong></td>
+                <td>Big data processing (MapReduce)</td>
+                <td>Static content, backups, archives</td>
+            </tr>
+            <tr>
+                <td><strong>Performance</strong></td>
+                <td>Optimized for throughput</td>
+                <td>Optimized for durability</td>
+            </tr>
+        </table>
+        
+        <h2>6️⃣ Caching and Replication</h2>
+        
+        <div class="definition">
+            <h4>Two Strategies for Performance</h4>
+            <p><strong>Caching:</strong> Keep frequently accessed data closer to clients</p>
+            <p><strong>Replication:</strong> Keep multiple copies on different servers</p>
+        </div>
+        
+        <h3>💾 Multi-Level Caching</h3>
+        
+        <div class="cache-visual">
+            <div class="cache-level" style="border-color: #4caf50; border-width: 3px;">
+                <h4 style="color: #4caf50;">L1: Client Cache</h4>
+                <p><strong>Location:</strong> Client machine memory</p>
+                <p><strong>Latency:</strong> ~1ms</p>
+                <p><strong>Size:</strong> MBs to GBs</p>
+                <div style="margin-top: 10px; background: #e8f5e9; padding: 10px; border-radius: 5px;">
+                    <strong>Example:</strong> Browser cache for images
+                </div>
+            </div>
+            
+            <div class="cache-level" style="border-color: #2196f3; border-width: 3px;">
+                <h4 style="color: #2196f3;">L2: Proxy Cache</h4>
+                <p><strong>Location:</strong> Nearby server</p>
+                <p><strong>Latency:</strong> ~10ms</p>
+                <p><strong>Size:</strong> GBs to TBs</p>
+                <div style="margin-top: 10px; background: #e3f2fd; padding: 10px; border-radius: 5px;">
+                    <strong>Example:</strong> CDN edge server
+                </div>
+            </div>
+            
+            <div class="cache-level" style="border-color: #ff9800; border-width: 3px;">
+                <h4 style="color: #ff9800;">L3: Origin Server</h4>
+                <p><strong>Location:</strong> Remote data center</p>
+                <p><strong>Latency:</strong> ~100ms+</p>
+                <p><strong>Size:</strong> TBs to PBs</p>
+                <div style="margin-top: 10px; background: #fff3e0; padding: 10px; border-radius: 5px;">
+                    <strong>Example:</strong> S3 bucket
+                </div>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>🎬 Real-World Example: Netflix Video Delivery</h4>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Multi-tier caching strategy:</strong>
+                
+                <ol style="margin-top: 15px;">
+                    <li><strong>Origin:</strong> Video stored in AWS S3 (source of truth)</li>
+                    <li><strong>CDN:</strong> Cached on thousands of edge servers worldwide</li>
+                    <li><strong>ISP cache:</strong> Popular content cached at ISP level</li>
+                    <li><strong>Device:</strong> Buffered in your streaming device</li>
+                </ol>
+                
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                    <strong>Performance:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Origin fetch: 500ms</li>
+                        <li>CDN hit: 20ms (25x faster!)</li>
+                        <li>ISP cache hit: 5ms (100x faster!)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: File System Demos</h3>
+            <p>Explore distributed file system concepts:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demoGFSRead()">GFS Read Operation</button>
+                <button class="demo-button" onclick="demoHDFSWrite()">HDFS Write</button>
+                <button class="demo-button" onclick="demoS3Upload()">S3 Upload</button>
+                <button class="demo-button" onclick="demoCaching()">Caching Hierarchy</button>
+            </div>
+            <div id="fsDemo" class="demo-output">Click a button to see file systems in action...</div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>System</th>
+                <th>Architecture</th>
+                <th>Chunk Size</th>
+                <th>Replication</th>
+                <th>Consistency</th>
+                <th>Best For</th>
+            </tr>
+            <tr>
+                <td><strong>NFS</strong></td>
+                <td>Client-Server</td>
+                <td>OS blocks (4KB)</td>
+                <td>Manual</td>
+                <td>Weak</td>
+                <td>Enterprise file sharing</td>
+            </tr>
+            <tr>
+                <td><strong>GFS</strong></td>
+                <td>Master + ChunkServers</td>
+                <td>64 MB</td>
+                <td>3x automatic</td>
+                <td>Relaxed</td>
+                <td>Google's internal use</td>
+            </tr>
+            <tr>
+                <td><strong>HDFS</strong></td>
+                <td>NameNode + DataNodes</td>
+                <td>128 MB</td>
+                <td>3x automatic</td>
+                <td>Strong namespace</td>
+                <td>Big data processing (Hadoop)</td>
+            </tr>
+            <tr>
+                <td><strong>S3</strong></td>
+                <td>Distributed Object Store</td>
+                <td>Objects (any size)</td>
+                <td>Automatic (multi-AZ)</td>
+                <td>Strong (since 2020)</td>
+                <td>Cloud storage, backups</td>
+            </tr>
+        </table>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 14</h3>
+            <ul style="line-height: 2;">
+                <li><strong>Distributed file systems</strong> - store petabytes across thousands of machines</li>
+                <li><strong>NFS</strong> - network file access, stateless server, client-side caching</li>
+                <li><strong>GFS</strong> - Google's design: single master, 64MB chunks, 3x replication</li>
+                <li><strong>HDFS</strong> - open-source GFS-inspired, 128MB blocks, rack-aware placement</li>
+                <li><strong>Object storage (S3)</strong> - flat namespace, HTTP API, extreme durability</li>
+                <li><strong>Chunking/Blocking</strong> - large chunks reduce metadata overhead</li>
+                <li><strong>Replication</strong> - 3x typical, rack-aware placement for fault tolerance</li>
+                <li><strong>Caching</strong> - multi-level hierarchy reduces latency</li>
+                <li><strong>Master/NameNode</strong> - centralized metadata, distributed data</li>
+                <li><strong>Data locality</strong> - move computation to data (MapReduce principle)</li>
+                <li><strong>Trade-off</strong> - consistency vs performance vs simplicity</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>Why do distributed file systems use large chunk sizes (64-128MB)?</li>
+                <li>What problem does the single master in GFS/HDFS solve? What problem does it create?</li>
+                <li>Explain HDFS's rack-aware replication strategy.</li>
+                <li>How is object storage different from traditional file systems?</li>
+                <li>Why is S3's durability (11 nines) so high?</li>
+                <li>What is the "small files problem" in HDFS?</li>
+                <li>How does client-side caching improve NFS performance?</li>
+                <li>Compare GFS vs HDFS - what are the key differences?</li>
+                <li>Design a storage system for: (a) video streaming, (b) log aggregation. Which would you choose?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function demoGFSRead() {
+            const output = document.getElementById('fsDemo');
+            output.textContent = '=== GFS READ OPERATION ===\n\n';
+            
+            output.textContent += 'File: "data.txt" (150 MB)\n';
+            output.textContent += 'Split into chunks: 0 (0-64MB), 1 (64-128MB), 2 (128-150MB)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Client wants to read bytes 70,000,000 - 70,001,000\n';
+            output.textContent += '  → Falls in Chunk 1 (64-128MB)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 1: Query Master\n';
+            await sleep(300);
+            output.textContent += '  Client → Master: "Where is chunk 1 of data.txt?"\n';
+            await sleep(300);
+            output.textContent += '  Master → Client: "Chunk 1 replicas:\n';
+            output.textContent += '    - ChunkServer 5 (primary)\n';
+            output.textContent += '    - ChunkServer 12\n';
+            output.textContent += '    - ChunkServer 23"\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 2: Select closest ChunkServer\n';
+            await sleep(300);
+            output.textContent += '  Client: Chooses ChunkServer 5 (lowest latency)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 3: Read data directly\n';
+            await sleep(300);
+            output.textContent += '  Client → ChunkServer 5: "Give me bytes 6MB-7MB of chunk 1"\n';
+            await sleep(500);
+            output.textContent += '  ChunkServer 5 → Client: [1 MB of data] ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 4: Cache chunk location\n';
+            output.textContent += '  Client caches: chunk 1 → servers 5, 12, 23\n';
+            output.textContent += '  Future reads of chunk 1: no master query needed!\n\n';
+            
+            output.textContent += 'Performance:\n';
+            output.textContent += '  ✓ Master only involved for metadata (small)\n';
+            output.textContent += '  ✓ Data transfer bypasses master (scalable!)\n';
+            output.textContent += '  ✓ Client caching reduces master load';
+        }
+        
+        async function demoHDFSWrite() {
+            const output = document.getElementById('fsDemo');
+            output.textContent = '=== HDFS WRITE OPERATION ===\n\n';
+            
+            output.textContent += 'Client wants to write "log.txt" (200 MB)\n';
+            output.textContent += 'Block size: 128 MB\n';
+            output.textContent += 'Replication factor: 3\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 1: Contact NameNode\n';
+            await sleep(300);
+            output.textContent += '  Client → NameNode: "Create log.txt"\n';
+            await sleep(300);
+            output.textContent += '  NameNode: Allocates block IDs (blk_1, blk_2)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 2: Get DataNode locations for Block 1\n';
+            await sleep(300);
+            output.textContent += '  NameNode → Client: "Write to pipeline:\n';
+            output.textContent += '    DN1 (rack 1) → DN5 (rack 1) → DN8 (rack 2)"\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 3: Write data (pipeline replication)\n';
+            await sleep(300);
+            output.textContent += '  Client → DN1: Send 128 MB...\n';
+            await sleep(500);
+            output.textContent += '  DN1 → DN5: Forward data (in parallel)...\n';
+            await sleep(500);
+            output.textContent += '  DN5 → DN8: Forward data...\n';
+            await sleep(500);
+            output.textContent += '  DN8 → DN5: ACK ✓\n';
+            await sleep(300);
+            output.textContent += '  DN5 → DN1: ACK ✓\n';
+            await sleep(300);
+            output.textContent += '  DN1 → Client: ACK ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 4: Repeat for Block 2 (remaining 72 MB)\n';
+            output.textContent += '  Gets different DataNode pipeline\n';
+            output.textContent += '  Writes 72 MB to DN2 → DN6 → DN9\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 5: Close file\n';
+            output.textContent += '  Client → NameNode: "Commit log.txt"\n';
+            output.textContent += '  NameNode: Updates metadata ✓\n\n';
+            
+            output.textContent += 'Result:\n';
+            output.textContent += '  ✓ File stored across 6 DataNodes (2 blocks × 3 replicas)\n';
+            output.textContent += '  ✓ Rack-aware: tolerates rack failure\n';
+            output.textContent += '  ✓ Pipeline: efficient network usage';
+        }
+        
+        async function demoS3Upload() {
+            const output = document.getElementById('fsDemo');
+            output.textContent = '=== AMAZON S3 UPLOAD ===\n\n';
+            
+            output.textContent += 'Client wants to upload "video.mp4" (2 GB)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 1: Multipart upload (for large files)\n';
+            await sleep(300);
+            output.textContent += '  Client: Initiate multipart upload\n';
+            output.textContent += '  S3: Returns upload ID ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 2: Upload parts in parallel\n';
+            await sleep(300);
+            output.textContent += '  Part 1 (0-100MB): Uploading... 25%... 50%... 100% ✓\n';
+            await sleep(300);
+            output.textContent += '  Part 2 (100-200MB): Uploading... 100% ✓\n';
+            await sleep(300);
+            output.textContent += '  Part 3 (200-300MB): Uploading... 100% ✓\n';
+            output.textContent += '  ... (20 parts total)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 3: Complete multipart upload\n';
+            await sleep(300);
+            output.textContent += '  Client: Complete with list of part ETags\n';
+            await sleep(500);
+            output.textContent += '  S3: Assembles parts, finalizes object ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 4: Automatic replication\n';
+            output.textContent += '  S3 internally:\n';
+            await sleep(300);
+            output.textContent += '    → Replicates to AZ 1 ✓\n';
+            await sleep(300);
+            output.textContent += '    → Replicates to AZ 2 ✓\n';
+            await sleep(300);
+            output.textContent += '    → Replicates to AZ 3 ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Result:\n';
+            output.textContent += '  ✓ Object stored with 99.999999999% durability\n';
+            output.textContent += '  ✓ Accessible via: s3://my-bucket/video.mp4\n';
+            output.textContent += '  ✓ Can generate presigned URL for sharing\n\n';
+            
+            output.textContent += 'Features:\n';
+            output.textContent += '  • Versioning (keep old versions)\n';
+            output.textContent += '  • Lifecycle rules (auto-archive to Glacier)\n';
+            output.textContent += '  • Event notifications (trigger Lambda)\n';
+            output.textContent += '  • Server-side encryption';
+        }
+        
+        async function demoCaching() {
+            const output = document.getElementById('fsDemo');
+            output.textContent = '=== MULTI-LEVEL CACHING ===\n\n';
+            
+            output.textContent += 'User in India requests image: photo.jpg\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Attempt 1: Client cache\n';
+            await sleep(300);
+            output.textContent += '  → Check browser cache... ❌ MISS\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Attempt 2: CDN edge (Mumbai)\n';
+            await sleep(300);
+            output.textContent += '  → Query CDN edge server... ❌ MISS\n';
+            output.textContent += '  → Edge contacts origin server...\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Attempt 3: Origin (S3 in US)\n';
+            await sleep(300);
+            output.textContent += '  → Request from S3 bucket... ✓ HIT\n';
+            await sleep(500);
+            output.textContent += '  → Latency: 200ms (US to India)\n';
+            output.textContent += '  → CDN caches the image\n';
+            output.textContent += '  → Client receives image\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Next user in India requests same image:\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Attempt 1: CDN edge (Mumbai)\n';
+            await sleep(300);
+            output.textContent += '  → Check CDN cache... ✓ HIT!\n';
+            await sleep(300);
+            output.textContent += '  → Latency: 10ms (local CDN)\n';
+            output.textContent += '  → 20x faster! ⚡\n\n';
+            
+            output.textContent += 'Cache hierarchy benefits:\n';
+            output.textContent += '  • First request: 200ms (cache population)\n';
+            output.textContent += '  • Subsequent: 10ms (cache hit)\n';
+            output.textContent += '  • Reduced origin load\n';
+            output.textContent += '  • Better user experience\n\n';
+            
+            output.textContent += 'Cache invalidation:\n';
+            output.textContent += '  • TTL (Time-To-Live): Auto-expire after N seconds\n';
+            output.textContent += '  • Explicit purge: API call to clear cache\n';
+            output.textContent += '  • Version URLs: photo.jpg?v=2 (bypass cache)';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain & Distributed Ledgers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 25px 0 15px 0;
+        }
+        
+        .section p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .blockchain-visual {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+        
+        .block {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .block-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .block-data {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            margin: 0 10px;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        
+        .keyword {
+            color: #ff79c6;
+        }
+        
+        .string {
+            color: #f1fa8c;
+        }
+        
+        .comment {
+            color: #6272a4;
+        }
+        
+        .function {
+            color: #50fa7b;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .feature-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .feature-box h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .consensus-visual {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .node {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .node-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .blockchain-visual {
+                flex-direction: column;
+            }
+            
+            .arrow {
+                transform: rotate(90deg);
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Blockchain & Distributed Ledgers</h1>
+            <p>A Comprehensive Guide to Understanding Blockchain Technology</p>
+        </header>
+        
+        <div class="content">
+            <!-- Section 1: Blockchain Fundamentals -->
+            <div class="section">
+                <h2><span class="icon">1</span>Blockchain Fundamentals</h2>
+                
+                <p>A blockchain is a distributed, immutable ledger that records transactions in a chain of blocks. Each block contains a cryptographic hash of the previous block, transaction data, and a timestamp, creating an unbreakable chain of information.</p>
+                
+                <h3>Core Components</h3>
+                
+                <div class="blockchain-visual">
+                    <div class="block">
+                        <div class="block-title">Block 0 (Genesis)</div>
+                        <div class="block-data">
+                            Prev Hash: 0000<br>
+                            Data: Initial<br>
+                            Hash: a3f9...
+                        </div>
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="block">
+                        <div class="block-title">Block 1</div>
+                        <div class="block-data">
+                            Prev Hash: a3f9...<br>
+                            Data: Tx1, Tx2<br>
+                            Hash: 7b2e...
+                        </div>
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="block">
+                        <div class="block-title">Block 2</div>
+                        <div class="block-data">
+                            Prev Hash: 7b2e...<br>
+                            Data: Tx3, Tx4<br>
+                            Hash: c8d1...
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-box">
+                    <h4>🔐 Key Properties</h4>
+                    <ul>
+                        <li><strong>Immutability:</strong> Once data is written, it cannot be altered without changing all subsequent blocks</li>
+                        <li><strong>Decentralization:</strong> No single point of control or failure</li>
+                        <li><strong>Transparency:</strong> All participants can view the transaction history</li>
+                        <li><strong>Security:</strong> Cryptographic hashing ensures data integrity</li>
+                    </ul>
+                </div>
+                
+                <h3>Block Structure</h3>
+                <div class="code-block">
+<span class="keyword">class</span> <span class="function">Block</span> {
+    <span class="keyword">constructor</span>(index, timestamp, data, previousHash = <span class="string">''</span>) {
+        <span class="keyword">this</span>.index = index;
+        <span class="keyword">this</span>.timestamp = timestamp;
+        <span class="keyword">this</span>.data = data;
+        <span class="keyword">this</span>.previousHash = previousHash;
+        <span class="keyword">this</span>.nonce = <span class="string">0</span>;
+        <span class="keyword">this</span>.hash = <span class="keyword">this</span>.calculateHash();
+    }
+    
+    <span class="function">calculateHash</span>() {
+        <span class="comment">// Using SHA-256 cryptographic hash function</span>
+        <span class="keyword">return</span> SHA256(
+            <span class="keyword">this</span>.index +
+            <span class="keyword">this</span>.previousHash +
+            <span class="keyword">this</span>.timestamp +
+            JSON.stringify(<span class="keyword">this</span>.data) +
+            <span class="keyword">this</span>.nonce
+        ).toString();
+    }
+}
+
+<span class="keyword">class</span> <span class="function">Blockchain</span> {
+    <span class="keyword">constructor</span>() {
+        <span class="keyword">this</span>.chain = [<span class="keyword">this</span>.createGenesisBlock()];
+    }
+    
+    <span class="function">createGenesisBlock</span>() {
+        <span class="keyword">return new</span> Block(<span class="string">0</span>, <span class="string">"01/01/2024"</span>, <span class="string">"Genesis Block"</span>, <span class="string">"0"</span>);
+    }
+    
+    <span class="function">getLatestBlock</span>() {
+        <span class="keyword">return this</span>.chain[<span class="keyword">this</span>.chain.length - <span class="string">1</span>];
+    }
+    
+    <span class="function">addBlock</span>(newBlock) {
+        newBlock.previousHash = <span class="keyword">this</span>.getLatestBlock().hash;
+        newBlock.hash = newBlock.calculateHash();
+        <span class="keyword">this</span>.chain.push(newBlock);
+    }
+}
+                </div>
+            </div>
+            
+            <!-- Section 2: Distributed Consensus -->
+            <div class="section">
+                <h2><span class="icon">2</span>Distributed Consensus in Blockchain</h2>
+                
+                <p>Distributed consensus is the mechanism by which nodes in a blockchain network agree on the current state of the ledger without requiring a central authority. This is one of the most critical challenges in distributed systems.</p>
+                
+                <h3>The Byzantine Generals Problem</h3>
+                <p>Consensus mechanisms solve the Byzantine Generals Problem: How can distributed parties agree on a strategy when some parties may be malicious or unreliable?</p>
+                
+                <div class="consensus-visual">
+                    <div class="node">
+                        <div class="node-icon">🖥️</div>
+                        <strong>Node A</strong>
+                        <p>Proposes: Block X</p>
+                    </div>
+                    <div class="node">
+                        <div class="node-icon">🖥️</div>
+                        <strong>Node B</strong>
+                        <p>Validates: ✓</p>
+                    </div>
+                    <div class="node">
+                        <div class="node-icon">🖥️</div>
+                        <strong>Node C</strong>
+                        <p>Validates: ✓</p>
+                    </div>
+                    <div class="node">
+                        <div class="node-icon">🖥️</div>
+                        <strong>Node D</strong>
+                        <p>Validates: ✓</p>
+                    </div>
+                </div>
+                
+                <div class="highlight">
+                    <strong>⚠️ Consensus Requirements:</strong>
+                    <ul>
+                        <li><strong>Agreement:</strong> All honest nodes agree on the same value</li>
+                        <li><strong>Validity:</strong> The agreed value was proposed by at least one honest node</li>
+                        <li><strong>Termination:</strong> All honest nodes eventually decide on a value</li>
+                        <li><strong>Integrity:</strong> No honest node decides twice</li>
+                    </ul>
+                </div>
+                
+                <h3>Common Consensus Mechanisms</h3>
+                <div class="feature-box">
+                    <h4>1. Proof of Work (PoW)</h4>
+                    <p>Miners solve complex mathematical puzzles to validate transactions and create new blocks.</p>
+                </div>
+                
+                <div class="feature-box">
+                    <h4>2. Proof of Stake (PoS)</h4>
+                    <p>Validators are chosen based on the amount of cryptocurrency they hold and are willing to "stake."</p>
+                </div>
+                
+                <div class="feature-box">
+                    <h4>3. Practical Byzantine Fault Tolerance (PBFT)</h4>
+                    <p>Nodes reach consensus through multiple rounds of voting, tolerating up to 1/3 malicious nodes.</p>
+                </div>
+                
+                <div class="feature-box">
+                    <h4>4. Delegated Proof of Stake (DPoS)</h4>
+                    <p>Token holders vote for a limited number of delegates who validate transactions.</p>
+                </div>
+            </div>
+            
+            <!-- Section 3: PoW vs PoS -->
+            <div class="section">
+                <h2><span class="icon">3</span>Proof of Work vs Proof of Stake</h2>
+                
+                <h3>Proof of Work (PoW)</h3>
+                <p>PoW requires miners to solve computationally intensive cryptographic puzzles. The first miner to solve the puzzle gets to add the next block and receives a reward.</p>
+                
+                <div class="code-block">
+<span class="keyword">class</span> <span class="function">Block</span> {
+    <span class="function">mineBlock</span>(difficulty) {
+        <span class="comment">// Create target: string of zeros based on difficulty</span>
+        <span class="keyword">const</span> target = <span class="string">'0'</span>.repeat(difficulty);
+        
+        <span class="comment">// Keep trying different nonces until hash starts with target</span>
+        <span class="keyword">while</span> (<span class="keyword">this</span>.hash.substring(<span class="string">0</span>, difficulty) !== target) {
+            <span class="keyword">this</span>.nonce++;
+            <span class="keyword">this</span>.hash = <span class="keyword">this</span>.calculateHash();
+        }
+        
+        console.log(<span class="string">"Block mined: "</span> + <span class="keyword">this</span>.hash);
+    }
+}
+
+<span class="comment">// Example: Mining with difficulty 4</span>
+<span class="comment">// Hash must start with "0000"</span>
+<span class="comment">// Nonce: 0 → Hash: 7f3a... ❌</span>
+<span class="comment">// Nonce: 1 → Hash: 9b2c... ❌</span>
+<span class="comment">// Nonce: 2 → Hash: 5e8d... ❌</span>
+<span class="comment">// ...</span>
+<span class="comment">// Nonce: 45832 → Hash: 0000a1f... ✓</span>
+                </div>
+                
+                <h3>Proof of Stake (PoS)</h3>
+                <p>PoS selects validators based on their stake in the network. Validators lock up their cryptocurrency as collateral and are rewarded for honest behavior.</p>
+                
+                <div class="code-block">
+<span class="keyword">class</span> <span class="function">ProofOfStake</span> {
+    <span class="keyword">constructor</span>() {
+        <span class="keyword">this</span>.validators = <span class="keyword">new</span> Map(); <span class="comment">// validator → stake amount</span>
+    }
+    
+    <span class="function">addValidator</span>(address, stake) {
+        <span class="keyword">this</span>.validators.set(address, stake);
+    }
+    
+    <span class="function">selectValidator</span>() {
+        <span class="comment">// Calculate total stake</span>
+        <span class="keyword">let</span> totalStake = <span class="string">0</span>;
+        <span class="keyword">for</span> (<span class="keyword">let</span> stake <span class="keyword">of this</span>.validators.values()) {
+            totalStake += stake;
+        }
+        
+        <span class="comment">// Random selection weighted by stake</span>
+        <span class="keyword">let</span> randomNum = Math.random() * totalStake;
+        <span class="keyword">let</span> cumulativeStake = <span class="string">0</span>;
+        
+        <span class="keyword">for</span> (<span class="keyword">let</span> [address, stake] <span class="keyword">of this</span>.validators) {
+            cumulativeStake += stake;
+            <span class="keyword">if</span> (randomNum <= cumulativeStake) {
+                <span class="keyword">return</span> address;
+            }
+        }
+    }
+    
+    <span class="function">validateBlock</span>(validator, block) {
+        <span class="comment">// Validator signs the block</span>
+        <span class="keyword">if</span> (<span class="keyword">this</span>.validators.has(validator)) {
+            block.validator = validator;
+            <span class="keyword">return true</span>;
+        }
+        <span class="keyword">return false</span>;
+    }
+}
+                </div>
+                
+                <h3>Comprehensive Comparison</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Proof of Work</th>
+                            <th>Proof of Stake</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Energy Consumption</strong></td>
+                            <td>❌ Very High (Bitcoin: ~150 TWh/year)</td>
+                            <td>✅ Low (99.95% less than PoW)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hardware Requirements</strong></td>
+                            <td>❌ Specialized (ASICs, GPUs)</td>
+                            <td>✅ Standard computers</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Entry Barrier</strong></td>
+                            <td>❌ High (expensive equipment)</td>
+                            <td>⚠️ Moderate (need cryptocurrency stake)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Security Model</strong></td>
+                            <td>Computational power</td>
+                            <td>Economic stake</td>
+                        </tr>
+                        <tr>
+                            <td><strong>51% Attack Cost</strong></td>
+                            <td>Control 51% of hash power</td>
+                            <td>Own 51% of staked tokens</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Transaction Speed</strong></td>
+                            <td>⚠️ Slower (Bitcoin: ~10 min)</td>
+                            <td>✅ Faster (seconds to minutes)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scalability</strong></td>
+                            <td>❌ Limited (7-15 tx/sec)</td>
+                            <td>✅ Better (1000+ tx/sec)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Decentralization</strong></td>
+                            <td>✅ High (anyone can mine)</td>
+                            <td>⚠️ Risk of centralization (rich get richer)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Examples</strong></td>
+                            <td>Bitcoin, Ethereum (pre-2022), Litecoin</td>
+                            <td>Ethereum 2.0, Cardano, Polkadot</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="highlight">
+                    <strong>🔄 Ethereum's Transition:</strong> In September 2022, Ethereum transitioned from PoW to PoS (called "The Merge"), reducing its energy consumption by ~99.95% while maintaining security and decentralization.
+                </div>
+            </div>
+            
+            <!-- Section 4: Smart Contracts -->
+            <div class="section">
+                <h2><span class="icon">4</span>Smart Contracts</h2>
+                
+                <p>Smart contracts are self-executing programs stored on a blockchain that automatically enforce the terms of an agreement when predetermined conditions are met. They eliminate the need for intermediaries.</p>
+                
+                <h3>How Smart Contracts Work</h3>
+                <div class="feature-box">
+                    <h4>Traditional Contract vs Smart Contract</h4>
+                    <p><strong>Traditional:</strong> Alice wants to buy Bob's house → Lawyers draft contract → Both sign → Money transferred via bank → Title transferred via government office → Multiple intermediaries, days/weeks</p>
+                    <p><strong>Smart Contract:</strong> Alice sends payment to contract → Contract verifies payment → Contract automatically transfers ownership → Complete in minutes → No intermediaries</p>
+                </div>
+                
+                <h3>Solidity Smart Contract Example</h3>
+                <div class="code-block">
+<span class="comment">// SPDX-License-Identifier: MIT</span>
+<span class="keyword">pragma solidity</span> ^0.8.0;
+
+<span class="keyword">contract</span> <span class="function">SimpleAuction</span> {
+    <span class="comment">// Contract state variables</span>
+    <span class="keyword">address payable public</span> beneficiary;
+    <span class="keyword">uint public</span> auctionEndTime;
+    
+    <span class="keyword">address public</span> highestBidder;
+    <span class="keyword">uint public</span> highestBid;
+    
+    <span class="keyword">mapping</span>(address => uint) <span class="keyword">public</span> pendingReturns;
+    <span class="keyword">bool</span> ended;
+    
+    <span class="comment">// Events for logging</span>
+    <span class="keyword">event</span> <span class="function">HighestBidIncreased</span>(address bidder, uint amount);
+    <span class="keyword">event</span> <span class="function">AuctionEnded</span>(address winner, uint amount);
+    
+    <span class="comment">// Constructor</span>
+    <span class="keyword">constructor</span>(uint biddingTime, address payable beneficiaryAddress) {
+        beneficiary = beneficiaryAddress;
+        auctionEndTime = block.timestamp + biddingTime;
+    }
+    
+    <span class="comment">// Bid on the auction</span>
+    <span class="keyword">function</span> <span class="function">bid</span>() <span class="keyword">external payable</span> {
+        <span class="keyword">require</span>(block.timestamp <= auctionEndTime, <span class="string">"Auction ended"</span>);
+        <span class="keyword">require</span>(msg.value > highestBid, <span class="string">"Bid too low"</span>);
+        
+        <span class="keyword">if</span> (highestBid != <span class="string">0</span>) {
+            <span class="comment">// Refund previous highest bidder</span>
+            pendingReturns[highestBidder] += highestBid;
+        }
+        
+        highestBidder = msg.sender;
+        highestBid = msg.value;
+        <span class="keyword">emit</span> HighestBidIncreased(msg.sender, msg.value);
+    }
+    
+    <span class="comment">// Withdraw refunded bid</span>
+    <span class="keyword">function</span> <span class="function">withdraw</span>() <span class="keyword">external returns</span> (bool) {
+        uint amount = pendingReturns[msg.sender];
+        <span class="keyword">if</span> (amount > <span class="string">0</span>) {
+            pendingReturns[msg.sender] = <span class="string">0</span>;
+            <span class="keyword">if</span> (!payable(msg.sender).send(amount)) {
+                pendingReturns[msg.sender] = amount;
+                <span class="keyword">return false</span>;
+            }
+        }
+        <span class="keyword">return true</span>;
+    }
+    
+    <span class="comment">// End the auction</span>
+    <span class="keyword">function</span> <span class="function">auctionEnd</span>() <span class="keyword">external</span> {
+        <span class="keyword">require</span>(block.timestamp >= auctionEndTime, <span class="string">"Auction ongoing"</span>);
+        <span class="keyword">require</span>(!ended, <span class="string">"Already ended"</span>);
+        
+        ended = <span class="keyword">true</span>;
+        <span class="keyword">emit</span> AuctionEnded(highestBidder, highestBid);
+        
+        beneficiary.transfer(highestBid);
+    }
+}
+                </div>
+                
+                <h3>Real-World Use Cases</h3>
+                <div class="consensus-visual">
+                    <div class="node">
+                        <div class="node-icon">💰</div>
+                        <strong>DeFi</strong>
+                        <p>Decentralized lending, borrowing, and trading without banks</p>
+                    </div>
+                    <div class="node">
+                        <div class="node-icon">🎨</div>
+                        <strong>NFTs</strong>
+                        <p>Unique digital assets with provable ownership</p>
+                    </div>
+                    <div class="node">
+                        <div class="node-icon">📦</div>
+                        <strong>Supply Chain</strong>
+                        <p>Automated tracking and payments upon delivery</p>
+                    </div>
+                    <div class="node">
+                        <div class="node-icon">🏥</div>
+                        <strong>Healthcare</strong>
+                        <p>Automated insurance claims and medical records</p>
+                    </div>
+                </div>
+                
+                <div class="highlight">
+                    <strong>⚠️ Smart Contract Risks:</strong>
+                    <ul>
+                        <li><strong>Code Bugs:</strong> The DAO hack (2016) - $60M stolen due to re-entrancy bug</li>
+                        <li><strong>Immutability:</strong> Once deployed, bugs cannot be easily fixed</li>
+                        <li><strong>Gas Costs:</strong> Ethereum transactions require "gas" fees</li>
+                        <li><strong>Oracle Problem:</strong> Smart contracts can't access real-world data without oracles</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Section 5: Distributed Ledger Technology -->
+            <div class="section">
+                <h2><span class="icon">5</span>Distributed Ledger Technology (DLT)</h2>
+                
+                <p>DLT is a broader category that includes blockchain but also encompasses other distributed database technologies. Not all DLTs use blocks or chains.</p>
+                
+                <h3>Types of DLT</h3>
+                
+                <div class="feature-box">
+                    <h4>1. Blockchain</h4>
+                    <p>Linear chain of blocks, each containing multiple transactions. Examples: Bitcoin, Ethereum</p>
+                    <ul>
+                        <li>Sequential block structure</li>
+                        <li>High security through mining/staking</li>
+                        <li>Lower throughput</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-box">
+                    <h4>2. Directed Acyclic Graph (DAG)</h4>
+                    <p>Transactions directly validate other transactions in a graph structure. Examples: IOTA, Hedera Hashgraph</p>
+                    <ul>
+                        <li>No blocks or miners</li>
+                        <li>Higher throughput and scalability</li>
+                        <li>Each transaction validates 2+ previous transactions</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-box">
+                    <h4>3. Holochain</h4>
+                    <p>Agent-centric DLT where each user has their own chain</p>
+                    <ul>
+                        <li>No global consensus required</li>
+                        <li>Extremely scalable</li>
+                        <li>Lower energy consumption</li>
+                    </ul>
+                </div>
+                
+                <h3>Permissioned vs Permissionless</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Permissionless (Public)</th>
+                            <th>Permissioned (Private)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Access</strong></td>
+                            <td>Anyone can join and participate</td>
+                            <td>Restricted to authorized participants</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Identity</strong></td>
+                            <td>Anonymous or pseudonymous</td>
+                            <td>Known identities (KYC required)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Consensus</strong></td>
+                            <td>PoW, PoS (trustless)</td>
+                            <td>PBFT, Raft (trust-based)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Speed</strong></td>
+                            <td>Slower (more validation needed)</td>
+                            <td>Faster (fewer validators)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Transparency</strong></td>
+                            <td>Fully transparent</td>
+                            <td>Selectively transparent</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Examples</strong></td>
+                            <td>Bitcoin, Ethereum</td>
+                            <td>Hyperledger Fabric, R3 Corda</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Cases</strong></td>
+                            <td>Cryptocurrencies, public records</td>
+                            <td>Enterprise, supply chain, banking</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Enterprise DLT Platforms</h3>
+                <div class="code-block">
+<span class="comment">// Hyperledger Fabric Chaincode (Smart Contract) Example</span>
+<span class="keyword">package</span> main
+
+<span class="keyword">import</span> (
+    <span class="string">"encoding/json"</span>
+    <span class="string">"fmt"</span>
+    <span class="string">"github.com/hyperledger/fabric-contract-api-go/contractapi"</span>
+)
+
+<span class="keyword">type</span> SmartContract <span class="keyword">struct</span> {
+    contractapi.Contract
+}
+
+<span class="keyword">type</span> Asset <span class="keyword">struct</span> {
+    ID    string `json:<span class="string">"id"</span>`
+    Owner string `json:<span class="string">"owner"</span>`
+    Value int    `json:<span class="string">"value"</span>`
+}
+
+<span class="comment">// Create a new asset</span>
+<span class="keyword">func</span> (s *SmartContract) <span class="function">CreateAsset</span>(ctx contractapi.TransactionContextInterface, 
+    id string, owner string, value int) <span class="keyword">error</span> {
+    
+    asset := Asset{
+        ID:    id,
+        Owner: owner,
+        Value: value,
+    }
+    
+    assetJSON, err := json.Marshal(asset)
+    <span class="keyword">if</span> err != <span class="keyword">nil</span> {
+        <span class="keyword">return</span> err
+    }
+    
+    <span class="keyword">return</span> ctx.GetStub().PutState(id, assetJSON)
+}
+
+<span class="comment">// Transfer asset ownership</span>
+<span class="keyword">func</span> (s *SmartContract) <span class="function">TransferAsset</span>(ctx contractapi.TransactionContextInterface, 
+    id string, newOwner string) <span class="keyword">error</span> {
+    
+    assetJSON, err := ctx.GetStub().GetState(id)
+    <span class="keyword">if</span> err != <span class="keyword">nil</span> {
+        <span class="keyword">return</span> fmt.Errorf(<span class="string">"failed to read asset: %v"</span>, err)
+    }
+    
+    <span class="keyword">var</span> asset Asset
+    err = json.Unmarshal(assetJSON, &asset)
+    <span class="keyword">if</span> err != <span class="keyword">nil</span> {
+        <span class="keyword">return</span> err
+    }
+    
+    asset.Owner = newOwner
+    assetJSON, err = json.Marshal(asset)
+    <span class="keyword">if</span> err != <span class="keyword">nil</span> {
+        <span class="keyword">return</span> err
+    }
+    
+    <span class="keyword">return</span> ctx.GetStub().PutState(id, assetJSON)
+}
+                </div>
+            </div>
+            
+            <!-- Section 6: Cryptocurrency Systems -->
+            <div class="section">
+                <h2><span class="icon">6</span>Cryptocurrency Systems</h2>
+                
+                <p>Cryptocurrencies are digital currencies that use cryptography for security and operate on blockchain networks. They enable peer-to-peer transactions without intermediaries.</p>
+                
+                <h3>How Cryptocurrency Transactions Work</h3>
+                
+                <div class="feature-box">
+                    <h4>Transaction Lifecycle</h4>
+                    <ol>
+                        <li><strong>Initiation:</strong> Alice wants to send 1 BTC to Bob</li>
+                        <li><strong>Broadcasting:</strong> Transaction is broadcast to the network</li>
+                        <li><strong>Validation:</strong> Nodes verify Alice has sufficient balance</li>
+                        <li><strong>Mining/Validation:</strong> Transaction included in a block</li>
+                        <li><strong>Confirmation:</strong> Block added to chain (typically 6 confirmations for Bitcoin)</li>
+                        <li><strong>Completion:</strong> Bob receives 1 BTC</li>
+                    </ol>
+                </div>
+                
+                <h3>Cryptographic Components</h3>
+                
+                <div class="code-block">
+<span class="keyword">const</span> crypto = require(<span class="string">'crypto'</span>);
+
+<span class="keyword">class</span> <span class="function">Wallet</span> {
+    <span class="keyword">constructor</span>() {
+        <span class="comment">// Generate key pair</span>
+        <span class="keyword">const</span> { privateKey, publicKey } = crypto.generateKeyPairSync(<span class="string">'rsa'</span>, {
+            modulusLength: <span class="string">2048</span>,
+            publicKeyEncoding: { type: <span class="string">'spki'</span>, format: <span class="string">'pem'</span> },
+            privateKeyEncoding: { type: <span class="string">'pkcs8'</span>, format: <span class="string">'pem'</span> }
+        });
+        
+        <span class="keyword">this</span>.privateKey = privateKey;
+        <span class="keyword">this</span>.publicKey = publicKey;
+        <span class="comment">// Address is hash of public key</span>
+        <span class="keyword">this</span>.address = <span class="keyword">this</span>.generateAddress();
+    }
+    
+    <span class="function">generateAddress</span>() {
+        <span class="keyword">return</span> crypto.createHash(<span class="string">'sha256'</span>)
+            .update(<span class="keyword">this</span>.publicKey)
+            .digest(<span class="string">'hex'</span>)
+            .substring(<span class="string">0</span>, <span class="string">40</span>);
+    }
+    
+    <span class="function">signTransaction</span>(transaction) {
+        <span class="comment">// Sign transaction with private key</span>
+        <span class="keyword">const</span> sign = crypto.createSign(<span class="string">'SHA256'</span>);
+        sign.update(JSON.stringify(transaction)).end();
+        <span class="keyword">return</span> sign.sign(<span class="keyword">this</span>.privateKey, <span class="string">'hex'</span>);
+    }
+    
+    <span class="keyword">static</span> <span class="function">verifySignature</span>(publicKey, signature, transaction) {
+        <span class="comment">// Verify signature with public key</span>
+        <span class="keyword">const</span> verify = crypto.createVerify(<span class="string">'SHA256'</span>);
+        verify.update(JSON.stringify(transaction));
+        <span class="keyword">return</span> verify.verify(publicKey, signature, <span class="string">'hex'</span>);
+    }
+}
+
+<span class="keyword">class</span> <span class="function">Transaction</span> {
+    <span class="keyword">constructor</span>(fromAddress, toAddress, amount) {
+        <span class="keyword">this</span>.fromAddress = fromAddress;
+        <span class="keyword">this</span>.toAddress = toAddress;
+        <span class="keyword">this</span>.amount = amount;
+        <span class="keyword">this</span>.timestamp = Date.now();
+    }
+    
+    <span class="function">calculateHash</span>() {
+        <span class="keyword">return</span> crypto.createHash(<span class="string">'sha256'</span>)
+            .update(<span class="keyword">this</span>.fromAddress + <span class="keyword">this</span>.toAddress + 
+                    <span class="keyword">this</span>.amount + <span class="keyword">this</span>.timestamp)
+            .digest(<span class="string">'hex'</span>);
+    }
+    
+    <span class="function">signTransaction</span>(signingKey) {
+        <span class="keyword">if</span> (signingKey.address !== <span class="keyword">this</span>.fromAddress) {
+            <span class="keyword">throw new</span> Error(<span class="string">'Cannot sign transactions for other wallets'</span>);
+        }
+        
+        <span class="keyword">this</span>.signature = signingKey.signTransaction(<span class="keyword">this</span>);
+    }
+    
+    <span class="function">isValid</span>() {
+        <span class="comment">// Mining rewards have no fromAddress</span>
+        <span class="keyword">if</span> (<span class="keyword">this</span>.fromAddress === <span class="keyword">null</span>) <span class="keyword">return true</span>;
+        
+        <span class="keyword">if</span> (!<span class="keyword">this</span>.signature || <span class="keyword">this</span>.signature.length === <span class="string">0</span>) {
+            <span class="keyword">throw new</span> Error(<span class="string">'No signature in this transaction'</span>);
+        }
+        
+        <span class="keyword">return</span> Wallet.verifySignature(
+            <span class="keyword">this</span>.fromAddress, 
+            <span class="keyword">this</span>.signature, 
+            <span class="keyword">this</span>
+        );
+    }
+}
+                </div>
+                
+                <h3>Types of Cryptocurrencies</h3>
+                
+                <div class="consensus-visual">
+                    <div class="node">
+                        <div class="node-icon">₿</div>
+                        <strong>Bitcoin</strong>
+                        <p>Digital gold, store of value, limited supply (21M)</p>
+                    </div>
+                    <div class="node">
+                        <div class="node-icon">Ξ</div>
+                        <strong>Ethereum</strong>
+                        <p>Smart contract platform, programmable money</p>
+                    </div>
+                    <div class="node">
+                        <div class="node-icon">💵</div>
+                        <strong>Stablecoins</strong>
+                        <p>Pegged to fiat (USDT, USDC), price stability</p>
+                    </div>
+                    <div class="node">
+                        <div class="node-icon">🪙</div>
+                        <strong>Altcoins</strong>
+                        <p>Alternative coins (Cardano, Solana, Ripple)</p>
+                    </div>
+                </div>
+                
+                <h3>Key Concepts</h3>
+                
+                <div class="feature-box">
+                    <h4>🔑 UTXO Model (Bitcoin)</h4>
+                    <p><strong>Unspent Transaction Output:</strong> Like cash denominations. If you have a $50 bill and buy something for $30, you give the $50 and receive $20 change.</p>
+                    <ul>
+                        <li>Each transaction consumes previous UTXOs and creates new ones</li>
+                        <li>No accounts, just transaction inputs and outputs</li>
+                        <li>Better privacy (addresses can be one-time use)</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-box">
+                    <h4>📊 Account Model (Ethereum)</h4>
+                    <p>Like a bank account with a balance that increases/decreases with transactions.</p>
+                    <ul>
+                        <li>Each address has a balance</li>
+                        <li>Simpler for smart contracts</li>
+                        <li>Easier to track account state</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-box">
+                    <h4>⛏️ Mining Rewards & Halving</h4>
+                    <p>Bitcoin miners receive block rewards that halve every 210,000 blocks (~4 years):</p>
+                    <ul>
+                        <li>2009-2012: 50 BTC per block</li>
+                        <li>2012-2016: 25 BTC per block</li>
+                        <li>2016-2020: 12.5 BTC per block</li>
+                        <li>2020-2024: 6.25 BTC per block</li>
+                        <li>2024-2028: 3.125 BTC per block</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight">
+                    <strong>💡 Scalability Challenges:</strong>
+                    <ul>
+                        <li><strong>Bitcoin:</strong> ~7 transactions per second</li>
+                        <li><strong>Ethereum:</strong> ~15-30 transactions per second</li>
+                        <li><strong>Visa:</strong> ~24,000 transactions per second</li>
+                        <li><strong>Solutions:</strong> Layer 2 (Lightning Network, Rollups), Sharding, Sidechains</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Summary Section -->
+            <div class="section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                <h2 style="color: white;">🎓 Key Takeaways</h2>
+                <ul style="font-size: 1.1em;">
+                    <li><strong>Blockchain</strong> is an immutable, distributed ledger using cryptographic hashing and consensus mechanisms</li>
+                    <li><strong>Distributed Consensus</strong> solves the Byzantine Generals Problem, allowing trustless agreement</li>
+                    <li><strong>PoW vs PoS:</strong> Trade-offs between energy consumption, security, and decentralization</li>
+                    <li><strong>Smart Contracts</strong> automate agreements without intermediaries, enabling DeFi and dApps</li>
+                    <li><strong>DLT</strong> encompasses blockchain and other distributed database architectures (DAG, Holochain)</li>
+                    <li><strong>Cryptocurrencies</strong> enable peer-to-peer digital transactions with strong cryptographic security</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

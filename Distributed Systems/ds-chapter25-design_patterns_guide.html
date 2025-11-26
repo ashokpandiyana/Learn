@@ -1,0 +1,2970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distributed System Design Patterns</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 3px solid #667eea;
+            overflow-x: auto;
+        }
+        
+        .nav-tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1em;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .nav-tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+        
+        .nav-tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            margin-bottom: -3px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.6em;
+            margin: 25px 0 15px 0;
+        }
+        
+        h4 {
+            color: #667eea;
+            font-size: 1.3em;
+            margin: 20px 0 10px 0;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+        
+        .visual-demo {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .demo-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .node {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: transform 0.3s;
+        }
+        
+        .node:hover {
+            transform: translateY(-5px);
+        }
+        
+        .node-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+        
+        .node-desc {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .service-node {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .success-node {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .failure-node {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .compensate-node {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            margin: 0 10px;
+        }
+        
+        .arrow-down {
+            font-size: 2em;
+            color: #667eea;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 25px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .keyword {
+            color: #ff79c6;
+        }
+        
+        .string {
+            color: #f1fa8c;
+        }
+        
+        .comment {
+            color: #6272a4;
+            font-style: italic;
+        }
+        
+        .function {
+            color: #50fa7b;
+        }
+        
+        .number {
+            color: #bd93f9;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px;
+            text-align: left;
+            font-size: 1.05em;
+        }
+        
+        .comparison-table td {
+            padding: 18px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .feature-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .feature-box h4 {
+            color: #667eea;
+            margin-bottom: 12px;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
+            padding: 20px;
+            border-left: 5px solid #ffc107;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .highlight strong {
+            color: #f57c00;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 20px;
+            border-left: 5px solid #2196f3;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .info-box strong {
+            color: #1976d2;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            padding: 20px;
+            border-left: 5px solid #f44336;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .warning-box strong {
+            color: #c62828;
+        }
+        
+        .success-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            padding: 20px;
+            border-left: 5px solid #4caf50;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .success-box strong {
+            color: #2e7d32;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .card-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .card-title {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .card-desc {
+            text-align: center;
+            color: #666;
+        }
+        
+        ul {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline-item {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-item h4 {
+            margin-top: 0;
+        }
+        
+        .timeline-item.success {
+            border-left-color: #4caf50;
+        }
+        
+        .timeline-item.failure {
+            border-left-color: #f44336;
+        }
+        
+        .timeline-item.compensate {
+            border-left-color: #ff9800;
+        }
+        
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .pros {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid #4caf50;
+        }
+        
+        .cons {
+            background: #ffebee;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid #f44336;
+        }
+        
+        .pros h4 {
+            color: #2e7d32;
+        }
+        
+        .cons h4 {
+            color: #c62828;
+        }
+        
+        @media (max-width: 768px) {
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+            
+            .demo-row {
+                flex-direction: column;
+            }
+            
+            .arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏗️ Distributed System Design Patterns</h1>
+            <p>Essential Patterns and Best Practices for Building Resilient Systems</p>
+        </header>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('saga')">Saga Pattern</button>
+            <button class="nav-tab" onclick="showTab('event-sourcing')">Event Sourcing</button>
+            <button class="nav-tab" onclick="showTab('cqrs')">CQRS</button>
+            <button class="nav-tab" onclick="showTab('bulkhead')">Bulkhead Pattern</button>
+            <button class="nav-tab" onclick="showTab('retry-timeout')">Retry & Timeout</button>
+            <button class="nav-tab" onclick="showTab('idempotency')">Idempotency</button>
+            <button class="nav-tab" onclick="showTab('compatibility')">Compatibility</button>
+        </div>
+        
+        <div class="content">
+            <!-- Tab 1: Saga Pattern -->
+            <div id="saga" class="tab-content active">
+                <div class="section">
+                    <h2><span class="icon">🔄</span>Saga Pattern</h2>
+                    
+                    <p>The Saga pattern manages distributed transactions across multiple microservices without using two-phase commit. Instead of a single ACID transaction, a saga is a sequence of local transactions where each service updates its database and publishes an event or message to trigger the next step.</p>
+                    
+                    <h3>The Problem: Distributed Transactions</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">E-commerce Order Processing</h4>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <h4>Traditional Approach (2PC - Two-Phase Commit)</h4>
+                                <p><strong>Problem:</strong> Requires all services to be available and lock resources</p>
+                                <ul>
+                                    <li>❌ Blocking - services wait for all to complete</li>
+                                    <li>❌ Tight coupling - coordinator needs to know all participants</li>
+                                    <li>❌ Reduced availability - any failure blocks the entire transaction</li>
+                                </ul>
+                            </div>
+                            <div class="timeline-item success">
+                                <h4>Saga Approach (Eventual Consistency)</h4>
+                                <p><strong>Solution:</strong> Each service commits immediately and triggers next step</p>
+                                <ul>
+                                    <li>✅ Non-blocking - each service commits independently</li>
+                                    <li>✅ Loose coupling - event-driven communication</li>
+                                    <li>✅ High availability - failures handled via compensation</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Two Saga Coordination Styles</h3>
+                    
+                    <div class="grid-container">
+                        <div class="card">
+                            <div class="card-icon">📋</div>
+                            <div class="card-title">Choreography</div>
+                            <div class="card-desc">
+                                Services listen to events and decide what to do.<br>
+                                Decentralized, no orchestrator.<br>
+                                <strong>Pro:</strong> Simple, loosely coupled<br>
+                                <strong>Con:</strong> Hard to track workflow
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">🎭</div>
+                            <div class="card-title">Orchestration</div>
+                            <div class="card-desc">
+                                Central orchestrator tells services what to do.<br>
+                                Centralized control.<br>
+                                <strong>Pro:</strong> Clear workflow, easier to monitor<br>
+                                <strong>Con:</strong> Single point of coordination
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Orchestration-based Saga Example</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Order Processing Saga</h4>
+                        <div class="timeline">
+                            <div class="timeline-item success">
+                                <h4>Step 1: Create Order</h4>
+                                <p>Order Service: Create order (status: PENDING)</p>
+                            </div>
+                            <div class="arrow-down">↓</div>
+                            <div class="timeline-item success">
+                                <h4>Step 2: Reserve Inventory</h4>
+                                <p>Inventory Service: Reserve items</p>
+                            </div>
+                            <div class="arrow-down">↓</div>
+                            <div class="timeline-item success">
+                                <h4>Step 3: Process Payment</h4>
+                                <p>Payment Service: Charge customer</p>
+                            </div>
+                            <div class="arrow-down">↓</div>
+                            <div class="timeline-item failure">
+                                <h4>Step 4: Ship Order ❌ FAILS!</h4>
+                                <p>Shipping Service: Delivery address invalid</p>
+                            </div>
+                            <div class="arrow-down">🔄 Compensation Flow ↓</div>
+                            <div class="timeline-item compensate">
+                                <h4>Compensate 3: Refund Payment</h4>
+                                <p>Payment Service: Issue refund</p>
+                            </div>
+                            <div class="arrow-down">↓</div>
+                            <div class="timeline-item compensate">
+                                <h4>Compensate 2: Release Inventory</h4>
+                                <p>Inventory Service: Unreserve items</p>
+                            </div>
+                            <div class="arrow-down">↓</div>
+                            <div class="timeline-item compensate">
+                                <h4>Compensate 1: Cancel Order</h4>
+                                <p>Order Service: Mark order as CANCELLED</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block">
+<span class="comment">// Saga Orchestrator Implementation</span>
+<span class="keyword">class</span> <span class="function">OrderSagaOrchestrator</span> {
+    <span class="keyword">constructor</span>(services) {
+        <span class="keyword">this</span>.orderService = services.orderService;
+        <span class="keyword">this</span>.inventoryService = services.inventoryService;
+        <span class="keyword">this</span>.paymentService = services.paymentService;
+        <span class="keyword">this</span>.shippingService = services.shippingService;
+    }
+    
+    <span class="keyword">async</span> <span class="function">createOrder</span>(orderData) {
+        <span class="keyword">const</span> sagaId = <span class="keyword">this</span>.generateSagaId();
+        <span class="keyword">const</span> completedSteps = [];
+        
+        <span class="keyword">try</span> {
+            <span class="comment">// Step 1: Create Order</span>
+            console.log(<span class="string">'[Saga] Step 1: Creating order...'</span>);
+            <span class="keyword">const</span> order = <span class="keyword">await this</span>.orderService.createOrder(orderData);
+            completedSteps.push({
+                step: <span class="string">'createOrder'</span>,
+                data: order,
+                compensate: () => <span class="keyword">this</span>.orderService.cancelOrder(order.id)
+            });
+            
+            <span class="comment">// Step 2: Reserve Inventory</span>
+            console.log(<span class="string">'[Saga] Step 2: Reserving inventory...'</span>);
+            <span class="keyword">const</span> reservation = <span class="keyword">await this</span>.inventoryService.reserveItems(
+                order.items
+            );
+            completedSteps.push({
+                step: <span class="string">'reserveInventory'</span>,
+                data: reservation,
+                compensate: () => <span class="keyword">this</span>.inventoryService.releaseReservation(reservation.id)
+            });
+            
+            <span class="comment">// Step 3: Process Payment</span>
+            console.log(<span class="string">'[Saga] Step 3: Processing payment...'</span>);
+            <span class="keyword">const</span> payment = <span class="keyword">await this</span>.paymentService.charge({
+                customerId: order.customerId,
+                amount: order.total
+            });
+            completedSteps.push({
+                step: <span class="string">'processPayment'</span>,
+                data: payment,
+                compensate: () => <span class="keyword">this</span>.paymentService.refund(payment.id)
+            });
+            
+            <span class="comment">// Step 4: Create Shipment</span>
+            console.log(<span class="string">'[Saga] Step 4: Creating shipment...'</span>);
+            <span class="keyword">const</span> shipment = <span class="keyword">await this</span>.shippingService.createShipment({
+                orderId: order.id,
+                address: order.shippingAddress
+            });
+            
+            <span class="comment">// Success! Update order status</span>
+            <span class="keyword">await this</span>.orderService.updateStatus(order.id, <span class="string">'CONFIRMED'</span>);
+            console.log(<span class="string">'[Saga] ✅ Order completed successfully'</span>);
+            
+            <span class="keyword">return</span> { success: <span class="keyword">true</span>, order };
+            
+        } <span class="keyword">catch</span> (error) {
+            <span class="comment">// Failure! Execute compensations in reverse order</span>
+            console.error(<span class="string">'[Saga] ❌ Error occurred:'</span>, error.message);
+            console.log(<span class="string">'[Saga] 🔄 Starting compensation...'</span>);
+            
+            <span class="keyword">await this</span>.compensate(completedSteps);
+            
+            <span class="keyword">return</span> { 
+                success: <span class="keyword">false</span>, 
+                error: error.message,
+                compensated: <span class="keyword">true</span>
+            };
+        }
+    }
+    
+    <span class="keyword">async</span> <span class="function">compensate</span>(completedSteps) {
+        <span class="comment">// Execute compensations in reverse order</span>
+        <span class="keyword">for</span> (<span class="keyword">let</span> i = completedSteps.length - <span class="number">1</span>; i >= <span class="number">0</span>; i--) {
+            <span class="keyword">const</span> step = completedSteps[i];
+            <span class="keyword">try</span> {
+                console.log(<span class="string">`[Saga] Compensating: ${step.step}`</span>);
+                <span class="keyword">await</span> step.compensate();
+            } <span class="keyword">catch</span> (compensationError) {
+                <span class="comment">// Log but continue with other compensations</span>
+                console.error(
+                    <span class="string">`[Saga] Failed to compensate ${step.step}:`</span>,
+                    compensationError
+                );
+                <span class="comment">// In production: alert ops team, write to dead letter queue</span>
+            }
+        }
+        console.log(<span class="string">'[Saga] ✅ Compensation completed'</span>);
+    }
+    
+    <span class="function">generateSagaId</span>() {
+        <span class="keyword">return</span> <span class="string">`saga-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`</span>;
+    }
+}
+
+<span class="comment">// Mock Services</span>
+<span class="keyword">class</span> <span class="function">OrderService</span> {
+    <span class="keyword">async</span> <span class="function">createOrder</span>(data) {
+        <span class="keyword">return</span> { id: <span class="string">'order-123'</span>, ...data, status: <span class="string">'PENDING'</span> };
+    }
+    <span class="keyword">async</span> <span class="function">cancelOrder</span>(id) {
+        console.log(<span class="string">`  ↩️ Cancelled order ${id}`</span>);
+    }
+    <span class="keyword">async</span> <span class="function">updateStatus</span>(id, status) {
+        console.log(<span class="string">`  ✓ Updated order ${id} to ${status}`</span>);
+    }
+}
+
+<span class="keyword">class</span> <span class="function">InventoryService</span> {
+    <span class="keyword">async</span> <span class="function">reserveItems</span>(items) {
+        <span class="keyword">return</span> { id: <span class="string">'reservation-456'</span>, items };
+    }
+    <span class="keyword">async</span> <span class="function">releaseReservation</span>(id) {
+        console.log(<span class="string">`  ↩️ Released inventory reservation ${id}`</span>);
+    }
+}
+
+<span class="keyword">class</span> <span class="function">PaymentService</span> {
+    <span class="keyword">async</span> <span class="function">charge</span>(data) {
+        <span class="keyword">return</span> { id: <span class="string">'payment-789'</span>, ...data };
+    }
+    <span class="keyword">async</span> <span class="function">refund</span>(id) {
+        console.log(<span class="string">`  ↩️ Refunded payment ${id}`</span>);
+    }
+}
+
+<span class="keyword">class</span> <span class="function">ShippingService</span> {
+    <span class="keyword">async</span> <span class="function">createShipment</span>(data) {
+        <span class="comment">// Simulate failure</span>
+        <span class="keyword">throw new</span> Error(<span class="string">'Invalid shipping address'</span>);
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> saga = <span class="keyword">new</span> OrderSagaOrchestrator({
+    orderService: <span class="keyword">new</span> OrderService(),
+    inventoryService: <span class="keyword">new</span> InventoryService(),
+    paymentService: <span class="keyword">new</span> PaymentService(),
+    shippingService: <span class="keyword">new</span> ShippingService()
+});
+
+<span class="keyword">const</span> result = <span class="keyword">await</span> saga.createOrder({
+    customerId: <span class="string">'customer-1'</span>,
+    items: [{ id: <span class="string">'product-1'</span>, qty: <span class="number">2</span> }],
+    total: <span class="number">99.99</span>,
+    shippingAddress: <span class="string">'123 Main St'</span>
+});
+                    </code-block>
+                    
+                    <h3>Choreography-based Saga Example</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Event-driven Saga (Choreography)</span>
+<span class="keyword">class</span> <span class="function">EventBus</span> {
+    <span class="keyword">constructor</span>() {
+        <span class="keyword">this</span>.listeners = <span class="keyword">new</span> Map();
+    }
+    
+    <span class="function">subscribe</span>(event, handler) {
+        <span class="keyword">if</span> (!<span class="keyword">this</span>.listeners.has(event)) {
+            <span class="keyword">this</span>.listeners.set(event, []);
+        }
+        <span class="keyword">this</span>.listeners.get(event).push(handler);
+    }
+    
+    <span class="keyword">async</span> <span class="function">publish</span>(event, data) {
+        console.log(<span class="string">`[EventBus] Publishing: ${event}`</span>);
+        <span class="keyword">const</span> handlers = <span class="keyword">this</span>.listeners.get(event) || [];
+        <span class="keyword">for</span> (<span class="keyword">const</span> handler <span class="keyword">of</span> handlers) {
+            <span class="keyword">await</span> handler(data);
+        }
+    }
+}
+
+<span class="comment">// Each service reacts to events</span>
+<span class="keyword">class</span> <span class="function">OrderServiceChoreography</span> {
+    <span class="keyword">constructor</span>(eventBus) {
+        <span class="keyword">this</span>.eventBus = eventBus;
+        
+        <span class="comment">// Listen for payment success</span>
+        eventBus.subscribe(<span class="string">'PaymentProcessed'</span>, <span class="keyword">async</span> (data) => {
+            console.log(<span class="string">'[OrderService] Payment successful, updating order...'</span>);
+            <span class="keyword">await this</span>.confirmOrder(data.orderId);
+        });
+        
+        <span class="comment">// Listen for shipping failure</span>
+        eventBus.subscribe(<span class="string">'ShippingFailed'</span>, <span class="keyword">async</span> (data) => {
+            console.log(<span class="string">'[OrderService] Shipping failed, cancelling order...'</span>);
+            <span class="keyword">await this</span>.cancelOrder(data.orderId);
+        });
+    }
+    
+    <span class="keyword">async</span> <span class="function">createOrder</span>(orderData) {
+        <span class="keyword">const</span> order = { id: <span class="string">'order-123'</span>, ...orderData };
+        <span class="keyword">await this</span>.eventBus.publish(<span class="string">'OrderCreated'</span>, order);
+        <span class="keyword">return</span> order;
+    }
+    
+    <span class="keyword">async</span> <span class="function">confirmOrder</span>(orderId) {
+        console.log(<span class="string">`[OrderService] Order ${orderId} confirmed`</span>);
+    }
+    
+    <span class="keyword">async</span> <span class="function">cancelOrder</span>(orderId) {
+        console.log(<span class="string">`[OrderService] Order ${orderId} cancelled`</span>);
+    }
+}
+
+<span class="keyword">class</span> <span class="function">InventoryServiceChoreography</span> {
+    <span class="keyword">constructor</span>(eventBus) {
+        <span class="keyword">this</span>.eventBus = eventBus;
+        
+        eventBus.subscribe(<span class="string">'OrderCreated'</span>, <span class="keyword">async</span> (order) => {
+            console.log(<span class="string">'[InventoryService] Reserving items...'</span>);
+            <span class="keyword">await this</span>.reserveItems(order);
+        });
+        
+        eventBus.subscribe(<span class="string">'PaymentFailed'</span>, <span class="keyword">async</span> (data) => {
+            console.log(<span class="string">'[InventoryService] Releasing reservation...'</span>);
+            <span class="keyword">await this</span>.releaseReservation(data.orderId);
+        });
+    }
+    
+    <span class="keyword">async</span> <span class="function">reserveItems</span>(order) {
+        <span class="keyword">await this</span>.eventBus.publish(<span class="string">'InventoryReserved'</span>, order);
+    }
+    
+    <span class="keyword">async</span> <span class="function">releaseReservation</span>(orderId) {
+        console.log(<span class="string">`[InventoryService] Released reservation for ${orderId}`</span>);
+    }
+}
+
+<span class="keyword">class</span> <span class="function">PaymentServiceChoreography</span> {
+    <span class="keyword">constructor</span>(eventBus) {
+        <span class="keyword">this</span>.eventBus = eventBus;
+        
+        eventBus.subscribe(<span class="string">'InventoryReserved'</span>, <span class="keyword">async</span> (order) => {
+            console.log(<span class="string">'[PaymentService] Processing payment...'</span>);
+            <span class="keyword">await this</span>.processPayment(order);
+        });
+    }
+    
+    <span class="keyword">async</span> <span class="function">processPayment</span>(order) {
+        <span class="keyword">await this</span>.eventBus.publish(<span class="string">'PaymentProcessed'</span>, order);
+    }
+}
+                    </code-block>
+                    
+                    <h3>Saga Design Considerations</h3>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Challenge</th>
+                                <th>Solution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Compensating Transactions</strong></td>
+                                <td>Not all operations can be undone (e.g., email sent). Design idempotent compensations or use "semantic rollback" (e.g., credit account instead of un-debit).</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Isolation</strong></td>
+                                <td>Sagas don't provide ACID isolation. Use semantic locks, pessimistic views, or re-read values to handle dirty reads.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ordering</strong></td>
+                                <td>Events may arrive out of order. Include sequence numbers or use message brokers with ordering guarantees.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Observability</strong></td>
+                                <td>Implement saga correlation IDs, distributed tracing, and monitoring dashboards to track saga progress.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="info-box">
+                        <strong>🎯 When to Use Sagas:</strong>
+                        <ul>
+                            <li>Long-running business transactions across multiple services</li>
+                            <li>When 2PC is not feasible (microservices, cloud services)</li>
+                            <li>When eventual consistency is acceptable</li>
+                            <li>E-commerce orders, travel bookings, payment processing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 2: Event Sourcing -->
+            <div id="event-sourcing" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">📜</span>Event Sourcing</h2>
+                    
+                    <p>Event Sourcing stores the state of a business entity as a sequence of state-changing events. Instead of storing current state, we store all the events that led to that state. The current state is derived by replaying these events.</p>
+                    
+                    <h3>Traditional vs Event Sourcing</h3>
+                    
+                    <div class="visual-demo">
+                        <div class="pros-cons">
+                            <div>
+                                <h4 style="color: #666; margin-bottom: 15px;">Traditional (CRUD)</h4>
+                                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                                    <p><strong>Database Table:</strong></p>
+                                    <pre style="background: white; padding: 10px; border-radius: 5px; margin: 10px 0;">
+| account_id | balance |
+|------------|---------|
+| 12345      | 500.00  |
+                                    </pre>
+                                    <p>❌ Lost history: How did we get to $500?</p>
+                                    <p>❌ Can't replay: What if we made a mistake?</p>
+                                    <p>❌ No audit trail: When did changes occur?</p>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 style="color: #666; margin-bottom: 15px;">Event Sourcing</h4>
+                                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                                    <p><strong>Event Store:</strong></p>
+                                    <pre style="background: white; padding: 10px; border-radius: 5px; margin: 10px 0;">
+1. AccountOpened    +1000.00
+2. MoneyWithdrawn   -200.00
+3. MoneyDeposited   +50.00
+4. MoneyWithdrawn   -350.00
+= Current: $500.00
+                                    </pre>
+                                    <p>✅ Complete history preserved</p>
+                                    <p>✅ Can replay events to any point in time</p>
+                                    <p>✅ Full audit trail built-in</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Event Sourcing Implementation</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Event Types</span>
+<span class="keyword">class</span> <span class="function">Event</span> {
+    <span class="keyword">constructor</span>(aggregateId, eventType, data, metadata = {}) {
+        <span class="keyword">this</span>.eventId = <span class="keyword">this</span>.generateId();
+        <span class="keyword">this</span>.aggregateId = aggregateId;
+        <span class="keyword">this</span>.eventType = eventType;
+        <span class="keyword">this</span>.data = data;
+        <span class="keyword">this</span>.timestamp = <span class="keyword">new</span> Date();
+        <span class="keyword">this</span>.metadata = metadata;
+        <span class="keyword">this</span>.version = metadata.version || <span class="number">1</span>;
+    }
+    
+    <span class="function">generateId</span>() {
+        <span class="keyword">return</span> <span class="string">`event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`</span>;
+    }
+}
+
+<span class="comment">// Event Store</span>
+<span class="keyword">class</span> <span class="function">EventStore</span> {
+    <span class="keyword">constructor</span>() {
+        <span class="keyword">this</span>.events = [];  <span class="comment">// In production: use database</span>
+        <span class="keyword">this</span>.snapshots = <span class="keyword">new</span> Map();  <span class="comment">// Performance optimization</span>
+    }
+    
+    <span class="function">append</span>(event) {
+        <span class="comment">// Append-only: never update or delete</span>
+        <span class="keyword">this</span>.events.push(event);
+        console.log(<span class="string">`[EventStore] Appended: ${event.eventType}`</span>);
+    }
+    
+    <span class="function">getEvents</span>(aggregateId, fromVersion = <span class="number">0</span>) {
+        <span class="keyword">return this</span>.events.filter(
+            e => e.aggregateId === aggregateId && e.version > fromVersion
+        );
+    }
+    
+    <span class="function">saveSnapshot</span>(aggregateId, state, version) {
+        <span class="comment">// Snapshot for performance: avoid replaying 1000s of events</span>
+        <span class="keyword">this</span>.snapshots.set(aggregateId, { state, version });
+        console.log(<span class="string">`[EventStore] Snapshot saved at version ${version}`</span>);
+    }
+    
+    <span class="function">getSnapshot</span>(aggregateId) {
+        <span class="keyword">return this</span>.snapshots.get(aggregateId);
+    }
+}
+
+<span class="comment">// Bank Account Aggregate</span>
+<span class="keyword">class</span> <span class="function">BankAccount</span> {
+    <span class="keyword">constructor</span>(accountId, eventStore) {
+        <span class="keyword">this</span>.accountId = accountId;
+        <span class="keyword">this</span>.eventStore = eventStore;
+        <span class="keyword">this</span>.balance = <span class="number">0</span>;
+        <span class="keyword">this</span>.version = <span class="number">0</span>;
+        <span class="keyword">this</span>.isOpen = <span class="keyword">false</span>;
+        <span class="keyword">this</span>.uncommittedEvents = [];
+    }
+    
+    <span class="comment">// Commands (write operations)</span>
+    <span class="function">open</span>(initialDeposit, owner) {
+        <span class="keyword">if</span> (<span class="keyword">this</span>.isOpen) {
+            <span class="keyword">throw new</span> Error(<span class="string">'Account already open'</span>);
+        }
+        
+        <span class="keyword">this</span>.applyEvent(<span class="keyword">new</span> Event(
+            <span class="keyword">this</span>.accountId,
+            <span class="string">'AccountOpened'</span>,
+            { initialDeposit, owner }
+        ));
+    }
+    
+    <span class="function">deposit</span>(amount) {
+        <span class="keyword">if</span> (!<span class="keyword">this</span>.isOpen) {
+            <span class="keyword">throw new</span> Error(<span class="string">'Account not open'</span>);
+        }
+        <span class="keyword">if</span> (amount <= <span class="number">0</span>) {
+            <span class="keyword">throw new</span> Error(<span class="string">'Amount must be positive'</span>);
+        }
+        
+        <span class="keyword">this</span>.applyEvent(<span class="keyword">new</span> Event(
+            <span class="keyword">this</span>.accountId,
+            <span class="string">'MoneyDeposited'</span>,
+            { amount }
+        ));
+    }
+    
+    <span class="function">withdraw</span>(amount) {
+        <span class="keyword">if</span> (!<span class="keyword">this</span>.isOpen) {
+            <span class="keyword">throw new</span> Error(<span class="string">'Account not open'</span>);
+        }
+        <span class="keyword">if</span> (amount <= <span class="number">0</span>) {
+            <span class="keyword">throw new</span> Error(<span class="string">'Amount must be positive'</span>);
+        }
+        <span class="keyword">if</span> (amount > <span class="keyword">this</span>.balance) {
+            <span class="keyword">throw new</span> Error(<span class="string">'Insufficient funds'</span>);
+        }
+        
+        <span class="keyword">this</span>.applyEvent(<span class="keyword">new</span> Event(
+            <span class="keyword">this</span>.accountId,
+            <span class="string">'MoneyWithdrawn'</span>,
+            { amount }
+        ));
+    }
+    
+    <span class="comment">// Apply event to state (Event Handlers)</span>
+    <span class="function">applyEvent</span>(event) {
+        <span class="comment">// Update state based on event</span>
+        <span class="keyword">switch</span> (event.eventType) {
+            <span class="keyword">case</span> <span class="string">'AccountOpened'</span>:
+                <span class="keyword">this</span>.isOpen = <span class="keyword">true</span>;
+                <span class="keyword">this</span>.balance = event.data.initialDeposit;
+                <span class="keyword">this</span>.owner = event.data.owner;
+                <span class="keyword">break</span>;
+                
+            <span class="keyword">case</span> <span class="string">'MoneyDeposited'</span>:
+                <span class="keyword">this</span>.balance += event.data.amount;
+                <span class="keyword">break</span>;
+                
+            <span class="keyword">case</span> <span class="string">'MoneyWithdrawn'</span>:
+                <span class="keyword">this</span>.balance -= event.data.amount;
+                <span class="keyword">break</span>;
+        }
+        
+        <span class="keyword">this</span>.version++;
+        event.metadata.version = <span class="keyword">this</span>.version;
+        <span class="keyword">this</span>.uncommittedEvents.push(event);
+    }
+    
+    <span class="comment">// Persist events</span>
+    <span class="function">commit</span>() {
+        <span class="keyword">for</span> (<span class="keyword">const</span> event <span class="keyword">of this</span>.uncommittedEvents) {
+            <span class="keyword">this</span>.eventStore.append(event);
+        }
+        <span class="keyword">this</span>.uncommittedEvents = [];
+        
+        <span class="comment">// Snapshot every 10 events for performance</span>
+        <span class="keyword">if</span> (<span class="keyword">this</span>.version % <span class="number">10</span> === <span class="number">0</span>) {
+            <span class="keyword">this</span>.eventStore.saveSnapshot(
+                <span class="keyword">this</span>.accountId,
+                { balance: <span class="keyword">this</span>.balance, isOpen: <span class="keyword">this</span>.isOpen, owner: <span class="keyword">this</span>.owner },
+                <span class="keyword">this</span>.version
+            );
+        }
+    }
+    
+    <span class="comment">// Rebuild state from events (Hydration)</span>
+    <span class="function">loadFromHistory</span>() {
+        <span class="comment">// Try to load from snapshot first</span>
+        <span class="keyword">const</span> snapshot = <span class="keyword">this</span>.eventStore.getSnapshot(<span class="keyword">this</span>.accountId);
+        <span class="keyword">let</span> fromVersion = <span class="number">0</span>;
+        
+        <span class="keyword">if</span> (snapshot) {
+            <span class="keyword">this</span>.balance = snapshot.state.balance;
+            <span class="keyword">this</span>.isOpen = snapshot.state.isOpen;
+            <span class="keyword">this</span>.owner = snapshot.state.owner;
+            <span class="keyword">this</span>.version = snapshot.version;
+            fromVersion = snapshot.version;
+            console.log(<span class="string">`[Account] Loaded from snapshot at version ${fromVersion}`</span>);
+        }
+        
+        <span class="comment">// Replay events after snapshot</span>
+        <span class="keyword">const</span> events = <span class="keyword">this</span>.eventStore.getEvents(<span class="keyword">this</span>.accountId, fromVersion);
+        <span class="keyword">for</span> (<span class="keyword">const</span> event <span class="keyword">of</span> events) {
+            <span class="keyword">this</span>.applyEvent(event);
+        }
+        <span class="keyword">this</span>.uncommittedEvents = [];  <span class="comment">// Clear since these are committed</span>
+        
+        console.log(<span class="string">`[Account] Replayed ${events.length} events`</span>);
+    }
+    
+    <span class="comment">// Query current state</span>
+    <span class="function">getBalance</span>() {
+        <span class="keyword">return this</span>.balance;
+    }
+}
+
+<span class="comment">// Usage Example</span>
+<span class="keyword">const</span> eventStore = <span class="keyword">new</span> EventStore();
+<span class="keyword">const</span> account = <span class="keyword">new</span> BankAccount(<span class="string">'account-12345'</span>, eventStore);
+
+<span class="comment">// Execute commands</span>
+account.open(<span class="number">1000</span>, <span class="string">'Alice'</span>);
+account.deposit(<span class="number">500</span>);
+account.withdraw(<span class="number">200</span>);
+account.deposit(<span class="number">300</span>);
+account.commit();
+
+console.log(<span class="string">`Balance: $${account.getBalance()}`</span>);  <span class="comment">// $1600</span>
+
+<span class="comment">// Later: Rebuild state from events</span>
+<span class="keyword">const</span> account2 = <span class="keyword">new</span> BankAccount(<span class="string">'account-12345'</span>, eventStore);
+account2.loadFromHistory();
+console.log(<span class="string">`Rebuilt balance: $${account2.getBalance()}`</span>);  <span class="comment">// $1600</span>
+
+<span class="comment">// Time travel: View state at specific point</span>
+<span class="keyword">const</span> eventsUpToVersion2 = eventStore.getEvents(<span class="string">'account-12345'</span>).slice(<span class="number">0</span>, <span class="number">2</span>);
+<span class="keyword">const</span> historicalAccount = <span class="keyword">new</span> BankAccount(<span class="string">'account-12345'</span>, eventStore);
+eventsUpToVersion2.forEach(e => historicalAccount.applyEvent(e));
+console.log(<span class="string">`Balance after 2 events: $${historicalAccount.getBalance()}`</span>);
+                    </code-block>
+                    
+                    <h3>Benefits of Event Sourcing</h3>
+                    
+                    <div class="grid-container">
+                        <div class="card">
+                            <div class="card-icon">📜</div>
+                            <div class="card-title">Complete Audit Trail</div>
+                            <div class="card-desc">Every state change is recorded with who, what, when, and why</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">⏮️</div>
+                            <div class="card-title">Time Travel</div>
+                            <div class="card-desc">Reconstruct state at any point in time for debugging or analysis</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">🔄</div>
+                            <div class="card-title">Replay Events</div>
+                            <div class="card-desc">Fix bugs by replaying events with corrected logic</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">📊</div>
+                            <div class="card-title">Business Intelligence</div>
+                            <div class="card-desc">Analyze patterns, trends, and user behavior from event history</div>
+                        </div>
+                    </div>
+                    
+                    <h3>Projections (Read Models)</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Projections: Build read-optimized views from events</span>
+<span class="keyword">class</span> <span class="function">AccountBalanceProjection</span> {
+    <span class="keyword">constructor</span>(eventStore) {
+        <span class="keyword">this</span>.eventStore = eventStore;
+        <span class="keyword">this</span>.balances = <span class="keyword">new</span> Map();  <span class="comment">// Read model</span>
+        <span class="keyword">this</span>.lastProcessedVersion = <span class="number">0</span>;
+    }
+    
+    <span class="function">buildProjection</span>() {
+        <span class="comment">// Subscribe to events and update read model</span>
+        <span class="keyword">const</span> events = <span class="keyword">this</span>.eventStore.getEvents(<span class="keyword">null</span>, <span class="keyword">this</span>.lastProcessedVersion);
+        
+        <span class="keyword">for</span> (<span class="keyword">const</span> event <span class="keyword">of</span> events) {
+            <span class="keyword">this</span>.handleEvent(event);
+            <span class="keyword">this</span>.lastProcessedVersion = event.version;
+        }
+    }
+    
+    <span class="function">handleEvent</span>(event) {
+        <span class="keyword">const</span> accountId = event.aggregateId;
+        
+        <span class="keyword">switch</span> (event.eventType) {
+            <span class="keyword">case</span> <span class="string">'AccountOpened'</span>:
+                <span class="keyword">this</span>.balances.set(accountId, {
+                    balance: event.data.initialDeposit,
+                    owner: event.data.owner
+                });
+                <span class="keyword">break</span>;
+                
+            <span class="keyword">case</span> <span class="string">'MoneyDeposited'</span>:
+                <span class="keyword">const</span> account1 = <span class="keyword">this</span>.balances.get(accountId);
+                account1.balance += event.data.amount;
+                <span class="keyword">break</span>;
+                
+            <span class="keyword">case</span> <span class="string">'MoneyWithdrawn'</span>:
+                <span class="keyword">const</span> account2 = <span class="keyword">this</span>.balances.get(accountId);
+                account2.balance -= event.data.amount;
+                <span class="keyword">break</span>;
+        }
+    }
+    
+    <span class="comment">// Fast reads from projection</span>
+    <span class="function">getBalance</span>(accountId) {
+        <span class="keyword">return this</span>.balances.get(accountId)?.balance || <span class="number">0</span>;
+    }
+    
+    <span class="function">getAllBalances</span>() {
+        <span class="keyword">return</span> Array.from(<span class="keyword">this</span>.balances.entries());
+    }
+}
+                    </code-block>
+                    
+                    <div class="info-box">
+                        <strong>🎯 When to Use Event Sourcing:</strong>
+                        <ul>
+                            <li>Financial systems requiring full audit trail</li>
+                            <li>Systems needing temporal queries (state at past time)</li>
+                            <li>Debugging complex business logic</li>
+                            <li>Business analytics and user behavior analysis</li>
+                            <li>Regulatory compliance (banking, healthcare)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ Challenges:</strong>
+                        <ul>
+                            <li><strong>Complexity:</strong> More complex than CRUD</li>
+                            <li><strong>Event Schema Evolution:</strong> Need versioning strategy</li>
+                            <li><strong>Query Performance:</strong> Replaying events can be slow (use snapshots)</li>
+                            <li><strong>Eventual Consistency:</strong> Projections lag behind events</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 3: CQRS -->
+            <div id="cqrs" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">📊</span>CQRS: Command Query Responsibility Segregation</h2>
+                    
+                    <p>CQRS separates read and write operations into different models. Commands modify state (writes), Queries retrieve state (reads). This allows independent optimization, scaling, and modeling of read vs write concerns.</p>
+                    
+                    <h3>Traditional vs CQRS Architecture</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Traditional Architecture</h4>
+                        <div class="demo-row">
+                            <div class="node service-node">
+                                <div class="node-title">Client</div>
+                                <div class="node-desc">Reads & Writes</div>
+                            </div>
+                            <div class="arrow">→</div>
+                            <div class="node">
+                                <div class="node-title">Single Model</div>
+                                <div class="node-desc">Same entities for<br>read & write</div>
+                            </div>
+                            <div class="arrow">→</div>
+                            <div class="node service-node">
+                                <div class="node-title">Database</div>
+                                <div class="node-desc">One schema</div>
+                            </div>
+                        </div>
+                        <p style="text-align: center; margin-top: 15px; color: #f57c00;">⚠️ Write model optimized for transactions, not reads</p>
+                        
+                        <h4 style="text-align: center; margin: 30px 0 20px 0;">CQRS Architecture</h4>
+                        <div style="display: flex; flex-direction: column; gap: 20px;">
+                            <div class="demo-row" style="background: #e8f5e9; padding: 20px; border-radius: 10px;">
+                                <div class="node service-node">
+                                    <div class="node-title">Client Write</div>
+                                    <div class="node-desc">Commands</div>
+                                </div>
+                                <div class="arrow">→</div>
+                                <div class="node success-node">
+                                    <div class="node-title">Command Model</div>
+                                    <div class="node-desc">Validates & persists</div>
+                                </div>
+                                <div class="arrow">→</div>
+                                <div class="node service-node">
+                                    <div class="node-title">Write DB</div>
+                                    <div class="node-desc">Normalized</div>
+                                </div>
+                            </div>
+                            <div style="text-align: center; font-size: 1.5em; color: #667eea;">
+                                ↓ Events / Sync ↓
+                            </div>
+                            <div class="demo-row" style="background: #e3f2fd; padding: 20px; border-radius: 10px;">
+                                <div class="node service-node">
+                                    <div class="node-title">Client Read</div>
+                                    <div class="node-desc">Queries</div>
+                                </div>
+                                <div class="arrow">→</div>
+                                <div class="node success-node">
+                                    <div class="node-title">Query Model</div>
+                                    <div class="node-desc">Fast reads</div>
+                                </div>
+                                <div class="arrow">→</div>
+                                <div class="node service-node">
+                                    <div class="node-title">Read DB</div>
+                                    <div class="node-desc">Denormalized</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p style="text-align: center; margin-top: 15px; color: #2e7d32;">✅ Each side optimized independently</p>
+                    </div>
+                    
+                    <h3>CQRS Implementation</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Command Side (Write Model)</span>
+<span class="keyword">class</span> <span class="function">CreateProductCommand</span> {
+    <span class="keyword">constructor</span>(name, price, inventory) {
+        <span class="keyword">this</span>.name = name;
+        <span class="keyword">this</span>.price = price;
+        <span class="keyword">this</span>.inventory = inventory;
+    }
+}
+
+<span class="keyword">class</span> <span class="function">UpdateInventoryCommand</span> {
+    <span class="keyword">constructor</span>(productId, quantity) {
+        <span class="keyword">this</span>.productId = productId;
+        <span class="keyword">this</span>.quantity = quantity;
+    }
+}
+
+<span class="comment">// Command Handlers (Write side)</span>
+<span class="keyword">class</span> <span class="function">ProductCommandHandler</span> {
+    <span class="keyword">constructor</span>(writeRepository, eventBus) {
+        <span class="keyword">this</span>.writeRepository = writeRepository;
+        <span class="keyword">this</span>.eventBus = eventBus;
+    }
+    
+    <span class="keyword">async</span> <span class="function">handleCreateProduct</span>(command) {
+        <span class="comment">// Validate</span>
+        <span class="keyword">if</span> (command.price <= <span class="number">0</span>) {
+            <span class="keyword">throw new</span> Error(<span class="string">'Price must be positive'</span>);
+        }
+        
+        <span class="comment">// Create aggregate</span>
+        <span class="keyword">const</span> product = {
+            id: <span class="keyword">this</span>.generateId(),
+            name: command.name,
+            price: command.price,
+            inventory: command.inventory,
+            createdAt: <span class="keyword">new</span> Date()
+        };
+        
+        <span class="comment">// Persist to write database</span>
+        <span class="keyword">await this</span>.writeRepository.save(product);
+        
+        <span class="comment">// Publish event for read side</span>
+        <span class="keyword">await this</span>.eventBus.publish(<span class="string">'ProductCreated'</span>, product);
+        
+        console.log(<span class="string">`[Command] Product created: ${product.id}`</span>);
+        <span class="keyword">return</span> product.id;
+    }
+    
+    <span class="keyword">async</span> <span class="function">handleUpdateInventory</span>(command) {
+        <span class="comment">// Load aggregate</span>
+        <span class="keyword">const</span> product = <span class="keyword">await this</span>.writeRepository.findById(command.productId);
+        
+        <span class="keyword">if</span> (!product) {
+            <span class="keyword">throw new</span> Error(<span class="string">'Product not found'</span>);
+        }
+        
+        <span class="comment">// Update</span>
+        product.inventory = command.quantity;
+        <span class="keyword">await this</span>.writeRepository.save(product);
+        
+        <span class="comment">// Publish event</span>
+        <span class="keyword">await this</span>.eventBus.publish(<span class="string">'InventoryUpdated'</span>, {
+            productId: command.productId,
+            newQuantity: command.quantity
+        });
+        
+        console.log(<span class="string">`[Command] Inventory updated: ${command.productId}`</span>);
+    }
+    
+    <span class="function">generateId</span>() {
+        <span class="keyword">return</span> <span class="string">`product-${Date.now()}`</span>;
+    }
+}
+
+<span class="comment">// Query Side (Read Model)</span>
+<span class="keyword">class</span> <span class="function">ProductListQuery</span> {
+    <span class="keyword">constructor</span>(category, minPrice, maxPrice) {
+        <span class="keyword">this</span>.category = category;
+        <span class="keyword">this</span>.minPrice = minPrice;
+        <span class="keyword">this</span>.maxPrice = maxPrice;
+    }
+}
+
+<span class="keyword">class</span> <span class="function">ProductDetailsQuery</span> {
+    <span class="keyword">constructor</span>(productId) {
+        <span class="keyword">this</span>.productId = productId;
+    }
+}
+
+<span class="comment">// Query Handlers (Read side)</span>
+<span class="keyword">class</span> <span class="function">ProductQueryHandler</span> {
+    <span class="keyword">constructor</span>(readRepository) {
+        <span class="keyword">this</span>.readRepository = readRepository;
+    }
+    
+    <span class="keyword">async</span> <span class="function">handleProductList</span>(query) {
+        <span class="comment">// Read from optimized read model</span>
+        <span class="comment">// Denormalized data, fast queries</span>
+        <span class="keyword">const</span> products = <span class="keyword">await this</span>.readRepository.findAll({
+            category: query.category,
+            priceRange: [query.minPrice, query.maxPrice]
+        });
+        
+        console.log(<span class="string">`[Query] Found ${products.length} products`</span>);
+        <span class="keyword">return</span> products;
+    }
+    
+    <span class="keyword">async</span> <span class="function">handleProductDetails</span>(query) {
+        <span class="comment">// Fast lookup by ID</span>
+        <span class="keyword">const</span> product = <span class="keyword">await this</span>.readRepository.findById(query.productId);
+        
+        <span class="keyword">if</span> (!product) {
+            <span class="keyword">throw new</span> Error(<span class="string">'Product not found'</span>);
+        }
+        
+        console.log(<span class="string">`[Query] Retrieved product: ${product.id}`</span>);
+        <span class="keyword">return</span> product;
+    }
+}
+
+<span class="comment">// Event Handler - Syncs write model to read model</span>
+<span class="keyword">class</span> <span class="function">ProductReadModelProjection</span> {
+    <span class="keyword">constructor</span>(readRepository, eventBus) {
+        <span class="keyword">this</span>.readRepository = readRepository;
+        
+        <span class="comment">// Subscribe to events from write side</span>
+        eventBus.subscribe(<span class="string">'ProductCreated'</span>, <span class="keyword">this</span>.onProductCreated.bind(<span class="keyword">this</span>));
+        eventBus.subscribe(<span class="string">'InventoryUpdated'</span>, <span class="keyword">this</span>.onInventoryUpdated.bind(<span class="keyword">this</span>));
+    }
+    
+    <span class="keyword">async</span> <span class="function">onProductCreated</span>(event) {
+        <span class="comment">// Create denormalized read model</span>
+        <span class="keyword">const</span> readModel = {
+            id: event.id,
+            name: event.name,
+            price: event.price,
+            inventory: event.inventory,
+            displayPrice: <span class="string">`$${event.price.toFixed(2)}`</span>,
+            inStock: event.inventory > <span class="number">0</span>,
+            searchText: event.name.toLowerCase()  <span class="comment">// Pre-computed for search</span>
+        };
+        
+        <span class="keyword">await this</span>.readRepository.save(readModel);
+        console.log(<span class="string">`[Projection] Read model updated for product ${event.id}`</span>);
+    }
+    
+    <span class="keyword">async</span> <span class="function">onInventoryUpdated</span>(event) {
+        <span class="keyword">const</span> product = <span class="keyword">await this</span>.readRepository.findById(event.productId);
+        <span class="keyword">if</span> (product) {
+            product.inventory = event.newQuantity;
+            product.inStock = event.newQuantity > <span class="number">0</span>;
+            <span class="keyword">await this</span>.readRepository.save(product);
+        }
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">class</span> <span class="function">SimpleEventBus</span> {
+    <span class="keyword">constructor</span>() {
+        <span class="keyword">this</span>.handlers = <span class="keyword">new</span> Map();
+    }
+    <span class="function">subscribe</span>(event, handler) {
+        <span class="keyword">if</span> (!<span class="keyword">this</span>.handlers.has(event)) <span class="keyword">this</span>.handlers.set(event, []);
+        <span class="keyword">this</span>.handlers.get(event).push(handler);
+    }
+    <span class="keyword">async</span> <span class="function">publish</span>(event, data) {
+        <span class="keyword">const</span> handlers = <span class="keyword">this</span>.handlers.get(event) || [];
+        <span class="keyword">for</span> (<span class="keyword">const</span> handler <span class="keyword">of</span> handlers) {
+            <span class="keyword">await</span> handler(data);
+        }
+    }
+}
+
+<span class="keyword">const</span> eventBus = <span class="keyword">new</span> SimpleEventBus();
+<span class="keyword">const</span> writeRepo = <span class="keyword">new</span> InMemoryRepository();
+<span class="keyword">const</span> readRepo = <span class="keyword">new</span> InMemoryRepository();
+
+<span class="keyword">const</span> commandHandler = <span class="keyword">new</span> ProductCommandHandler(writeRepo, eventBus);
+<span class="keyword">const</span> queryHandler = <span class="keyword">new</span> ProductQueryHandler(readRepo);
+<span class="keyword">const</span> projection = <span class="keyword">new</span> ProductReadModelProjection(readRepo, eventBus);
+
+<span class="comment">// Execute command</span>
+<span class="keyword">const</span> productId = <span class="keyword">await</span> commandHandler.handleCreateProduct(
+    <span class="keyword">new</span> CreateProductCommand(<span class="string">'Laptop'</span>, <span class="number">999.99</span>, <span class="number">50</span>)
+);
+
+<span class="comment">// Execute query (eventual consistency - may be slight delay)</span>
+<span class="keyword">const</span> product = <span class="keyword">await</span> queryHandler.handleProductDetails(
+    <span class="keyword">new</span> ProductDetailsQuery(productId)
+);
+                    </code-block>
+                    
+                    <h3>CQRS + Event Sourcing</h3>
+                    
+                    <p>CQRS pairs naturally with Event Sourcing. Events from the event store update multiple read models optimized for different queries.</p>
+                    
+                    <div class="visual-demo">
+                        <div class="demo-row" style="flex-direction: column;">
+                            <div class="node success-node" style="width: 80%; padding: 25px;">
+                                <div class="node-title">Event Store</div>
+                                <div class="node-desc">Single source of truth - immutable events</div>
+                            </div>
+                            <div class="arrow-down">↓ Project events to multiple views ↓</div>
+                            <div class="demo-row">
+                                <div class="node service-node">
+                                    <div class="node-title">Read Model 1</div>
+                                    <div class="node-desc">Product List<br>(ElasticSearch)</div>
+                                </div>
+                                <div class="node service-node">
+                                    <div class="node-title">Read Model 2</div>
+                                    <div class="node-desc">Product Details<br>(MongoDB)</div>
+                                </div>
+                                <div class="node service-node">
+                                    <div class="node-title">Read Model 3</div>
+                                    <div class="node-desc">Analytics<br>(Data Warehouse)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Benefits & Trade-offs</h3>
+                    
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <h4>✅ Benefits</h4>
+                            <ul>
+                                <li><strong>Independent Scaling:</strong> Scale reads and writes independently</li>
+                                <li><strong>Optimized Models:</strong> Different schemas for read vs write</li>
+                                <li><strong>Flexibility:</strong> Multiple read models from same write model</li>
+                                <li><strong>Performance:</strong> Pre-computed, denormalized read models</li>
+                                <li><strong>Separation of Concerns:</strong> Clear boundaries</li>
+                            </ul>
+                        </div>
+                        <div class="cons">
+                            <h4>❌ Trade-offs</h4>
+                            <ul>
+                                <li><strong>Complexity:</strong> More moving parts than traditional CRUD</li>
+                                <li><strong>Eventual Consistency:</strong> Read model lags behind writes</li>
+                                <li><strong>Duplication:</strong> Data stored in multiple places</li>
+                                <li><strong>Synchronization:</strong> Must keep read models in sync</li>
+                                <li><strong>Learning Curve:</strong> Requires different mindset</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>🎯 When to Use CQRS:</strong>
+                        <ul>
+                            <li>Complex domains with different read/write patterns</li>
+                            <li>High read-to-write ratio (10:1 or more)</li>
+                            <li>Need for multiple specialized read models</li>
+                            <li>Performance-critical reads that need denormalization</li>
+                            <li>Collaborative domains with many concurrent users</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ Don't Use CQRS When:</strong>
+                        <ul>
+                            <li>Simple CRUD applications</li>
+                            <li>Strong consistency required for all reads</li>
+                            <li>Small team without expertise</li>
+                            <li>Simple domain with uniform access patterns</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 4: Bulkhead Pattern -->
+            <div id="bulkhead" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">🚢</span>Bulkhead Pattern</h2>
+                    
+                    <p>The Bulkhead pattern isolates resources to prevent cascading failures. Like compartments in a ship's hull, if one section fails, others remain functional. This prevents a failure in one part from bringing down the entire system.</p>
+                    
+                    <h3>The Problem: Resource Exhaustion</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Without Bulkhead</h4>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <h4>Normal Operation</h4>
+                                <p>Shared Thread Pool: 100 threads serving all requests</p>
+                                <ul>
+                                    <li>Service A: 30 threads</li>
+                                    <li>Service B: 40 threads</li>
+                                    <li>Service C: 30 threads</li>
+                                </ul>
+                            </div>
+                            <div class="timeline-item failure">
+                                <h4>Service B Becomes Slow ❌</h4>
+                                <p>Service B starts taking 30 seconds per request</p>
+                                <ul>
+                                    <li>Service A: 0 threads (starved!)</li>
+                                    <li>Service B: 100 threads (monopolized!)</li>
+                                    <li>Service C: 0 threads (starved!)</li>
+                                </ul>
+                                <p style="color: #f44336; font-weight: bold;">💥 Entire system down due to one slow service!</p>
+                            </div>
+                        </div>
+                        
+                        <h4 style="text-align: center; margin: 30px 0 20px 0;">With Bulkhead</h4>
+                        <div class="timeline">
+                            <div class="timeline-item success">
+                                <h4>Isolated Thread Pools</h4>
+                                <p>Each service has dedicated thread pool</p>
+                                <ul>
+                                    <li>Service A: 30 threads (dedicated)</li>
+                                    <li>Service B: 40 threads (dedicated)</li>
+                                    <li>Service C: 30 threads (dedicated)</li>
+                                </ul>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Service B Becomes Slow</h4>
+                                <p>Service B threads blocked, but others unaffected</p>
+                                <ul>
+                                    <li>Service A: 30 threads ✅ Still working!</li>
+                                    <li>Service B: 40 threads ❌ All blocked</li>
+                                    <li>Service C: 30 threads ✅ Still working!</li>
+                                </ul>
+                                <p style="color: #4caf50; font-weight: bold;">✅ Only Service B affected, others operational!</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Implementation: Thread Pool Bulkhead</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Bulkhead Pattern Implementation</span>
+<span class="keyword">class</span> <span class="function">ThreadPoolBulkhead</span> {
+    <span class="keyword">constructor</span>(name, maxConcurrent, maxQueue = <span class="number">100</span>) {
+        <span class="keyword">this</span>.name = name;
+        <span class="keyword">this</span>.maxConcurrent = maxConcurrent;
+        <span class="keyword">this</span>.maxQueue = maxQueue;
+        <span class="keyword">this</span>.activeCount = <span class="number">0</span>;
+        <span class="keyword">this</span>.queue = [];
+        <span class="keyword">this</span>.rejectedCount = <span class="number">0</span>;
+    }
+    
+    <span class="keyword">async</span> <span class="function">execute</span>(task) {
+        <span class="comment">// Check if bulkhead is full</span>
+        <span class="keyword">if</span> (<span class="keyword">this</span>.activeCount >= <span class="keyword">this</span>.maxConcurrent) {
+            <span class="comment">// Try to queue</span>
+            <span class="keyword">if</span> (<span class="keyword">this</span>.queue.length >= <span class="keyword">this</span>.maxQueue) {
+                <span class="keyword">this</span>.rejectedCount++;
+                <span class="keyword">throw new</span> Error(
+                    <span class="string">`[${this.name}] Bulkhead full: ${this.activeCount} active, ${this.queue.length} queued`</span>
+                );
+            }
+            
+            <span class="comment">// Queue the task</span>
+            console.log(<span class="string">`[${this.name}] Queueing task (${this.queue.length + 1}/${this.maxQueue})`</span>);
+            <span class="keyword">return new</span> Promise((resolve, reject) => {
+                <span class="keyword">this</span>.queue.push({ task, resolve, reject });
+            });
+        }
+        
+        <span class="comment">// Execute immediately</span>
+        <span class="keyword">return this</span>.executeNow(task);
+    }
+    
+    <span class="keyword">async</span> <span class="function">executeNow</span>(task) {
+        <span class="keyword">this</span>.activeCount++;
+        console.log(<span class="string">`[${this.name}] Executing (${this.activeCount}/${this.maxConcurrent} active)`</span>);
+        
+        <span class="keyword">try</span> {
+            <span class="keyword">const</span> result = <span class="keyword">await</span> task();
+            <span class="keyword">return</span> result;
+        } <span class="keyword">finally</span> {
+            <span class="keyword">this</span>.activeCount--;
+            
+            <span class="comment">// Process next queued task</span>
+            <span class="keyword">if</span> (<span class="keyword">this</span>.queue.length > <span class="number">0</span>) {
+                <span class="keyword">const</span> { task, resolve, reject } = <span class="keyword">this</span>.queue.shift();
+                <span class="keyword">this</span>.executeNow(task).then(resolve).catch(reject);
+            }
+        }
+    }
+    
+    <span class="function">getStats</span>() {
+        <span class="keyword">return</span> {
+            name: <span class="keyword">this</span>.name,
+            active: <span class="keyword">this</span>.activeCount,
+            queued: <span class="keyword">this</span>.queue.length,
+            rejected: <span class="keyword">this</span>.rejectedCount,
+            capacity: <span class="keyword">this</span>.maxConcurrent,
+            queueCapacity: <span class="keyword">this</span>.maxQueue
+        };
+    }
+}
+
+<span class="comment">// Create separate bulkheads for different services</span>
+<span class="keyword">const</span> paymentBulkhead = <span class="keyword">new</span> ThreadPoolBulkhead(<span class="string">'Payment'</span>, <span class="number">10</span>, <span class="number">50</span>);
+<span class="keyword">const</span> inventoryBulkhead = <span class="keyword">new</span> ThreadPoolBulkhead(<span class="string">'Inventory'</span>, <span class="number">20</span>, <span class="number">100</span>);
+<span class="keyword">const</span> recommendationBulkhead = <span class="keyword">new</span> ThreadPoolBulkhead(<span class="string">'Recommendation'</span>, <span class="number">5</span>, <span class="number">20</span>);
+
+<span class="comment">// Mock services</span>
+<span class="keyword">async function</span> <span class="function">callPaymentService</span>() {
+    <span class="keyword">await new</span> Promise(resolve => setTimeout(resolve, <span class="number">100</span>));
+    <span class="keyword">return</span> { status: <span class="string">'paid'</span> };
+}
+
+<span class="keyword">async function</span> <span class="function">callInventoryService</span>() {
+    <span class="keyword">await new</span> Promise(resolve => setTimeout(resolve, <span class="number">50</span>));
+    <span class="keyword">return</span> { inStock: <span class="keyword">true</span> };
+}
+
+<span class="keyword">async function</span> <span class="function">callSlowRecommendationService</span>() {
+    <span class="comment">// Simulate slow service</span>
+    <span class="keyword">await new</span> Promise(resolve => setTimeout(resolve, <span class="number">5000</span>));
+    <span class="keyword">return</span> { recommendations: [] };
+}
+
+<span class="comment">// Usage: Handle requests with bulkheads</span>
+<span class="keyword">async function</span> <span class="function">handleOrderRequest</span>(orderId) {
+    <span class="keyword">try</span> {
+        <span class="comment">// Each call goes through its own bulkhead</span>
+        <span class="keyword">const</span> [payment, inventory] = <span class="keyword">await</span> Promise.all([
+            paymentBulkhead.execute(callPaymentService),
+            inventoryBulkhead.execute(callInventoryService)
+        ]);
+        
+        <span class="comment">// Recommendation can fail without affecting order</span>
+        <span class="keyword">let</span> recommendations = [];
+        <span class="keyword">try</span> {
+            recommendations = <span class="keyword">await</span> recommendationBulkhead.execute(
+                callSlowRecommendationService
+            );
+        } <span class="keyword">catch</span> (error) {
+            console.log(<span class="string">'Recommendations unavailable, continuing...'</span>);
+        }
+        
+        <span class="keyword">return</span> { orderId, payment, inventory, recommendations };
+        
+    } <span class="keyword">catch</span> (error) {
+        console.error(<span class="string">`Order ${orderId} failed:`</span>, error.message);
+        <span class="keyword">throw</span> error;
+    }
+}
+
+<span class="comment">// Simulate load</span>
+<span class="keyword">async function</span> <span class="function">simulateLoad</span>() {
+    <span class="keyword">const</span> promises = [];
+    
+    <span class="comment">// Send 100 requests</span>
+    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">100</span>; i++) {
+        promises.push(
+            handleOrderRequest(i).catch(e => ({ error: e.message }))
+        );
+    }
+    
+    <span class="keyword">const</span> results = <span class="keyword">await</span> Promise.all(promises);
+    
+    <span class="comment">// Print statistics</span>
+    console.log(<span class="string">'\n=== Bulkhead Statistics ==='</span>);
+    console.log(<span class="string">'Payment:'</span>, paymentBulkhead.getStats());
+    console.log(<span class="string">'Inventory:'</span>, inventoryBulkhead.getStats());
+    console.log(<span class="string">'Recommendation:'</span>, recommendationBulkhead.getStats());
+    
+    <span class="keyword">const</span> successCount = results.filter(r => !r.error).length;
+    console.log(<span class="string">`\nSuccess rate: ${successCount}/100`</span>);
+}
+
+simulateLoad();
+                    </code-block>
+                    
+                    <h3>Types of Bulkheads</h3>
+                    
+                    <div class="grid-container">
+                        <div class="card">
+                            <div class="card-icon">🧵</div>
+                            <div class="card-title">Thread Pool</div>
+                            <div class="card-desc">
+                                Isolate thread pools per service/resource.<br>
+                                Most common pattern.
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">🔌</div>
+                            <div class="card-title">Connection Pool</div>
+                            <div class="card-desc">
+                                Separate DB connection pools per tenant/service.<br>
+                                Prevents connection exhaustion.
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">💾</div>
+                            <div class="card-title">Memory</div>
+                            <div class="card-desc">
+                                Limit memory per tenant/service.<br>
+                                Prevents OOM from single tenant.
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">⚙️</div>
+                            <div class="card-title">CPU</div>
+                            <div class="card-desc">
+                                CPU quotas per service (cgroups, containers).<br>
+                                Prevents CPU starvation.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Connection Pool Bulkhead Example</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Database Connection Pool Bulkhead</span>
+<span class="keyword">class</span> <span class="function">ConnectionPoolBulkhead</span> {
+    <span class="keyword">constructor</span>(name, maxConnections) {
+        <span class="keyword">this</span>.name = name;
+        <span class="keyword">this</span>.maxConnections = maxConnections;
+        <span class="keyword">this</span>.available = [];
+        <span class="keyword">this</span>.inUse = <span class="keyword">new</span> Set();
+        <span class="keyword">this</span>.waiting = [];
+        
+        <span class="comment">// Initialize connection pool</span>
+        <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < maxConnections; i++) {
+            <span class="keyword">this</span>.available.push(<span class="keyword">this</span>.createConnection(i));
+        }
+    }
+    
+    <span class="function">createConnection</span>(id) {
+        <span class="keyword">return</span> { id, name: <span class="string">`${this.name}-conn-${id}`</span> };
+    }
+    
+    <span class="keyword">async</span> <span class="function">acquire</span>(timeout = <span class="number">5000</span>) {
+        <span class="comment">// Get available connection</span>
+        <span class="keyword">if</span> (<span class="keyword">this</span>.available.length > <span class="number">0</span>) {
+            <span class="keyword">const</span> conn = <span class="keyword">this</span>.available.pop();
+            <span class="keyword">this</span>.inUse.add(conn);
+            console.log(<span class="string">`[${this.name}] Acquired ${conn.name} (${this.inUse.size}/${this.maxConnections} in use)`</span>);
+            <span class="keyword">return</span> conn;
+        }
+        
+        <span class="comment">// Wait for connection to be released</span>
+        <span class="keyword">return new</span> Promise((resolve, reject) => {
+            <span class="keyword">const</span> timer = setTimeout(() => {
+                <span class="keyword">const</span> idx = <span class="keyword">this</span>.waiting.indexOf(waiter);
+                <span class="keyword">if</span> (idx >= <span class="number">0</span>) <span class="keyword">this</span>.waiting.splice(idx, <span class="number">1</span>);
+                reject(<span class="keyword">new</span> Error(<span class="string">`Timeout waiting for ${this.name} connection`</span>));
+            }, timeout);
+            
+            <span class="keyword">const</span> waiter = { resolve, reject, timer };
+            <span class="keyword">this</span>.waiting.push(waiter);
+        });
+    }
+    
+    <span class="function">release</span>(conn) {
+        <span class="keyword">if</span> (!<span class="keyword">this</span>.inUse.has(conn)) {
+            <span class="keyword">throw new</span> Error(<span class="string">'Connection not from this pool'</span>);
+        }
+        
+        <span class="keyword">this</span>.inUse.delete(conn);
+        
+        <span class="comment">// Give to waiting request</span>
+        <span class="keyword">if</span> (<span class="keyword">this</span>.waiting.length > <span class="number">0</span>) {
+            <span class="keyword">const</span> { resolve, timer } = <span class="keyword">this</span>.waiting.shift();
+            clearTimeout(timer);
+            <span class="keyword">this</span>.inUse.add(conn);
+            resolve(conn);
+        } <span class="keyword">else</span> {
+            <span class="keyword">this</span>.available.push(conn);
+        }
+        
+        console.log(<span class="string">`[${this.name}] Released ${conn.name} (${this.available.length} available)`</span>);
+    }
+    
+    <span class="keyword">async</span> <span class="function">execute</span>(operation) {
+        <span class="keyword">const</span> conn = <span class="keyword">await this</span>.acquire();
+        <span class="keyword">try</span> {
+            <span class="keyword">return await</span> operation(conn);
+        } <span class="keyword">finally</span> {
+            <span class="keyword">this</span>.release(conn);
+        }
+    }
+}
+
+<span class="comment">// Separate pools for different services/tenants</span>
+<span class="keyword">const</span> tenantAPool = <span class="keyword">new</span> ConnectionPoolBulkhead(<span class="string">'TenantA'</span>, <span class="number">5</span>);
+<span class="keyword">const</span> tenantBPool = <span class="keyword">new</span> ConnectionPoolBulkhead(<span class="string">'TenantB'</span>, <span class="number">5</span>);
+
+<span class="comment">// Usage</span>
+<span class="keyword">async function</span> <span class="function">queryForTenant</span>(pool, tenantId, query) {
+    <span class="keyword">return await</span> pool.execute(<span class="keyword">async</span> (conn) => {
+        console.log(<span class="string">`Executing query for ${tenantId} on ${conn.name}`</span>);
+        <span class="keyword">await new</span> Promise(resolve => setTimeout(resolve, <span class="number">100</span>));
+        <span class="keyword">return</span> { tenantId, result: <span class="string">'data'</span> };
+    });
+}
+                    </code-block>
+                    
+                    <div class="info-box">
+                        <strong>🎯 When to Use Bulkhead Pattern:</strong>
+                        <ul>
+                            <li>Multi-tenant systems - isolate tenants from each other</li>
+                            <li>Microservices - prevent cascading failures</li>
+                            <li>Mixed criticality - protect critical paths from non-critical</li>
+                            <li>Shared resources - databases, thread pools, memory</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="success-box">
+                        <strong>✅ Best Practices:</strong>
+                        <ul>
+                            <li>Size bulkheads based on service capacity and SLAs</li>
+                            <li>Monitor bulkhead utilization and rejection rates</li>
+                            <li>Combine with circuit breakers for better resilience</li>
+                            <li>Use separate bulkheads for critical vs non-critical operations</li>
+                            <li>Test bulkhead behavior under load</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 5: Retry and Timeout Patterns -->
+            <div id="retry-timeout" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">🔄</span>Retry and Timeout Patterns</h2>
+                    
+                    <p>Retry and Timeout patterns handle transient failures and prevent indefinite waiting. They're essential for building resilient distributed systems that gracefully handle network hiccups and temporary service unavailability.</p>
+                    
+                    <h3>Timeout Pattern</h3>
+                    
+                    <p>Set maximum wait time for operations. Prevents threads from blocking indefinitely on unresponsive services.</p>
+                    
+                    <div class="code-block">
+<span class="comment">// Timeout Implementation</span>
+<span class="keyword">class</span> <span class="function">TimeoutError</span> <span class="keyword">extends</span> Error {
+    <span class="keyword">constructor</span>(message, duration) {
+        super(message);
+        <span class="keyword">this</span>.name = <span class="string">'TimeoutError'</span>;
+        <span class="keyword">this</span>.duration = duration;
+    }
+}
+
+<span class="keyword">async function</span> <span class="function">withTimeout</span>(promise, timeoutMs, operation = <span class="string">'Operation'</span>) {
+    <span class="keyword">let</span> timeoutHandle;
+    
+    <span class="keyword">const</span> timeoutPromise = <span class="keyword">new</span> Promise((_, reject) => {
+        timeoutHandle = setTimeout(() => {
+            reject(<span class="keyword">new</span> TimeoutError(
+                <span class="string">`${operation} timed out after ${timeoutMs}ms`</span>,
+                timeoutMs
+            ));
+        }, timeoutMs);
+    });
+    
+    <span class="keyword">try</span> {
+        <span class="keyword">const</span> result = <span class="keyword">await</span> Promise.race([promise, timeoutPromise]);
+        clearTimeout(timeoutHandle);
+        <span class="keyword">return</span> result;
+    } <span class="keyword">catch</span> (error) {
+        clearTimeout(timeoutHandle);
+        <span class="keyword">throw</span> error;
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">async function</span> <span class="function">callExternalService</span>() {
+    <span class="keyword">const</span> response = <span class="keyword">await</span> fetch(<span class="string">'https://api.example.com/data'</span>);
+    <span class="keyword">return await</span> response.json();
+}
+
+<span class="keyword">try</span> {
+    <span class="keyword">const</span> data = <span class="keyword">await</span> withTimeout(
+        callExternalService(),
+        <span class="number">3000</span>,  <span class="comment">// 3 second timeout</span>
+        <span class="string">'External API call'</span>
+    );
+    console.log(<span class="string">'Success:'</span>, data);
+} <span class="keyword">catch</span> (error) {
+    <span class="keyword">if</span> (error <span class="keyword">instanceof</span> TimeoutError) {
+        console.error(<span class="string">'Request timed out'</span>);
+    } <span class="keyword">else</span> {
+        console.error(<span class="string">'Request failed:'</span>, error);
+    }
+}
+                    </code-block>
+                    
+                    <h3>Retry Strategies</h3>
+                    
+                    <div class="grid-container">
+                        <div class="card">
+                            <div class="card-icon">⏱️</div>
+                            <div class="card-title">Fixed Delay</div>
+                            <div class="card-desc">
+                                Wait same amount between retries<br>
+                                Simple, predictable<br>
+                                Can overwhelm recovering service
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">📈</div>
+                            <div class="card-title">Exponential Backoff</div>
+                            <div class="card-desc">
+                                Double delay each retry<br>
+                                Gives service time to recover<br>
+                                Industry standard
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">🎲</div>
+                            <div class="card-title">Jittered Backoff</div>
+                            <div class="card-desc">
+                                Add randomness to delays<br>
+                                Prevents thundering herd<br>
+                                Best for distributed systems
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">⚡</div>
+                            <div class="card-title">Immediate Retry</div>
+                            <div class="card-desc">
+                                Retry immediately once<br>
+                                For transient network glitches<br>
+                                Then switch to backoff
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block">
+<span class="comment">// Comprehensive Retry Implementation</span>
+<span class="keyword">class</span> <span class="function">RetryPolicy</span> {
+    <span class="keyword">constructor</span>(options = {}) {
+        <span class="keyword">this</span>.maxAttempts = options.maxAttempts || <span class="number">3</span>;
+        <span class="keyword">this</span>.initialDelay = options.initialDelay || <span class="number">1000</span>;
+        <span class="keyword">this</span>.maxDelay = options.maxDelay || <span class="number">30000</span>;
+        <span class="keyword">this</span>.backoffMultiplier = options.backoffMultiplier || <span class="number">2</span>;
+        <span class="keyword">this</span>.jitter = options.jitter !== <span class="keyword">false</span>;
+        <span class="keyword">this</span>.retryableErrors = options.retryableErrors || [
+            <span class="string">'ECONNRESET'</span>, <span class="string">'ETIMEDOUT'</span>, <span class="string">'ECONNREFUSED'</span>
+        ];
+    }
+    
+    <span class="function">shouldRetry</span>(error, attempt) {
+        <span class="keyword">if</span> (attempt >= <span class="keyword">this</span>.maxAttempts) {
+            <span class="keyword">return false</span>;
+        }
+        
+        <span class="comment">// Check if error is retryable</span>
+        <span class="keyword">if</span> (error.code && <span class="keyword">this</span>.retryableErrors.includes(error.code)) {
+            <span class="keyword">return true</span>;
+        }
+        
+        <span class="comment">// HTTP status codes that are retryable</span>
+        <span class="keyword">if</span> (error.status) {
+            <span class="keyword">return</span> error.status >= <span class="number">500</span> || error.status === <span class="number">429</span> || error.status === <span class="number">408</span>;
+        }
+        
+        <span class="keyword">return false</span>;
+    }
+    
+    <span class="function">calculateDelay</span>(attempt) {
+        <span class="comment">// Exponential backoff: delay = initial * (multiplier ^ attempt)</span>
+        <span class="keyword">let</span> delay = <span class="keyword">this</span>.initialDelay * Math.pow(<span class="keyword">this</span>.backoffMultiplier, attempt);
+        
+        <span class="comment">// Cap at max delay</span>
+        delay = Math.min(delay, <span class="keyword">this</span>.maxDelay);
+        
+        <span class="comment">// Add jitter to prevent thundering herd</span>
+        <span class="keyword">if</span> (<span class="keyword">this</span>.jitter) {
+            <span class="comment">// Random jitter between 0 and delay</span>
+            delay = Math.random() * delay;
+        }
+        
+        <span class="keyword">return</span> delay;
+    }
+    
+    <span class="keyword">async</span> <span class="function">execute</span>(operation, context = <span class="string">''</span>) {
+        <span class="keyword">let</span> lastError;
+        
+        <span class="keyword">for</span> (<span class="keyword">let</span> attempt = <span class="number">0</span>; attempt < <span class="keyword">this</span>.maxAttempts; attempt++) {
+            <span class="keyword">try</span> {
+                <span class="keyword">if</span> (attempt > <span class="number">0</span>) {
+                    <span class="keyword">const</span> delay = <span class="keyword">this</span>.calculateDelay(attempt - <span class="number">1</span>);
+                    console.log(
+                        <span class="string">`[Retry] ${context} attempt ${attempt + 1}/${this.maxAttempts} `</span> +
+                        <span class="string">`after ${Math.round(delay)}ms delay`</span>
+                    );
+                    <span class="keyword">await new</span> Promise(resolve => setTimeout(resolve, delay));
+                }
+                
+                <span class="keyword">const</span> result = <span class="keyword">await</span> operation();
+                
+                <span class="keyword">if</span> (attempt > <span class="number">0</span>) {
+                    console.log(<span class="string">`[Retry] ${context} succeeded on attempt ${attempt + 1}`</span>);
+                }
+                
+                <span class="keyword">return</span> result;
+                
+            } <span class="keyword">catch</span> (error) {
+                lastError = error;
+                
+                <span class="keyword">if</span> (!<span class="keyword">this</span>.shouldRetry(error, attempt)) {
+                    console.error(
+                        <span class="string">`[Retry] ${context} failed (non-retryable): ${error.message}`</span>
+                    );
+                    <span class="keyword">throw</span> error;
+                }
+                
+                console.warn(
+                    <span class="string">`[Retry] ${context} attempt ${attempt + 1} failed: ${error.message}`</span>
+                );
+            }
+        }
+        
+        <span class="comment">// All attempts exhausted</span>
+        console.error(<span class="string">`[Retry] ${context} failed after ${this.maxAttempts} attempts`</span>);
+        <span class="keyword">throw new</span> Error(
+            <span class="string">`Max retry attempts (${this.maxAttempts}) exceeded. Last error: ${lastError.message}`</span>
+        );
+    }
+}
+
+<span class="comment">// Usage Examples</span>
+<span class="keyword">const</span> defaultRetry = <span class="keyword">new</span> RetryPolicy({
+    maxAttempts: <span class="number">3</span>,
+    initialDelay: <span class="number">1000</span>,
+    backoffMultiplier: <span class="number">2</span>,
+    jitter: <span class="keyword">true</span>
+});
+
+<span class="keyword">const</span> aggressiveRetry = <span class="keyword">new</span> RetryPolicy({
+    maxAttempts: <span class="number">5</span>,
+    initialDelay: <span class="number">500</span>,
+    maxDelay: <span class="number">10000</span>,
+    backoffMultiplier: <span class="number">1.5</span>
+});
+
+<span class="comment">// Simulated flaky service</span>
+<span class="keyword">let</span> attemptCount = <span class="number">0</span>;
+<span class="keyword">async function</span> <span class="function">flakyService</span>() {
+    attemptCount++;
+    <span class="keyword">if</span> (attemptCount < <span class="number">3</span>) {
+        <span class="keyword">const</span> error = <span class="keyword">new</span> Error(<span class="string">'Service temporarily unavailable'</span>);
+        error.status = <span class="number">503</span>;
+        <span class="keyword">throw</span> error;
+    }
+    <span class="keyword">return</span> { data: <span class="string">'Success!'</span> };
+}
+
+<span class="comment">// Execute with retry</span>
+<span class="keyword">try</span> {
+    <span class="keyword">const</span> result = <span class="keyword">await</span> defaultRetry.execute(
+        flakyService,
+        <span class="string">'Flaky Service Call'</span>
+    );
+    console.log(<span class="string">'Result:'</span>, result);
+} <span class="keyword">catch</span> (error) {
+    console.error(<span class="string">'Failed:'</span>, error.message);
+}
+                    </code-block>
+                    
+                    <h3>Circuit Breaker Pattern</h3>
+                    
+                    <p>Prevents repeated calls to a failing service. Opens circuit after threshold failures, gives service time to recover.</p>
+                    
+                    <div class="visual-demo">
+                        <div class="timeline">
+                            <div class="timeline-item success">
+                                <h4>CLOSED State (Normal)</h4>
+                                <p>Requests flow through normally</p>
+                                <p>Counting failures...</p>
+                            </div>
+                            <div class="arrow-down">↓ Failure threshold exceeded ↓</div>
+                            <div class="timeline-item failure">
+                                <h4>OPEN State (Failing)</h4>
+                                <p>Circuit breaker trips!</p>
+                                <p>All requests fail fast (no calls to service)</p>
+                                <p>Wait for timeout period...</p>
+                            </div>
+                            <div class="arrow-down">↓ After timeout ↓</div>
+                            <div class="timeline-item" style="border-left-color: #ff9800;">
+                                <h4>HALF-OPEN State (Testing)</h4>
+                                <p>Allow limited test requests</p>
+                                <p>If successful → CLOSED</p>
+                                <p>If fails → OPEN</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block">
+<span class="comment">// Circuit Breaker Implementation</span>
+<span class="keyword">class</span> <span class="function">CircuitBreaker</span> {
+    <span class="keyword">constructor</span>(options = {}) {
+        <span class="keyword">this</span>.failureThreshold = options.failureThreshold || <span class="number">5</span>;
+        <span class="keyword">this</span>.successThreshold = options.successThreshold || <span class="number">2</span>;
+        <span class="keyword">this</span>.timeout = options.timeout || <span class="number">60000</span>;  <span class="comment">// 1 minute</span>
+        
+        <span class="keyword">this</span>.state = <span class="string">'CLOSED'</span>;  <span class="comment">// CLOSED, OPEN, HALF_OPEN</span>
+        <span class="keyword">this</span>.failureCount = <span class="number">0</span>;
+        <span class="keyword">this</span>.successCount = <span class="number">0</span>;
+        <span class="keyword">this</span>.nextAttempt = Date.now();
+    }
+    
+    <span class="keyword">async</span> <span class="function">execute</span>(operation) {
+        <span class="keyword">if</span> (<span class="keyword">this</span>.state === <span class="string">'OPEN'</span>) {
+            <span class="keyword">if</span> (Date.now() < <span class="keyword">this</span>.nextAttempt) {
+                <span class="keyword">throw new</span> Error(
+                    <span class="string">`Circuit breaker is OPEN. Retry after ${new Date(this.nextAttempt).toISOString()}`</span>
+                );
+            }
+            <span class="comment">// Timeout passed, try half-open</span>
+            <span class="keyword">this</span>.state = <span class="string">'HALF_OPEN'</span>;
+            console.log(<span class="string">'[CircuitBreaker] State: OPEN → HALF_OPEN'</span>);
+        }
+        
+        <span class="keyword">try</span> {
+            <span class="keyword">const</span> result = <span class="keyword">await</span> operation();
+            <span class="keyword">this</span>.onSuccess();
+            <span class="keyword">return</span> result;
+        } <span class="keyword">catch</span> (error) {
+            <span class="keyword">this</span>.onFailure();
+            <span class="keyword">throw</span> error;
+        }
+    }
+    
+    <span class="function">onSuccess</span>() {
+        <span class="keyword">this</span>.failureCount = <span class="number">0</span>;
+        
+        <span class="keyword">if</span> (<span class="keyword">this</span>.state === <span class="string">'HALF_OPEN'</span>) {
+            <span class="keyword">this</span>.successCount++;
+            
+            <span class="keyword">if</span> (<span class="keyword">this</span>.successCount >= <span class="keyword">this</span>.successThreshold) {
+                <span class="keyword">this</span>.state = <span class="string">'CLOSED'</span>;
+                <span class="keyword">this</span>.successCount = <span class="number">0</span>;
+                console.log(<span class="string">'[CircuitBreaker] State: HALF_OPEN → CLOSED (recovered)'</span>);
+            }
+        }
+    }
+    
+    <span class="function">onFailure</span>() {
+        <span class="keyword">this</span>.failureCount++;
+        <span class="keyword">this</span>.successCount = <span class="number">0</span>;
+        
+        <span class="keyword">if</span> (<span class="keyword">this</span>.state === <span class="string">'HALF_OPEN'</span> || <span class="keyword">this</span>.failureCount >= <span class="keyword">this</span>.failureThreshold) {
+            <span class="keyword">this</span>.state = <span class="string">'OPEN'</span>;
+            <span class="keyword">this</span>.nextAttempt = Date.now() + <span class="keyword">this</span>.timeout;
+            console.log(
+                <span class="string">`[CircuitBreaker] State: → OPEN (failures: ${this.failureCount})`</span>
+            );
+        }
+    }
+    
+    <span class="function">getState</span>() {
+        <span class="keyword">return</span> {
+            state: <span class="keyword">this</span>.state,
+            failureCount: <span class="keyword">this</span>.failureCount,
+            successCount: <span class="keyword">this</span>.successCount,
+            nextAttempt: <span class="keyword">this</span>.state === <span class="string">'OPEN'</span> ? <span class="keyword">new</span> Date(<span class="keyword">this</span>.nextAttempt) : <span class="keyword">null</span>
+        };
+    }
+}
+
+<span class="comment">// Combine retry with circuit breaker</span>
+<span class="keyword">const</span> breaker = <span class="keyword">new</span> CircuitBreaker({
+    failureThreshold: <span class="number">3</span>,
+    successThreshold: <span class="number">2</span>,
+    timeout: <span class="number">5000</span>
+});
+
+<span class="keyword">const</span> retry = <span class="keyword">new</span> RetryPolicy({ maxAttempts: <span class="number">3</span> });
+
+<span class="keyword">async function</span> <span class="function">callWithResiliency</span>(operation) {
+    <span class="keyword">return await</span> breaker.execute(
+        () => retry.execute(operation, <span class="string">'API Call'</span>)
+    );
+}
+                    </code-block>
+                    
+                    <div class="info-box">
+                        <strong>🎯 Best Practices:</strong>
+                        <ul>
+                            <li><strong>Timeout Everything:</strong> Every external call needs a timeout</li>
+                            <li><strong>Use Exponential Backoff:</strong> With jitter to prevent thundering herd</li>
+                            <li><strong>Don't Retry Blindly:</strong> Only retry transient failures (5xx, timeouts)</li>
+                            <li><strong>Circuit Breakers:</strong> Prevent cascading failures</li>
+                            <li><strong>Monitoring:</strong> Track retry rates, circuit breaker state</li>
+                            <li><strong>Idempotency:</strong> Ensure retries are safe (see next section)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 6: Idempotency -->
+            <div id="idempotency" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">🔁</span>Idempotency</h2>
+                    
+                    <p>An idempotent operation produces the same result no matter how many times it's executed. Critical for safe retries in distributed systems - if a request is retried due to timeout, it won't create duplicate side effects.</p>
+                    
+                    <h3>Idempotent vs Non-Idempotent Operations</h3>
+                    
+                    <div class="visual-demo">
+                        <div class="pros-cons">
+                            <div class="pros">
+                                <h4 style="color: #2e7d32;">✅ Idempotent (Safe to Retry)</h4>
+                                <ul>
+                                    <li><strong>GET /user/123</strong> - Reading data</li>
+                                    <li><strong>PUT /user/123</strong> - Full replacement</li>
+                                    <li><strong>DELETE /user/123</strong> - Deleting (already gone = no change)</li>
+                                    <li><strong>SET balance = 100</strong> - Absolute set</li>
+                                    <li><strong>Transfer with idempotency key</strong></li>
+                                </ul>
+                                <p style="margin-top: 15px;">Execute 1x: balance = 100<br>Execute 5x: balance = 100 ✓ Same result!</p>
+                            </div>
+                            <div class="cons">
+                                <h4 style="color: #c62828;">❌ Non-Idempotent (Unsafe)</h4>
+                                <ul>
+                                    <li><strong>POST /orders</strong> - Creates new order each time</li>
+                                    <li><strong>PATCH /user/123</strong> - Partial update (depends)</li>
+                                    <li><strong>balance += 100</strong> - Relative change</li>
+                                    <li><strong>Transfer without key</strong></li>
+                                    <li><strong>Send email</strong> - Sends duplicate emails</li>
+                                </ul>
+                                <p style="margin-top: 15px;">Execute 1x: balance += 100 → 100<br>Execute 5x: balance += 100 → 500 ✗ Different!</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Idempotency Key Pattern</h3>
+                    
+                    <p>Client generates unique key for each logical operation. Server stores result by key and returns cached result for duplicate requests.</p>
+                    
+                    <div class="code-block">
+<span class="comment">// Idempotency Key Implementation</span>
+<span class="keyword">class</span> <span class="function">IdempotencyStore</span> {
+    <span class="keyword">constructor</span>() {
+        <span class="keyword">this</span>.store = <span class="keyword">new</span> Map();  <span class="comment">// key → {status, result, timestamp}</span>
+        <span class="keyword">this</span>.ttl = <span class="number">24</span> * <span class="number">60</span> * <span class="number">60</span> * <span class="number">1000</span>;  <span class="comment">// 24 hours</span>
+    }
+    
+    <span class="function">get</span>(key) {
+        <span class="keyword">const</span> entry = <span class="keyword">this</span>.store.get(key);
+        
+        <span class="keyword">if</span> (!entry) {
+            <span class="keyword">return null</span>;
+        }
+        
+        <span class="comment">// Check if expired</span>
+        <span class="keyword">if</span> (Date.now() - entry.timestamp > <span class="keyword">this</span>.ttl) {
+            <span class="keyword">this</span>.store.delete(key);
+            <span class="keyword">return null</span>;
+        }
+        
+        <span class="keyword">return</span> entry;
+    }
+    
+    <span class="function">set</span>(key, status, result) {
+        <span class="keyword">this</span>.store.set(key, {
+            status,      <span class="comment">// 'processing', 'completed', 'failed'</span>
+            result,
+            timestamp: Date.now()
+        });
+    }
+    
+    <span class="function">delete</span>(key) {
+        <span class="keyword">this</span>.store.delete(key);
+    }
+}
+
+<span class="keyword">class</span> <span class="function">IdempotentOperationHandler</span> {
+    <span class="keyword">constructor</span>(store) {
+        <span class="keyword">this</span>.store = store;
+    }
+    
+    <span class="keyword">async</span> <span class="function">execute</span>(idempotencyKey, operation) {
+        <span class="comment">// Check if operation already processed</span>
+        <span class="keyword">const</span> existing = <span class="keyword">this</span>.store.get(idempotencyKey);
+        
+        <span class="keyword">if</span> (existing) {
+            <span class="keyword">if</span> (existing.status === <span class="string">'processing'</span>) {
+                <span class="comment">// Concurrent request detected</span>
+                <span class="keyword">throw new</span> Error(
+                    <span class="string">'Operation already in progress. Please retry later.'</span>
+                );
+            }
+            
+            <span class="keyword">if</span> (existing.status === <span class="string">'completed'</span>) {
+                console.log(<span class="string">`[Idempotency] Returning cached result for key: ${idempotencyKey}`</span>);
+                <span class="keyword">return</span> existing.result;
+            }
+            
+            <span class="keyword">if</span> (existing.status === <span class="string">'failed'</span>) {
+                <span class="comment">// Allow retry of failed operations</span>
+                console.log(<span class="string">`[Idempotency] Retrying failed operation: ${idempotencyKey}`</span>);
+                <span class="keyword">this</span>.store.delete(idempotencyKey);
+            }
+        }
+        
+        <span class="comment">// Mark as processing</span>
+        <span class="keyword">this</span>.store.set(idempotencyKey, <span class="string">'processing'</span>, <span class="keyword">null</span>);
+        
+        <span class="keyword">try</span> {
+            <span class="comment">// Execute operation</span>
+            <span class="keyword">const</span> result = <span class="keyword">await</span> operation();
+            
+            <span class="comment">// Store successful result</span>
+            <span class="keyword">this</span>.store.set(idempotencyKey, <span class="string">'completed'</span>, result);
+            console.log(<span class="string">`[Idempotency] Operation completed: ${idempotencyKey}`</span>);
+            
+            <span class="keyword">return</span> result;
+            
+        } <span class="keyword">catch</span> (error) {
+            <span class="comment">// Mark as failed (allow retry)</span>
+            <span class="keyword">this</span>.store.set(idempotencyKey, <span class="string">'failed'</span>, error.message);
+            console.error(<span class="string">`[Idempotency] Operation failed: ${idempotencyKey}`</span>);
+            <span class="keyword">throw</span> error;
+        }
+    }
+}
+
+<span class="comment">// Usage: Payment Processing</span>
+<span class="keyword">const</span> idempotencyStore = <span class="keyword">new</span> IdempotencyStore();
+<span class="keyword">const</span> handler = <span class="keyword">new</span> IdempotentOperationHandler(idempotencyStore);
+
+<span class="keyword">async function</span> <span class="function">processPayment</span>(paymentData, idempotencyKey) {
+    <span class="keyword">return await</span> handler.execute(idempotencyKey, <span class="keyword">async</span> () => {
+        <span class="comment">// Actual payment processing logic</span>
+        console.log(<span class="string">`Processing payment: ${paymentData.amount}`</span>);
+        
+        <span class="comment">// Simulate payment API call</span>
+        <span class="keyword">await new</span> Promise(resolve => setTimeout(resolve, <span class="number">1000</span>));
+        
+        <span class="keyword">return</span> {
+            transactionId: <span class="string">`txn-${Date.now()}`</span>,
+            amount: paymentData.amount,
+            status: <span class="string">'success'</span>
+        };
+    });
+}
+
+<span class="comment">// Client generates idempotency key</span>
+<span class="keyword">const</span> idempotencyKey = <span class="string">`payment-${Date.now()}-${Math.random()}`</span>;
+
+<span class="comment">// First call - executes</span>
+<span class="keyword">const</span> result1 = <span class="keyword">await</span> processPayment(
+    { amount: <span class="number">100</span>, userId: <span class="string">'user-123'</span> },
+    idempotencyKey
+);
+console.log(<span class="string">'Result 1:'</span>, result1);
+
+<span class="comment">// Retry with same key - returns cached result (no duplicate charge!)</span>
+<span class="keyword">const</span> result2 = <span class="keyword">await</span> processPayment(
+    { amount: <span class="number">100</span>, userId: <span class="string">'user-123'</span> },
+    idempotencyKey
+);
+console.log(<span class="string">'Result 2:'</span>, result2);  <span class="comment">// Same transaction ID</span>
+
+console.log(<span class="string">'Same result:'</span>, result1.transactionId === result2.transactionId);
+                    </code-block>
+                    
+                    <h3>Database-Level Idempotency</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Database Schema for Idempotency</span>
+<span class="comment">/*
+CREATE TABLE payments (
+    id UUID PRIMARY KEY,
+    user_id VARCHAR(50) NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE idempotency_keys (
+    idempotency_key VARCHAR(255) PRIMARY KEY,
+    payment_id UUID REFERENCES payments(id),
+    status VARCHAR(20) NOT NULL,  -- 'processing', 'completed', 'failed'
+    response_body TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL
+);
+
+CREATE INDEX idx_idempotency_expires ON idempotency_keys(expires_at);
+*/</span>
+
+<span class="comment">// SQL Implementation</span>
+<span class="keyword">async function</span> <span class="function">processPaymentWithDB</span>(db, paymentData, idempotencyKey) {
+    <span class="comment">// Start transaction</span>
+    <span class="keyword">await</span> db.query(<span class="string">'BEGIN'</span>);
+    
+    <span class="keyword">try</span> {
+        <span class="comment">// Check for existing idempotency key</span>
+        <span class="keyword">const</span> existing = <span class="keyword">await</span> db.query(
+            <span class="string">'SELECT * FROM idempotency_keys WHERE idempotency_key = $1'</span>,
+            [idempotencyKey]
+        );
+        
+        <span class="keyword">if</span> (existing.rows.length > <span class="number">0</span>) {
+            <span class="keyword">const</span> record = existing.rows[<span class="number">0</span>];
+            
+            <span class="keyword">if</span> (record.status === <span class="string">'completed'</span>) {
+                <span class="comment">// Return cached result</span>
+                <span class="keyword">await</span> db.query(<span class="string">'COMMIT'</span>);
+                <span class="keyword">return</span> JSON.parse(record.response_body);
+            }
+            
+            <span class="keyword">if</span> (record.status === <span class="string">'processing'</span>) {
+                <span class="keyword">await</span> db.query(<span class="string">'ROLLBACK'</span>);
+                <span class="keyword">throw new</span> Error(<span class="string">'Operation in progress'</span>);
+            }
+        }
+        
+        <span class="comment">// Insert idempotency key (processing state)</span>
+        <span class="keyword">await</span> db.query(
+            <span class="string">`INSERT INTO idempotency_keys 
+             (idempotency_key, status, expires_at)
+             VALUES ($1, 'processing', NOW() + INTERVAL '24 hours')
+             ON CONFLICT (idempotency_key) DO NOTHING`</span>,
+            [idempotencyKey]
+        );
+        
+        <span class="comment">// Create payment record</span>
+        <span class="keyword">const</span> paymentResult = <span class="keyword">await</span> db.query(
+            <span class="string">`INSERT INTO payments (id, user_id, amount, status)
+             VALUES (gen_random_uuid(), $1, $2, 'completed')
+             RETURNING *`</span>,
+            [paymentData.userId, paymentData.amount]
+        );
+        
+        <span class="keyword">const</span> payment = paymentResult.rows[<span class="number">0</span>];
+        
+        <span class="comment">// Update idempotency key with result</span>
+        <span class="keyword">await</span> db.query(
+            <span class="string">`UPDATE idempotency_keys
+             SET status = 'completed',
+                 payment_id = $1,
+                 response_body = $2
+             WHERE idempotency_key = $3`</span>,
+            [payment.id, JSON.stringify(payment), idempotencyKey]
+        );
+        
+        <span class="keyword">await</span> db.query(<span class="string">'COMMIT'</span>);
+        <span class="keyword">return</span> payment;
+        
+    } <span class="keyword">catch</span> (error) {
+        <span class="keyword">await</span> db.query(<span class="string">'ROLLBACK'</span>);
+        <span class="keyword">throw</span> error;
+    }
+}
+                    </code-block>
+                    
+                    <h3>Making Non-Idempotent Operations Idempotent</h3>
+                    
+                    <div class="feature-box">
+                        <h4>Pattern 1: Client-Generated IDs</h4>
+                        <p>Instead of server-generated IDs, client provides UUID for POST requests.</p>
+                        <div class="code-block" style="margin-top: 15px;">
+<span class="comment">// Non-Idempotent</span>
+POST /api/orders
+{ "item": "laptop", "quantity": 1 }
+<span class="comment">// Creates new order each time</span>
+
+<span class="comment">// Idempotent</span>
+PUT /api/orders/<span class="string">550e8400-e29b-41d4-a716-446655440000</span>
+{ "item": "laptop", "quantity": 1 }
+<span class="comment">// Same order ID, creates once</span>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h4>Pattern 2: Version Numbers / ETags</h4>
+                        <p>Include version to ensure updates are based on latest state.</p>
+                        <div class="code-block" style="margin-top: 15px;">
+PUT /api/users/<span class="number">123</span>
+If-Match: <span class="string">"etag-v42"</span>
+{ "name": "Alice Updated" }
+
+<span class="comment">// Server checks: if current ETag != "etag-v42", return 412 Precondition Failed</span>
+<span class="comment">// Prevents lost updates</span>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h4>Pattern 3: Natural Idempotency</h4>
+                        <p>Design operations to be naturally idempotent.</p>
+                        <ul>
+                            <li><strong>Bad:</strong> <code>incrementBalance(100)</code> - not idempotent</li>
+                            <li><strong>Good:</strong> <code>setBalance(currentBalance + 100)</code> - send expected final state</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>🎯 Best Practices:</strong>
+                        <ul>
+                            <li><strong>Generate Keys Client-Side:</strong> UUIDs or timestamps with random component</li>
+                            <li><strong>Store for 24 Hours:</strong> Balance between safety and storage</li>
+                            <li><strong>Return Same HTTP Status:</strong> Cached responses should match original</li>
+                            <li><strong>Document Behavior:</strong> Make idempotency guarantees clear in API docs</li>
+                            <li><strong>Use Unique Constraints:</strong> Database can enforce idempotency</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ Common Pitfalls:</strong>
+                        <ul>
+                            <li>Not handling concurrent requests with same key</li>
+                            <li>Storing keys forever (use TTL)</li>
+                            <li>Forgetting to clean up failed operations</li>
+                            <li>Not making side effects (emails, webhooks) idempotent</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 7: Compatibility -->
+            <div id="compatibility" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">🔄</span>Backward and Forward Compatibility</h2>
+                    
+                    <p>Compatibility ensures old and new versions of services can coexist during deployments. Essential for zero-downtime deployments and gradual rollouts.</p>
+                    
+                    <h3>Understanding Compatibility</h3>
+                    
+                    <div class="visual-demo">
+                        <div class="grid-container">
+                            <div class="card">
+                                <div class="card-icon">⬅️</div>
+                                <div class="card-title">Backward Compatible</div>
+                                <div class="card-desc">
+                                    <strong>New code reads old data</strong><br>
+                                    Newer version can handle data from older version<br>
+                                    Safe to deploy new version first
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-icon">➡️</div>
+                                <div class="card-title">Forward Compatible</div>
+                                <div class="card-desc">
+                                    <strong>Old code reads new data</strong><br>
+                                    Older version can handle data from newer version<br>
+                                    Safe to have mixed versions
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Schema Evolution Example</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Version 1: Original Schema</span>
+{
+    <span class="string">"userId"</span>: <span class="string">"12345"</span>,
+    <span class="string">"name"</span>: <span class="string">"Alice"</span>,
+    <span class="string">"email"</span>: <span class="string">"alice@example.com"</span>
+}
+
+<span class="comment">// Version 2: Add optional field (BACKWARD COMPATIBLE ✅)</span>
+{
+    <span class="string">"userId"</span>: <span class="string">"12345"</span>,
+    <span class="string">"name"</span>: <span class="string">"Alice"</span>,
+    <span class="string">"email"</span>: <span class="string">"alice@example.com"</span>,
+    <span class="string">"phone"</span>: <span class="string">"+1234567890"</span>  <span class="comment">// New optional field</span>
+}
+<span class="comment">// Old code ignores unknown fields → still works ✅</span>
+
+<span class="comment">// Version 3: Add required field (NOT BACKWARD COMPATIBLE ❌)</span>
+{
+    <span class="string">"userId"</span>: <span class="string">"12345"</span>,
+    <span class="string">"name"</span>: <span class="string">"Alice"</span>,
+    <span class="string">"email"</span>: <span class="string">"alice@example.com"</span>,
+    <span class="string">"phone"</span>: <span class="string">"+1234567890"</span>,
+    <span class="string">"country"</span>: <span class="string">"US"</span>  <span class="comment">// REQUIRED field</span>
+}
+<span class="comment">// Old data missing "country" → new code breaks ❌</span>
+                    </code-block>
+                    
+                    <h3>Safe Schema Changes</h3>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Change Type</th>
+                                <th>Backward Compatible?</th>
+                                <th>Forward Compatible?</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Add optional field</strong></td>
+                                <td>✅ Yes</td>
+                                <td>✅ Yes</td>
+                                <td>Safe: old code ignores new field</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Remove optional field</strong></td>
+                                <td>✅ Yes</td>
+                                <td>❌ No</td>
+                                <td>New code must provide default</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Add required field</strong></td>
+                                <td>❌ No</td>
+                                <td>✅ Yes</td>
+                                <td>Must have default or migration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Remove required field</strong></td>
+                                <td>✅ Yes</td>
+                                <td>❌ No</td>
+                                <td>Old code expects field</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rename field</strong></td>
+                                <td>❌ No</td>
+                                <td>❌ No</td>
+                                <td>Keep both during transition</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Change field type</strong></td>
+                                <td>❌ No</td>
+                                <td>❌ No</td>
+                                <td>Very dangerous</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>API Versioning Strategies</h3>
+                    
+                    <div class="feature-box">
+                        <h4>1. URI Versioning</h4>
+                        <p>Version in URL path. Simple and explicit.</p>
+                        <div class="code-block" style="margin-top: 10px;">
+GET /api/v1/users/<span class="number">123</span>
+GET /api/v2/users/<span class="number">123</span>
+
+<span class="comment">// Pros: Clear, easy to route</span>
+<span class="comment">// Cons: Clients must explicitly upgrade</span>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h4>2. Header Versioning</h4>
+                        <p>Version in Accept header. Cleaner URLs.</p>
+                        <div class="code-block" style="margin-top: 10px;">
+GET /api/users/<span class="number">123</span>
+Accept: application/vnd.myapi.v2+json
+
+<span class="comment">// Pros: Clean URLs, content negotiation</span>
+<span class="comment">// Cons: Less visible, harder to test</span>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h4>3. No Versioning (Prefer Backward Compatibility)</h4>
+                        <p>Evolve API without versions. Best for long-term maintenance.</p>
+                        <ul>
+                            <li>Only add, never remove or change</li>
+                            <li>Use optional fields with defaults</li>
+                            <li>Deprecate gracefully</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>Implementation: Versioned API Handler</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// API Version Handler</span>
+<span class="keyword">class</span> <span class="function">VersionedAPIHandler</span> {
+    <span class="keyword">constructor</span>() {
+        <span class="keyword">this</span>.handlers = <span class="keyword">new</span> Map();
+    }
+    
+    <span class="function">register</span>(version, path, handler) {
+        <span class="keyword">const</span> key = <span class="string">`${version}:${path}`</span>;
+        <span class="keyword">this</span>.handlers.set(key, handler);
+    }
+    
+    <span class="keyword">async</span> <span class="function">handle</span>(request) {
+        <span class="comment">// Extract version from URL or header</span>
+        <span class="keyword">const</span> version = <span class="keyword">this</span>.extractVersion(request);
+        <span class="keyword">const</span> path = <span class="keyword">this</span>.extractPath(request);
+        
+        <span class="keyword">const</span> key = <span class="string">`${version}:${path}`</span>;
+        <span class="keyword">const</span> handler = <span class="keyword">this</span>.handlers.get(key);
+        
+        <span class="keyword">if</span> (!handler) {
+            <span class="keyword">throw new</span> Error(<span class="string">`No handler for ${version} ${path}`</span>);
+        }
+        
+        <span class="keyword">return await</span> handler(request);
+    }
+    
+    <span class="function">extractVersion</span>(request) {
+        <span class="comment">// Try URL first: /api/v2/users</span>
+        <span class="keyword">const</span> urlMatch = request.url.match(<span class="string">/\/v(\d+)\//</span>);
+        <span class="keyword">if</span> (urlMatch) <span class="keyword">return</span> <span class="string">`v${urlMatch[1]}`</span>;
+        
+        <span class="comment">// Try header: Accept: application/vnd.myapi.v2+json</span>
+        <span class="keyword">const</span> accept = request.headers[<span class="string">'accept'</span>] || <span class="string">''</span>;
+        <span class="keyword">const</span> headerMatch = accept.match(<span class="string">/\.v(\d+)\+/</span>);
+        <span class="keyword">if</span> (headerMatch) <span class="keyword">return</span> <span class="string">`v${headerMatch[1]}`</span>;
+        
+        <span class="comment">// Default to latest</span>
+        <span class="keyword">return</span> <span class="string">'v1'</span>;
+    }
+    
+    <span class="function">extractPath</span>(request) {
+        <span class="keyword">return</span> request.url.replace(<span class="string">/\/v\d+/</span>, <span class="string">''</span>);
+    }
+}
+
+<span class="comment">// Register handlers</span>
+<span class="keyword">const</span> api = <span class="keyword">new</span> VersionedAPIHandler();
+
+<span class="comment">// V1: Original format</span>
+api.register(<span class="string">'v1'</span>, <span class="string">'/users/:id'</span>, <span class="keyword">async</span> (req) => {
+    <span class="keyword">return</span> {
+        userId: req.params.id,
+        name: <span class="string">'Alice'</span>,
+        email: <span class="string">'alice@example.com'</span>
+    };
+});
+
+<span class="comment">// V2: Added phone field, split name</span>
+api.register(<span class="string">'v2'</span>, <span class="string">'/users/:id'</span>, <span class="keyword">async</span> (req) => {
+    <span class="keyword">return</span> {
+        userId: req.params.id,
+        firstName: <span class="string">'Alice'</span>,
+        lastName: <span class="string">'Smith'</span>,
+        email: <span class="string">'alice@example.com'</span>,
+        phone: <span class="string">'+1234567890'</span>
+    };
+});
+                    </code-block>
+                    
+                    <h3>Database Schema Evolution</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Safe Migration Pattern: Expand-Contract</span>
+
+<span class="comment">// Phase 1: EXPAND - Add new column (nullable)</span>
+ALTER TABLE users ADD COLUMN phone_number VARCHAR(<span class="number">20</span>);
+
+<span class="comment">// Deploy code that writes to BOTH old and new columns</span>
+<span class="keyword">function</span> <span class="function">updateUser</span>(userId, data) {
+    <span class="keyword">return</span> db.query(
+        <span class="string">`UPDATE users 
+         SET name = $1, 
+             phone = $2,           -- Old column
+             phone_number = $2     -- New column
+         WHERE id = $3`</span>,
+        [data.name, data.phone, userId]
+    );
+}
+
+<span class="comment">// Phase 2: MIGRATE - Backfill data</span>
+UPDATE users SET phone_number = phone WHERE phone_number IS NULL;
+
+<span class="comment">// Phase 3: CONTRACT - Remove old column</span>
+<span class="comment">// Deploy code that only uses new column</span>
+<span class="keyword">function</span> <span class="function">updateUser</span>(userId, data) {
+    <span class="keyword">return</span> db.query(
+        <span class="string">`UPDATE users 
+         SET name = $1, 
+             phone_number = $2     -- Only new column
+         WHERE id = $3`</span>,
+        [data.name, data.phone, userId]
+    );
+}
+
+<span class="comment">// Finally, drop old column</span>
+ALTER TABLE users DROP COLUMN phone;
+                    </code-block>
+                    
+                    <h3>Message Format Evolution</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Protocol Buffers Example (Backward & Forward Compatible)</span>
+
+<span class="comment">// Version 1</span>
+<span class="keyword">message</span> User {
+    <span class="keyword">string</span> user_id = <span class="number">1</span>;
+    <span class="keyword">string</span> name = <span class="number">2</span>;
+    <span class="keyword">string</span> email = <span class="number">3</span>;
+}
+
+<span class="comment">// Version 2: Add optional field (safe!)</span>
+<span class="keyword">message</span> User {
+    <span class="keyword">string</span> user_id = <span class="number">1</span>;
+    <span class="keyword">string</span> name = <span class="number">2</span>;
+    <span class="keyword">string</span> email = <span class="number">3</span>;
+    <span class="keyword">string</span> phone = <span class="number">4</span>;  <span class="comment">// New field, higher number</span>
+}
+
+<span class="comment">// Rules for compatibility:</span>
+<span class="comment">// ✅ Add new fields with new numbers</span>
+<span class="comment">// ✅ Mark old fields as deprecated (don't remove)</span>
+<span class="comment">// ❌ Never change field numbers</span>
+<span class="comment">// ❌ Never change field types</span>
+
+<span class="comment">// Version 3: Deprecate and add replacement</span>
+<span class="keyword">message</span> User {
+    <span class="keyword">string</span> user_id = <span class="number">1</span>;
+    <span class="keyword">string</span> name = <span class="number">2</span> [deprecated = <span class="keyword">true</span>];  <span class="comment">// Keep but mark</span>
+    <span class="keyword">string</span> email = <span class="number">3</span>;
+    <span class="keyword">string</span> phone = <span class="number">4</span>;
+    <span class="keyword">string</span> first_name = <span class="number">5</span>;  <span class="comment">// New fields</span>
+    <span class="keyword">string</span> last_name = <span class="number">6</span>;
+}
+                    </code-block>
+                    
+                    <h3>Deployment Strategies for Compatibility</h3>
+                    
+                    <div class="visual-demo">
+                        <div class="timeline">
+                            <div class="timeline-item success">
+                                <h4>Blue-Green Deployment</h4>
+                                <p><strong>Step 1:</strong> New version (green) deployed alongside old (blue)</p>
+                                <p><strong>Step 2:</strong> Route traffic to green</p>
+                                <p><strong>Step 3:</strong> If issues, instant rollback to blue</p>
+                                <p><strong>Requirement:</strong> Both versions compatible</p>
+                            </div>
+                            <div class="timeline-item success">
+                                <h4>Canary Deployment</h4>
+                                <p><strong>Step 1:</strong> Deploy new version to small % of servers</p>
+                                <p><strong>Step 2:</strong> Monitor metrics (errors, latency)</p>
+                                <p><strong>Step 3:</strong> Gradually increase % if healthy</p>
+                                <p><strong>Requirement:</strong> Versions must coexist</p>
+                            </div>
+                            <div class="timeline-item success">
+                                <h4>Rolling Deployment</h4>
+                                <p><strong>Step 1:</strong> Update servers one at a time</p>
+                                <p><strong>Step 2:</strong> Mixed versions during rollout</p>
+                                <p><strong>Step 3:</strong> Eventually all servers updated</p>
+                                <p><strong>Requirement:</strong> Forward & backward compatible</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>🎯 Best Practices:</strong>
+                        <ul>
+                            <li><strong>Default Values:</strong> Always provide sensible defaults for new fields</li>
+                            <li><strong>Ignore Unknown Fields:</strong> Parsers should skip fields they don't recognize</li>
+                            <li><strong>Version Everything:</strong> Code, APIs, messages, database schemas</li>
+                            <li><strong>Test Mixed Versions:</strong> Integration tests with old + new versions</li>
+                            <li><strong>Deprecation Period:</strong> Give users time to migrate (6-12 months)</li>
+                            <li><strong>Monitor Versions:</strong> Track which versions are in use</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="success-box">
+                        <strong>✅ Golden Rules:</strong>
+                        <ul>
+                            <li><strong>Never delete:</strong> Mark as deprecated, keep for compatibility</li>
+                            <li><strong>Always add:</strong> New fields should be optional</li>
+                            <li><strong>Never reuse:</strong> Don't reuse field numbers or names</li>
+                            <li><strong>Be explicit:</strong> Document breaking changes clearly</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

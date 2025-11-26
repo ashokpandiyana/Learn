@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 6: CSS Grid - Interactive Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .section-title {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .demo-box {
+            border: 2px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f9f9f9;
+            margin-bottom: 20px;
+        }
+        
+        .demo-label {
+            font-size: 0.9rem;
+            color: #764ba2;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        /* Grid Container Examples */
+        .grid-container {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            border: 3px solid #2196f3;
+            position: relative;
+        }
+        
+        .grid-item {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: bold;
+            border: 2px solid #5568d3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60px;
+        }
+        
+        /* Grid Lines Visualization */
+        .grid-lines-demo {
+            position: relative;
+            background: #f5f5f5;
+            padding: 40px;
+            border-radius: 8px;
+        }
+        
+        .line-number {
+            position: absolute;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #e74c3c;
+            background: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid #e74c3c;
+        }
+        
+        /* Template Areas Demo */
+        .template-areas-grid {
+            display: grid;
+            grid-template-columns: 200px 1fr 200px;
+            grid-template-rows: auto 1fr auto;
+            grid-template-areas:
+                "header header header"
+                "nav main aside"
+                "footer footer footer";
+            gap: 10px;
+            min-height: 300px;
+        }
+        
+        .area-header { grid-area: header; background: #e74c3c; }
+        .area-nav { grid-area: nav; background: #3498db; }
+        .area-main { grid-area: main; background: #2ecc71; }
+        .area-aside { grid-area: aside; background: #f39c12; }
+        .area-footer { grid-area: footer; background: #9b59b6; }
+        
+        /* Spanning Demo */
+        .spanning-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        .span-2-cols { grid-column: span 2; background: #e74c3c; }
+        .span-2-rows { grid-row: span 2; background: #3498db; }
+        .span-full { grid-column: 1 / -1; background: #2ecc71; }
+        
+        /* Auto-fit vs Auto-fill */
+        .auto-demo {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 2px solid #e0e0e0;
+            min-height: 150px;
+        }
+        
+        .auto-fill-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        
+        .auto-fit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        
+        /* Alignment Examples */
+        .alignment-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 10px;
+            height: 200px;
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        
+        /* Interactive Playground */
+        .playground {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 12px;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .control-group label {
+            font-weight: bold;
+            color: #764ba2;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .control-group select,
+        .control-group input {
+            padding: 8px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: white;
+        }
+        
+        .playground-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 300px;
+            margin-bottom: 20px;
+            border: 3px dashed #667eea;
+        }
+        
+        .playground-item {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60px;
+        }
+        
+        .code-output {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+        
+        .property { color: #56b6c2; }
+        .value { color: #98c379; }
+        .comment { color: #5c6370; font-style: italic; }
+        
+        .info-badge {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .highlight-box {
+            background: #fff3cd;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .comparison-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .comparison-title {
+            font-weight: bold;
+            color: #764ba2;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .item-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .item-control-btn {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        .item-control-btn:hover {
+            background: #764ba2;
+        }
+        
+        @media (max-width: 768px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📐 Chapter 6: CSS Grid - Interactive Demonstrations</h1>
+        
+        <!-- Grid Basics -->
+        <div class="section">
+            <h2 class="section-title">1. Grid Basics - Lines and Tracks</h2>
+            
+            <div class="demo-box">
+                <div class="demo-label">Grid with 3 columns × 3 rows</div>
+                <div class="grid-lines-demo">
+                    <!-- Column line numbers -->
+                    <div class="line-number" style="top: 5px; left: 35px;">1</div>
+                    <div class="line-number" style="top: 5px; left: 145px;">2</div>
+                    <div class="line-number" style="top: 5px; right: 145px;">3</div>
+                    <div class="line-number" style="top: 5px; right: 35px;">4</div>
+                    
+                    <!-- Row line numbers -->
+                    <div class="line-number" style="left: 5px; top: 55px;">1</div>
+                    <div class="line-number" style="left: 5px; top: 135px;">2</div>
+                    <div class="line-number" style="left: 5px; top: 215px;">3</div>
+                    <div class="line-number" style="left: 5px; bottom: 45px;">4</div>
+                    
+                    <div class="grid-container" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        <div class="grid-item">1</div>
+                        <div class="grid-item">2</div>
+                        <div class="grid-item">3</div>
+                        <div class="grid-item">4</div>
+                        <div class="grid-item">5</div>
+                        <div class="grid-item">6</div>
+                        <div class="grid-item">7</div>
+                        <div class="grid-item">8</div>
+                        <div class="grid-item">9</div>
+                    </div>
+                </div>
+                <p style="margin-top: 10px; font-size: 0.85rem; color: #666;">
+                    Grid lines are numbered from 1. Items are placed between lines.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Grid Template Columns -->
+        <div class="section">
+            <h2 class="section-title">2. grid-template-columns</h2>
+            
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <div class="comparison-title">Fixed Widths</div>
+                    <div class="grid-container" style="display: grid; grid-template-columns: 100px 150px 100px; gap: 10px;">
+                        <div class="grid-item">100px</div>
+                        <div class="grid-item">150px</div>
+                        <div class="grid-item">100px</div>
+                    </div>
+                    <div class="code-output" style="font-size: 0.75rem; margin-top: 10px;">
+grid-template-columns: 100px 150px 100px;
+                    </div>
+                </div>
+                
+                <div class="comparison-item">
+                    <div class="comparison-title">fr Units (Flexible)</div>
+                    <div class="grid-container" style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 10px;">
+                        <div class="grid-item">1fr</div>
+                        <div class="grid-item">2fr</div>
+                        <div class="grid-item">1fr</div>
+                    </div>
+                    <div class="code-output" style="font-size: 0.75rem; margin-top: 10px;">
+grid-template-columns: 1fr 2fr 1fr;
+                    </div>
+                </div>
+                
+                <div class="comparison-item">
+                    <div class="comparison-title">repeat() Function</div>
+                    <div class="grid-container" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                        <div class="grid-item">1</div>
+                        <div class="grid-item">2</div>
+                        <div class="grid-item">3</div>
+                        <div class="grid-item">4</div>
+                    </div>
+                    <div class="code-output" style="font-size: 0.75rem; margin-top: 10px;">
+grid-template-columns: repeat(4, 1fr);
+                    </div>
+                </div>
+                
+                <div class="comparison-item">
+                    <div class="comparison-title">Mixed Units</div>
+                    <div class="grid-container" style="display: grid; grid-template-columns: 100px 1fr 2fr; gap: 10px;">
+                        <div class="grid-item">100px</div>
+                        <div class="grid-item">1fr</div>
+                        <div class="grid-item">2fr</div>
+                    </div>
+                    <div class="code-output" style="font-size: 0.75rem; margin-top: 10px;">
+grid-template-columns: 100px 1fr 2fr;
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Grid Template Areas -->
+        <div class="section">
+            <h2 class="section-title">3. grid-template-areas <span class="info-badge">Named Areas!</span></h2>
+            
+            <div class="demo-box">
+                <div class="demo-label">Holy Grail Layout</div>
+                <div class="template-areas-grid">
+                    <div class="grid-item area-header">Header</div>
+                    <div class="grid-item area-nav">Nav</div>
+                    <div class="grid-item area-main">Main Content</div>
+                    <div class="grid-item area-aside">Aside</div>
+                    <div class="grid-item area-footer">Footer</div>
+                </div>
+                <div class="code-output" style="margin-top: 15px;">
+<span class="property">grid-template-areas</span>:
+    <span class="value">"header header header"</span>
+    <span class="value">"nav    main   aside"</span>
+    <span class="value">"footer footer footer"</span>;
+                </div>
+            </div>
+        </div>
+        
+        <!-- Spanning Items -->
+        <div class="section">
+            <h2 class="section-title">4. Spanning Rows and Columns</h2>
+            
+            <div class="demo-box">
+                <div class="demo-label">Items can span multiple tracks</div>
+                <div class="spanning-grid">
+                    <div class="grid-item span-2-cols">Spans 2 Columns</div>
+                    <div class="grid-item">1</div>
+                    <div class="grid-item">2</div>
+                    <div class="grid-item span-2-rows" style="align-self: stretch;">Spans<br>2 Rows</div>
+                    <div class="grid-item">3</div>
+                    <div class="grid-item">4</div>
+                    <div class="grid-item">5</div>
+                    <div class="grid-item span-full">Spans All Columns (grid-column: 1 / -1)</div>
+                </div>
+                <div class="code-output" style="margin-top: 15px; font-size: 0.85rem;">
+<span class="comment">/* Span 2 columns */</span>
+<span class="property">grid-column</span>: <span class="value">span 2</span>;
+
+<span class="comment">/* Span 2 rows */</span>
+<span class="property">grid-row</span>: <span class="value">span 2</span>;
+
+<span class="comment">/* Span all columns */</span>
+<span class="property">grid-column</span>: <span class="value">1 / -1</span>;
+                </div>
+            </div>
+        </div>
+        
+        <!-- auto-fill vs auto-fit -->
+        <div class="section">
+            <h2 class="section-title">5. auto-fill vs auto-fit <span class="info-badge">CRITICAL!</span></h2>
+            
+            <div class="highlight-box">
+                💡 <strong>Key Difference:</strong> auto-fill keeps empty tracks, auto-fit collapses them and expands items
+            </div>
+            
+            <div class="demo-box">
+                <div class="demo-label">auto-fill (keeps empty tracks)</div>
+                <div class="auto-demo">
+                    <div class="auto-fill-grid">
+                        <div class="grid-item">1</div>
+                        <div class="grid-item">2</div>
+                        <div class="grid-item">3</div>
+                    </div>
+                </div>
+                <div class="code-output" style="margin-top: 10px; font-size: 0.85rem;">
+<span class="property">grid-template-columns</span>: <span class="value">repeat(auto-fill, minmax(120px, 1fr))</span>;
+<span class="comment">/* Empty tracks remain at 120px */</span>
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <div class="demo-label">auto-fit (collapses empty tracks, items expand)</div>
+                <div class="auto-demo">
+                    <div class="auto-fit-grid">
+                        <div class="grid-item">1</div>
+                        <div class="grid-item">2</div>
+                        <div class="grid-item">3</div>
+                    </div>
+                </div>
+                <div class="code-output" style="margin-top: 10px; font-size: 0.85rem;">
+<span class="property">grid-template-columns</span>: <span class="value">repeat(auto-fit, minmax(120px, 1fr))</span>;
+<span class="comment">/* Empty tracks collapse, items expand to fill */</span>
+                </div>
+                <p style="margin-top: 10px; font-size: 0.85rem; color: #666;">
+                    ✨ Resize window to see the difference! auto-fit items grow larger.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Alignment -->
+        <div class="section">
+            <h2 class="section-title">6. Grid Alignment</h2>
+            
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <div class="comparison-title">justify-items: start</div>
+                    <div class="alignment-grid" style="justify-items: start;">
+                        <div class="grid-item" style="width: auto;">1</div>
+                        <div class="grid-item" style="width: auto;">2</div>
+                        <div class="grid-item" style="width: auto;">3</div>
+                    </div>
+                </div>
+                
+                <div class="comparison-item">
+                    <div class="comparison-title">justify-items: center</div>
+                    <div class="alignment-grid" style="justify-items: center;">
+                        <div class="grid-item" style="width: auto;">1</div>
+                        <div class="grid-item" style="width: auto;">2</div>
+                        <div class="grid-item" style="width: auto;">3</div>
+                    </div>
+                </div>
+                
+                <div class="comparison-item">
+                    <div class="comparison-title">align-items: start</div>
+                    <div class="alignment-grid" style="align-items: start;">
+                        <div class="grid-item" style="height: auto;">1</div>
+                        <div class="grid-item" style="height: auto;">2</div>
+                        <div class="grid-item" style="height: auto;">3</div>
+                    </div>
+                </div>
+                
+                <div class="comparison-item">
+                    <div class="comparison-title">align-items: center</div>
+                    <div class="alignment-grid" style="align-items: center;">
+                        <div class="grid-item" style="height: auto;">1</div>
+                        <div class="grid-item" style="height: auto;">2</div>
+                        <div class="grid-item" style="height: auto;">3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Common Patterns -->
+        <div class="section">
+            <h2 class="section-title">7. Common Grid Patterns</h2>
+            
+            <div class="demo-box">
+                <div class="demo-label">Responsive Card Grid (No Media Queries!)</div>
+                <div class="grid-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                    <div class="grid-item">Card 1</div>
+                    <div class="grid-item">Card 2</div>
+                    <div class="grid-item">Card 3</div>
+                    <div class="grid-item">Card 4</div>
+                    <div class="grid-item">Card 5</div>
+                    <div class="grid-item">Card 6</div>
+                </div>
+                <div class="code-output" style="margin-top: 10px; font-size: 0.85rem;">
+<span class="property">display</span>: <span class="value">grid</span>;
+<span class="property">grid-template-columns</span>: <span class="value">repeat(auto-fit, minmax(150px, 1fr))</span>;
+<span class="property">gap</span>: <span class="value">15px</span>;
+<span class="comment">/* Automatically responsive! Resize window to see. */</span>
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <div class="demo-label">Sidebar Layout</div>
+                <div class="grid-container" style="display: grid; grid-template-columns: 200px 1fr; gap: 15px; min-height: 200px;">
+                    <div class="grid-item" style="background: #3498db;">Sidebar<br>Fixed 200px</div>
+                    <div class="grid-item" style="background: #2ecc71;">Main Content<br>Flexible (1fr)</div>
+                </div>
+                <div class="code-output" style="margin-top: 10px; font-size: 0.85rem;">
+<span class="property">grid-template-columns</span>: <span class="value">200px 1fr</span>;
+<span class="comment">/* Sidebar fixed, main fills remaining space */</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Interactive Playground -->
+        <div class="section">
+            <h2 class="section-title">8. 🎮 Interactive Grid Playground</h2>
+            <div class="playground">
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="grid-columns">Columns</label>
+                        <select id="grid-columns">
+                            <option value="repeat(3, 1fr)">3 equal (1fr each)</option>
+                            <option value="repeat(4, 1fr)">4 equal (1fr each)</option>
+                            <option value="1fr 2fr 1fr">1fr 2fr 1fr</option>
+                            <option value="200px 1fr">200px 1fr (sidebar)</option>
+                            <option value="repeat(auto-fit, minmax(150px, 1fr))">Responsive (auto-fit)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="grid-rows">Rows</label>
+                        <select id="grid-rows">
+                            <option value="auto">auto</option>
+                            <option value="repeat(3, 100px)">3 × 100px</option>
+                            <option value="100px 1fr 100px">100px 1fr 100px</option>
+                            <option value="repeat(2, 1fr)">2 equal (1fr each)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="grid-gap">Gap: <span id="gap-value">20px</span></label>
+                        <input type="range" id="grid-gap" min="0" max="40" value="20">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="justify-items">justify-items</label>
+                        <select id="justify-items">
+                            <option value="stretch">stretch</option>
+                            <option value="start">start</option>
+                            <option value="end">end</option>
+                            <option value="center">center</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="align-items">align-items</label>
+                        <select id="align-items">
+                            <option value="stretch">stretch</option>
+                            <option value="start">start</option>
+                            <option value="end">end</option>
+                            <option value="center">center</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="item-controls">
+                    <button class="item-control-btn" onclick="addGridItem()">+ Add Item</button>
+                    <button class="item-control-btn" onclick="removeGridItem()">- Remove Item</button>
+                    <button class="item-control-btn" onclick="resetGridItems()">Reset (6 items)</button>
+                </div>
+                
+                <div class="playground-container" id="grid-playground">
+                    <div class="playground-item">1</div>
+                    <div class="playground-item">2</div>
+                    <div class="playground-item">3</div>
+                    <div class="playground-item">4</div>
+                    <div class="playground-item">5</div>
+                    <div class="playground-item">6</div>
+                </div>
+                
+                <div class="highlight-box">
+                    💡 <strong>Try this:</strong> Set columns to "Responsive (auto-fit)" and add/remove items to see automatic wrapping!
+                </div>
+                
+                <div class="code-output" id="grid-code">
+                    <!-- Generated CSS -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Key Takeaways -->
+        <div class="section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h2 class="section-title" style="color: white; border-bottom-color: white;">🎯 Key Takeaways</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Grid is 2D:</strong> Control rows AND columns simultaneously
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>fr units:</strong> Fraction of available space (1fr 2fr = 1/3 and 2/3)
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>auto-fit + minmax:</strong> Responsive grids without media queries!
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>grid-template-areas:</strong> Named areas for intuitive layouts
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Spanning:</strong> grid-column: span 2 or 1 / -1 (full width)
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>gap property:</strong> Use instead of margins for clean spacing
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Interactive Grid Playground
+        const gridColumns = document.getElementById('grid-columns');
+        const gridRows = document.getElementById('grid-rows');
+        const gridGap = document.getElementById('grid-gap');
+        const justifyItems = document.getElementById('justify-items');
+        const alignItems = document.getElementById('align-items');
+        const gridPlayground = document.getElementById('grid-playground');
+        const gridCode = document.getElementById('grid-code');
+        
+        let gridItemCount = 6;
+        
+        function updateGrid() {
+            const columns = gridColumns.value;
+            const rows = gridRows.value;
+            const gap = gridGap.value;
+            const justify = justifyItems.value;
+            const align = alignItems.value;
+            
+            // Update gap display
+            document.getElementById('gap-value').textContent = gap + 'px';
+            
+            // Apply grid styles
+            gridPlayground.style.display = 'grid';
+            gridPlayground.style.gridTemplateColumns = columns;
+            gridPlayground.style.gridTemplateRows = rows;
+            gridPlayground.style.gap = gap + 'px';
+            gridPlayground.style.justifyItems = justify;
+            gridPlayground.style.alignItems = align;
+            
+            // Generate CSS code
+            let code = `.grid {\n`;
+            code += `    <span class="property">display</span>: <span class="value">grid</span>;\n`;
+            code += `    <span class="property">grid-template-columns</span>: <span class="value">${columns}</span>;\n`;
+            code += `    <span class="property">grid-template-rows</span>: <span class="value">${rows}</span>;\n`;
+            code += `    <span class="property">gap</span>: <span class="value">${gap}px</span>;\n`;
+            code += `    <span class="property">justify-items</span>: <span class="value">${justify}</span>;\n`;
+            code += `    <span class="property">align-items</span>: <span class="value">${align}</span>;\n`;
+            code += `}\n\n`;
+            
+            // Add helpful comment
+            if (columns.includes('auto-fit')) {
+                code += `<span class="comment">/* Automatically responsive! No media queries needed. */</span>`;
+            } else if (columns.includes('1fr 2fr')) {
+                code += `<span class="comment">/* Second column is 2× wider than others */</span>`;
+            }
+            
+            gridCode.innerHTML = code;
+        }
+        
+        function addGridItem() {
+            gridItemCount++;
+            const item = document.createElement('div');
+            item.className = 'playground-item';
+            item.textContent = gridItemCount;
+            gridPlayground.appendChild(item);
+        }
+        
+        function removeGridItem() {
+            if (gridPlayground.children.length > 1) {
+                gridPlayground.removeChild(gridPlayground.lastChild);
+                gridItemCount--;
+            }
+        }
+        
+        function resetGridItems() {
+            gridPlayground.innerHTML = '';
+            gridItemCount = 0;
+            for (let i = 1; i <= 6; i++) {
+                addGridItem();
+            }
+            gridItemCount = 6;
+        }
+        
+        // Event listeners
+        gridColumns.addEventListener('change', updateGrid);
+        gridRows.addEventListener('change', updateGrid);
+        gridGap.addEventListener('input', updateGrid);
+        justifyItems.addEventListener('change', updateGrid);
+        alignItems.addEventListener('change', updateGrid);
+        
+        // Initialize
+        updateGrid();
+    </script>
+</body>
+</html>

@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 4: Layout Fundamentals - Interactive Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .section-title {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .demo-box {
+            border: 2px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f9f9f9;
+            margin-bottom: 20px;
+        }
+        
+        .demo-label {
+            font-size: 0.9rem;
+            color: #764ba2;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        /* Display Examples */
+        .display-container {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 6px;
+            min-height: 150px;
+        }
+        
+        .block-demo {
+            display: block;
+            background: #4caf50;
+            color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            text-align: center;
+            border-radius: 4px;
+        }
+        
+        .inline-demo {
+            display: inline;
+            background: #2196f3;
+            color: white;
+            padding: 5px 10px;
+            margin: 0 5px;
+            border-radius: 4px;
+        }
+        
+        .inline-block-demo {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            width: 100px;
+            text-align: center;
+            border-radius: 4px;
+        }
+        
+        /* Display None vs Visibility Hidden */
+        .visibility-container {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 6px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .vis-box {
+            background: #ffc107;
+            color: #333;
+            padding: 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .hidden-display {
+            display: none;
+        }
+        
+        .hidden-visibility {
+            visibility: hidden;
+        }
+        
+        /* Position Examples */
+        .position-demo-container {
+            position: relative;
+            background: #e3f2fd;
+            padding: 60px 20px 20px;
+            border-radius: 6px;
+            min-height: 250px;
+            overflow: visible;
+        }
+        
+        .position-box {
+            padding: 15px 20px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            width: 120px;
+        }
+        
+        .pos-static {
+            background: #9e9e9e;
+        }
+        
+        .pos-relative {
+            position: relative;
+            background: #2196f3;
+            top: 20px;
+            left: 30px;
+        }
+        
+        .pos-absolute {
+            position: absolute;
+            background: #f44336;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .pos-fixed-demo {
+            position: fixed;
+            background: #4caf50;
+            top: 100px;
+            right: 20px;
+            z-index: 1000;
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            cursor: move;
+        }
+        
+        /* Sticky Demo */
+        .sticky-container {
+            height: 400px;
+            overflow-y: scroll;
+            background: #f5f5f5;
+            border-radius: 6px;
+            padding: 20px;
+        }
+        
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            background: #673ab7;
+            color: white;
+            padding: 15px;
+            margin: -20px -20px 20px;
+            border-radius: 6px 6px 0 0;
+            font-weight: bold;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .sticky-content {
+            height: 200px;
+            background: white;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 6px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        /* Z-index Demo */
+        .zindex-container {
+            position: relative;
+            height: 300px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            padding: 20px;
+        }
+        
+        .zindex-box {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            border: 3px solid white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .z1 { background: #e74c3c; top: 50px; left: 50px; z-index: 1; }
+        .z2 { background: #3498db; top: 80px; left: 80px; z-index: 2; }
+        .z3 { background: #2ecc71; top: 110px; left: 110px; z-index: 3; }
+        
+        /* Stacking Context Demo */
+        .stacking-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .stacking-container {
+            position: relative;
+            height: 250px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            padding: 20px;
+            border: 3px solid #ddd;
+        }
+        
+        .stacking-parent {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            border: 3px solid white;
+        }
+        
+        .parent1 { background: rgba(231, 76, 60, 0.8); z-index: 1; }
+        .parent2 { background: rgba(52, 152, 219, 0.8); z-index: 2; top: 30px; left: 100px; }
+        
+        .stacking-child {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            border: 2px solid white;
+        }
+        
+        .child1 { background: #c0392b; z-index: 9999; bottom: -20px; right: -20px; }
+        .child2 { background: #2980b9; z-index: 1; bottom: -20px; right: -20px; }
+        
+        /* Float Demo */
+        .float-demo {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            line-height: 1.8;
+        }
+        
+        .float-image {
+            float: left;
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin: 0 20px 20px 0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        
+        /* Interactive Playground */
+        .playground {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        
+        .playground-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .control-group label {
+            font-weight: bold;
+            color: #764ba2;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .control-group select,
+        .control-group input {
+            padding: 8px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        
+        .playground-preview {
+            position: relative;
+            background: white;
+            min-height: 300px;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            overflow: auto;
+        }
+        
+        .playground-box {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            width: 150px;
+            transition: all 0.3s;
+        }
+        
+        .code-output {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+        
+        .property { color: #56b6c2; }
+        .value { color: #98c379; }
+        
+        .info-badge {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .toggle-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        
+        .toggle-btn:hover {
+            background: #764ba2;
+        }
+        
+        @media (max-width: 768px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stacking-demo {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📐 Chapter 4: Layout Fundamentals - Interactive Demonstrations</h1>
+        
+        <!-- Display Property -->
+        <div class="section">
+            <h2 class="section-title">1. Display Property</h2>
+            
+            <div class="demo-grid">
+                <div class="demo-box">
+                    <span class="demo-label">display: block</span>
+                    <div class="display-container">
+                        <div class="block-demo">Block 1</div>
+                        <div class="block-demo">Block 2</div>
+                        <div class="block-demo">Block 3</div>
+                        <p style="margin-top: 10px; font-size: 0.85rem; color: #666;">
+                            ✓ Takes full width<br>
+                            ✓ Stacks vertically<br>
+                            ✓ Can set width/height
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="demo-box">
+                    <span class="demo-label">display: inline</span>
+                    <div class="display-container">
+                        <p>Text before 
+                            <span class="inline-demo">Inline 1</span>
+                            <span class="inline-demo">Inline 2</span>
+                            <span class="inline-demo">Inline 3</span>
+                            text after
+                        </p>
+                        <p style="margin-top: 10px; font-size: 0.85rem; color: #666;">
+                            ✓ Flows with text<br>
+                            ✓ No line breaks<br>
+                            ✗ Cannot set width/height
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="demo-box">
+                    <span class="demo-label">display: inline-block</span>
+                    <div class="display-container">
+                        <div class="inline-block-demo">Item 1</div>
+                        <div class="inline-block-demo">Item 2</div>
+                        <div class="inline-block-demo">Item 3</div>
+                        <p style="margin-top: 10px; font-size: 0.85rem; color: #666;">
+                            ✓ Flows inline<br>
+                            ✓ Can set width/height<br>
+                            ✓ Best of both worlds
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Display None vs Visibility Hidden -->
+        <div class="section">
+            <h2 class="section-title">2. display: none vs visibility: hidden</h2>
+            
+            <div class="demo-grid">
+                <div class="demo-box">
+                    <span class="demo-label">display: none <span class="info-badge">Removed from layout</span></span>
+                    <div class="visibility-container">
+                        <div class="vis-box">A</div>
+                        <div class="vis-box" id="box-display-none">B</div>
+                        <div class="vis-box">C</div>
+                    </div>
+                    <button class="toggle-btn" onclick="toggleDisplayNone()">Toggle B (display: none)</button>
+                    <p style="margin-top: 10px; font-size: 0.85rem; color: #666;">
+                        When B is hidden, C moves to fill the space
+                    </p>
+                </div>
+                
+                <div class="demo-box">
+                    <span class="demo-label">visibility: hidden <span class="info-badge">Space preserved</span></span>
+                    <div class="visibility-container">
+                        <div class="vis-box">A</div>
+                        <div class="vis-box" id="box-visibility-hidden">B</div>
+                        <div class="vis-box">C</div>
+                    </div>
+                    <button class="toggle-btn" onclick="toggleVisibilityHidden()">Toggle B (visibility: hidden)</button>
+                    <p style="margin-top: 10px; font-size: 0.85rem; color: #666;">
+                        When B is hidden, space remains empty
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Position: static, relative -->
+        <div class="section">
+            <h2 class="section-title">3. Positioning: static vs relative</h2>
+            
+            <div class="demo-grid">
+                <div class="demo-box">
+                    <span class="demo-label">position: static (default)</span>
+                    <div class="position-demo-container">
+                        <div class="position-box pos-static">Static</div>
+                        <p style="margin-top: 10px; font-size: 0.85rem; color: #666;">
+                            Normal document flow, cannot use top/right/bottom/left
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="demo-box">
+                    <span class="demo-label">position: relative</span>
+                    <div class="position-demo-container">
+                        <div style="background: rgba(33, 150, 243, 0.2); position: absolute; top: 60px; left: 20px; width: 120px; height: 56px; border: 2px dashed #2196f3; border-radius: 4px;"></div>
+                        <div class="position-box pos-relative">Relative<br><small style="font-size: 0.75rem;">top: 20px<br>left: 30px</small></div>
+                        <p style="margin-top: 10px; font-size: 0.85rem; color: #666;">
+                            Offset from normal position, space preserved (dashed box)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Position: absolute -->
+        <div class="section">
+            <h2 class="section-title">4. position: absolute</h2>
+            <div class="demo-box">
+                <span class="demo-label">Positioned relative to nearest positioned ancestor</span>
+                <div class="position-demo-container">
+                    <p style="margin-bottom: 15px; color: #666;">
+                        Container has <code>position: relative</code> (positioning context)
+                    </p>
+                    <div class="position-box pos-absolute">Absolute<br><small style="font-size: 0.75rem;">top: 20px<br>right: 20px</small></div>
+                    <p style="color: #666; margin-top: 80px;">
+                        Normal content flows here. Absolute element removed from flow.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Position: sticky -->
+        <div class="section">
+            <h2 class="section-title">5. position: sticky <span class="info-badge">Scroll to see!</span></h2>
+            <div class="demo-box">
+                <span class="demo-label">Sticky header inside scrollable container</span>
+                <div class="sticky-container">
+                    <div class="sticky-header">
+                        🔖 I'm Sticky! (Scroll to see me stick to the top)
+                    </div>
+                    <div class="sticky-content">
+                        <h3>Section 1</h3>
+                        <p>Scroll down to see the sticky header in action. It scrolls normally until it reaches the top, then sticks in place.</p>
+                    </div>
+                    <div class="sticky-content">
+                        <h3>Section 2</h3>
+                        <p>The sticky header remains at the top as you scroll through this content.</p>
+                    </div>
+                    <div class="sticky-content">
+                        <h3>Section 3</h3>
+                        <p>When you reach the bottom and scroll back up, the sticky header scrolls away with its container.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Z-index -->
+        <div class="section">
+            <h2 class="section-title">6. z-index (Stacking Order)</h2>
+            <div class="demo-box">
+                <span class="demo-label">Higher z-index = closer to user (on top)</span>
+                <div class="zindex-container">
+                    <div class="zindex-box z1">z-index: 1</div>
+                    <div class="zindex-box z2">z-index: 2</div>
+                    <div class="zindex-box z3">z-index: 3<br>👑 On Top</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stacking Contexts -->
+        <div class="section">
+            <h2 class="section-title">7. Stacking Contexts (CRITICAL!)</h2>
+            <p style="margin-bottom: 20px; color: #666;">
+                z-index only compares elements <strong>within the same stacking context</strong>. Child can't escape parent's context!
+            </p>
+            <div class="stacking-demo">
+                <div class="demo-box">
+                    <span class="demo-label">❌ Why z-index: 9999 doesn't work</span>
+                    <div class="stacking-container">
+                        <div class="stacking-parent parent1">
+                            Parent 1<br>z-index: 1
+                            <div class="stacking-child child1">Child<br>z-index:<br>9999!</div>
+                        </div>
+                        <div class="stacking-parent parent2">
+                            Parent 2<br>z-index: 2
+                            <div class="stacking-child child2">Child<br>z-index: 1</div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #666; margin-top: 10px;">
+                        Child with z-index: 9999 is still behind, because its parent's stacking context (z-index: 1) is below the other parent (z-index: 2).
+                    </p>
+                </div>
+                
+                <div class="demo-box">
+                    <span class="demo-label">What creates stacking contexts?</span>
+                    <ul style="font-size: 0.9rem; color: #666; margin-top: 10px; line-height: 1.8;">
+                        <li>✓ position + z-index (not auto)</li>
+                        <li>✓ opacity < 1</li>
+                        <li>✓ transform, filter, perspective</li>
+                        <li>✓ position: fixed or sticky</li>
+                        <li>✓ flex/grid items with z-index</li>
+                        <li>✓ isolation: isolate</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Float -->
+        <div class="section">
+            <h2 class="section-title">8. Float (Legacy but still used for text wrapping)</h2>
+            <div class="demo-box">
+                <span class="demo-label">float: left with text wrapping</span>
+                <div class="float-demo clearfix">
+                    <div class="float-image">Floated<br>Image</div>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                    <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    <p style="font-size: 0.85rem; color: #666; margin-top: 15px; border-top: 2px solid #e0e0e0; padding-top: 15px;">
+                        ℹ️ Notice how text wraps around the floated element. This is still the best use case for float today!
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Interactive Playground -->
+        <div class="section">
+            <h2 class="section-title">9. 🎮 Interactive Position Playground</h2>
+            <div class="playground">
+                <div class="playground-controls">
+                    <div class="control-group">
+                        <label for="pos-position">Position</label>
+                        <select id="pos-position">
+                            <option value="static">static</option>
+                            <option value="relative">relative</option>
+                            <option value="absolute">absolute</option>
+                            <option value="fixed">fixed</option>
+                            <option value="sticky">sticky</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="pos-top">Top: <span id="top-val">0px</span></label>
+                        <input type="range" id="pos-top" min="-100" max="200" value="0">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="pos-left">Left: <span id="left-val">0px</span></label>
+                        <input type="range" id="pos-left" min="-100" max="200" value="0">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="pos-zindex">Z-Index: <span id="z-val">auto</span></label>
+                        <input type="range" id="pos-zindex" min="0" max="10" value="0">
+                    </div>
+                </div>
+                
+                <div class="playground-preview">
+                    <div style="background: #e3f2fd; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+                        <p style="color: #666; margin-bottom: 10px;">Reference container (position: relative)</p>
+                        <div style="background: rgba(102, 126, 234, 0.2); height: 100px; border: 2px dashed #667eea; border-radius: 4px;"></div>
+                    </div>
+                    <div class="playground-box" id="playground-box">
+                        Interactive Box
+                    </div>
+                </div>
+                
+                <div class="code-output" id="position-code">
+                    <!-- Generated CSS -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Key Takeaways -->
+        <div class="section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h2 class="section-title" style="color: white; border-bottom-color: white;">🎯 Key Takeaways</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>display: inline-block</strong> - Best of both worlds (flows inline + accepts dimensions)
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>position: relative</strong> - Creates positioning context, space preserved
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>position: absolute</strong> - Positioned relative to nearest positioned ancestor
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Stacking contexts</strong> - z-index only works within same context, child can't escape parent
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>sticky vs fixed</strong> - sticky toggles behavior, fixed is always viewport-relative
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Fixed Position Demo (always visible) -->
+    <div class="pos-fixed-demo" id="fixed-demo">
+        🎯 Fixed Position<br>
+        <small style="font-size: 0.8rem;">(I don't scroll!)</small>
+    </div>
+    
+    <script>
+        // Display None Toggle
+        let displayNoneHidden = false;
+        function toggleDisplayNone() {
+            const box = document.getElementById('box-display-none');
+            displayNoneHidden = !displayNoneHidden;
+            box.style.display = displayNoneHidden ? 'none' : 'block';
+        }
+        
+        // Visibility Hidden Toggle
+        let visibilityHidden = false;
+        function toggleVisibilityHidden() {
+            const box = document.getElementById('box-visibility-hidden');
+            visibilityHidden = !visibilityHidden;
+            box.style.visibility = visibilityHidden ? 'hidden' : 'visible';
+        }
+        
+        // Interactive Position Playground
+        const positionSelect = document.getElementById('pos-position');
+        const topInput = document.getElementById('pos-top');
+        const leftInput = document.getElementById('pos-left');
+        const zindexInput = document.getElementById('pos-zindex');
+        const playgroundBox = document.getElementById('playground-box');
+        const positionCode = document.getElementById('position-code');
+        
+        function updatePosition() {
+            const position = positionSelect.value;
+            const top = topInput.value;
+            const left = leftInput.value;
+            const zindex = zindexInput.value;
+            
+            // Update display values
+            document.getElementById('top-val').textContent = top + 'px';
+            document.getElementById('left-val').textContent = left + 'px';
+            document.getElementById('z-val').textContent = zindex === '0' ? 'auto' : zindex;
+            
+            // Apply styles
+            playgroundBox.style.position = position;
+            playgroundBox.style.top = top + 'px';
+            playgroundBox.style.left = left + 'px';
+            playgroundBox.style.zIndex = zindex === '0' ? 'auto' : zindex;
+            
+            // Generate CSS code
+            let code = `.element {\n`;
+            code += `    <span class="property">position</span>: <span class="value">${position}</span>;\n`;
+            
+            if (position !== 'static') {
+                code += `    <span class="property">top</span>: <span class="value">${top}px</span>;\n`;
+                code += `    <span class="property">left</span>: <span class="value">${left}px</span>;\n`;
+                if (zindex !== '0') {
+                    code += `    <span class="property">z-index</span>: <span class="value">${zindex}</span>;\n`;
+                }
+            }
+            
+            code += `}`;
+            
+            // Add contextual notes
+            if (position === 'static') {
+                code += `\n\n<span class="property">/* top, left, z-index have no effect on static */</span>`;
+            } else if (position === 'relative') {
+                code += `\n\n<span class="property">/* Offset from normal position, space preserved */</span>`;
+            } else if (position === 'absolute') {
+                code += `\n\n<span class="property">/* Positioned relative to nearest positioned ancestor */</span>`;
+            } else if (position === 'fixed') {
+                code += `\n\n<span class="property">/* Positioned relative to viewport, doesn't scroll */</span>`;
+            } else if (position === 'sticky') {
+                code += `\n\n<span class="property">/* Toggles between relative and fixed based on scroll */</span>`;
+            }
+            
+            positionCode.innerHTML = code;
+        }
+        
+        positionSelect.addEventListener('change', updatePosition);
+        topInput.addEventListener('input', updatePosition);
+        leftInput.addEventListener('input', updatePosition);
+        zindexInput.addEventListener('input', updatePosition);
+        
+        // Initialize
+        updatePosition();
+        
+        // Make fixed demo draggable (just for fun)
+        const fixedDemo = document.getElementById('fixed-demo');
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        
+        fixedDemo.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            initialX = e.clientX - fixedDemo.offsetLeft;
+            initialY = e.clientY - fixedDemo.offsetTop;
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+                fixedDemo.style.left = currentX + 'px';
+                fixedDemo.style.top = currentY + 'px';
+                fixedDemo.style.right = 'auto';
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+    </script>
+</body>
+</html>

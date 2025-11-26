@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 4: Time and Ordering</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .clock-visual {
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+            border: 4px solid #667eea;
+            border-radius: 50%;
+            position: relative;
+            background: white;
+            margin: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .clock-label {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: bold;
+            color: #667eea;
+            white-space: nowrap;
+        }
+        
+        .clock-time {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 40px 0;
+            margin: 30px 0;
+        }
+        
+        .timeline-axis {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 3px;
+            background: #667eea;
+        }
+        
+        .timeline-event {
+            position: relative;
+            display: inline-block;
+            margin: 0 30px;
+        }
+        
+        .timeline-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .timeline-label {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        
+        .message-arrow {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .process {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            min-width: 120px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .arrow {
+            flex: 1;
+            height: 3px;
+            background: #ff9800;
+            position: relative;
+            margin: 0 15px;
+        }
+        
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: -7px;
+            width: 0;
+            height: 0;
+            border-left: 15px solid #ff9800;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .algorithm-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .step {
+            background: #f8f9fa;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
+        .vector-clock {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 5px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        
+        .happened-before {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .concurrent {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border: 2px solid #ff9800;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .space-time-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+            position: relative;
+        }
+        
+        .process-line {
+            position: relative;
+            height: 200px;
+            margin: 30px 0;
+        }
+        
+        .process-axis {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 2px;
+            background: #667eea;
+        }
+        
+        .event-dot {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4caf50;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .event-dot:hover {
+            transform: translate(-50%, -50%) scale(1.5);
+        }
+        
+        .event-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9em;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        
+        .message-line {
+            position: absolute;
+            height: 2px;
+            background: #ff9800;
+            transform-origin: left center;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .drift-visual {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            margin: 30px 0;
+            height: 150px;
+        }
+        
+        .drift-bar {
+            width: 80px;
+            background: linear-gradient(to top, #4caf50, #8bc34a);
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 10px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .formula {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            text-align: center;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⏰ Chapter 4: Time and Ordering</h1>
+        
+        <div class="problem-box">
+            <h3>🤔 The Fundamental Problem</h3>
+            <p style="font-size: 1.2em;"><strong>There is NO global clock in a distributed system!</strong></p>
+            <p>Each machine has its own clock, and they all drift apart. This makes it extremely difficult to determine the order of events across different machines.</p>
+            <p><strong>Why does this matter?</strong></p>
+            <ul>
+                <li>Can't tell which event happened first across different machines</li>
+                <li>Can't coordinate actions based on "real time"</li>
+                <li>Database transactions, causality, debugging all depend on ordering!</li>
+            </ul>
+        </div>
+        
+        <h2>1️⃣ Physical Clocks and Clock Synchronization</h2>
+        
+        <h3>⏱️ Why Physical Clocks Drift</h3>
+        
+        <div class="definition">
+            <h4>Clock Drift</h4>
+            <p><strong>All physical clocks drift</strong> due to temperature, manufacturing variations, and aging.</p>
+            <p><strong>Drift rate:</strong> Typically 10⁻⁶ seconds per second (1 second drift per ~11 days)</p>
+            <p>High-precision atomic clocks: 10⁻¹³ seconds per second</p>
+        </div>
+        
+        <div class="example">
+            <h4>📊 Example: Clock Drift Over Time</h4>
+            <div style="text-align: center;">
+                <div class="clock-visual">
+                    <div class="clock-label">Server A</div>
+                    <div class="clock-time">12:00:00</div>
+                </div>
+                <div class="clock-visual">
+                    <div class="clock-label">Server B</div>
+                    <div class="clock-time">12:00:00</div>
+                </div>
+                <div class="clock-visual">
+                    <div class="clock-label">Server C</div>
+                    <div class="clock-time">12:00:00</div>
+                </div>
+            </div>
+            <p style="text-align: center; margin: 20px 0; font-weight: bold;">↓ After 1 day ↓</p>
+            <div style="text-align: center;">
+                <div class="clock-visual">
+                    <div class="clock-label">Server A</div>
+                    <div class="clock-time" style="color: #4caf50;">12:00:00</div>
+                </div>
+                <div class="clock-visual">
+                    <div class="clock-label">Server B</div>
+                    <div class="clock-time" style="color: #f44336;">12:00:02</div>
+                </div>
+                <div class="clock-visual">
+                    <div class="clock-label">Server C</div>
+                    <div class="clock-time" style="color: #ff9800;">11:59:58</div>
+                </div>
+            </div>
+            <p><strong>Result:</strong> Even starting synchronized, clocks drift apart by seconds per day!</p>
+        </div>
+        
+        <div class="warning">
+            <h4>⚠️ Problems Caused by Clock Drift</h4>
+            <ul>
+                <li><strong>Ordering issues:</strong> Can't tell which event happened first</li>
+                <li><strong>Inconsistent logs:</strong> Event A on server 1 shows 10:00:00, Event B on server 2 shows 9:59:59, but A caused B!</li>
+                <li><strong>Lease expiration:</strong> Distributed locks may expire at different times on different servers</li>
+                <li><strong>Distributed transactions:</strong> Timestamps become unreliable</li>
+            </ul>
+        </div>
+        
+        <h3>🔄 Cristian's Algorithm</h3>
+        
+        <div class="definition">
+            <h4>Goal:</h4>
+            <p>Synchronize client's clock with a time server</p>
+            <p><strong>Assumption:</strong> Time server has accurate time (e.g., connected to GPS/atomic clock)</p>
+        </div>
+        
+        <div class="algorithm-box">
+            <h4>How Cristian's Algorithm Works:</h4>
+            
+            <div class="step">
+                <strong>Step 1:</strong> Client records current time T₁ and sends request to time server
+            </div>
+            
+            <div class="step">
+                <strong>Step 2:</strong> Time server responds with its current time T_server
+            </div>
+            
+            <div class="step">
+                <strong>Step 3:</strong> Client receives response at time T₂
+            </div>
+            
+            <div class="step">
+                <strong>Step 4:</strong> Calculate round-trip time (RTT) = T₂ - T₁
+            </div>
+            
+            <div class="step">
+                <strong>Step 5:</strong> Estimate one-way delay = RTT / 2
+            </div>
+            
+            <div class="step">
+                <strong>Step 6:</strong> Set client time = T_server + (RTT / 2)
+            </div>
+        </div>
+        
+        <div class="space-time-diagram">
+            <h4 style="text-align: center; margin-bottom: 20px;">Cristian's Algorithm Timeline</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+                <div>
+                    <strong>Client</strong>
+                    <div style="margin: 20px 0;">
+                        <div style="background: #4caf50; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                            T₁ = 10:00:00.000<br>Send request →
+                        </div>
+                        <div style="background: #9e9e9e; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                            ⏳ Waiting...
+                        </div>
+                        <div style="background: #2196f3; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                            T₂ = 10:00:00.020<br>← Receive response
+                        </div>
+                        <div style="background: #ff9800; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                            RTT = 20ms<br>One-way = 10ms<br>Set time to 10:00:00.015
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <strong>Time Server</strong>
+                    <div style="margin: 20px 0;">
+                        <div style="height: 50px;"></div>
+                        <div style="background: #667eea; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                            Receive request<br>T_server = 10:00:00.010
+                        </div>
+                        <div style="background: #667eea; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                            Send T_server back →
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="formula">
+            <strong>Cristian's Formula:</strong><br><br>
+            Client_time = T_server + (RTT / 2)<br><br>
+            Accuracy: ± (RTT / 2)
+        </div>
+        
+        <pre><code>// Cristian's Algorithm Implementation
+class CristianClient {
+    async synchronize(timeServer) {
+        const T1 = Date.now(); // Record send time
+        
+        // Request time from server
+        const response = await fetch(timeServer + '/time');
+        const T_server = await response.json().time;
+        
+        const T2 = Date.now(); // Record receive time
+        
+        // Calculate round-trip time
+        const RTT = T2 - T1;
+        
+        // Estimate server time when we received response
+        const estimatedServerTime = T_server + (RTT / 2);
+        
+        // Calculate offset between our clock and server
+        const offset = estimatedServerTime - T2;
+        
+        console.log(`RTT: ${RTT}ms`);
+        console.log(`Offset: ${offset}ms`);
+        console.log(`Accuracy: ±${RTT/2}ms`);
+        
+        return offset;
+    }
+    
+    adjustClock(offset) {
+        // Gradually adjust clock to avoid jumping backwards
+        // (jumping backwards can cause problems!)
+        if (Math.abs(offset) < 125) {
+            // Small offset: adjust gradually
+            this.clockSkew = offset;
+            this.adjustGradually();
+        } else {
+            // Large offset: step adjustment
+            this.currentTime += offset;
+        }
+    }
+}</code></pre>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li>Simple to implement</li>
+                <li>Works well for small networks</li>
+                <li>Low overhead</li>
+            </ul>
+            
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li>Single point of failure (time server)</li>
+                <li>Assumes symmetric network delay (not always true!)</li>
+                <li>Accuracy depends on network latency</li>
+                <li>No fault tolerance</li>
+            </ul>
+        </div>
+        
+        <h3>🎯 Berkeley Algorithm</h3>
+        
+        <div class="definition">
+            <h4>Goal:</h4>
+            <p>Synchronize all machines to the <strong>average time</strong> (no external time server needed)</p>
+            <p><strong>Key idea:</strong> Master polls all machines, calculates average, tells each how to adjust</p>
+        </div>
+        
+        <div class="algorithm-box">
+            <h4>How Berkeley Algorithm Works:</h4>
+            
+            <div class="step">
+                <strong>Step 1:</strong> Master (coordinator) asks all machines for their current time
+            </div>
+            
+            <div class="step">
+                <strong>Step 2:</strong> Each machine responds with its local time
+            </div>
+            
+            <div class="step">
+                <strong>Step 3:</strong> Master estimates each machine's time (accounting for RTT)
+            </div>
+            
+            <div class="step">
+                <strong>Step 4:</strong> Master calculates average time (excluding outliers)
+            </div>
+            
+            <div class="step">
+                <strong>Step 5:</strong> Master sends adjustment value to each machine<br>
+                (Not the time itself, but how much to adjust: +5ms, -3ms, etc.)
+            </div>
+            
+            <div class="step">
+                <strong>Step 6:</strong> Each machine adjusts its clock by the specified amount
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>📊 Example: Berkeley Algorithm in Action</h4>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <strong>Initial State:</strong>
+                <div style="display: flex; justify-content: space-around; margin: 20px 0;">
+                    <div style="text-align: center;">
+                        <div class="clock-visual" style="width: 80px; height: 80px;">
+                            <div class="clock-label">Master</div>
+                            <div class="clock-time" style="font-size: 1em;">12:00:00</div>
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="clock-visual" style="width: 80px; height: 80px;">
+                            <div class="clock-label">Node A</div>
+                            <div class="clock-time" style="font-size: 1em;">12:00:05</div>
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="clock-visual" style="width: 80px; height: 80px;">
+                            <div class="clock-label">Node B</div>
+                            <div class="clock-time" style="font-size: 1em;">11:59:58</div>
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="clock-visual" style="width: 80px; height: 80px;">
+                            <div class="clock-label">Node C</div>
+                            <div class="clock-time" style="font-size: 1em;">12:00:02</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <strong>Calculation:</strong>
+                <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 5px;">
+                    Times: 12:00:00, 12:00:05, 11:59:58, 12:00:02<br>
+                    Average: (0 + 5 + (-2) + 2) / 4 = 1.25 seconds<br>
+                    <strong>Target time: 12:00:01.25</strong>
+                </div>
+                
+                <strong>Adjustments:</strong>
+                <ul>
+                    <li>Master: +1.25 seconds</li>
+                    <li>Node A: -3.75 seconds</li>
+                    <li>Node B: +3.25 seconds</li>
+                    <li>Node C: -0.75 seconds</li>
+                </ul>
+                
+                <div style="margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 5px; border-left: 4px solid #4caf50;">
+                    <strong>Result:</strong> All nodes converge to approximately 12:00:01.25
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Berkeley Algorithm Implementation
+class BerkeleyMaster {
+    constructor(nodes) {
+        this.nodes = nodes;
+    }
+    
+    async synchronize() {
+        const times = [];
+        
+        // Step 1 & 2: Poll all nodes for their time
+        for (const node of this.nodes) {
+            const T1 = Date.now();
+            const nodeTime = await node.getTime();
+            const T2 = Date.now();
+            
+            const RTT = T2 - T1;
+            // Estimate node's current time
+            const estimatedTime = nodeTime + (RTT / 2);
+            
+            times.push({
+                node: node,
+                time: estimatedTime
+            });
+        }
+        
+        // Step 3: Calculate average (exclude outliers)
+        const average = this.calculateAverage(times.map(t => t.time));
+        
+        console.log(`Average time: ${average}`);
+        
+        // Step 4: Send adjustments to each node
+        for (const {node, time} of times) {
+            const adjustment = average - time;
+            console.log(`${node.id}: adjust by ${adjustment}ms`);
+            await node.adjustClock(adjustment);
+        }
+    }
+    
+    calculateAverage(times) {
+        // Remove outliers (times that differ by more than threshold)
+        const sorted = times.sort((a, b) => a - b);
+        const median = sorted[Math.floor(sorted.length / 2)];
+        
+        const filtered = times.filter(t => 
+            Math.abs(t - median) < 1000 // 1 second threshold
+        );
+        
+        return filtered.reduce((a, b) => a + b, 0) / filtered.length;
+    }
+}</code></pre>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li>No external time source needed</li>
+                <li>Fault tolerant (can ignore faulty nodes)</li>
+                <li>All nodes converge to same time</li>
+                <li>Master can be elected if it fails</li>
+            </ul>
+            
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li>Not synchronized to "real" time (UTC)</li>
+                <li>Master is a single point of failure</li>
+                <li>Higher communication overhead</li>
+            </ul>
+        </div>
+        
+        <h3>🌐 Network Time Protocol (NTP)</h3>
+        
+        <div class="definition">
+            <h4>What is NTP?</h4>
+            <p><strong>Network Time Protocol</strong> is the standard protocol used to synchronize clocks on the Internet.</p>
+            <p><strong>Goal:</strong> Synchronize to UTC (Coordinated Universal Time) with millisecond accuracy</p>
+            <p><strong>Used by:</strong> Virtually every computer, server, and network device</p>
+        </div>
+        
+        <div class="algorithm-box">
+            <h4>NTP Hierarchy (Stratum Levels):</h4>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="background: #4caf50; color: white; padding: 15px; border-radius: 8px; margin: 10px auto; max-width: 400px;">
+                    <strong>Stratum 0:</strong> Atomic clocks, GPS receivers<br>(Primary time sources)
+                </div>
+                <div style="font-size: 2em; color: #666;">↓</div>
+                <div style="background: #2196f3; color: white; padding: 15px; border-radius: 8px; margin: 10px auto; max-width: 400px;">
+                    <strong>Stratum 1:</strong> Servers directly connected to Stratum 0<br>(time.google.com, time.nist.gov)
+                </div>
+                <div style="font-size: 2em; color: #666;">↓</div>
+                <div style="background: #ff9800; color: white; padding: 15px; border-radius: 8px; margin: 10px auto; max-width: 400px;">
+                    <strong>Stratum 2:</strong> Servers sync from Stratum 1<br>(Most NTP servers)
+                </div>
+                <div style="font-size: 2em; color: #666;">↓</div>
+                <div style="background: #9e9e9e; color: white; padding: 15px; border-radius: 8px; margin: 10px auto; max-width: 400px;">
+                    <strong>Stratum 3-15:</strong> Clients sync from upper stratums<br>(Your computer)
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>Key Features of NTP:</h4>
+            <ul>
+                <li><strong>Multiple servers:</strong> Queries multiple time servers for redundancy</li>
+                <li><strong>Statistical filtering:</strong> Uses median, outlier detection</li>
+                <li><strong>Gradual adjustment:</strong> Never jumps clock backwards</li>
+                <li><strong>Accuracy:</strong> Milliseconds on Internet, microseconds on LAN</li>
+                <li><strong>Hierarchical:</strong> Distributes load across stratum levels</li>
+            </ul>
+        </div>
+        
+        <div class="example">
+            <h4>🌍 Real-World NTP Usage:</h4>
+            <ul>
+                <li><strong>Your computer:</strong> Syncs with pool.ntp.org every few hours</li>
+                <li><strong>Google's Public NTP:</strong> time.google.com (backed by atomic clocks)</li>
+                <li><strong>Financial systems:</strong> Require accurate timestamps for trades</li>
+                <li><strong>Distributed databases:</strong> Use NTP for timestamp ordering</li>
+            </ul>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Algorithm</th>
+                <th>Accuracy</th>
+                <th>Scalability</th>
+                <th>Fault Tolerance</th>
+                <th>Use Case</th>
+            </tr>
+            <tr>
+                <td><strong>Cristian's</strong></td>
+                <td>~10ms (LAN)</td>
+                <td>Poor (single server)</td>
+                <td>None</td>
+                <td>Small networks</td>
+            </tr>
+            <tr>
+                <td><strong>Berkeley</strong></td>
+                <td>Relative only</td>
+                <td>Good</td>
+                <td>Moderate</td>
+                <td>Internal networks</td>
+            </tr>
+            <tr>
+                <td><strong>NTP</strong></td>
+                <td>1-50ms (Internet)</td>
+                <td>Excellent</td>
+                <td>Excellent</td>
+                <td>Global Internet</td>
+            </tr>
+        </table>
+        
+        <h2>2️⃣ Logical Clocks (Lamport Timestamps)</h2>
+        
+        <div class="problem-box">
+            <h3>💡 Key Insight by Leslie Lamport</h3>
+            <p><strong>"If we can't rely on physical clocks, let's create logical clocks!"</strong></p>
+            <p>We don't need to know the exact time events occurred. We just need to know the <strong>order</strong> in which they happened!</p>
+        </div>
+        
+        <div class="definition">
+            <h4>Lamport Timestamps</h4>
+            <p><strong>Each process maintains a counter</strong> that represents its logical time.</p>
+            <p><strong>Goal:</strong> If event A causally affects event B, then timestamp(A) < timestamp(B)</p>
+            <p><strong>Key:</strong> Timestamps are just integers, not real time!</p>
+        </div>
+        
+        <div class="algorithm-box">
+            <h4>Lamport Clock Rules:</h4>
+            
+            <div class="step">
+                <strong>Rule 1:</strong> Before executing an event, increment your counter<br>
+                <code>LC = LC + 1</code>
+            </div>
+            
+            <div class="step">
+                <strong>Rule 2:</strong> When sending a message, include your current counter
+            </div>
+            
+            <div class="step">
+                <strong>Rule 3:</strong> When receiving a message with timestamp T:<br>
+                <code>LC = max(LC, T) + 1</code>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>📊 Example: Lamport Clocks in Action</h4>
+            
+            <div class="space-time-diagram">
+                <h4 style="text-align: center;">Three Processes with Lamport Timestamps</h4>
+                
+                <div style="margin: 30px 0;">
+                    <strong>Process P1:</strong>
+                    <div style="display: flex; align-items: center; margin: 20px 0;">
+                        <div class="vector-clock">LC=1</div>
+                        <span style="margin: 0 10px;">→</span>
+                        <div class="vector-clock">LC=2</div>
+                        <span style="margin: 0 10px; color: #ff9800; font-weight: bold;">→ send msg(2) →</span>
+                        <div class="vector-clock">LC=3</div>
+                    </div>
+                    
+                    <strong>Process P2:</strong>
+                    <div style="display: flex; align-items: center; margin: 20px 0;">
+                        <div class="vector-clock">LC=1</div>
+                        <span style="margin: 0 10px;">→</span>
+                        <div class="vector-clock" style="background: #ff9800;">LC=max(1,2)+1=3</div>
+                        <span style="margin: 0 10px; font-size: 0.9em;">← recv msg(2)</span>
+                        <div class="vector-clock">LC=4</div>
+                        <span style="margin: 0 10px; color: #ff9800; font-weight: bold;">→ send msg(4) →</span>
+                    </div>
+                    
+                    <strong>Process P3:</strong>
+                    <div style="display: flex; align-items: center; margin: 20px 0;">
+                        <div class="vector-clock">LC=1</div>
+                        <span style="margin: 0 10px;">→</span>
+                        <div class="vector-clock">LC=2</div>
+                        <span style="margin: 0 10px;">→</span>
+                        <div class="vector-clock" style="background: #ff9800;">LC=max(2,4)+1=5</div>
+                        <span style="margin: 0 10px; font-size: 0.9em;">← recv msg(4)</span>
+                    </div>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                    <strong>Key observations:</strong>
+                    <ul>
+                        <li>Timestamps always increase</li>
+                        <li>When receiving a message, jump ahead if necessary</li>
+                        <li>Causal relationships are preserved in timestamp order</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Lamport Clock Implementation
+class LamportClock {
+    constructor(processId) {
+        this.processId = processId;
+        this.counter = 0;
+    }
+    
+    // Rule 1: Increment before local event
+    tick() {
+        this.counter++;
+        return this.counter;
+    }
+    
+    // Rule 2: Include timestamp when sending
+    send(message) {
+        this.tick();
+        message.timestamp = this.counter;
+        message.processId = this.processId;
+        return message;
+    }
+    
+    // Rule 3: Update on receive
+    receive(message) {
+        this.counter = Math.max(this.counter, message.timestamp);
+        this.tick();
+        return this.counter;
+    }
+    
+    // For debugging
+    getCurrentTime() {
+        return `${this.processId}:${this.counter}`;
+    }
+}
+
+// Usage Example
+const p1 = new LamportClock('P1');
+const p2 = new LamportClock('P2');
+
+// P1 does local event
+console.log(p1.tick()); // 1
+
+// P1 sends message
+const msg = p1.send({data: 'Hello'}); // timestamp = 2
+
+// P2 receives message
+console.log(p2.receive(msg)); // max(0, 2) + 1 = 3</code></pre>
+        
+        <div class="warning">
+            <h4>⚠️ Limitation of Lamport Clocks</h4>
+            <p><strong>Problem:</strong> If timestamp(A) < timestamp(B), we CANNOT conclude that A caused B!</p>
+            <p>Lamport timestamps give us <span class="highlight">partial ordering</span>, not complete causality.</p>
+            <p><strong>Example:</strong> Two independent events on different processes might have timestamps 5 and 10, but neither caused the other!</p>
+        </div>
+        
+        <h2>3️⃣ Vector Clocks</h2>
+        
+        <div class="definition">
+            <h4>What are Vector Clocks?</h4>
+            <p><strong>Vector clocks</strong> solve the limitation of Lamport clocks by maintaining a vector of timestamps - one counter for each process.</p>
+            <p><strong>Goal:</strong> Capture complete causal relationships between events</p>
+            <p><strong>Each process maintains:</strong> <code>VC[i]</code> = number of events process i knows about</p>
+        </div>
+        
+        <div class="algorithm-box">
+            <h4>Vector Clock Rules:</h4>
+            
+            <div class="step">
+                <strong>Rule 1:</strong> Before executing an event, increment your own counter<br>
+                <code>VC[i] = VC[i] + 1</code> (where i is your process ID)
+            </div>
+            
+            <div class="step">
+                <strong>Rule 2:</strong> When sending a message, include your entire vector
+            </div>
+            
+            <div class="step">
+                <strong>Rule 3:</strong> When receiving a message with vector V:<br>
+                <code>VC[i] = max(VC[i], V[i])</code> for all i<br>
+                Then increment your own counter: <code>VC[myId] = VC[myId] + 1</code>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>📊 Example: Vector Clocks</h4>
+            
+            <div class="space-time-diagram">
+                <h4 style="text-align: center;">Three Processes with Vector Clocks</h4>
+                <p style="text-align: center; color: #666;">Format: [P1 counter, P2 counter, P3 counter]</p>
+                
+                <div style="margin: 30px 0;">
+                    <strong>Process P1:</strong>
+                    <div style="display: flex; align-items: center; margin: 20px 0; flex-wrap: wrap;">
+                        <div class="vector-clock">[1,0,0]</div>
+                        <span style="margin: 0 10px;">→</span>
+                        <div class="vector-clock">[2,0,0]</div>
+                        <span style="margin: 0 10px; color: #ff9800; font-weight: bold;">→ send [2,0,0] →</span>
+                        <div class="vector-clock">[3,0,0]</div>
+                        <span style="margin: 0 10px;">→</span>
+                        <div class="vector-clock">[4,0,0]</div>
+                    </div>
+                    
+                    <strong>Process P2:</strong>
+                    <div style="display: flex; align-items: center; margin: 20px 0; flex-wrap: wrap;">
+                        <div class="vector-clock">[0,1,0]</div>
+                        <span style="margin: 0 10px;">→</span>
+                        <div class="vector-clock" style="background: #ff9800;">[2,2,0]</div>
+                        <span style="margin: 0 10px; font-size: 0.9em;">← recv [2,0,0]</span>
+                        <div class="vector-clock">[2,3,0]</div>
+                        <span style="margin: 0 10px; color: #ff9800; font-weight: bold;">→ send [2,3,0] →</span>
+                    </div>
+                    
+                    <strong>Process P3:</strong>
+                    <div style="display: flex; align-items: center; margin: 20px 0; flex-wrap: wrap;">
+                        <div class="vector-clock">[0,0,1]</div>
+                        <span style="margin: 0 10px;">→</span>
+                        <div class="vector-clock">[0,0,2]</div>
+                        <span style="margin: 0 10px;">→</span>
+                        <div class="vector-clock" style="background: #ff9800;">[2,3,3]</div>
+                        <span style="margin: 0 10px; font-size: 0.9em;">← recv [2,3,0]</span>
+                        <div class="vector-clock">[2,3,4]</div>
+                    </div>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                    <strong>What the vector tells us:</strong>
+                    <ul>
+                        <li><code>[2,3,4]</code> means P3 has seen: 2 events from P1, 3 from P2, and done 4 of its own</li>
+                        <li>Complete causality information!</li>
+                        <li>Can determine if events are causally related or concurrent</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Vector Clock Implementation
+class VectorClock {
+    constructor(processId, numProcesses) {
+        this.processId = processId;
+        this.vector = new Array(numProcesses).fill(0);
+    }
+    
+    // Rule 1: Increment own counter
+    tick() {
+        this.vector[this.processId]++;
+        return [...this.vector];
+    }
+    
+    // Rule 2: Send with current vector
+    send(message) {
+        this.tick();
+        message.vectorClock = [...this.vector];
+        return message;
+    }
+    
+    // Rule 3: Merge vectors on receive
+    receive(message) {
+        const receivedVC = message.vectorClock;
+        
+        // Take maximum of each element
+        for (let i = 0; i < this.vector.length; i++) {
+            this.vector[i] = Math.max(this.vector[i], receivedVC[i]);
+        }
+        
+        // Then increment own counter
+        this.tick();
+        return [...this.vector];
+    }
+    
+    // Check if this event happened before another
+    happenedBefore(otherVC) {
+        let allLessOrEqual = true;
+        let atLeastOneLess = false;
+        
+        for (let i = 0; i < this.vector.length; i++) {
+            if (this.vector[i] > otherVC[i]) {
+                return false; // Not happened before
+            }
+            if (this.vector[i] < otherVC[i]) {
+                atLeastOneLess = true;
+            }
+        }
+        
+        return atLeastOneLess;
+    }
+    
+    // Check if events are concurrent
+    isConcurrent(otherVC) {
+        return !this.happenedBefore(otherVC) && 
+               !this.vectorHappenedBefore(otherVC, this.vector);
+    }
+    
+    vectorHappenedBefore(a, b) {
+        let allLessOrEqual = true;
+        let atLeastOneLess = false;
+        
+        for (let i = 0; i < a.length; i++) {
+            if (a[i] > b[i]) return false;
+            if (a[i] < b[i]) atLeastOneLess = true;
+        }
+        
+        return atLeastOneLess;
+    }
+}
+
+// Usage Example
+const p1 = new VectorClock(0, 3); // Process 0 in 3-process system
+const p2 = new VectorClock(1, 3); // Process 1
+const p3 = new VectorClock(2, 3); // Process 2
+
+// P1 does event
+p1.tick(); // [1, 0, 0]
+
+// P1 sends to P2
+const msg = p1.send({data: 'Hello'}); // [2, 0, 0]
+
+// P2 receives
+p2.receive(msg); // [2, 1, 0]
+
+console.log('P1 vector:', p1.vector); // [2, 0, 0]
+console.log('P2 vector:', p2.vector); // [2, 1, 0]
+console.log('P1 happened before P2?', 
+    p1.happenedBefore(p2.vector)); // true!</code></pre>
+        
+        <h3>🔍 Comparing Events with Vector Clocks</h3>
+        
+        <div class="happened-before">
+            <h4>✅ Event A happened before Event B (A → B) if:</h4>
+            <div class="formula">
+                VC_A[i] ≤ VC_B[i] for all i<br>
+                AND<br>
+                VC_A[j] < VC_B[j] for at least one j
+            </div>
+            <p><strong>Example:</strong> [2,1,0] happened before [3,2,1]</p>
+        </div>
+        
+        <div class="concurrent">
+            <h4>⚡ Events A and B are concurrent (A || B) if:</h4>
+            <div class="formula">
+                Neither A → B nor B → A
+            </div>
+            <p><strong>Example:</strong> [2,1,0] and [1,2,0] are concurrent</p>
+            <p>They happened independently on different processes!</p>
+        </div>
+        
+        <div class="example">
+            <h4>🎯 Practical Example: Version Control</h4>
+            <p>Vector clocks are used in distributed version control systems!</p>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <strong>Scenario: Two developers editing same file</strong>
+                
+                <div style="margin: 20px 0;">
+                    <strong>Developer 1 (Alice):</strong> [1,0] → edits file → [2,0]<br>
+                    <strong>Developer 2 (Bob):</strong> [0,1] → edits file → [0,2]
+                </div>
+                
+                <div style="background: #fff3e0; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                    <strong>System detects:</strong> [2,0] || [0,2] (concurrent!)<br>
+                    <strong>Action:</strong> Conflict! Manual merge required
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                    <strong>After merge:</strong> [2,2]<br>
+                    This version causally depends on both changes
+                </div>
+            </div>
+        </div>
+        
+        <h2>4️⃣ Happened-Before Relationship (→)</h2>
+        
+        <div class="definition">
+            <h4>The Happened-Before Relation</h4>
+            <p>Defined by Leslie Lamport, the <strong>happened-before</strong> relation (→) captures causality:</p>
+            <p><strong>Event A happened before event B (A → B)</strong> if:</p>
+        </div>
+        
+        <div class="algorithm-box">
+            <h4>Three Rules of Happened-Before:</h4>
+            
+            <div class="step">
+                <strong>Rule 1 (Local Order):</strong><br>
+                If A and B are events in the same process, and A occurs before B,<br>
+                then A → B
+            </div>
+            
+            <div class="step">
+                <strong>Rule 2 (Message Send/Receive):</strong><br>
+                If A is the sending of a message, and B is the receipt of that message,<br>
+                then A → B
+            </div>
+            
+            <div class="step">
+                <strong>Rule 3 (Transitivity):</strong><br>
+                If A → B and B → C, then A → C
+            </div>
+            
+            <div class="step">
+                <strong>Concurrency:</strong><br>
+                If neither A → B nor B → A, then A and B are <strong>concurrent</strong> (A || B)
+            </div>
+        </div>
+        
+        <div class="space-time-diagram">
+            <h4 style="text-align: center;">Happened-Before Visualization</h4>
+            <svg width="100%" height="300" style="margin: 20px 0;">
+                <!-- Process lines -->
+                <line x1="50" y1="50" x2="550" y2="50" stroke="#667eea" stroke-width="2"/>
+                <text x="10" y="55" font-weight="bold">P1</text>
+                
+                <line x1="50" y1="150" x2="550" y2="150" stroke="#667eea" stroke-width="2"/>
+                <text x="10" y="155" font-weight="bold">P2</text>
+                
+                <line x1="50" y1="250" x2="550" y2="250" stroke="#667eea" stroke-width="2"/>
+                <text x="10" y="255" font-weight="bold">P3</text>
+                
+                <!-- Events -->
+                <circle cx="100" cy="50" r="8" fill="#4caf50"/>
+                <text x="100" y="30" text-anchor="middle" font-size="12">a</text>
+                
+                <circle cx="200" cy="50" r="8" fill="#4caf50"/>
+                <text x="200" y="30" text-anchor="middle" font-size="12">b</text>
+                
+                <circle cx="400" cy="50" r="8" fill="#4caf50"/>
+                <text x="400" y="30" text-anchor="middle" font-size="12">e</text>
+                
+                <circle cx="150" cy="150" r="8" fill="#4caf50"/>
+                <text x="150" y="180" text-anchor="middle" font-size="12">c</text>
+                
+                <circle cx="350" cy="150" r="8" fill="#4caf50"/>
+                <text x="350" y="180" text-anchor="middle" font-size="12">d</text>
+                
+                <circle cx="300" cy="250" r="8" fill="#4caf50"/>
+                <text x="300" y="280" text-anchor="middle" font-size="12">f</text>
+                
+                <!-- Messages -->
+                <line x1="200" y1="50" x2="350" y2="150" stroke="#ff9800" stroke-width="2" marker-end="url(#arrowhead)"/>
+                <text x="275" y="90" fill="#ff9800" font-weight="bold" font-size="12">msg1</text>
+                
+                <line x1="150" y1="150" x2="300" y2="250" stroke="#ff9800" stroke-width="2" marker-end="url(#arrowhead)"/>
+                <text x="215" y="210" fill="#ff9800" font-weight="bold" font-size="12">msg2</text>
+                
+                <!-- Arrow marker definition -->
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <polygon points="0 0, 10 3, 0 6" fill="#ff9800"/>
+                    </marker>
+                </defs>
+            </svg>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <h4>Causal Relationships:</h4>
+                <ul>
+                    <li><strong>a → b</strong> (same process, a before b)</li>
+                    <li><strong>b → d</strong> (b sends message, d receives it)</li>
+                    <li><strong>a → d</strong> (by transitivity: a → b → d)</li>
+                    <li><strong>c → f</strong> (c sends message, f receives it)</li>
+                    <li><strong>a || c</strong> (concurrent - no causal relation)</li>
+                    <li><strong>e || f</strong> (concurrent - independent events)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>5️⃣ Causal Ordering</h2>
+        
+        <div class="definition">
+            <h4>What is Causal Ordering?</h4>
+            <p><strong>Causal ordering</strong> ensures messages are delivered in an order consistent with causality.</p>
+            <p><strong>Guarantee:</strong> If message m1 causally precedes m2, then m1 must be delivered before m2</p>
+        </div>
+        
+        <div class="example">
+            <h4>💬 Example: Group Chat</h4>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <strong>Without Causal Ordering:</strong>
+                <div style="margin: 15px 0;">
+                    <div style="background: #4caf50; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                        Alice: "Want to grab lunch?"
+                    </div>
+                    <div style="background: #2196f3; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                        Bob: "Sure! Where?"
+                    </div>
+                </div>
+                
+                <div style="background: #ffebee; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #f44336;">
+                    <strong>Charlie sees (wrong order due to network delay):</strong>
+                    <div style="margin: 10px 0;">
+                        Bob: "Sure! Where?" ❓<br>
+                        Alice: "Want to grab lunch?" 🤔
+                    </div>
+                    <strong>Confusing! Bob's reply came before Alice's question!</strong>
+                </div>
+                
+                <strong>With Causal Ordering:</strong>
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #4caf50;">
+                    <strong>Charlie sees (correct order):</strong>
+                    <div style="margin: 10px 0;">
+                        Alice: "Want to grab lunch?"<br>
+                        Bob: "Sure! Where?" ✅
+                    </div>
+                    <strong>System delays Bob's message until Alice's is delivered first!</strong>
+                </div>
+            </div>
+        </div>
+        
+        <div class="algorithm-box">
+            <h4>Implementing Causal Ordering with Vector Clocks:</h4>
+            
+            <pre><code>class CausalOrderingSystem {
+    constructor(processId, numProcesses) {
+        this.processId = processId;
+        this.vectorClock = new Array(numProcesses).fill(0);
+        this.messageBuffer = []; // Buffer for out-of-order messages
+    }
+    
+    send(message) {
+        // Increment own counter
+        this.vectorClock[this.processId]++;
+        
+        // Attach vector clock to message
+        message.vectorClock = [...this.vectorClock];
+        return message;
+    }
+    
+    canDeliver(message) {
+        const msgVC = message.vectorClock;
+        const senderId = message.senderId;
+        
+        // Check if we can deliver this message
+        // Must have received all messages that causally precede this one
+        
+        for (let i = 0; i < this.vectorClock.length; i++) {
+            if (i === senderId) {
+                // Sender's counter should be exactly one more than ours
+                if (msgVC[i] !== this.vectorClock[i] + 1) {
+                    return false;
+                }
+            } else {
+                // Other counters should not be ahead
+                if (msgVC[i] > this.vectorClock[i]) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+    
+    receive(message) {
+        if (this.canDeliver(message)) {
+            // Deliver immediately
+            this.deliver(message);
+            
+            // Check if buffered messages can now be delivered
+            this.checkBuffer();
+        } else {
+            // Buffer for later
+            this.messageBuffer.push(message);
+            console.log('Message buffered - waiting for causal dependencies');
+        }
+    }
+    
+    deliver(message) {
+        console.log('Delivering message:', message.content);
+        
+        // Update vector clock
+        for (let i = 0; i < this.vectorClock.length; i++) {
+            this.vectorClock[i] = Math.max(
+                this.vectorClock[i], 
+                message.vectorClock[i]
+            );
+        }
+    }
+    
+    checkBuffer() {
+        let delivered = true;
+        
+        while (delivered) {
+            delivered = false;
+            
+            for (let i = 0; i < this.messageBuffer.length; i++) {
+                if (this.canDeliver(this.messageBuffer[i])) {
+                    const msg = this.messageBuffer.splice(i, 1)[0];
+                    this.deliver(msg);
+                    delivered = true;
+                    break;
+                }
+            }
+        }
+    }
+}</code></pre>
+        </div>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: Vector Clock Demo</h3>
+            <p>See how vector clocks detect causality and concurrency:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demoHappenedBefore()">Happened-Before Example</button>
+                <button class="demo-button" onclick="demoConcurrent()">Concurrent Example</button>
+                <button class="demo-button" onclick="demoCausalOrder()">Causal Ordering</button>
+            </div>
+            <div id="vectorClockDemo" class="demo-output">Click a button to see vector clocks in action...</div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Clock Type</th>
+                <th>Size</th>
+                <th>Detects Causality</th>
+                <th>Detects Concurrency</th>
+                <th>Use Case</th>
+            </tr>
+            <tr>
+                <td><strong>Physical</strong></td>
+                <td>64 bits</td>
+                <td>❌ Unreliable</td>
+                <td>❌ No</td>
+                <td>Wall-clock time</td>
+            </tr>
+            <tr>
+                <td><strong>Lamport</strong></td>
+                <td>Integer</td>
+                <td>⚠️ One direction only</td>
+                <td>❌ No</td>
+                <td>Total ordering</td>
+            </tr>
+            <tr>
+                <td><strong>Vector</strong></td>
+                <td>N integers</td>
+                <td>✅ Complete</td>
+                <td>✅ Yes</td>
+                <td>Causality tracking</td>
+            </tr>
+        </table>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 4</h3>
+            <ul style="line-height: 2;">
+                <li><strong>Physical clocks drift</strong> - can't rely on them for ordering in distributed systems</li>
+                <li><strong>Clock synchronization</strong> - Cristian's (simple), Berkeley (average), NTP (Internet standard)</li>
+                <li><strong>Lamport clocks</strong> - logical ordering with single integer, captures A → B</li>
+                <li><strong>Vector clocks</strong> - complete causality, detects both ordering and concurrency</li>
+                <li><strong>Happened-before (→)</strong> - fundamental causal relation in distributed systems</li>
+                <li><strong>Causal ordering</strong> - deliver messages respecting causality (prevents confusion)</li>
+                <li><strong>Trade-off:</strong> Vector clocks are more powerful but use more space (N integers)</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>Why can't we use physical clocks to order events across different machines?</li>
+                <li>What's the main difference between Cristian's and Berkeley algorithm?</li>
+                <li>If Lamport timestamp(A) < timestamp(B), can we conclude A caused B? Why or why not?</li>
+                <li>How do vector clocks solve the limitation of Lamport clocks?</li>
+                <li>Given vector clocks [3,2,1] and [2,3,0], which happened first? Or are they concurrent?</li>
+                <li>Why is causal ordering important in messaging systems?</li>
+                <li>Design a system: Would you use Lamport or Vector clocks? Trade-offs?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function demoHappenedBefore() {
+            const output = document.getElementById('vectorClockDemo');
+            output.textContent = '=== HAPPENED-BEFORE EXAMPLE ===\n\n';
+            
+            output.textContent += 'Process P1:\n';
+            output.textContent += '  Event a: [1,0,0]\n';
+            output.textContent += '  Event b: [2,0,0] → sends message to P2\n\n';
+            
+            output.textContent += 'Process P2:\n';
+            output.textContent += '  Event c: [0,1,0]\n';
+            output.textContent += '  Event d: [2,2,0] ← receives message from P1\n\n';
+            
+            output.textContent += 'ANALYSIS:\n';
+            output.textContent += '  b → d? Check if [2,0,0] ≤ [2,2,0]\n';
+            output.textContent += '    [2 ≤ 2] ✓  [0 ≤ 2] ✓  [0 ≤ 0] ✓\n';
+            output.textContent += '    At least one <: 0 < 2 ✓\n';
+            output.textContent += '  Result: b → d (b happened before d) ✅\n\n';
+            
+            output.textContent += '  a → d? By transitivity: a → b → d\n';
+            output.textContent += '  Result: a → d ✅\n\n';
+            
+            output.textContent += 'Causality captured correctly!';
+        }
+        
+        function demoConcurrent() {
+            const output = document.getElementById('vectorClockDemo');
+            output.textContent = '=== CONCURRENT EVENTS EXAMPLE ===\n\n';
+            
+            output.textContent += 'Process P1:\n';
+            output.textContent += '  Event a: [1,0,0]\n';
+            output.textContent += '  Event b: [2,0,0]\n\n';
+            
+            output.textContent += 'Process P2:\n';
+            output.textContent += '  Event c: [0,1,0]\n';
+            output.textContent += '  Event d: [0,2,0]\n\n';
+            
+            output.textContent += 'ANALYSIS:\n';
+            output.textContent += '  b → d? Check if [2,0,0] ≤ [0,2,0]\n';
+            output.textContent += '    [2 ≤ 0] ✗ - FAILS!\n';
+            output.textContent += '  Result: NOT b → d\n\n';
+            
+            output.textContent += '  d → b? Check if [0,2,0] ≤ [2,0,0]\n';
+            output.textContent += '    [0 ≤ 2] ✓  [2 ≤ 0] ✗ - FAILS!\n';
+            output.textContent += '  Result: NOT d → b\n\n';
+            
+            output.textContent += 'CONCLUSION: b || d (concurrent!) ⚡\n';
+            output.textContent += 'These events happened independently\n';
+            output.textContent += 'on different processes with no causal relationship.';
+        }
+        
+        function demoCausalOrder() {
+            const output = document.getElementById('vectorClockDemo');
+            output.textContent = '=== CAUSAL ORDERING DEMO ===\n\n';
+            
+            output.textContent += 'Scenario: Group chat with 3 users\n\n';
+            
+            output.textContent += 'Alice (P1) sends: "Want pizza?" VC=[1,0,0]\n';
+            output.textContent += 'Bob (P2) replies: "Yes!" VC=[1,1,0]\n';
+            output.textContent += '  (Bob saw Alice\'s message first)\n\n';
+            
+            output.textContent += 'Network delay! Messages arrive at Charlie (P3) in wrong order:\n\n';
+            
+            output.textContent += 'Charlie receives Bob\'s message first:\n';
+            output.textContent += '  Current VC: [0,0,0]\n';
+            output.textContent += '  Message VC: [1,1,0]\n';
+            output.textContent += '  Can deliver? Check: [1,1,0] vs [0,0,0]\n';
+            output.textContent += '    Need P1 counter = 1, but have 0\n';
+            output.textContent += '  ❌ BUFFER IT - missing causal dependency!\n\n';
+            
+            output.textContent += 'Charlie receives Alice\'s message:\n';
+            output.textContent += '  Current VC: [0,0,0]\n';
+            output.textContent += '  Message VC: [1,0,0]\n';
+            output.textContent += '  Can deliver? Check: [1,0,0] vs [0,0,0]\n';
+            output.textContent += '    P1 counter should be 1, have 0+1 = 1 ✓\n';
+            output.textContent += '  ✅ DELIVER: "Want pizza?"\n';
+            output.textContent += '  Update VC: [1,0,1]\n\n';
+            
+            output.textContent += 'Check buffer:\n';
+            output.textContent += '  Bob\'s message: [1,1,0] vs [1,0,1]\n';
+            output.textContent += '    P2 counter should be 1, have 0+1 = 1 ✓\n';
+            output.textContent += '  ✅ DELIVER: "Yes!"\n';
+            output.textContent += '  Update VC: [1,1,2]\n\n';
+            
+            output.textContent += 'Result: Messages delivered in causal order!\n';
+            output.textContent += 'Charlie sees the conversation correctly. 🎉';
+        }
+    </script>
+</body>
+</html>

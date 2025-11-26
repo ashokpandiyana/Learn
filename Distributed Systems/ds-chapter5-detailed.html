@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 5: Mutual Exclusion and Coordination</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .algorithm-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .step {
+            background: #f8f9fa;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+            text-align: center;
+        }
+        
+        .process-node {
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .process-node:hover {
+            transform: scale(1.1);
+        }
+        
+        .critical-section {
+            display: inline-block;
+            padding: 30px;
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: white;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 1.2em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            margin: 20px;
+        }
+        
+        .coordinator {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+        }
+        
+        .token {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .message-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .arrow {
+            margin: 0 15px;
+            font-size: 2em;
+            color: #ff9800;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 40px 0;
+        }
+        
+        .timeline-step {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #667eea;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .requirement {
+            background: white;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .election-visual {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .node-id {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            border: 2px solid #667eea;
+        }
+        
+        .leader-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ffd700;
+            color: #333;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.7em;
+        }
+        
+        .service-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .formula {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Chapter 5: Mutual Exclusion and Coordination</h1>
+        
+        <div class="problem-box">
+            <h3>🤔 The Core Problem</h3>
+            <p style="font-size: 1.2em;"><strong>How do we ensure only ONE process accesses a shared resource at a time in a distributed system?</strong></p>
+            <p>In a single computer, we have locks/mutexes. But in distributed systems:</p>
+            <ul>
+                <li>No shared memory</li>
+                <li>No global clock</li>
+                <li>Processes can fail</li>
+                <li>Networks can partition</li>
+            </ul>
+            <p><strong>Yet we still need to coordinate access to shared resources!</strong></p>
+        </div>
+        
+        <h2>1️⃣ The Mutual Exclusion Problem</h2>
+        
+        <div class="definition">
+            <h4>What is Mutual Exclusion?</h4>
+            <p><strong>Mutual Exclusion (Mutex)</strong> ensures that only one process at a time can execute in its <span class="highlight">critical section</span> - the code segment that accesses shared resources.</p>
+        </div>
+        
+        <div class="example">
+            <h4>🏦 Real-World Example: Bank Account</h4>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <p><strong>Scenario:</strong> Two ATMs trying to withdraw from the same account simultaneously</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                    <div style="background: #ffebee; padding: 15px; border-radius: 8px;">
+                        <strong>❌ WITHOUT Mutual Exclusion:</strong><br><br>
+                        Initial Balance: $100<br><br>
+                        ATM 1: Read balance ($100)<br>
+                        ATM 2: Read balance ($100)<br>
+                        ATM 1: Withdraw $80 → Balance = $20<br>
+                        ATM 2: Withdraw $80 → Balance = $20<br><br>
+                        <strong style="color: #f44336;">Problem: Account has $20 but $160 was withdrawn!</strong>
+                    </div>
+                    
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px;">
+                        <strong>✅ WITH Mutual Exclusion:</strong><br><br>
+                        Initial Balance: $100<br><br>
+                        ATM 1: Lock → Read ($100) → Withdraw $80 → Balance = $20 → Unlock<br>
+                        ATM 2: Wait for lock...<br>
+                        ATM 2: Lock → Read ($20) → Insufficient funds → Unlock<br><br>
+                        <strong style="color: #4caf50;">Correct: Only $80 withdrawn!</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h3>📋 Requirements for Mutual Exclusion</h3>
+        
+        <div class="requirement">
+            <h4>1. Safety (Mutual Exclusion)</h4>
+            <p>At most ONE process can be in the critical section at any time</p>
+        </div>
+        
+        <div class="requirement">
+            <h4>2. Liveness (Progress)</h4>
+            <p>If no process is in the critical section and some processes want to enter, one of them will eventually succeed</p>
+        </div>
+        
+        <div class="requirement">
+            <h4>3. Fairness (No Starvation)</h4>
+            <p>Every process that requests entry will eventually get access (no process waits forever)</p>
+        </div>
+        
+        <div class="requirement">
+            <h4>4. Fault Tolerance</h4>
+            <p>System should continue working even if processes crash</p>
+        </div>
+        
+        <h3>📊 Performance Metrics</h3>
+        
+        <ul>
+            <li><strong>Message Complexity:</strong> Number of messages per entry/exit</li>
+            <li><strong>Synchronization Delay:</strong> Time between exit and next entry</li>
+            <li><strong>Throughput:</strong> How many processes can enter per unit time</li>
+            <li><strong>Fault Tolerance:</strong> What happens when processes fail</li>
+        </ul>
+        
+        <h2>2️⃣ Centralized Algorithm</h2>
+        
+        <div class="definition">
+            <h4>Approach:</h4>
+            <p>One process acts as a <strong>coordinator</strong>. All requests for critical section go through the coordinator.</p>
+            <p><strong>Simplest solution</strong> - mimics how locks work on a single machine</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Centralized Mutual Exclusion</h4>
+            <div style="margin: 30px 0;">
+                <div class="process-node" style="display: inline-flex; flex-direction: column;">
+                    Process 1<br>
+                    <small>Wants CS</small>
+                </div>
+                <span class="arrow">→ REQUEST →</span>
+                <div class="process-node coordinator" style="display: inline-flex; flex-direction: column;">
+                    Coordinator<br>
+                    <small>Grants access</small>
+                </div>
+                <span class="arrow">← GRANT ←</span>
+                <div class="process-node" style="display: inline-flex; flex-direction: column;">
+                    Process 2<br>
+                    <small>Waiting</small>
+                </div>
+            </div>
+            <div class="critical-section">
+                🔒 CRITICAL SECTION<br>
+                (Only Process 1 inside)
+            </div>
+        </div>
+        
+        <div class="algorithm-box">
+            <h4>How Centralized Algorithm Works:</h4>
+            
+            <div class="step">
+                <strong>Step 1:</strong> Process wanting to enter critical section sends REQUEST to coordinator
+            </div>
+            
+            <div class="step">
+                <strong>Step 2:</strong> If critical section is free, coordinator sends GRANT message
+            </div>
+            
+            <div class="step">
+                <strong>Step 3:</strong> If critical section is busy, coordinator queues the request
+            </div>
+            
+            <div class="step">
+                <strong>Step 4:</strong> Process enters critical section after receiving GRANT
+            </div>
+            
+            <div class="step">
+                <strong>Step 5:</strong> Process sends RELEASE message to coordinator when done
+            </div>
+            
+            <div class="step">
+                <strong>Step 6:</strong> Coordinator grants access to next process in queue
+            </div>
+        </div>
+        
+        <pre><code>// Centralized Mutual Exclusion Implementation
+
+// Coordinator
+class Coordinator {
+    constructor() {
+        this.csOccupied = false;
+        this.queue = [];
+    }
+    
+    handleRequest(processId) {
+        if (!this.csOccupied) {
+            // Grant immediately
+            this.csOccupied = true;
+            this.sendGrant(processId);
+        } else {
+            // Queue the request
+            this.queue.push(processId);
+            console.log(`Process ${processId} queued`);
+        }
+    }
+    
+    handleRelease(processId) {
+        this.csOccupied = false;
+        console.log(`Process ${processId} released CS`);
+        
+        // Grant to next in queue
+        if (this.queue.length > 0) {
+            const nextProcess = this.queue.shift();
+            this.csOccupied = true;
+            this.sendGrant(nextProcess);
+        }
+    }
+    
+    sendGrant(processId) {
+        console.log(`Granting CS to Process ${processId}`);
+        // Send message to process
+    }
+}
+
+// Process
+class Process {
+    constructor(id, coordinator) {
+        this.id = id;
+        this.coordinator = coordinator;
+        this.inCS = false;
+    }
+    
+    requestCS() {
+        console.log(`Process ${this.id}: Requesting CS`);
+        this.coordinator.handleRequest(this.id);
+    }
+    
+    receiveGrant() {
+        console.log(`Process ${this.id}: Received grant, entering CS`);
+        this.inCS = true;
+        this.executeCS();
+    }
+    
+    executeCS() {
+        // Critical section code
+        console.log(`Process ${this.id}: In critical section`);
+        
+        // Simulate work
+        setTimeout(() => {
+            this.releaseCS();
+        }, 1000);
+    }
+    
+    releaseCS() {
+        console.log(`Process ${this.id}: Releasing CS`);
+        this.inCS = false;
+        this.coordinator.handleRelease(this.id);
+    }
+}
+
+// Usage
+const coord = new Coordinator();
+const p1 = new Process(1, coord);
+const p2 = new Process(2, coord);
+const p3 = new Process(3, coord);
+
+p1.requestCS();
+p2.requestCS(); // Will be queued
+p3.requestCS(); // Will be queued</code></pre>
+        
+        <div class="formula">
+            <strong>Performance:</strong><br><br>
+            Messages per Entry/Exit: 3 (REQUEST, GRANT, RELEASE)<br>
+            Synchronization Delay: 2 messages<br>
+            Throughput: High
+        </div>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li>Simple to implement and understand</li>
+                <li>Fair (FIFO queue)</li>
+                <li>Efficient (only 3 messages per CS access)</li>
+                <li>Guaranteed mutual exclusion</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li><strong>Single Point of Failure:</strong> If coordinator crashes, system stops</li>
+                <li><strong>Performance Bottleneck:</strong> Coordinator can be overwhelmed</li>
+                <li><strong>No fault tolerance:</strong> Detecting coordinator failure is difficult</li>
+                <li>Not truly distributed (centralized control)</li>
+            </ul>
+        </div>
+        
+        <h2>3️⃣ Distributed Algorithms</h2>
+        
+        <h3>🔷 Ricart-Agrawala Algorithm</h3>
+        
+        <div class="definition">
+            <h4>Approach:</h4>
+            <p>Completely distributed - no coordinator. Processes coordinate using <strong>timestamps</strong> and <strong>permissions from ALL other processes</strong>.</p>
+            <p>Based on Lamport timestamps (Chapter 4!)</p>
+        </div>
+        
+        <div class="algorithm-box">
+            <h4>How Ricart-Agrawala Works:</h4>
+            
+            <div class="step">
+                <strong>Step 1:</strong> When process P wants to enter CS:
+                <ul>
+                    <li>Generate timestamp T using Lamport clock</li>
+                    <li>Send REQUEST(P, T) to ALL other processes</li>
+                    <li>Wait for REPLY from ALL processes</li>
+                </ul>
+            </div>
+            
+            <div class="step">
+                <strong>Step 2:</strong> When process Q receives REQUEST(P, T):
+                <ul>
+                    <li><strong>If Q is NOT in CS and NOT wanting CS:</strong> Send REPLY immediately</li>
+                    <li><strong>If Q is in CS:</strong> Queue the request (reply later)</li>
+                    <li><strong>If Q wants CS:</strong> Compare timestamps
+                        <ul>
+                            <li>If T < Q's timestamp: Send REPLY (P has priority)</li>
+                            <li>If T > Q's timestamp: Queue request (Q has priority)</li>
+                            <li>If T = Q's timestamp: Use process ID as tie-breaker</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="step">
+                <strong>Step 3:</strong> Process P enters CS after receiving REPLY from ALL processes
+            </div>
+            
+            <div class="step">
+                <strong>Step 4:</strong> When P exits CS, send REPLY to all queued requests
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>📊 Example: Three Processes</h4>
+            
+            <div class="visual-diagram">
+                <div style="text-align: left; max-width: 800px; margin: 0 auto;">
+                    <strong>Scenario:</strong> P1 and P2 both want CS simultaneously
+                    
+                    <div style="margin: 20px 0; background: white; padding: 15px; border-radius: 8px;">
+                        <strong>Time T=10:</strong> P1 wants CS, sends REQUEST(P1, 10) to P2, P3<br>
+                        <strong>Time T=11:</strong> P2 wants CS, sends REQUEST(P2, 11) to P1, P3
+                    </div>
+                    
+                    <div style="margin: 20px 0; background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #4caf50;">
+                        <strong>P2 receives REQUEST(P1, 10):</strong><br>
+                        - P2 also wants CS with timestamp 11<br>
+                        - Compare: 10 < 11, so P1 has higher priority<br>
+                        - <strong>Action:</strong> P2 sends REPLY to P1 immediately
+                    </div>
+                    
+                    <div style="margin: 20px 0; background: #fff3e0; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800;">
+                        <strong>P1 receives REQUEST(P2, 11):</strong><br>
+                        - P1 wants CS with timestamp 10<br>
+                        - Compare: 11 > 10, so P1 has higher priority<br>
+                        - <strong>Action:</strong> P1 queues P2's request (will reply later)
+                    </div>
+                    
+                    <div style="margin: 20px 0; background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #4caf50;">
+                        <strong>P3 receives both requests:</strong><br>
+                        - P3 doesn't want CS<br>
+                        - <strong>Action:</strong> P3 sends REPLY to both P1 and P2
+                    </div>
+                    
+                    <div style="margin: 20px 0; background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                        <strong>Result:</strong><br>
+                        - P1 receives REPLY from P2 and P3 → Enters CS ✅<br>
+                        - P2 receives REPLY from P3 only → Still waiting...<br>
+                        - When P1 exits CS → Sends REPLY to P2 → P2 enters CS ✅
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Ricart-Agrawala Implementation
+class RicartAgrawalaMutex {
+    constructor(processId, numProcesses) {
+        this.processId = processId;
+        this.numProcesses = numProcesses;
+        this.lamportClock = 0;
+        this.requestTimestamp = null;
+        this.requestQueue = [];
+        this.replyCount = 0;
+        this.wantCS = false;
+        this.inCS = false;
+    }
+    
+    requestCS() {
+        this.wantCS = true;
+        this.lamportClock++;
+        this.requestTimestamp = this.lamportClock;
+        this.replyCount = 0;
+        
+        console.log(`P${this.processId}: Requesting CS with timestamp ${this.requestTimestamp}`);
+        
+        // Send REQUEST to all other processes
+        for (let i = 0; i < this.numProcesses; i++) {
+            if (i !== this.processId) {
+                this.sendRequest(i, this.requestTimestamp);
+            }
+        }
+    }
+    
+    receiveRequest(fromProcess, timestamp) {
+        // Update Lamport clock
+        this.lamportClock = Math.max(this.lamportClock, timestamp) + 1;
+        
+        const shouldReply = 
+            !this.wantCS || // Not interested in CS
+            (this.wantCS && (
+                timestamp < this.requestTimestamp || // Other has priority
+                (timestamp === this.requestTimestamp && 
+                 fromProcess < this.processId) // Tie-breaker
+            ));
+        
+        if (shouldReply) {
+            console.log(`P${this.processId}: Sending REPLY to P${fromProcess}`);
+            this.sendReply(fromProcess);
+        } else {
+            console.log(`P${this.processId}: Queuing request from P${fromProcess}`);
+            this.requestQueue.push(fromProcess);
+        }
+    }
+    
+    receiveReply() {
+        this.replyCount++;
+        console.log(`P${this.processId}: Received reply (${this.replyCount}/${this.numProcesses - 1})`);
+        
+        if (this.replyCount === this.numProcesses - 1) {
+            this.enterCS();
+        }
+    }
+    
+    enterCS() {
+        this.inCS = true;
+        this.wantCS = false;
+        console.log(`P${this.processId}: Entering CRITICAL SECTION`);
+    }
+    
+    exitCS() {
+        this.inCS = false;
+        console.log(`P${this.processId}: Exiting CRITICAL SECTION`);
+        
+        // Send REPLY to all queued requests
+        while (this.requestQueue.length > 0) {
+            const processId = this.requestQueue.shift();
+            console.log(`P${this.processId}: Sending deferred REPLY to P${processId}`);
+            this.sendReply(processId);
+        }
+    }
+    
+    sendRequest(toProcess, timestamp) {
+        // Send message to other process
+    }
+    
+    sendReply(toProcess) {
+        // Send message to other process
+    }
+}</code></pre>
+        
+        <div class="formula">
+            <strong>Performance:</strong><br><br>
+            Messages per Entry/Exit: 2(N-1) where N = number of processes<br>
+            (N-1 requests + N-1 replies)<br>
+            Synchronization Delay: 1 message (one round of messages)<br>
+            Fault Tolerance: Poor (one failure blocks everyone)
+        </div>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li>Fully distributed (no coordinator)</li>
+                <li>Fair (timestamp ordering)</li>
+                <li>Guaranteed mutual exclusion</li>
+                <li>Optimal synchronization delay</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li>High message complexity: 2(N-1) messages</li>
+                <li>Process failure blocks all other processes</li>
+                <li>All processes must know about all others</li>
+                <li>Scalability issues (messages grow with N)</li>
+            </ul>
+        </div>
+        
+        <h3>🔶 Maekawa's Algorithm</h3>
+        
+        <div class="definition">
+            <h4>Key Idea:</h4>
+            <p>Instead of requesting permission from ALL processes, request from a <strong>voting set</strong> (subset of processes).</p>
+            <p><strong>Innovation:</strong> Reduces message complexity from O(N) to O(√N)</p>
+        </div>
+        
+        <div class="algorithm-box">
+            <h4>Voting Sets Requirements:</h4>
+            
+            <div class="requirement">
+                <strong>1. Intersection Property:</strong><br>
+                Any two voting sets must have at least one process in common<br>
+                (Ensures mutual exclusion)
+            </div>
+            
+            <div class="requirement">
+                <strong>2. Equal Responsibility:</strong><br>
+                Each process appears in K voting sets (for fairness)
+            </div>
+            
+            <div class="requirement">
+                <strong>3. Size:</strong><br>
+                Each voting set has K = √N processes
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>📊 Example: 9 Processes in 3x3 Grid</h4>
+            
+            <div class="visual-diagram">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 400px; margin: 20px auto;">
+                    <div class="process-node" style="width: 80px; height: 80px; line-height: 80px;">P1</div>
+                    <div class="process-node" style="width: 80px; height: 80px; line-height: 80px;">P2</div>
+                    <div class="process-node" style="width: 80px; height: 80px; line-height: 80px;">P3</div>
+                    <div class="process-node" style="width: 80px; height: 80px; line-height: 80px;">P4</div>
+                    <div class="process-node" style="width: 80px; height: 80px; line-height: 80px;">P5</div>
+                    <div class="process-node" style="width: 80px; height: 80px; line-height: 80px;">P6</div>
+                    <div class="process-node" style="width: 80px; height: 80px; line-height: 80px;">P7</div>
+                    <div class="process-node" style="width: 80px; height: 80px; line-height: 80px;">P8</div>
+                    <div class="process-node" style="width: 80px; height: 80px; line-height: 80px;">P9</div>
+                </div>
+                
+                <div style="text-align: left; max-width: 600px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px;">
+                    <strong>Voting Sets (Rows + Columns):</strong>
+                    <ul>
+                        <li>V(P1) = {P1, P2, P3, P4, P7} (row 1 + column 1)</li>
+                        <li>V(P2) = {P1, P2, P3, P5, P8} (row 1 + column 2)</li>
+                        <li>V(P5) = {P4, P5, P6, P2, P8} (row 2 + column 2)</li>
+                    </ul>
+                    
+                    <div style="margin-top: 15px; background: #e8f5e9; padding: 15px; border-radius: 5px;">
+                        <strong>✅ Intersection Property:</strong><br>
+                        V(P1) ∩ V(P5) = {P2} - They share P2!<br>
+                        This ensures mutual exclusion
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="formula">
+            <strong>Performance:</strong><br><br>
+            Messages per Entry/Exit: 3√N<br>
+            (√N requests + √N votes + √N releases)<br>
+            Much better than Ricart-Agrawala's 2N!
+        </div>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li>Better message complexity: O(√N) vs O(N)</li>
+                <li>More scalable for large systems</li>
+                <li>Still fully distributed</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li>Can cause deadlock (needs deadlock detection/prevention)</li>
+                <li>More complex to implement</li>
+                <li>Requires careful construction of voting sets</li>
+            </ul>
+        </div>
+        
+        <h2>4️⃣ Token-Based Algorithms</h2>
+        
+        <h3>🔷 Token Ring Algorithm</h3>
+        
+        <div class="definition">
+            <h4>Key Idea:</h4>
+            <p>A unique <strong>token</strong> circulates in a logical ring. Only the process holding the token can enter the critical section.</p>
+            <p><strong>Analogy:</strong> Like passing a "talking stick" in a meeting - only holder can speak</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Token Ring Topology</h4>
+            <svg width="400" height="400" style="margin: 20px auto; display: block;">
+                <!-- Ring -->
+                <circle cx="200" cy="200" r="120" fill="none" stroke="#667eea" stroke-width="3" stroke-dasharray="5,5"/>
+                
+                <!-- Processes -->
+                <circle cx="200" cy="80" r="30" fill="#667eea"/>
+                <text x="200" y="85" text-anchor="middle" fill="white" font-weight="bold">P1</text>
+                
+                <circle cx="304" cy="144" r="30" fill="#667eea"/>
+                <text x="304" y="149" text-anchor="middle" fill="white" font-weight="bold">P2</text>
+                
+                <circle cx="304" cy="256" r="30" fill="#667eea"/>
+                <text x="304" y="261" text-anchor="middle" fill="white" font-weight="bold">P3</text>
+                
+                <circle cx="200" cy="320" r="30" fill="#667eea"/>
+                <text x="200" y="325" text-anchor="middle" fill="white" font-weight="bold">P4</text>
+                
+                <circle cx="96" cy="256" r="30" fill="#667eea"/>
+                <text x="96" y="261" text-anchor="middle" fill="white" font-weight="bold">P5</text>
+                
+                <circle cx="96" cy="144" r="30" fill="#667eea"/>
+                <text x="96" y="149" text-anchor="middle" fill="white" font-weight="bold">P6</text>
+                
+                <!-- Token -->
+                <circle cx="200" cy="80" r="15" fill="#ffd700">
+                    <animate attributeName="opacity" values="1;0.5;1" dur="1s" repeatCount="indefinite"/>
+                </circle>
+                <text x="200" y="85" text-anchor="middle" fill="#333" font-weight="bold" font-size="12">T</text>
+                
+                <!-- Arrows -->
+                <defs>
+                    <marker id="arrowhead2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <polygon points="0 0, 10 3, 0 6" fill="#ff9800"/>
+                    </marker>
+                </defs>
+                
+                <path d="M 220 100 Q 280 110 290 130" fill="none" stroke="#ff9800" stroke-width="2" marker-end="url(#arrowhead2)"/>
+            </svg>
+            
+            <p style="margin-top: 20px;"><strong>Token (T)</strong> moves: P1 → P2 → P3 → P4 → P5 → P6 → P1...</p>
+        </div>
+        
+        <div class="algorithm-box">
+            <h4>How Token Ring Works:</h4>
+            
+            <div class="step">
+                <strong>Step 1:</strong> Process receives token from predecessor
+            </div>
+            
+            <div class="step">
+                <strong>Step 2:</strong> If process wants to enter CS:
+                <ul>
+                    <li>Keep token and enter CS</li>
+                    <li>Execute critical section</li>
+                    <li>Exit CS</li>
+                </ul>
+            </div>
+            
+            <div class="step">
+                <strong>Step 3:</strong> If process doesn't want CS (or done with CS):
+                <ul>
+                    <li>Pass token to next process in ring</li>
+                </ul>
+            </div>
+            
+            <div class="step">
+                <strong>Step 4:</strong> Token continues circulating
+            </div>
+        </div>
+        
+        <pre><code>// Token Ring Implementation
+class TokenRingProcess {
+    constructor(processId, nextProcess) {
+        this.processId = processId;
+        this.nextProcess = nextProcess;
+        this.hasToken = false;
+        this.wantCS = false;
+        this.inCS = false;
+    }
+    
+    receiveToken() {
+        this.hasToken = true;
+        console.log(`P${this.processId}: Received token`);
+        
+        if (this.wantCS) {
+            this.enterCS();
+        } else {
+            // Don't need CS, pass token
+            this.passToken();
+        }
+    }
+    
+    requestCS() {
+        this.wantCS = true;
+        console.log(`P${this.processId}: Requesting CS (waiting for token)`);
+        
+        if (this.hasToken) {
+            this.enterCS();
+        }
+    }
+    
+    enterCS() {
+        this.inCS = true;
+        this.wantCS = false;
+        console.log(`P${this.processId}: Entering CRITICAL SECTION`);
+        
+        // Simulate work
+        setTimeout(() => this.exitCS(), 1000);
+    }
+    
+    exitCS() {
+        this.inCS = false;
+        console.log(`P${this.processId}: Exiting CRITICAL SECTION`);
+        this.passToken();
+    }
+    
+    passToken() {
+        console.log(`P${this.processId}: Passing token to P${this.nextProcess.processId}`);
+        this.hasToken = false;
+        this.nextProcess.receiveToken();
+    }
+}
+
+// Create ring
+const p1 = new TokenRingProcess(1, null);
+const p2 = new TokenRingProcess(2, null);
+const p3 = new TokenRingProcess(3, null);
+
+p1.nextProcess = p2;
+p2.nextProcess = p3;
+p3.nextProcess = p1; // Complete the ring
+
+// Start token at P1
+p1.hasToken = true;
+p1.receiveToken();</code></pre>
+        
+        <div class="formula">
+            <strong>Performance:</strong><br><br>
+            Messages per Entry: 0 to N (depending on token position)<br>
+            Average: N/2<br>
+            Bandwidth used: Constant (token always circulating)
+        </div>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li>Guaranteed mutual exclusion (only one token)</li>
+                <li>No starvation (everyone gets turn)</li>
+                <li>Fair (FIFO in ring order)</li>
+                <li>Simple to implement</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li>Wasted bandwidth (token circulates even when no one wants CS)</li>
+                <li>Token loss is catastrophic (need token regeneration)</li>
+                <li>Process failure breaks ring (need ring restructuring)</li>
+                <li>Average wait time: N/2 token passes</li>
+            </ul>
+        </div>
+        
+        <h2>5️⃣ Election Algorithms</h2>
+        
+        <div class="definition">
+            <h4>The Leader Election Problem:</h4>
+            <p>Choose one process from a group to act as <strong>coordinator/leader</strong>.</p>
+            <p><strong>Needed when:</strong> Coordinator crashes and needs replacement</p>
+            <p><strong>Goal:</strong> All processes agree on the same leader</p>
+        </div>
+        
+        <h3>👑 Bully Algorithm</h3>
+        
+        <div class="definition">
+            <h4>Key Idea:</h4>
+            <p>The process with the <strong>highest ID</strong> always becomes the leader.</p>
+            <p><strong>Name:</strong> "Bully" because highest ID process "bullies" others into accepting it as leader</p>
+        </div>
+        
+        <div class="algorithm-box">
+            <h4>How Bully Algorithm Works:</h4>
+            
+            <div class="step">
+                <strong>Step 1:</strong> Process P notices coordinator has failed
+            </div>
+            
+            <div class="step">
+                <strong>Step 2:</strong> P sends ELECTION message to all processes with higher IDs
+            </div>
+            
+            <div class="step">
+                <strong>Step 3a:</strong> If P receives no OK responses:
+                <ul>
+                    <li>P becomes the coordinator</li>
+                    <li>P sends COORDINATOR message to all processes</li>
+                </ul>
+            </div>
+            
+            <div class="step">
+                <strong>Step 3b:</strong> If P receives OK from higher process:
+                <ul>
+                    <li>P waits for COORDINATOR message</li>
+                    <li>Higher process takes over election</li>
+                </ul>
+            </div>
+            
+            <div class="step">
+                <strong>Step 4:</strong> When process with highest ID starts election:
+                <ul>
+                    <li>Gets no OK responses</li>
+                    <li>Declares itself coordinator</li>
+                    <li>Announces to all processes</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>📊 Example: Bully Algorithm</h4>
+            
+            <div class="visual-diagram">
+                <div style="text-align: left; max-width: 800px; margin: 0 auto;">
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <strong>Initial Setup:</strong> Processes with IDs: 1, 2, 3, 4, 5<br>
+                        Current Coordinator: P5<br><br>
+                        <strong>❌ P5 crashes!</strong>
+                    </div>
+                    
+                    <div style="background: #e3f2fd; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #2196f3;">
+                        <strong>Round 1: P2 detects failure</strong><br>
+                        P2 sends ELECTION to: P3, P4, P5<br>
+                        P2 receives OK from: P3, P4<br>
+                        P2 waits... (higher processes will handle it)
+                    </div>
+                    
+                    <div style="background: #e3f2fd; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #2196f3;">
+                        <strong>Round 2: P3 and P4 start elections</strong><br>
+                        P3 sends ELECTION to: P4, P5<br>
+                        P3 receives OK from: P4<br>
+                        P3 waits...<br><br>
+                        P4 sends ELECTION to: P5<br>
+                        P4 receives: No response (P5 is dead)<br>
+                        <strong>P4 wins!</strong>
+                    </div>
+                    
+                    <div style="background: #e8f5e9; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #4caf50;">
+                        <strong>Round 3: P4 announces</strong><br>
+                        P4 sends COORDINATOR to: P1, P2, P3<br>
+                        <strong>✅ New coordinator: P4</strong>
+                    </div>
+                    
+                    <div style="background: #fff3e0; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #ff9800;">
+                        <strong>Later: P5 recovers!</strong><br>
+                        P5 starts election<br>
+                        P5 sends ELECTION to: (none higher)<br>
+                        P5 receives: No responses<br>
+                        P5 sends COORDINATOR to all<br>
+                        <strong>👑 New coordinator: P5 (bullies P4 out!)</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Bully Algorithm Implementation
+class BullyProcess {
+    constructor(processId, allProcesses) {
+        this.processId = processId;
+        this.allProcesses = allProcesses;
+        this.coordinatorId = null;
+        this.electionInProgress = false;
+        this.okReceived = false;
+    }
+    
+    detectCoordinatorFailure() {
+        console.log(`P${this.processId}: Coordinator failed, starting election`);
+        this.startElection();
+    }
+    
+    startElection() {
+        this.electionInProgress = true;
+        this.okReceived = false;
+        
+        // Find processes with higher IDs
+        const higherProcesses = this.allProcesses.filter(
+            p => p.processId > this.processId && p.isAlive
+        );
+        
+        if (higherProcesses.length === 0) {
+            // I have highest ID!
+            this.becomeCoordinator();
+            return;
+        }
+        
+        // Send ELECTION to higher processes
+        console.log(`P${this.processId}: Sending ELECTION to ${higherProcesses.length} higher processes`);
+        
+        higherProcesses.forEach(p => {
+            const response = p.receiveElection(this.processId);
+            if (response === 'OK') {
+                this.okReceived = true;
+            }
+        });
+        
+        if (!this.okReceived) {
+            // No response from higher processes
+            this.becomeCoordinator();
+        } else {
+            console.log(`P${this.processId}: Received OK, waiting for coordinator announcement`);
+            // Wait for COORDINATOR message
+            setTimeout(() => {
+                if (!this.coordinatorId) {
+                    console.log(`P${this.processId}: Timeout, restarting election`);
+                    this.startElection();
+                }
+            }, 5000);
+        }
+    }
+    
+    receiveElection(fromProcessId) {
+        console.log(`P${this.processId}: Received ELECTION from P${fromProcessId}`);
+        
+        // Send OK
+        console.log(`P${this.processId}: Sending OK to P${fromProcessId}`);
+        
+        // Start my own election if not already
+        if (!this.electionInProgress) {
+            this.startElection();
+        }
+        
+        return 'OK';
+    }
+    
+    becomeCoordinator() {
+        this.coordinatorId = this.processId;
+        this.electionInProgress = false;
+        
+        console.log(`P${this.processId}: I am the new COORDINATOR! 👑`);
+        
+        // Announce to all processes
+        this.allProcesses.forEach(p => {
+            if (p.processId !== this.processId) {
+                p.receiveCoordinator(this.processId);
+            }
+        });
+    }
+    
+    receiveCoordinator(coordinatorId) {
+        console.log(`P${this.processId}: New coordinator is P${coordinatorId}`);
+        this.coordinatorId = coordinatorId;
+        this.electionInProgress = false;
+    }
+}</code></pre>
+        
+        <div class="formula">
+            <strong>Performance:</strong><br><br>
+            Best Case: O(N) messages (highest process starts)<br>
+            Worst Case: O(N²) messages (lowest process starts)<br>
+            Time Complexity: O(N) (multiple rounds)
+        </div>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li>Eventually elects highest ID process</li>
+                <li>Handles process recovery (recovering process becomes coordinator)</li>
+                <li>Simple to understand</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li>High message complexity (O(N²) worst case)</li>
+                <li>Requires knowing all process IDs</li>
+                <li>Can be disrupted if high-ID process keeps crashing and recovering</li>
+            </ul>
+        </div>
+        
+        <h3>🔄 Ring Algorithm</h3>
+        
+        <div class="definition">
+            <h4>Key Idea:</h4>
+            <p>Processes arranged in logical ring. Election message passes around ring, collecting process IDs. Highest ID wins.</p>
+            <p><strong>More orderly</strong> than Bully - one message makes full circuit</p>
+        </div>
+        
+        <div class="algorithm-box">
+            <h4>How Ring Election Works:</h4>
+            
+            <div class="step">
+                <strong>Step 1:</strong> Process P detects coordinator failure, starts election
+            </div>
+            
+            <div class="step">
+                <strong>Step 2:</strong> P sends ELECTION message with its ID to next process in ring
+            </div>
+            
+            <div class="step">
+                <strong>Step 3:</strong> Each process receiving ELECTION:
+                <ul>
+                    <li>Adds own ID to message</li>
+                    <li>Forwards to next process</li>
+                </ul>
+            </div>
+            
+            <div class="step">
+                <strong>Step 4:</strong> When message returns to initiator:
+                <ul>
+                    <li>Contains list of all active process IDs</li>
+                    <li>Initiator identifies highest ID</li>
+                    <li>Sends COORDINATOR message around ring</li>
+                </ul>
+            </div>
+            
+            <div class="step">
+                <strong>Step 5:</strong> All processes set coordinator to highest ID
+            </div>
+        </div>
+        
+        <div class="formula">
+            <strong>Performance:</strong><br><br>
+            Messages: 2N (one round for election + one for announcement)<br>
+            Time: 2N message delays<br>
+            More predictable than Bully
+        </div>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li>Predictable message complexity: O(N)</li>
+                <li>Simple and orderly</li>
+                <li>No message storms</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li>Slow (message must travel full ring)</li>
+                <li>Ring can break if process fails during election</li>
+                <li>All processes must know ring topology</li>
+            </ul>
+        </div>
+        
+        <h2>6️⃣ Distributed Coordination Services</h2>
+        
+        <h3>🦓 Apache ZooKeeper</h3>
+        
+        <div class="definition">
+            <h4>What is ZooKeeper?</h4>
+            <p>A centralized service for maintaining <strong>configuration</strong>, <strong>naming</strong>, providing <strong>distributed synchronization</strong>, and <strong>group services</strong>.</p>
+            <p><strong>Used by:</strong> Hadoop, Kafka, HBase, and hundreds of other systems</p>
+        </div>
+        
+        <div class="service-card">
+            <h4>ZooKeeper Features:</h4>
+            
+            <div class="key-point" style="margin: 15px 0;">
+                <strong>1. Simple Data Model:</strong>
+                <ul>
+                    <li>Hierarchical namespace (like a file system)</li>
+                    <li>Each node (znode) can store data and have children</li>
+                    <li>Two types: persistent (survive crashes) and ephemeral (deleted when session ends)</li>
+                </ul>
+            </div>
+            
+            <div class="key-point" style="margin: 15px 0;">
+                <strong>2. Watches:</strong>
+                <ul>
+                    <li>Clients can set watches on znodes</li>
+                    <li>Get notified when znode changes</li>
+                    <li>Enables reactive coordination</li>
+                </ul>
+            </div>
+            
+            <div class="key-point" style="margin: 15px 0;">
+                <strong>3. Guarantees:</strong>
+                <ul>
+                    <li><strong>Sequential Consistency:</strong> Updates applied in order</li>
+                    <li><strong>Atomicity:</strong> Updates succeed or fail completely</li>
+                    <li><strong>Single System Image:</strong> Clients see consistent view</li>
+                    <li><strong>Reliability:</strong> Persisted to disk, survives crashes</li>
+                    <li><strong>Timeliness:</strong> Clients eventually get consistent view</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>🔒 Implementing Distributed Lock with ZooKeeper:</h4>
+            
+            <pre><code>// ZooKeeper Distributed Lock
+class ZooKeeperLock {
+    constructor(zk, lockPath) {
+        this.zk = zk; // ZooKeeper client
+        this.lockPath = lockPath; // e.g., "/locks/my-lock"
+        this.myNode = null;
+    }
+    
+    async acquire() {
+        // Create sequential ephemeral node
+        this.myNode = await this.zk.create(
+            `${this.lockPath}/lock-`,
+            '', // data
+            {
+                flags: 'EPHEMERAL_SEQUENTIAL'
+            }
+        );
+        
+        while (true) {
+            // Get all lock nodes
+            const children = await this.zk.getChildren(this.lockPath);
+            children.sort(); // Sequential numbers guarantee order
+            
+            // Am I the first?
+            if (children[0] === this.getNodeName(this.myNode)) {
+                console.log('Lock acquired!');
+                return;
+            }
+            
+            // Wait for previous node to be deleted
+            const myIndex = children.indexOf(this.getNodeName(this.myNode));
+            const previousNode = children[myIndex - 1];
+            
+            await this.waitForNode(`${this.lockPath}/${previousNode}`);
+        }
+    }
+    
+    async release() {
+        // Delete my node
+        await this.zk.delete(this.myNode);
+        console.log('Lock released!');
+    }
+    
+    async waitForNode(nodePath) {
+        return new Promise((resolve) => {
+            // Set watch on previous node
+            this.zk.exists(nodePath, (event) => {
+                if (event.type === 'NODE_DELETED') {
+                    resolve();
+                }
+            });
+        });
+    }
+    
+    getNodeName(fullPath) {
+        return fullPath.split('/').pop();
+    }
+}
+
+// Usage
+const lock = new ZooKeeperLock(zkClient, '/locks/db-lock');
+await lock.acquire();
+try {
+    // Critical section
+    console.log('In critical section');
+} finally {
+    await lock.release();
+}</code></pre>
+            
+            <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <strong>How it works:</strong>
+                <ol>
+                    <li>Each client creates sequential ephemeral node: lock-0000001, lock-0000002, ...</li>
+                    <li>Client with lowest sequence number gets the lock</li>
+                    <li>Others watch the node immediately before them</li>
+                    <li>When a node is deleted (lock released or client crashes), next in line is notified</li>
+                    <li>No "herd effect" - only one client is notified</li>
+                </ol>
+            </div>
+        </div>
+        
+        <h3>🔹 etcd</h3>
+        
+        <div class="definition">
+            <h4>What is etcd?</h4>
+            <p>A distributed, reliable <strong>key-value store</strong> for critical data in distributed systems.</p>
+            <p><strong>Used by:</strong> Kubernetes (stores cluster state), CoreOS, and cloud-native applications</p>
+        </div>
+        
+        <div class="service-card">
+            <h4>etcd Features:</h4>
+            
+            <div class="key-point" style="margin: 15px 0;">
+                <strong>1. Strong Consistency:</strong>
+                <ul>
+                    <li>Uses Raft consensus algorithm</li>
+                    <li>Linearizable reads and writes</li>
+                    <li>All clients see the same order of operations</li>
+                </ul>
+            </div>
+            
+            <div class="key-point" style="margin: 15px 0;">
+                <strong>2. Watch API:</strong>
+                <ul>
+                    <li>Watch for changes on keys</li>
+                    <li>Enables reactive systems</li>
+                    <li>Reliable event delivery</li>
+                </ul>
+            </div>
+            
+            <div class="key-point" style="margin: 15px 0;">
+                <strong>3. Leases:</strong>
+                <ul>
+                    <li>Keys can have TTL (time-to-live)</li>
+                    <li>Automatic expiration</li>
+                    <li>Perfect for distributed locks</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>🔒 Implementing Leader Election with etcd:</h4>
+            
+            <pre><code>// etcd Leader Election
+class EtcdLeaderElection {
+    constructor(etcdClient, electionKey, processId) {
+        this.client = etcdClient;
+        this.electionKey = electionKey;
+        this.processId = processId;
+        this.leaseId = null;
+        this.isLeader = false;
+    }
+    
+    async campaign() {
+        // Create lease (60 seconds)
+        const lease = await this.client.lease.grant({ TTL: 60 });
+        this.leaseId = lease.ID;
+        
+        // Keep lease alive
+        this.keepAlive();
+        
+        // Try to become leader
+        try {
+            await this.client.put(this.electionKey)
+                .value(this.processId)
+                .lease(this.leaseId)
+                .ifNotExists() // Only succeeds if key doesn't exist
+                .exec();
+            
+            this.isLeader = true;
+            console.log(`${this.processId}: I am the leader! 👑`);
+            this.onElected();
+            
+        } catch (error) {
+            // Someone else is leader
+            console.log(`${this.processId}: Not leader, watching...`);
+            this.watchLeader();
+        }
+    }
+    
+    async watchLeader() {
+        const watcher = await this.client.watch()
+            .key(this.electionKey)
+            .create();
+        
+        watcher.on('delete', () => {
+            console.log(`${this.processId}: Leader lost, campaigning...`);
+            this.campaign(); // Try to become leader
+        });
+    }
+    
+    keepAlive() {
+        // Periodically refresh lease
+        this.leaseKeepAlive = setInterval(async () => {
+            try {
+                await this.client.lease.keepAliveOnce({ ID: this.leaseId });
+            } catch (error) {
+                console.error('Failed to keep lease alive:', error);
+                this.resign();
+            }
+        }, 10000); // Every 10 seconds
+    }
+    
+    async resign() {
+        if (this.isLeader) {
+            console.log(`${this.processId}: Resigning as leader`);
+            await this.client.delete().key(this.electionKey).exec();
+            this.isLeader = false;
+        }
+        
+        if (this.leaseKeepAlive) {
+            clearInterval(this.leaseKeepAlive);
+        }
+        
+        if (this.leaseId) {
+            await this.client.lease.revoke({ ID: this.leaseId });
+        }
+    }
+    
+    onElected() {
+        // Leader-specific work
+        console.log(`${this.processId}: Starting leader duties`);
+    }
+}
+
+// Usage
+const election = new EtcdLeaderElection(
+    etcdClient, 
+    '/elections/coordinator',
+    'process-123'
+);
+
+await election.campaign();</code></pre>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Feature</th>
+                <th>ZooKeeper</th>
+                <th>etcd</th>
+            </tr>
+            <tr>
+                <td><strong>Consensus</strong></td>
+                <td>ZAB (ZooKeeper Atomic Broadcast)</td>
+                <td>Raft</td>
+            </tr>
+            <tr>
+                <td><strong>Data Model</strong></td>
+                <td>Hierarchical (tree)</td>
+                <td>Flat key-value</td>
+            </tr>
+            <tr>
+                <td><strong>Language</strong></td>
+                <td>Java</td>
+                <td>Go</td>
+            </tr>
+            <tr>
+                <td><strong>API</strong></td>
+                <td>Custom protocol</td>
+                <td>gRPC (HTTP/2)</td>
+            </tr>
+            <tr>
+                <td><strong>Watch</strong></td>
+                <td>One-time triggers</td>
+                <td>Continuous streams</td>
+            </tr>
+            <tr>
+                <td><strong>Performance</strong></td>
+                <td>~10k writes/sec</td>
+                <td>~10k writes/sec</td>
+            </tr>
+            <tr>
+                <td><strong>Use Cases</strong></td>
+                <td>Hadoop, Kafka, HBase</td>
+                <td>Kubernetes, cloud-native apps</td>
+            </tr>
+        </table>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: Algorithm Comparison Demo</h3>
+            <p>Compare different mutual exclusion approaches:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demoCentralized()">Centralized</button>
+                <button class="demo-button" onclick="demoRicartAgrawala()">Ricart-Agrawala</button>
+                <button class="demo-button" onclick="demoTokenRing()">Token Ring</button>
+                <button class="demo-button" onclick="demoBully()">Bully Election</button>
+            </div>
+            <div id="algoDemo" class="demo-output">Click a button to see algorithm in action...</div>
+        </div>
+        
+        <table class="comparison-table" style="margin-top: 30px;">
+            <tr>
+                <th>Algorithm</th>
+                <th>Type</th>
+                <th>Messages/Entry</th>
+                <th>Fault Tolerance</th>
+                <th>Best For</th>
+            </tr>
+            <tr>
+                <td><strong>Centralized</strong></td>
+                <td>Permission-based</td>
+                <td>3</td>
+                <td>❌ Poor</td>
+                <td>Small, stable systems</td>
+            </tr>
+            <tr>
+                <td><strong>Ricart-Agrawala</strong></td>
+                <td>Permission-based</td>
+                <td>2(N-1)</td>
+                <td>❌ Poor</td>
+                <td>Theoretical interest</td>
+            </tr>
+            <tr>
+                <td><strong>Maekawa</strong></td>
+                <td>Voting</td>
+                <td>3√N</td>
+                <td>⚠️ Moderate</td>
+                <td>Large systems</td>
+            </tr>
+            <tr>
+                <td><strong>Token Ring</strong></td>
+                <td>Token-based</td>
+                <td>1 to N</td>
+                <td>❌ Poor</td>
+                <td>Small rings</td>
+            </tr>
+            <tr>
+                <td><strong>ZooKeeper</strong></td>
+                <td>Coordination service</td>
+                <td>~3</td>
+                <td>✅ Excellent</td>
+                <td>Production systems</td>
+            </tr>
+            <tr>
+                <td><strong>etcd</strong></td>
+                <td>Coordination service</td>
+                <td>~3</td>
+                <td>✅ Excellent</td>
+                <td>Cloud-native apps</td>
+            </tr>
+        </table>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 5</h3>
+            <ul style="line-height: 2;">
+                <li><strong>Mutual Exclusion</strong> - critical for coordinating access to shared resources</li>
+                <li><strong>Centralized</strong> - simple but single point of failure (coordinator)</li>
+                <li><strong>Ricart-Agrawala</strong> - fully distributed using Lamport timestamps, O(N) messages</li>
+                <li><strong>Maekawa</strong> - voting sets reduce to O(√N) messages</li>
+                <li><strong>Token Ring</strong> - simple but token loss is catastrophic</li>
+                <li><strong>Bully Algorithm</strong> - highest ID wins, O(N²) worst case</li>
+                <li><strong>Ring Election</strong> - predictable O(N), but slow</li>
+                <li><strong>ZooKeeper/etcd</strong> - production-grade coordination services used by real systems</li>
+                <li><strong>Trade-off:</strong> Simplicity vs Fault Tolerance vs Message Complexity</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>Why can't we use simple locks (like in multithreading) in distributed systems?</li>
+                <li>Compare Centralized vs Ricart-Agrawala: when would you use each?</li>
+                <li>Why does Maekawa's algorithm require √N messages instead of N?</li>
+                <li>What happens in Token Ring if the token is lost? How could you recover?</li>
+                <li>In Bully Algorithm, what happens if highest-ID process keeps crashing?</li>
+                <li>Why do production systems use ZooKeeper/etcd instead of academic algorithms?</li>
+                <li>Design a system: Which mutex algorithm would you choose and why?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function demoCentralized() {
+            const output = document.getElementById('algoDemo');
+            output.textContent = '=== CENTRALIZED MUTUAL EXCLUSION ===\n\n';
+            
+            output.textContent += 'Coordinator: Ready\n';
+            output.textContent += 'CS Status: FREE\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P1: REQUEST → Coordinator\n';
+            await sleep(300);
+            output.textContent += 'Coordinator: CS is free → GRANT → P1\n';
+            output.textContent += 'P1: Entering CS... 🔒\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P2: REQUEST → Coordinator\n';
+            await sleep(300);
+            output.textContent += 'Coordinator: CS is busy → QUEUE(P2) ⏳\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P3: REQUEST → Coordinator\n';
+            await sleep(300);
+            output.textContent += 'Coordinator: CS is busy → QUEUE(P3) ⏳\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P1: RELEASE → Coordinator\n';
+            output.textContent += 'P1: Exiting CS ✅\n';
+            await sleep(300);
+            output.textContent += 'Coordinator: Dequeue → GRANT → P2\n';
+            output.textContent += 'P2: Entering CS... 🔒\n\n';
+            
+            output.textContent += 'Messages: 3 per entry/exit\n';
+            output.textContent += 'Simple but coordinator is SPOF!';
+        }
+        
+        async function demoRicartAgrawala() {
+            const output = document.getElementById('algoDemo');
+            output.textContent = '=== RICART-AGRAWALA ALGORITHM ===\n\n';
+            
+            output.textContent += 'Initial: All processes at rest\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P1 (T=10): Wants CS\n';
+            output.textContent += 'P1: REQUEST(P1, 10) → P2, P3, P4\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P2 (T=15): Wants CS\n';
+            output.textContent += 'P2: REQUEST(P2, 15) → P1, P3, P4\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P3 receives REQUEST(P1, 10): Not interested → REPLY to P1\n';
+            output.textContent += 'P4 receives REQUEST(P1, 10): Not interested → REPLY to P1\n';
+            output.textContent += 'P2 receives REQUEST(P1, 10): 10 < 15 → REPLY to P1\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P1 receives REPLY from P2, P3, P4 (all processes)\n';
+            output.textContent += 'P1: Entering CS! 🔒\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P1 receives REQUEST(P2, 15): In CS → QUEUE(P2)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P1: Exiting CS ✅\n';
+            output.textContent += 'P1: REPLY → P2 (deferred)\n';
+            output.textContent += 'P2: Received all replies → Entering CS! 🔒\n\n';
+            
+            output.textContent += 'Messages: 2(N-1) = 6 messages for 4 processes\n';
+            output.textContent += 'Fully distributed, uses Lamport timestamps!';
+        }
+        
+        async function demoTokenRing() {
+            const output = document.getElementById('algoDemo');
+            output.textContent = '=== TOKEN RING ALGORITHM ===\n\n';
+            
+            output.textContent += 'Ring: P1 → P2 → P3 → P4 → P1\n';
+            output.textContent += 'Token starts at P1 🎫\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P1: Has token, doesn\'t want CS\n';
+            output.textContent += 'P1: Pass token → P2 🎫\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P2: Has token, wants CS!\n';
+            output.textContent += 'P2: Keep token, entering CS 🔒\n';
+            output.textContent += 'P2: (in critical section...)\n\n';
+            
+            await sleep(1000);
+            output.textContent += 'P2: Exiting CS ✅\n';
+            output.textContent += 'P2: Pass token → P3 🎫\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P3: Has token, doesn\'t want CS\n';
+            output.textContent += 'P3: Pass token → P4 🎫\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P4: Has token, wants CS!\n';
+            output.textContent += 'P4: Keep token, entering CS 🔒\n\n';
+            
+            output.textContent += 'Simple and fair (everyone gets turn)\n';
+            output.textContent += 'But token always circulates (wasted bandwidth)';
+        }
+        
+        async function demoBully() {
+            const output = document.getElementById('algoDemo');
+            output.textContent = '=== BULLY ALGORITHM ===\n\n';
+            
+            output.textContent += 'Processes: P1, P2, P3, P4, P5\n';
+            output.textContent += 'Current Coordinator: P5\n\n';
+            
+            await sleep(500);
+            output.textContent += '💥 P5 CRASHES!\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P2 detects failure, starts election:\n';
+            output.textContent += 'P2: ELECTION → P3, P4, P5\n';
+            await sleep(300);
+            output.textContent += 'P3: OK → P2\n';
+            output.textContent += 'P4: OK → P2\n';
+            output.textContent += 'P2: Received OK, waiting...\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P3 starts election:\n';
+            output.textContent += 'P3: ELECTION → P4, P5\n';
+            await sleep(300);
+            output.textContent += 'P4: OK → P3\n';
+            output.textContent += 'P3: Received OK, waiting...\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P4 starts election:\n';
+            output.textContent += 'P4: ELECTION → P5\n';
+            await sleep(300);
+            output.textContent += '(no response from P5)\n';
+            output.textContent += 'P4: No higher process responded!\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P4: I am the new COORDINATOR! 👑\n';
+            output.textContent += 'P4: COORDINATOR → P1, P2, P3\n\n';
+            
+            await sleep(500);
+            output.textContent += 'All processes: New coordinator is P4 ✅\n\n';
+            
+            output.textContent += 'Highest ID process always wins!\n';
+            output.textContent += 'Can have O(N²) messages in worst case.';
+        }
+    </script>
+</body>
+</html>

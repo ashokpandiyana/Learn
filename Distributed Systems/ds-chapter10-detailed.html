@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 10: Consensus and Agreement</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+        }
+        
+        .phase-box {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .phase-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .node {
+            display: inline-block;
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            min-width: 100px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .node:hover {
+            transform: scale(1.05);
+        }
+        
+        .coordinator {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            border: 3px solid #2e7d32;
+        }
+        
+        .participant {
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+        }
+        
+        .leader {
+            background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+            border: 3px solid #f57c00;
+        }
+        
+        .follower {
+            background: linear-gradient(135deg, #9e9e9e 0%, #bdbdbd 100%);
+        }
+        
+        .candidate {
+            background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);
+        }
+        
+        .vote {
+            display: inline-block;
+            background: #4caf50;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            margin: 3px;
+            font-size: 0.9em;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 30px 0;
+        }
+        
+        .timeline-step {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            top: 25px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 3px solid white;
+        }
+        
+        .arrow {
+            display: inline-block;
+            color: #667eea;
+            font-size: 1.5em;
+            margin: 0 10px;
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .state-diagram {
+            display: inline-block;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 15px 25px;
+            margin: 10px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .state-init {
+            background: #e0e0e0;
+        }
+        
+        .state-commit {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+        }
+        
+        .state-abort {
+            background: linear-gradient(135deg, #f44336 0%, #e57373 100%);
+            color: white;
+        }
+        
+        .state-prepare {
+            background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+            color: white;
+        }
+        
+        .raft-term {
+            background: #9c27b0;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 5px;
+            font-weight: bold;
+        }
+        
+        .log-entry {
+            background: #2196f3;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 3px;
+            font-size: 0.9em;
+        }
+        
+        .committed {
+            background: #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤝 Chapter 10: Consensus and Agreement</h1>
+        
+        <div class="problem-box">
+            <h3>🎯 The Most Important Problem in Distributed Systems</h3>
+            <p style="font-size: 1.2em;"><strong>Consensus: Getting multiple processes to agree on a single value despite failures.</strong></p>
+            <p>This is THE fundamental problem. Solve consensus, and you can build:</p>
+            <ul style="margin-top: 10px;">
+                <li>Replicated databases</li>
+                <li>Leader election</li>
+                <li>Atomic commit protocols</li>
+                <li>Blockchain</li>
+                <li>Distributed locks</li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>Why is it hard?</strong> Processes can crash, messages can be lost, networks can partition. Yet we need to agree!</p>
+        </div>
+        
+        <h2>1️⃣ The Consensus Problem</h2>
+        
+        <div class="definition">
+            <h4>Formal Definition:</h4>
+            <p>In a system with N processes, each with an initial value, the processes must decide on a single value that satisfies:</p>
+        </div>
+        
+        <div class="key-point">
+            <h4>Three Requirements for Consensus:</h4>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>1. Agreement (Safety):</strong>
+                <p>All correct processes decide on the same value</p>
+                <p style="color: #666; font-style: italic;">No two processes decide differently</p>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>2. Validity (Non-triviality):</strong>
+                <p>If all processes propose the same value v, then v is the only possible decision</p>
+                <p style="color: #666; font-style: italic;">Can't just always decide "0" - must be related to proposals</p>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>3. Termination (Liveness):</strong>
+                <p>All correct processes eventually decide on some value</p>
+                <p style="color: #666; font-style: italic;">Can't wait forever - must make progress</p>
+            </div>
+        </div>
+        
+        <div class="warning">
+            <h4>⚠️ FLP Impossibility Result</h4>
+            <p><strong>Fischer-Lynch-Paterson (1985):</strong> In an asynchronous system where even one process can crash, there is NO deterministic algorithm that guarantees consensus!</p>
+            <p><strong>Why?</strong> Can't distinguish between a slow process and a crashed process.</p>
+            <p><strong>Solution:</strong> Use <span class="highlight">partially synchronous</span> model (Chapter 3!) or randomization.</p>
+        </div>
+        
+        <h2>2️⃣ Two-Phase Commit (2PC)</h2>
+        
+        <div class="definition">
+            <h4>What is 2PC?</h4>
+            <p><strong>Two-Phase Commit</strong> is a protocol for achieving atomic commitment in distributed transactions. Either ALL participants commit or ALL abort.</p>
+            <p><strong>Used for:</strong> Distributed database transactions across multiple databases</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Two-Phase Commit Protocol</h4>
+            
+            <div class="phase-box">
+                <div class="phase-header">PHASE 1: PREPARE (Voting)</div>
+                
+                <div style="text-align: center; margin: 20px 0;">
+                    <div class="node coordinator">Coordinator<br>(Transaction Manager)</div>
+                    
+                    <div style="margin: 20px 0; font-size: 1.2em;">
+                        Sends: "PREPARE" to all participants ↓
+                    </div>
+                    
+                    <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                        <div class="node participant">Participant 1<br>DB A</div>
+                        <div class="node participant">Participant 2<br>DB B</div>
+                        <div class="node participant">Participant 3<br>DB C</div>
+                    </div>
+                    
+                    <div style="margin: 20px 0;">
+                        <p>Each participant:</p>
+                        <ul style="text-align: left; max-width: 600px; margin: 10px auto;">
+                            <li>Checks if it can commit</li>
+                            <li>Writes to log (prepare to commit)</li>
+                            <li>Votes: YES or NO</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="margin: 20px 0; font-size: 1.2em;">
+                        Replies: "YES" or "NO" ↑
+                    </div>
+                </div>
+            </div>
+            
+            <div class="phase-box">
+                <div class="phase-header">PHASE 2: COMMIT/ABORT (Decision)</div>
+                
+                <div style="text-align: center; margin: 20px 0;">
+                    <div class="node coordinator">Coordinator<br>Decides</div>
+                    
+                    <div style="margin: 20px 0; background: #e8f5e9; padding: 15px; border-radius: 8px; max-width: 600px; margin: 20px auto;">
+                        <strong>Decision Logic:</strong>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>If ALL vote YES → Send COMMIT</li>
+                            <li>If ANY vote NO → Send ABORT</li>
+                            <li>If ANY timeout → Send ABORT</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="margin: 20px 0; font-size: 1.2em;">
+                        Sends: "COMMIT" or "ABORT" ↓
+                    </div>
+                    
+                    <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                        <div class="node participant">Participant 1<br>Executes</div>
+                        <div class="node participant">Participant 2<br>Executes</div>
+                        <div class="node participant">Participant 3<br>Executes</div>
+                    </div>
+                    
+                    <div style="margin: 20px 0;">
+                        Each participant commits or aborts as instructed
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>🏦 Real-World Example: Multi-Bank Transfer</h4>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Scenario:</strong> Transfer $100 from Bank A to Bank B
+                
+                <div style="margin: 20px 0;">
+                    <strong style="color: #667eea;">PHASE 1 - PREPARE:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Coordinator: "Can you commit?"</li>
+                        <li>Bank A: Check if Alice has $100... YES ✓</li>
+                        <li>Bank B: Check if Bob's account exists... YES ✓</li>
+                    </ul>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <strong style="color: #667eea;">PHASE 2 - COMMIT:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Coordinator: Both voted YES → "COMMIT"</li>
+                        <li>Bank A: Deduct $100 from Alice ✓</li>
+                        <li>Bank B: Add $100 to Bob ✓</li>
+                    </ul>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                    <strong>Result:</strong> Atomic transfer! Both banks committed together.
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Two-Phase Commit Implementation
+class TwoPhaseCommitCoordinator {
+    constructor(participants) {
+        this.participants = participants;
+        this.transactionId = 0;
+    }
+    
+    async executeTransaction(transaction) {
+        const txId = this.transactionId++;
+        console.log(`\n=== Transaction ${txId} ===`);
+        
+        // PHASE 1: PREPARE
+        console.log('\nPHASE 1: PREPARE');
+        const votes = await this.preparePhase(txId, transaction);
+        
+        // Decide based on votes
+        const decision = votes.every(v => v === 'YES') ? 'COMMIT' : 'ABORT';
+        console.log(`\nDecision: ${decision}`);
+        
+        // PHASE 2: COMMIT or ABORT
+        console.log('\nPHASE 2: ' + decision);
+        await this.commitPhase(txId, decision);
+        
+        return decision;
+    }
+    
+    async preparePhase(txId, transaction) {
+        console.log('Sending PREPARE to all participants...');
+        
+        const votePromises = this.participants.map(async (p) => {
+            try {
+                const vote = await p.prepare(txId, transaction);
+                console.log(`  ${p.id}: ${vote}`);
+                return vote;
+            } catch (error) {
+                console.log(`  ${p.id}: TIMEOUT → NO`);
+                return 'NO';
+            }
+        });
+        
+        return await Promise.all(votePromises);
+    }
+    
+    async commitPhase(txId, decision) {
+        console.log(`Sending ${decision} to all participants...`);
+        
+        const promises = this.participants.map(p =>
+            p.decide(txId, decision)
+                .then(() => console.log(`  ${p.id}: ${decision} complete ✓`))
+                .catch(err => console.log(`  ${p.id}: Failed`))
+        );
+        
+        await Promise.allSettled(promises);
+    }
+}
+
+class Participant {
+    constructor(id) {
+        this.id = id;
+        this.prepared = new Map(); // txId -> transaction
+        this.committed = new Map();
+    }
+    
+    async prepare(txId, transaction) {
+        console.log(`${this.id}: Checking if can commit...`);
+        
+        // Simulate checking resources
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Can we commit this transaction?
+        const canCommit = this.checkResources(transaction);
+        
+        if (canCommit) {
+            // Write PREPARE record to durable storage
+            this.prepared.set(txId, transaction);
+            return 'YES';
+        } else {
+            return 'NO';
+        }
+    }
+    
+    async decide(txId, decision) {
+        if (decision === 'COMMIT') {
+            const transaction = this.prepared.get(txId);
+            // Execute transaction
+            this.committed.set(txId, transaction);
+            console.log(`${this.id}: Transaction committed`);
+        } else {
+            // Rollback
+            this.prepared.delete(txId);
+            console.log(`${this.id}: Transaction aborted`);
+        }
+    }
+    
+    checkResources(transaction) {
+        // Simulate resource check
+        return Math.random() > 0.2; // 80% success rate
+    }
+}
+
+// Usage
+const participants = [
+    new Participant('BankA'),
+    new Participant('BankB'),
+    new Participant('BankC')
+];
+
+const coordinator = new TwoPhaseCommitCoordinator(participants);
+
+await coordinator.executeTransaction({
+    type: 'transfer',
+    amount: 100
+});</code></pre>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li>Guarantees atomicity (all or nothing)</li>
+                <li>Simple to understand</li>
+                <li>Widely used in databases</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ The Fatal Flaw - BLOCKING!</h4>
+            <p><strong>Problem:</strong> If coordinator crashes after PREPARE but before sending decision, participants are <span class="highlight">blocked</span> - they can't commit or abort!</p>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Scenario:</strong>
+                <ol style="margin-top: 10px;">
+                    <li>Participants vote YES in Phase 1</li>
+                    <li>Participants wait for decision...</li>
+                    <li>💥 Coordinator crashes!</li>
+                    <li>Participants stuck waiting (blocked!) ⏳</li>
+                    <li>Can't commit (don't know if others voted YES)</li>
+                    <li>Can't abort (might violate atomicity if others commit)</li>
+                </ol>
+            </div>
+            
+            <p style="margin-top: 15px;"><strong>Impact:</strong> Locks held on resources, transactions stuck indefinitely!</p>
+        </div>
+        
+        <h2>3️⃣ Three-Phase Commit (3PC)</h2>
+        
+        <div class="definition">
+            <h4>Solving 2PC's Blocking Problem</h4>
+            <p><strong>Three-Phase Commit</strong> adds a "prepare to commit" phase to make the protocol non-blocking.</p>
+            <p><strong>Key idea:</strong> Add intermediate state so participants can timeout and make progress</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Three-Phase Commit Protocol</h4>
+            
+            <div style="text-align: center; margin: 20px 0;">
+                <div class="state-diagram state-init">INIT</div>
+                <div class="arrow">↓</div>
+                <div class="state-diagram state-prepare" style="background: #ff9800; color: white;">CAN-COMMIT</div>
+                <div class="arrow">↓</div>
+                <div class="state-diagram state-prepare" style="background: #ff9800; color: white;">PRE-COMMIT</div>
+                <div class="arrow">↓</div>
+                <div class="state-diagram state-commit">COMMIT</div>
+            </div>
+            
+            <div class="phase-box">
+                <div class="phase-header">PHASE 1: CAN-COMMIT</div>
+                <p>Coordinator asks: "Can you commit?"<br>
+                Participants vote: YES or NO</p>
+            </div>
+            
+            <div class="phase-box">
+                <div class="phase-header">PHASE 2: PRE-COMMIT</div>
+                <p>If all YES: Coordinator sends PRE-COMMIT<br>
+                Participants acknowledge, but DON'T commit yet</p>
+            </div>
+            
+            <div class="phase-box">
+                <div class="phase-header">PHASE 3: DO-COMMIT</div>
+                <p>Coordinator sends DO-COMMIT<br>
+                Participants actually commit</p>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>How 3PC avoids blocking:</h4>
+            <p>If coordinator crashes after PRE-COMMIT, participants know:</p>
+            <ul>
+                <li>All voted YES (got to PRE-COMMIT phase)</li>
+                <li>Can safely timeout and COMMIT</li>
+                <li>No longer blocked!</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Why 3PC is Rarely Used:</h4>
+            <ul>
+                <li>Assumes <strong>network cannot partition</strong> - unrealistic!</li>
+                <li>During partition, can lead to split-brain (some commit, some abort)</li>
+                <li>Higher latency (extra phase)</li>
+                <li>More messages</li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>Reality:</strong> Most systems use 2PC with coordinator recovery or move to consensus algorithms (Paxos/Raft).</p>
+        </div>
+        
+        <h2>4️⃣ Paxos Algorithm</h2>
+        
+        <div class="definition">
+            <h4>What is Paxos?</h4>
+            <p>The <strong>most famous consensus algorithm</strong>, invented by Leslie Lamport in 1989. Solves consensus in a partially synchronous model.</p>
+            <p><strong>Notorious for:</strong> Being correct but extremely difficult to understand!</p>
+            <p><strong>Key insight:</strong> Use majority voting and proposal numbers to achieve agreement</p>
+        </div>
+        
+        <div class="key-point">
+            <h4>Paxos Roles:</h4>
+            <ul>
+                <li><strong>Proposer:</strong> Proposes values</li>
+                <li><strong>Acceptor:</strong> Votes on proposals (typically N=2f+1 for f failures)</li>
+                <li><strong>Learner:</strong> Learns decided value</li>
+            </ul>
+            <p><strong>Note:</strong> A process can play multiple roles</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Basic Paxos - Two Phases</h4>
+            
+            <div class="phase-box">
+                <div class="phase-header">PHASE 1A: PREPARE</div>
+                <div style="margin: 15px 0;">
+                    <strong>Proposer:</strong> Sends PREPARE(n) to acceptors<br>
+                    <em>n = proposal number (must be unique and increasing)</em>
+                </div>
+            </div>
+            
+            <div class="phase-box">
+                <div class="phase-header">PHASE 1B: PROMISE</div>
+                <div style="margin: 15px 0;">
+                    <strong>Acceptor:</strong> If n > highest seen:<br>
+                    • Promise not to accept proposals < n<br>
+                    • Reply with any previously accepted value
+                </div>
+            </div>
+            
+            <div class="phase-box">
+                <div class="phase-header">PHASE 2A: ACCEPT</div>
+                <div style="margin: 15px 0;">
+                    <strong>Proposer:</strong> If receives majority of promises:<br>
+                    • Send ACCEPT(n, v) where v = highest promised value OR own value
+                </div>
+            </div>
+            
+            <div class="phase-box">
+                <div class="phase-header">PHASE 2B: ACCEPTED</div>
+                <div style="margin: 15px 0;">
+                    <strong>Acceptor:</strong> If n ≥ promised number:<br>
+                    • Accept the proposal<br>
+                    • Reply with ACCEPTED
+                </div>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <strong>Consensus reached when:</strong> Majority of acceptors accept the same value!
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>📊 Paxos Example: 5 Acceptors</h4>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Setup:</strong> 5 acceptors (need majority = 3)
+                
+                <div style="margin: 20px 0; background: white; padding: 15px; border-radius: 5px;">
+                    <strong>Round 1:</strong>
+                    <div style="margin: 10px 0;">
+                        Proposer P1: PREPARE(n=1)<br>
+                        Acceptors: A1, A2, A3 reply PROMISE (majority!) ✓<br>
+                        P1: ACCEPT(n=1, v="cat")<br>
+                        Acceptors: A1, A2, A3 accept ✓<br>
+                        <span style="color: #4caf50; font-weight: bold;">Consensus: "cat" ✓</span>
+                    </div>
+                </div>
+                
+                <div style="margin: 20px 0; background: white; padding: 15px; border-radius: 5px;">
+                    <strong>Scenario: Competing Proposers</strong>
+                    <div style="margin: 10px 0;">
+                        P1: PREPARE(n=1) → A1, A2 promise<br>
+                        P2: PREPARE(n=2) → A2, A3, A4 promise (higher n!)<br>
+                        P1: ACCEPT(n=1, v="cat") → <span style="color: #f44336;">A2 rejects (promised n=2)</span><br>
+                        P1: Only 1 accept (need 3) → Fails ✗<br><br>
+                        
+                        P2: ACCEPT(n=2, v="dog") → A2, A3, A4 accept ✓<br>
+                        <span style="color: #4caf50; font-weight: bold;">Consensus: "dog" ✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="warning">
+            <h4>⚠️ Paxos Challenges:</h4>
+            <ul>
+                <li><strong>Livelock possible:</strong> Competing proposers can duel forever</li>
+                <li><strong>Complex:</strong> Very difficult to understand and implement correctly</li>
+                <li><strong>Poor performance:</strong> Multiple rounds for single value</li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>Solution:</strong> Multi-Paxos (elect a leader to reduce rounds)</p>
+        </div>
+        
+        <h3>🔄 Multi-Paxos</h3>
+        
+        <div class="key-point">
+            <h4>Optimization for Multiple Values:</h4>
+            <p>Instead of running Paxos for each value separately, elect a stable <strong>leader</strong> who can propose multiple values without Phase 1.</p>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>How it works:</strong>
+                <ol style="margin-top: 10px;">
+                    <li>Run full Paxos once to elect leader</li>
+                    <li>Leader can propose values with just Phase 2 (ACCEPT)</li>
+                    <li>Much faster! One round instead of two</li>
+                    <li>If leader fails, run full Paxos to elect new leader</li>
+                </ol>
+            </div>
+        </div>
+        
+        <h2>5️⃣ Raft Consensus Algorithm</h2>
+        
+        <div class="definition">
+            <h4>What is Raft?</h4>
+            <p><strong>Raft</strong> is a consensus algorithm designed to be <span class="highlight">easier to understand</span> than Paxos while providing the same guarantees.</p>
+            <p><strong>Created in 2014</strong> by Diego Ongaro and John Ousterhout specifically to be understandable!</p>
+            <p><strong>Used by:</strong> etcd (Kubernetes), Consul, CockroachDB</p>
+        </div>
+        
+        <div class="key-point">
+            <h4>Raft's Three Components:</h4>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>1. Leader Election:</strong> Select one leader at a time
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>2. Log Replication:</strong> Leader accepts commands, replicates to followers
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>3. Safety:</strong> Ensure logs stay consistent
+            </div>
+        </div>
+        
+        <h3>👑 Raft Leader Election</h3>
+        
+        <div class="visual-diagram">
+            <h4>Raft Node States</h4>
+            <div style="text-align: center; margin: 30px 0;">
+                <div class="state-diagram follower">FOLLOWER<br><small>Default state</small></div>
+                <div class="arrow">→<br><small>timeout</small></div>
+                <div class="state-diagram candidate">CANDIDATE<br><small>Requesting votes</small></div>
+                <div class="arrow">→<br><small>wins election</small></div>
+                <div class="state-diagram leader">LEADER<br><small>Handles all writes</small></div>
+                
+                <div style="margin: 30px 0;">
+                    <div class="arrow">↓ discovers higher term ↓</div>
+                </div>
+                
+                <div style="font-size: 1.2em; font-weight: bold;">Back to FOLLOWER</div>
+            </div>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Raft Election Example</h4>
+            
+            <div class="timeline">
+                <div class="timeline-step">
+                    <strong>Initial State:</strong> All nodes are followers, Term = 1
+                    <div style="margin-top: 10px;">
+                        <div class="node follower">S1 (Follower)</div>
+                        <div class="node follower">S2 (Follower)</div>
+                        <div class="node follower">S3 (Follower)</div>
+                        <div class="node follower">S4 (Follower)</div>
+                        <div class="node follower">S5 (Follower)</div>
+                    </div>
+                </div>
+                
+                <div class="timeline-step" style="border-left-color: #ff9800;">
+                    <strong>S2's election timeout expires</strong> (no heartbeat from leader)
+                    <div style="margin-top: 10px;">
+                        S2: Becomes candidate, increments term to 2<br>
+                        S2: Votes for itself (1 vote)<br>
+                        S2: Sends RequestVote to all others
+                    </div>
+                </div>
+                
+                <div class="timeline-step" style="border-left-color: #9c27b0;">
+                    <strong>Voting:</strong>
+                    <div style="margin-top: 10px;">
+                        S1: Votes for S2 <span class="vote">VOTE</span><br>
+                        S3: Votes for S2 <span class="vote">VOTE</span><br>
+                        S4: Votes for S2 <span class="vote">VOTE</span><br>
+                        S5: Votes for S2 <span class="vote">VOTE</span><br><br>
+                        S2 has 5/5 votes (majority = 3) ✓
+                    </div>
+                </div>
+                
+                <div class="timeline-step" style="border-left-color: #4caf50;">
+                    <strong>S2 becomes LEADER!</strong>
+                    <div style="margin-top: 10px;">
+                        <div class="node leader">S2 (LEADER) 👑</div>
+                        <div class="node follower">S1 (Follower)</div>
+                        <div class="node follower">S3 (Follower)</div>
+                        <div class="node follower">S4 (Follower)</div>
+                        <div class="node follower">S5 (Follower)</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        S2 starts sending heartbeats to maintain leadership
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h3>📝 Raft Log Replication</h3>
+        
+        <div class="visual-diagram">
+            <h4>Log Replication Flow</h4>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Step 1:</strong> Client sends command to leader
+                <div style="margin: 10px 0; padding: 10px; background: #e3f2fd; border-radius: 5px;">
+                    Client → Leader: "SET x = 5"
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Step 2:</strong> Leader appends to its log
+                <div style="margin: 10px 0; padding: 10px; background: #e3f2fd; border-radius: 5px;">
+                    Leader's log: 
+                    <div class="log-entry">1: x=1</div>
+                    <div class="log-entry">2: x=3</div>
+                    <div class="log-entry" style="background: #ff9800;">3: x=5 (new)</div>
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Step 3:</strong> Leader sends AppendEntries to followers
+                <div style="margin: 10px 0;">
+                    Leader → Followers: AppendEntries(entry #3)
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Step 4:</strong> Followers append to their logs, reply
+                <div style="margin: 10px 0;">
+                    Follower 1: Appended → ACK ✓<br>
+                    Follower 2: Appended → ACK ✓<br>
+                    Follower 3: Appended → ACK ✓
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Step 5:</strong> Leader waits for majority (3/5)
+                <div style="margin: 10px 0; padding: 10px; background: #e8f5e9; border-radius: 5px;">
+                    Majority achieved! Entry is COMMITTED ✓
+                    <div style="margin-top: 10px;">
+                        Leader's log: 
+                        <div class="log-entry committed">1: x=1</div>
+                        <div class="log-entry committed">2: x=3</div>
+                        <div class="log-entry committed">3: x=5</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Step 6:</strong> Leader applies to state machine, replies to client
+                <div style="margin: 10px 0; padding: 10px; background: #e8f5e9; border-radius: 5px;">
+                    State machine: x = 5<br>
+                    Leader → Client: Success! ✓
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Simplified Raft Implementation (Conceptual)
+class RaftNode {
+    constructor(id, peers) {
+        this.id = id;
+        this.peers = peers;
+        this.state = 'FOLLOWER'; // FOLLOWER, CANDIDATE, or LEADER
+        this.currentTerm = 0;
+        this.votedFor = null;
+        this.log = [];
+        this.commitIndex = 0;
+        this.lastApplied = 0;
+        
+        // Leader-specific
+        this.nextIndex = {}; // For each follower
+        this.matchIndex = {}; // For each follower
+        
+        this.electionTimeout = this.randomTimeout(150, 300);
+        this.startElectionTimer();
+    }
+    
+    // FOLLOWER: Wait for heartbeat or start election
+    startElectionTimer() {
+        this.electionTimer = setTimeout(() => {
+            if (this.state === 'FOLLOWER' || this.state === 'CANDIDATE') {
+                this.startElection();
+            }
+        }, this.electionTimeout);
+    }
+    
+    resetElectionTimer() {
+        clearTimeout(this.electionTimer);
+        this.electionTimeout = this.randomTimeout(150, 300);
+        this.startElectionTimer();
+    }
+    
+    // CANDIDATE: Request votes
+    startElection() {
+        this.state = 'CANDIDATE';
+        this.currentTerm++;
+        this.votedFor = this.id;
+        
+        console.log(`Node ${this.id}: Starting election for term ${this.currentTerm}`);
+        
+        let votesReceived = 1; // Vote for self
+        const majority = Math.floor(this.peers.length / 2) + 1;
+        
+        // Request votes from all peers
+        for (const peer of this.peers) {
+            const granted = peer.requestVote(this.currentTerm, this.id);
+            if (granted) {
+                votesReceived++;
+            }
+        }
+        
+        if (votesReceived >= majority) {
+            this.becomeLeader();
+        } else {
+            console.log(`Node ${this.id}: Election failed`);
+            this.state = 'FOLLOWER';
+        }
+    }
+    
+    requestVote(term, candidateId) {
+        // Vote if: haven't voted in this term OR candidate's log is up-to-date
+        if (term > this.currentTerm && this.votedFor === null) {
+            this.currentTerm = term;
+            this.votedFor = candidateId;
+            this.resetElectionTimer();
+            console.log(`  Node ${this.id}: Voted for ${candidateId}`);
+            return true;
+        }
+        return false;
+    }
+    
+    // LEADER: Replicate log entries
+    becomeLeader() {
+        this.state = 'LEADER';
+        console.log(`Node ${this.id}: Became LEADER for term ${this.currentTerm} 👑`);
+        
+        // Initialize leader state
+        for (const peer of this.peers) {
+            this.nextIndex[peer.id] = this.log.length;
+            this.matchIndex[peer.id] = 0;
+        }
+        
+        // Send heartbeats
+        this.startHeartbeat();
+    }
+    
+    startHeartbeat() {
+        this.heartbeatInterval = setInterval(() => {
+            if (this.state === 'LEADER') {
+                this.sendHeartbeats();
+            }
+        }, 50); // Heartbeat every 50ms
+    }
+    
+    sendHeartbeats() {
+        for (const peer of this.peers) {
+            peer.receiveHeartbeat(this.currentTerm, this.id);
+        }
+    }
+    
+    receiveHeartbeat(term, leaderId) {
+        if (term >= this.currentTerm) {
+            this.currentTerm = term;
+            this.state = 'FOLLOWER';
+            this.resetElectionTimer();
+        }
+    }
+    
+    // Client writes
+    async appendEntry(command) {
+        if (this.state !== 'LEADER') {
+            throw new Error('Not leader');
+        }
+        
+        // Append to own log
+        const entry = {
+            term: this.currentTerm,
+            index: this.log.length,
+            command
+        };
+        this.log.push(entry);
+        
+        console.log(`Leader ${this.id}: Appended entry ${entry.index}: ${command}`);
+        
+        // Replicate to followers
+        let replicationCount = 1; // Leader counts
+        
+        for (const peer of this.peers) {
+            const success = await peer.appendEntries([entry], this.currentTerm);
+            if (success) {
+                replicationCount++;
+            }
+        }
+        
+        const majority = Math.floor(this.peers.length / 2) + 2; // +1 for leader
+        
+        if (replicationCount >= majority) {
+            console.log(`  Entry ${entry.index} replicated to majority - COMMITTED ✓`);
+            this.commitIndex = entry.index;
+            return true;
+        }
+        
+        return false;
+    }
+    
+    randomTimeout(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+}
+
+// Usage
+const nodes = [
+    new RaftNode('S1', []),
+    new RaftNode('S2', []),
+    new RaftNode('S3', []),
+    new RaftNode('S4', []),
+    new RaftNode('S5', [])
+];
+
+// Set peer references
+nodes.forEach(node => {
+    node.peers = nodes.filter(n => n !== node);
+});
+
+// Wait for leader election
+setTimeout(async () => {
+    const leader = nodes.find(n => n.state === 'LEADER');
+    if (leader) {
+        await leader.appendEntry('SET x = 100');
+    }
+}, 1000);</code></pre>
+        
+        <div class="key-point">
+            <h4>Why Raft is Easier than Paxos:</h4>
+            <ul>
+                <li><strong>Strong leader:</strong> All writes go through leader (simpler than multi-proposer)</li>
+                <li><strong>Term numbers:</strong> Clearer than proposal numbers</li>
+                <li><strong>Randomized timeouts:</strong> Avoids split votes</li>
+                <li><strong>Understandable:</strong> Can be explained in one lecture!</li>
+            </ul>
+        </div>
+        
+        <h2>6️⃣ Byzantine Agreement</h2>
+        
+        <div class="definition">
+            <h4>Byzantine Consensus</h4>
+            <p>Achieving consensus when some processes may be <strong>malicious</strong> (Byzantine failures).</p>
+            <p><strong>Much harder:</strong> Faulty nodes can lie, send conflicting messages, collude!</p>
+            <p><strong>Requirement:</strong> Need 3f+1 nodes to tolerate f Byzantine failures</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Byzantine Generals Problem</h4>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <p style="margin-bottom: 20px;">Byzantine generals must agree on attack or retreat, but some are traitors!</p>
+                
+                <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 20px 0;">
+                    <div class="node" style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);">
+                        General 1<br>
+                        <small>Loyal</small><br>
+                        Says: Attack
+                    </div>
+                    <div class="node" style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);">
+                        General 2<br>
+                        <small>Loyal</small><br>
+                        Says: Attack
+                    </div>
+                    <div class="node" style="background: linear-gradient(135deg, #f44336 0%, #e57373 100%);">
+                        General 3<br>
+                        <small>TRAITOR</small><br>
+                        Tells 1: Attack<br>
+                        Tells 2: Retreat
+                    </div>
+                    <div class="node" style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);">
+                        General 4<br>
+                        <small>Loyal</small><br>
+                        Says: Attack
+                    </div>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                    <strong>Solution:</strong> Loyal generals use majority voting
+                    <ul style="margin-top: 10px; text-align: left;">
+                        <li>G1 sees: Attack, Attack, Attack, Attack → Decides Attack ✓</li>
+                        <li>G2 sees: Attack, Attack, Retreat, Attack → Majority Attack ✓</li>
+                        <li>G4 sees: Attack, Attack, Attack, Attack → Decides Attack ✓</li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>Result:</strong> Loyal generals agree to Attack despite traitor!</p>
+                </div>
+            </div>
+        </div>
+        
+        <h3>🛡️ Practical Byzantine Fault Tolerance (PBFT)</h3>
+        
+        <div class="definition">
+            <h4>What is PBFT?</h4>
+            <p><strong>PBFT</strong> is a practical algorithm for Byzantine consensus, introduced by Castro and Liskov in 1999.</p>
+            <p><strong>Used in:</strong> Hyperledger Fabric, some blockchain systems</p>
+        </div>
+        
+        <div class="key-point">
+            <h4>PBFT Three Phases:</h4>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>1. PRE-PREPARE:</strong> Primary broadcasts request with sequence number
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>2. PREPARE:</strong> Replicas broadcast PREPARE messages<br>
+                <em>Ensures all honest replicas agree on sequence number</em>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>3. COMMIT:</strong> Replicas broadcast COMMIT messages<br>
+                <em>Ensures committed even if primary fails</em>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <strong>Quorum:</strong> Need 2f+1 matching messages (out of 3f+1 total)<br>
+                This ensures honest nodes have majority!
+            </div>
+        </div>
+        
+        <div class="warning">
+            <h4>⚠️ PBFT Limitations:</h4>
+            <ul>
+                <li><strong>High message complexity:</strong> O(N²) messages per consensus</li>
+                <li><strong>Assumes bounded network delays:</strong> Partially synchronous</li>
+                <li><strong>Doesn't scale well:</strong> Limited to dozens of nodes, not thousands</li>
+                <li><strong>View changes are expensive:</strong> Changing primary is slow</li>
+            </ul>
+        </div>
+        
+        <h2>7️⃣ Practical Applications of Consensus</h2>
+        
+        <div class="example">
+            <h4>🗄️ Distributed Databases</h4>
+            <ul>
+                <li><strong>Google Spanner:</strong> Uses Paxos for replication</li>
+                <li><strong>CockroachDB:</strong> Uses Raft for consistency</li>
+                <li><strong>etcd:</strong> Raft-based key-value store (used by Kubernetes)</li>
+                <li><strong>Consensus:</strong> Ensures all replicas apply operations in same order</li>
+            </ul>
+        </div>
+        
+        <div class="example">
+            <h4>👑 Leader Election</h4>
+            <ul>
+                <li><strong>ZooKeeper:</strong> Uses ZAB (similar to Paxos) for leader election</li>
+                <li><strong>Kafka:</strong> Uses ZooKeeper for broker coordination</li>
+                <li><strong>Consensus:</strong> All nodes agree on who is the leader</li>
+            </ul>
+        </div>
+        
+        <div class="example">
+            <h4>🔗 Blockchain</h4>
+            <ul>
+                <li><strong>Bitcoin:</strong> Proof-of-Work (probabilistic consensus)</li>
+                <li><strong>Ethereum 2.0:</strong> Uses Casper (BFT-based)</li>
+                <li><strong>Hyperledger:</strong> Uses PBFT</li>
+                <li><strong>Consensus:</strong> All nodes agree on transaction order</li>
+            </ul>
+        </div>
+        
+        <div class="example">
+            <h4>🔐 Configuration Management</h4>
+            <ul>
+                <li><strong>Consul:</strong> Uses Raft for service discovery</li>
+                <li><strong>etcd:</strong> Stores Kubernetes cluster configuration</li>
+                <li><strong>Consensus:</strong> All nodes have same configuration</li>
+            </ul>
+        </div>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: Consensus Algorithms Demo</h3>
+            <p>See consensus algorithms in action:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demo2PC()">Two-Phase Commit</button>
+                <button class="demo-button" onclick="demoRaftElection()">Raft Election</button>
+                <button class="demo-button" onclick="demoRaftReplication()">Raft Log Replication</button>
+                <button class="demo-button" onclick="demoByzantine()">Byzantine Consensus</button>
+            </div>
+            <div id="consensusDemo" class="demo-output">Click a button to see consensus algorithms...</div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Algorithm</th>
+                <th>Fault Model</th>
+                <th>Messages</th>
+                <th>Rounds</th>
+                <th>Blocking?</th>
+                <th>Use Case</th>
+            </tr>
+            <tr>
+                <td><strong>2PC</strong></td>
+                <td>Crash</td>
+                <td>3N</td>
+                <td>2</td>
+                <td>Yes ❌</td>
+                <td>Database transactions</td>
+            </tr>
+            <tr>
+                <td><strong>3PC</strong></td>
+                <td>Crash (no partition)</td>
+                <td>4N</td>
+                <td>3</td>
+                <td>No ✓</td>
+                <td>Rarely used</td>
+            </tr>
+            <tr>
+                <td><strong>Paxos</strong></td>
+                <td>Crash</td>
+                <td>O(N²)</td>
+                <td>2-4</td>
+                <td>No ✓</td>
+                <td>Google (Chubby, Spanner)</td>
+            </tr>
+            <tr>
+                <td><strong>Multi-Paxos</strong></td>
+                <td>Crash</td>
+                <td>O(N)</td>
+                <td>1 (with leader)</td>
+                <td>No ✓</td>
+                <td>Production consensus</td>
+            </tr>
+            <tr>
+                <td><strong>Raft</strong></td>
+                <td>Crash</td>
+                <td>O(N)</td>
+                <td>1 (with leader)</td>
+                <td>No ✓</td>
+                <td>etcd, Consul, CockroachDB</td>
+            </tr>
+            <tr>
+                <td><strong>PBFT</strong></td>
+                <td>Byzantine</td>
+                <td>O(N²)</td>
+                <td>3</td>
+                <td>No ✓</td>
+                <td>Hyperledger Fabric</td>
+            </tr>
+            <tr>
+                <td><strong>PoW</strong></td>
+                <td>Byzantine</td>
+                <td>O(N)</td>
+                <td>~6 blocks</td>
+                <td>Probabilistic</td>
+                <td>Bitcoin</td>
+            </tr>
+        </table>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 10</h3>
+            <ul style="line-height: 2;">
+                <li><strong>Consensus is fundamental</strong> - enables replicated state machines, databases, leader election</li>
+                <li><strong>FLP impossibility</strong> - no deterministic consensus in async systems with failures</li>
+                <li><strong>2PC is blocking</strong> - coordinator failure blocks participants</li>
+                <li><strong>3PC is non-blocking</strong> - but assumes no network partitions (unrealistic!)</li>
+                <li><strong>Paxos is correct</strong> - but notoriously difficult to understand and implement</li>
+                <li><strong>Multi-Paxos optimizes</strong> - elect leader, reduce to one round</li>
+                <li><strong>Raft is understandable</strong> - designed for comprehensibility, widely adopted</li>
+                <li><strong>Byzantine requires 3f+1</strong> - need supermajority to outvote malicious nodes</li>
+                <li><strong>PBFT is practical</strong> - but O(N²) messages limits scalability</li>
+                <li><strong>Trade-off:</strong> Crash-tolerant (f+1) vs Byzantine-tolerant (3f+1)</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>What are the three requirements for consensus (Agreement, Validity, Termination)?</li>
+                <li>Why is 2PC blocking? Give a failure scenario.</li>
+                <li>Why is 3PC rarely used despite being non-blocking?</li>
+                <li>Explain the FLP impossibility result - why can't we solve consensus in async systems?</li>
+                <li>How does Paxos handle competing proposers?</li>
+                <li>What's the difference between Paxos and Multi-Paxos?</li>
+                <li>Why is Raft easier to understand than Paxos?</li>
+                <li>Why do we need 3f+1 nodes for Byzantine consensus (not f+1)?</li>
+                <li>Compare PBFT vs Proof-of-Work for blockchain consensus.</li>
+                <li>Design a system: Would you choose Raft or PBFT? When?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function demo2PC() {
+            const output = document.getElementById('consensusDemo');
+            output.textContent = '=== TWO-PHASE COMMIT (2PC) ===\n\n';
+            
+            output.textContent += 'Transaction: Transfer $100 across 3 banks\n';
+            output.textContent += 'Coordinator: Transaction Manager\n';
+            output.textContent += 'Participants: BankA, BankB, BankC\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- PHASE 1: PREPARE (Voting) ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Coordinator → ALL: "PREPARE to commit"\n';
+            await sleep(500);
+            output.textContent += 'BankA: Check resources... ✓ Vote: YES\n';
+            await sleep(300);
+            output.textContent += 'BankB: Check resources... ✓ Vote: YES\n';
+            await sleep(300);
+            output.textContent += 'BankC: Check resources... ✓ Vote: YES\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Coordinator: All voted YES!\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- PHASE 2: COMMIT (Decision) ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Coordinator → ALL: "COMMIT"\n';
+            await sleep(500);
+            output.textContent += 'BankA: Committing transaction... ✓\n';
+            await sleep(300);
+            output.textContent += 'BankB: Committing transaction... ✓\n';
+            await sleep(300);
+            output.textContent += 'BankC: Committing transaction... ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Result: Transaction COMMITTED across all banks! ✓\n\n';
+            
+            output.textContent += 'Atomicity guaranteed:\n';
+            output.textContent += '  All committed together OR all would abort together\n\n';
+            
+            output.textContent += '⚠️ Blocking Issue:\n';
+            output.textContent += '  If coordinator crashes after PREPARE,\n';
+            output.textContent += '  participants are STUCK waiting for decision!';
+        }
+        
+        async function demoRaftElection() {
+            const output = document.getElementById('consensusDemo');
+            output.textContent = '=== RAFT LEADER ELECTION ===\n\n';
+            
+            output.textContent += 'Cluster: 5 nodes (S1, S2, S3, S4, S5)\n';
+            output.textContent += 'Current Term: 0\n';
+            output.textContent += 'All nodes: FOLLOWER state\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Initial state:\n';
+            output.textContent += '  S1: FOLLOWER (waiting for heartbeat)\n';
+            output.textContent += '  S2: FOLLOWER\n';
+            output.textContent += '  S3: FOLLOWER\n';
+            output.textContent += '  S4: FOLLOWER\n';
+            output.textContent += '  S5: FOLLOWER\n\n';
+            
+            await sleep(800);
+            output.textContent += '⏰ S3\'s election timeout expires!\n\n';
+            
+            await sleep(500);
+            output.textContent += 'S3: Transition to CANDIDATE\n';
+            output.textContent += 'S3: Increment term → Term 1\n';
+            output.textContent += 'S3: Vote for self (1 vote)\n';
+            output.textContent += 'S3: Send RequestVote to all others\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Voting in Term 1:\n';
+            await sleep(300);
+            output.textContent += '  S1: Grants vote to S3 ✓ (2 votes)\n';
+            await sleep(300);
+            output.textContent += '  S2: Grants vote to S3 ✓ (3 votes)\n';
+            output.textContent += '  → MAJORITY reached! (3/5)\n';
+            await sleep(300);
+            output.textContent += '  S4: Grants vote to S3 ✓ (4 votes)\n';
+            await sleep(300);
+            output.textContent += '  S5: Grants vote to S3 ✓ (5 votes)\n\n';
+            
+            await sleep(500);
+            output.textContent += '👑 S3 becomes LEADER for Term 1!\n\n';
+            
+            await sleep(500);
+            output.textContent += 'S3: Start sending heartbeats to maintain leadership\n\n';
+            
+            output.textContent += 'Final state:\n';
+            output.textContent += '  S3: LEADER 👑 (Term 1)\n';
+            output.textContent += '  S1, S2, S4, S5: FOLLOWERS\n\n';
+            
+            output.textContent += 'Key points:\n';
+            output.textContent += '  • Randomized timeouts prevent split votes\n';
+            output.textContent += '  • Majority voting ensures single leader\n';
+            output.textContent += '  • Heartbeats maintain leadership';
+        }
+        
+        async function demoRaftReplication() {
+            const output = document.getElementById('consensusDemo');
+            output.textContent = '=== RAFT LOG REPLICATION ===\n\n';
+            
+            output.textContent += 'Leader: S3 (Term 1)\n';
+            output.textContent += 'Followers: S1, S2, S4, S5\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Client → Leader: "SET x = 100"\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 1: Leader appends to own log\n';
+            output.textContent += '  S3 log: [1: x=100] (uncommitted)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 2: Leader sends AppendEntries to followers\n';
+            await sleep(300);
+            output.textContent += '  S3 → S1: AppendEntries([1: x=100])\n';
+            output.textContent += '  S3 → S2: AppendEntries([1: x=100])\n';
+            output.textContent += '  S3 → S4: AppendEntries([1: x=100])\n';
+            output.textContent += '  S3 → S5: AppendEntries([1: x=100])\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 3: Followers append and acknowledge\n';
+            await sleep(300);
+            output.textContent += '  S1: Appended → ACK ✓\n';
+            await sleep(300);
+            output.textContent += '  S2: Appended → ACK ✓\n';
+            await sleep(300);
+            output.textContent += '  S4: ❌ Network timeout\n';
+            await sleep(300);
+            output.textContent += '  S5: Appended → ACK ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 4: Leader counts acknowledgments\n';
+            output.textContent += '  ACKs: 4/5 (S1, S2, S3-self, S5)\n';
+            output.textContent += '  Majority: 3/5 required\n';
+            output.textContent += '  4 ≥ 3 → MAJORITY ACHIEVED! ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 5: Leader commits entry\n';
+            output.textContent += '  S3 log: [1: x=100] (COMMITTED) ✓\n';
+            output.textContent += '  S3: Apply to state machine → x = 100\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 6: Leader replies to client\n';
+            output.textContent += '  Client ← Success! ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 7: Next heartbeat tells followers to commit\n';
+            output.textContent += '  Followers apply entry to their state machines\n\n';
+            
+            output.textContent += 'Result: Consensus achieved!\n';
+            output.textContent += 'Entry replicated and committed on majority.';
+        }
+        
+        async function demoByzantine() {
+            const output = document.getElementById('consensusDemo');
+            output.textContent = '=== BYZANTINE CONSENSUS (PBFT) ===\n\n';
+            
+            output.textContent += 'Cluster: 4 nodes (need 3f+1 for f=1 Byzantine)\n';
+            output.textContent += 'N1, N2, N3 (Honest), N4 (Byzantine/Faulty)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Client request: "SET x = 5"\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- PHASE 1: PRE-PREPARE ---\n';
+            output.textContent += 'Primary (N1) → ALL: PRE-PREPARE(seq=1, "SET x=5")\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- PHASE 2: PREPARE ---\n';
+            output.textContent += 'N1 → ALL: PREPARE(seq=1, "SET x=5")\n';
+            output.textContent += 'N2 → ALL: PREPARE(seq=1, "SET x=5")\n';
+            output.textContent += 'N3 → ALL: PREPARE(seq=1, "SET x=5")\n';
+            output.textContent += 'N4 → ALL: PREPARE(seq=1, "SET x=999") 😈 (Byzantine!)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Each node counts PREPARE messages:\n';
+            await sleep(300);
+            output.textContent += 'N1: Received 3 matching "x=5" (N1, N2, N3)\n';
+            output.textContent += '    Quorum: 2f+1 = 3 → ACHIEVED ✓\n';
+            await sleep(300);
+            output.textContent += 'N2: Received 3 matching "x=5" (N1, N2, N3)\n';
+            output.textContent += '    Quorum: 3 → ACHIEVED ✓\n';
+            await sleep(300);
+            output.textContent += 'N3: Received 3 matching "x=5" (N1, N2, N3)\n';
+            output.textContent += '    Quorum: 3 → ACHIEVED ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- PHASE 3: COMMIT ---\n';
+            output.textContent += 'N1 → ALL: COMMIT(seq=1, "SET x=5")\n';
+            output.textContent += 'N2 → ALL: COMMIT(seq=1, "SET x=5")\n';
+            output.textContent += 'N3 → ALL: COMMIT(seq=1, "SET x=5")\n';
+            output.textContent += 'N4: (Byzantine behavior ignored)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Each honest node commits:\n';
+            output.textContent += '  N1: x = 5 ✓\n';
+            output.textContent += '  N2: x = 5 ✓\n';
+            output.textContent += '  N3: x = 5 ✓\n\n';
+            
+            output.textContent += 'Result: Consensus despite Byzantine node!\n';
+            output.textContent += '3 honest nodes outvoted 1 Byzantine node.\n\n';
+            
+            output.textContent += 'Why 3f+1 works:\n';
+            output.textContent += '  Total: 4, Byzantine: 1, Honest: 3\n';
+            output.textContent += '  Quorum (2f+1): 3\n';
+            output.textContent += '  Honest majority ensures correctness!';
+        }
+    </script>
+</body>
+</html>

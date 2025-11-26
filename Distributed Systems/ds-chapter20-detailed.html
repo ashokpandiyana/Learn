@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 20: Cloud Computing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+        }
+        
+        .service-layer {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .service-layer:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .layer-icon {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .stack-diagram {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .you-manage {
+            background: #ffebee;
+            padding: 8px;
+            margin: 3px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .provider-manages {
+            background: #e8f5e9;
+            padding: 8px;
+            margin: 3px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .vm-container {
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .container-box {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 5px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .serverless-box {
+            background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .pattern-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>☁️ Chapter 20: Cloud Computing and Distributed Systems</h1>
+        
+        <div class="problem-box">
+            <h3>🌩️ The Cloud Revolution</h3>
+            <p style="font-size: 1.2em;"><strong>Why buy servers when you can rent computing power?</strong></p>
+            <p>Traditional approach (pre-cloud):</p>
+            <ul style="margin-top: 10px;">
+                <li>Buy servers ($10,000+ each)</li>
+                <li>Build data center (millions of dollars)</li>
+                <li>Hire ops team to maintain</li>
+                <li>Provision for peak load (wasted 90% of time)</li>
+                <li>6-month lead time to add capacity</li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>Cloud approach:</strong> Pay-as-you-go, infinite scale, provision in seconds! ☁️</p>
+        </div>
+        
+        <h2>1️⃣ Cloud Service Models (IaaS, PaaS, SaaS)</h2>
+        
+        <div class="definition">
+            <h4>The Cloud Stack</h4>
+            <p>Cloud providers offer three main service models, each abstracting different levels of infrastructure.</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Cloud Service Models - Responsibility Breakdown</h4>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 30px 0;">
+                <div class="stack-diagram">
+                    <h4 style="text-align: center; color: #f44336;">🏢 On-Premises</h4>
+                    <div class="you-manage">Applications</div>
+                    <div class="you-manage">Data</div>
+                    <div class="you-manage">Runtime</div>
+                    <div class="you-manage">Middleware</div>
+                    <div class="you-manage">OS</div>
+                    <div class="you-manage">Virtualization</div>
+                    <div class="you-manage">Servers</div>
+                    <div class="you-manage">Storage</div>
+                    <div class="you-manage">Networking</div>
+                    <div style="margin-top: 10px; font-weight: bold; color: #f44336;">You manage everything!</div>
+                </div>
+                
+                <div class="stack-diagram">
+                    <h4 style="text-align: center; color: #2196f3;">🖥️ IaaS</h4>
+                    <div class="you-manage">Applications</div>
+                    <div class="you-manage">Data</div>
+                    <div class="you-manage">Runtime</div>
+                    <div class="you-manage">Middleware</div>
+                    <div class="you-manage">OS</div>
+                    <div class="provider-manages">Virtualization</div>
+                    <div class="provider-manages">Servers</div>
+                    <div class="provider-manages">Storage</div>
+                    <div class="provider-manages">Networking</div>
+                    <div style="margin-top: 10px; font-weight: bold; color: #2196f3;">
+                        AWS EC2, Azure VMs
+                    </div>
+                </div>
+                
+                <div class="stack-diagram">
+                    <h4 style="text-align: center; color: #4caf50;">⚙️ PaaS</h4>
+                    <div class="you-manage">Applications</div>
+                    <div class="you-manage">Data</div>
+                    <div class="provider-manages">Runtime</div>
+                    <div class="provider-manages">Middleware</div>
+                    <div class="provider-manages">OS</div>
+                    <div class="provider-manages">Virtualization</div>
+                    <div class="provider-manages">Servers</div>
+                    <div class="provider-manages">Storage</div>
+                    <div class="provider-manages">Networking</div>
+                    <div style="margin-top: 10px; font-weight: bold; color: #4caf50;">
+                        Heroku, Google App Engine
+                    </div>
+                </div>
+                
+                <div class="stack-diagram">
+                    <h4 style="text-align: center; color: #ff9800;">📱 SaaS</h4>
+                    <div class="provider-manages">Applications</div>
+                    <div class="provider-manages">Data</div>
+                    <div class="provider-manages">Runtime</div>
+                    <div class="provider-manages">Middleware</div>
+                    <div class="provider-manages">OS</div>
+                    <div class="provider-manages">Virtualization</div>
+                    <div class="provider-manages">Servers</div>
+                    <div class="provider-manages">Storage</div>
+                    <div class="provider-manages">Networking</div>
+                    <div style="margin-top: 10px; font-weight: bold; color: #ff9800;">
+                        Gmail, Salesforce, Slack
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 30px 0;">
+            <div class="service-layer">
+                <div class="layer-icon">🖥️</div>
+                <h4 style="color: #2196f3;">IaaS - Infrastructure as a Service</h4>
+                <p><strong>What you get:</strong> Virtual machines, storage, networks</p>
+                <p><strong>You manage:</strong> OS, runtime, applications</p>
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                    <strong>Examples:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>AWS EC2, S3, VPC</li>
+                        <li>Azure Virtual Machines</li>
+                        <li>Google Compute Engine</li>
+                    </ul>
+                </div>
+                <div style="background: #fff3e0; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Use when:</strong> Need full control, custom configurations
+                </div>
+            </div>
+            
+            <div class="service-layer">
+                <div class="layer-icon">⚙️</div>
+                <h4 style="color: #4caf50;">PaaS - Platform as a Service</h4>
+                <p><strong>What you get:</strong> Runtime environment, databases, dev tools</p>
+                <p><strong>You manage:</strong> Just your application code</p>
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                    <strong>Examples:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Heroku</li>
+                        <li>Google App Engine</li>
+                        <li>AWS Elastic Beanstalk</li>
+                    </ul>
+                </div>
+                <div style="background: #fff3e0; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Use when:</strong> Focus on code, not infrastructure
+                </div>
+            </div>
+            
+            <div class="service-layer">
+                <div class="layer-icon">📱</div>
+                <h4 style="color: #ff9800;">SaaS - Software as a Service</h4>
+                <p><strong>What you get:</strong> Complete application</p>
+                <p><strong>You manage:</strong> Just your data and settings</p>
+                <div style="background: #fff3e0; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                    <strong>Examples:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Gmail, Google Docs</li>
+                        <li>Salesforce, Slack</li>
+                        <li>Dropbox, Zoom</li>
+                    </ul>
+                </div>
+                <div style="background: #e8f5e9; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Use when:</strong> Use software, no customization needed
+                </div>
+            </div>
+        </div>
+        
+        <h2>2️⃣ Virtualization and Containerization</h2>
+        
+        <div class="visual-diagram">
+            <h4>Virtualization vs Containerization</h4>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 30px 0;">
+                <div>
+                    <h4 style="text-align: center; color: #2196f3;">Virtual Machines (Hypervisor)</h4>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <div style="background: #e8f5e9; padding: 10px; margin: 5px 0; border-radius: 5px; text-align: center;">
+                            Physical Server Hardware
+                        </div>
+                        <div style="background: #e3f2fd; padding: 10px; margin: 5px 0; border-radius: 5px; text-align: center;">
+                            Host OS
+                        </div>
+                        <div style="background: #fff3e0; padding: 10px; margin: 5px 0; border-radius: 5px; text-align: center;">
+                            <strong>Hypervisor</strong> (VMware, KVM)
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 10px;">
+                            <div class="vm-container" style="font-size: 0.85em;">
+                                VM 1<br>
+                                Guest OS<br>
+                                App
+                            </div>
+                            <div class="vm-container" style="font-size: 0.85em;">
+                                VM 2<br>
+                                Guest OS<br>
+                                App
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px;">
+                        <strong>Key:</strong> Full OS per VM (heavy!)
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="text-align: center; color: #4caf50;">Containers (Docker)</h4>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <div style="background: #e8f5e9; padding: 10px; margin: 5px 0; border-radius: 5px; text-align: center;">
+                            Physical Server Hardware
+                        </div>
+                        <div style="background: #e3f2fd; padding: 10px; margin: 5px 0; border-radius: 5px; text-align: center;">
+                            Host OS (Linux)
+                        </div>
+                        <div style="background: #fff3e0; padding: 10px; margin: 5px 0; border-radius: 5px; text-align: center;">
+                            <strong>Docker Engine</strong>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px;">
+                            <div class="container-box">App 1</div>
+                            <div class="container-box">App 2</div>
+                            <div class="container-box">App 3</div>
+                            <div class="container-box">App 4</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px;">
+                        <strong>Key:</strong> Share OS kernel (lightweight!)
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Aspect</th>
+                <th>Virtual Machines</th>
+                <th>Containers</th>
+            </tr>
+            <tr>
+                <td><strong>Startup Time</strong></td>
+                <td>Minutes (boot full OS)</td>
+                <td>Seconds (just process)</td>
+            </tr>
+            <tr>
+                <td><strong>Size</strong></td>
+                <td>GBs (includes OS)</td>
+                <td>MBs (just app + dependencies)</td>
+            </tr>
+            <tr>
+                <td><strong>Density</strong></td>
+                <td>10s per host</td>
+                <td>100s per host</td>
+            </tr>
+            <tr>
+                <td><strong>Isolation</strong></td>
+                <td>✅ Strong (hardware-level)</td>
+                <td>⚠️ Process-level</td>
+            </tr>
+            <tr>
+                <td><strong>Portability</strong></td>
+                <td>⚠️ Moderate (OS dependent)</td>
+                <td>✅ High (same everywhere)</td>
+            </tr>
+            <tr>
+                <td><strong>Use Case</strong></td>
+                <td>Full OS control, security isolation</td>
+                <td>Microservices, cloud-native apps</td>
+            </tr>
+        </table>
+        
+        <h2>3️⃣ Serverless Computing</h2>
+        
+        <div class="definition">
+            <h4>The Ultimate Abstraction</h4>
+            <p><strong>Serverless:</strong> Run code without managing servers. Pay only for execution time.</p>
+            <p><strong>Misnomer:</strong> Servers still exist, you just don't manage them!</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Serverless Execution Model</h4>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <strong>Event Trigger</strong><br>
+                    HTTP request, file upload, database change, schedule
+                </div>
+                
+                <div style="font-size: 1.5em; margin: 15px 0;">↓</div>
+                
+                <div class="serverless-box">
+                    ⚡ FUNCTION INVOKED<br>
+                    <small>AWS Lambda, Google Cloud Functions</small>
+                </div>
+                
+                <div style="font-size: 1.5em; margin: 15px 0;">↓</div>
+                
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px;">
+                    <strong>Execution:</strong>
+                    <ol style="text-align: left; max-width: 400px; margin: 10px auto;">
+                        <li>Spin up container (cold start: 100-1000ms)</li>
+                        <li>Run your function</li>
+                        <li>Return result</li>
+                        <li>Container kept warm for reuse (hot start: 1ms)</li>
+                    </ol>
+                </div>
+                
+                <div style="font-size: 1.5em; margin: 15px 0;">↓</div>
+                
+                <div style="background: #fff3e0; padding: 20px; border-radius: 8px;">
+                    <strong>Billing:</strong> Pay for execution time only!<br>
+                    $0.20 per 1M requests + $0.0000166667 per GB-second
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// AWS Lambda Function Example (Node.js)
+exports.handler = async (event) => {
+    // Event could be: API Gateway request, S3 upload, DynamoDB change, etc.
+    
+    console.log('Function invoked:', event);
+    
+    // Your code runs here
+    const userId = event.pathParameters.userId;
+    
+    // Access other AWS services
+    const dynamoDB = new AWS.DynamoDB.DocumentClient();
+    const user = await dynamoDB.get({
+        TableName: 'Users',
+        Key: { userId }
+    }).promise();
+    
+    // Return response
+    return {
+        statusCode: 200,
+        body: JSON.stringify(user.Item)
+    };
+};
+
+// No server management needed!
+// Auto-scales: 0 to 1000s of concurrent executions
+// Pay only when function runs</code></pre>
+        
+        <div class="key-point">
+            <h4>✅ Serverless Advantages:</h4>
+            <ul>
+                <li><strong>No server management:</strong> Provider handles everything</li>
+                <li><strong>Auto-scaling:</strong> From 0 to infinity automatically</li>
+                <li><strong>Pay per execution:</strong> No idle cost</li>
+                <li><strong>Focus on code:</strong> Just write functions</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Serverless Limitations:</h4>
+            <ul>
+                <li><strong>Cold starts:</strong> Initial invocation slow (100-1000ms)</li>
+                <li><strong>Execution limits:</strong> 15 min max (AWS Lambda)</li>
+                <li><strong>Stateless:</strong> No persistent state between invocations</li>
+                <li><strong>Vendor lock-in:</strong> Each provider different</li>
+            </ul>
+        </div>
+        
+        <h2>4️⃣ Multi-Tenancy</h2>
+        
+        <div class="definition">
+            <h4>Sharing Infrastructure Efficiently</h4>
+            <p><strong>Multi-tenancy:</strong> Single instance of software serves multiple customers (tenants).</p>
+            <p><strong>Goal:</strong> Maximize resource utilization while ensuring isolation</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Multi-Tenant Architecture</h4>
+            
+            <div style="background: white; padding: 25px; border-radius: 8px; margin: 20px 0;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: 0 auto;">
+                        <strong>SHARED APPLICATION INSTANCE</strong><br>
+                        <small>One code base, one deployment</small>
+                    </div>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <strong>Tenant Isolation (Database Level):</strong>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px;">
+                        <div style="background: white; padding: 15px; border-radius: 5px; border: 2px solid #4caf50;">
+                            <strong>Tenant A</strong><br>
+                            Schema: tenant_a<br>
+                            Users: 100
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 5px; border: 2px solid #2196f3;">
+                            <strong>Tenant B</strong><br>
+                            Schema: tenant_b<br>
+                            Users: 500
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 5px; border: 2px solid #ff9800;">
+                            <strong>Tenant C</strong><br>
+                            Schema: tenant_c<br>
+                            Users: 50
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>Multi-Tenancy Strategies:</h4>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>1. Shared Database, Shared Schema</strong>
+                <p>All tenants in same tables, tenant_id column discriminates</p>
+                <ul style="margin-top: 10px;">
+                    <li>✅ Most efficient (highest density)</li>
+                    <li>❌ Hardest isolation (SQL bugs = data leaks)</li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>2. Shared Database, Separate Schema</strong>
+                <p>Each tenant gets own schema in shared database</p>
+                <ul style="margin-top: 10px;">
+                    <li>✅ Good isolation, good density</li>
+                    <li>⚠️ More complex queries</li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>3. Separate Database Per Tenant</strong>
+                <p>Each tenant gets dedicated database instance</p>
+                <ul style="margin-top: 10px;">
+                    <li>✅ Best isolation, easier backups</li>
+                    <li>❌ Lower density, higher cost</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>5️⃣ Elasticity and Auto-Scaling</h2>
+        
+        <div class="definition">
+            <h4>Dynamic Resource Adjustment</h4>
+            <p><strong>Elasticity:</strong> Ability to automatically scale resources up/down based on demand.</p>
+            <p><strong>Key benefit:</strong> Pay only for what you use, handle traffic spikes automatically</p>
+        </div>
+        
+        <div class="example">
+            <h4>📈 Auto-Scaling Example: E-commerce Site</h4>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Normal Load (weekday):</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Traffic: 1,000 requests/second</li>
+                    <li>Servers: 10 instances</li>
+                    <li>CPU: 60% average</li>
+                    <li>Cost: $500/day</li>
+                </ul>
+            </div>
+            
+            <div style="background: #fff3e0; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Black Friday (peak load):</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Traffic: 50,000 requests/second (50x!)</li>
+                    <li>Auto-scaler detects high CPU</li>
+                    <li>Scales: 10 → 500 instances (2 min)</li>
+                    <li>CPU: 65% average (maintained)</li>
+                    <li>Cost: $5,000/day (only during peak)</li>
+                </ul>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>After sale (scale down):</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Traffic drops: 50,000 → 2,000 requests/second</li>
+                    <li>Auto-scaler detects low CPU</li>
+                    <li>Scales: 500 → 20 instances (graceful shutdown)</li>
+                    <li>Cost: $600/day</li>
+                </ul>
+            </div>
+            
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <strong>vs Traditional (no auto-scaling):</strong><br>
+                Provision for peak: 500 servers × 365 days = $1.8M/year<br>
+                With auto-scaling: Average 50 servers × 365 days = $182K/year<br>
+                <strong style="color: #4caf50;">Savings: 90%! 💰</strong>
+            </div>
+        </div>
+        
+        <h2>6️⃣ Cloud-Native Design Patterns</h2>
+        
+        <div class="pattern-card">
+            <h4>1. 🔄 Retry Pattern</h4>
+            <p>Automatically retry failed operations with exponential backoff</p>
+            <pre style="margin-top: 10px;"><code>async function retryWithBackoff(operation, maxRetries = 3) {
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            return await operation();
+        } catch (error) {
+            if (i === maxRetries - 1) throw error;
+            const delay = Math.pow(2, i) * 1000; // Exponential
+            await sleep(delay);
+        }
+    }
+}</code></pre>
+        </div>
+        
+        <div class="pattern-card">
+            <h4>2. 💾 Cache-Aside Pattern</h4>
+            <p>Application manages cache, loads from database on miss</p>
+            <pre style="margin-top: 10px;"><code>async function getData(key) {
+    // Try cache first
+    let data = await cache.get(key);
+    
+    if (data) {
+        return data; // Cache hit!
+    }
+    
+    // Cache miss - load from database
+    data = await database.query(key);
+    
+    // Store in cache for next time
+    await cache.set(key, data, { ttl: 3600 });
+    
+    return data;
+}</code></pre>
+        </div>
+        
+        <div class="pattern-card">
+            <h4>3. 🎯 Strangler Fig Pattern</h4>
+            <p>Gradually migrate from monolith to microservices</p>
+            <div style="margin-top: 10px;">
+                <ul>
+                    <li>Route new features to new microservices</li>
+                    <li>Gradually migrate old features</li>
+                    <li>Eventually replace monolith entirely</li>
+                    <li>Zero downtime migration!</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: Cloud Concepts</h3>
+            <p>Explore cloud computing patterns:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demoAutoScaling()">Auto-Scaling</button>
+                <button class="demo-button" onclick="demoServerless()">Serverless Execution</button>
+                <button class="demo-button" onclick="demoMultiTenant()">Multi-Tenancy</button>
+                <button class="demo-button" onclick="demoCloudNative()">Cloud-Native Pattern</button>
+            </div>
+            <div id="cloudDemo" class="demo-output">Click a button to see cloud computing in action...</div>
+        </div>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 20</h3>
+            <ul style="line-height: 2;">
+                <li><strong>Cloud service models</strong> - IaaS (VMs), PaaS (runtime), SaaS (complete app)</li>
+                <li><strong>IaaS</strong> - most control, most management (EC2, Azure VMs)</li>
+                <li><strong>PaaS</strong> - focus on code, platform manages infrastructure (Heroku)</li>
+                <li><strong>SaaS</strong> - use software, no infrastructure (Gmail, Salesforce)</li>
+                <li><strong>VMs vs Containers</strong> - containers lighter, faster, more portable</li>
+                <li><strong>Serverless</strong> - event-driven, auto-scale, pay-per-execution (Lambda)</li>
+                <li><strong>Multi-tenancy</strong> - share infrastructure, isolate data</li>
+                <li><strong>Auto-scaling</strong> - elasticity saves 90% cost vs static provisioning</li>
+                <li><strong>Cloud-native patterns</strong> - retry, circuit breaker, cache-aside</li>
+                <li><strong>All distributed systems concepts</strong> - cloud applies everything we learned!</li>
+                <li><strong>Trade-off</strong> - control vs convenience vs cost</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>Compare IaaS, PaaS, and SaaS - when to use each?</li>
+                <li>Why are containers lighter than VMs?</li>
+                <li>What is a "cold start" in serverless? Why does it happen?</li>
+                <li>Explain multi-tenancy isolation strategies.</li>
+                <li>How does auto-scaling save costs?</li>
+                <li>Why is serverless called "serverless" if servers still exist?</li>
+                <li>Design a cloud-native application - which services would you use?</li>
+                <li>Compare on-premises vs cloud - pros/cons of each.</li>
+                <li>When would you NOT use cloud computing?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function demoAutoScaling() {
+            const output = document.getElementById('cloudDemo');
+            output.textContent = '=== AUTO-SCALING IN ACTION ===\n\n';
+            
+            output.textContent += 'Application: Web API\n';
+            output.textContent += 'Current: 5 instances, CPU 50%\n';
+            output.textContent += 'Target: Maintain 70% CPU utilization\n\n';
+            
+            await sleep(500);
+            output.textContent += 'T=0: Normal traffic (5000 req/sec)\n';
+            output.textContent += '  Instances: 5\n';
+            output.textContent += '  CPU: 50% ✓\n\n';
+            
+            await sleep(800);
+            output.textContent += 'T=60s: Traffic surge! (viral tweet)\n';
+            output.textContent += '  Traffic: 5000 → 25,000 req/sec (5x!)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'T=90s: CloudWatch detects high CPU\n';
+            await sleep(300);
+            output.textContent += '  Current CPU: 95% ⚠️\n';
+            output.textContent += '  Exceeds 70% target!\n\n';
+            
+            await sleep(500);
+            output.textContent += 'T=100s: Auto Scaling Group triggers\n';
+            await sleep(300);
+            output.textContent += '  Calculate desired: 5 × (95 / 70) ≈ 7\n';
+            output.textContent += '  Action: Launch 2 new instances ↗️\n\n';
+            
+            await sleep(500);
+            output.textContent += 'T=120s: New instances starting\n';
+            await sleep(300);
+            output.textContent += '  Instance 6: Launching... (AMI boot)\n';
+            await sleep(500);
+            output.textContent += '  Instance 7: Launching...\n\n';
+            
+            await sleep(500);
+            output.textContent += 'T=180s: New instances healthy\n';
+            await sleep(300);
+            output.textContent += '  Health checks passed ✓\n';
+            output.textContent += '  Added to load balancer\n';
+            output.textContent += '  Total instances: 7\n\n';
+            
+            await sleep(500);
+            output.textContent += 'T=200s: Load distributed\n';
+            output.textContent += '  CPU: 95% → 68% ✓\n';
+            output.textContent += '  Back under target!\n\n';
+            
+            await sleep(1000);
+            output.textContent += 'T=3600s: Traffic returns to normal\n';
+            output.textContent += '  Traffic: 25,000 → 5,000 req/sec\n';
+            await sleep(300);
+            output.textContent += '  CPU: 20% (under-utilized)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'T=3900s: Scale down triggered\n';
+            await sleep(300);
+            output.textContent += '  Calculate desired: 7 × (20 / 70) ≈ 2\n';
+            output.textContent += '  Action: Terminate 5 instances ↘️\n';
+            output.textContent += '  Graceful shutdown (drain connections)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'T=4200s: Scaled down\n';
+            output.textContent += '  Instances: 2\n';
+            output.textContent += '  CPU: 65% ✓\n\n';
+            
+            output.textContent += 'Result: Automatically handled 5x surge!\n';
+            output.textContent += 'Cost: Pay for extra instances only during surge.';
+        }
+        
+        async function demoServerless() {
+            const output = document.getElementById('cloudDemo');
+            output.textContent = '=== SERVERLESS FUNCTION EXECUTION ===\n\n';
+            
+            output.textContent += 'Function: Image thumbnail generator\n';
+            output.textContent += 'Trigger: S3 file upload\n\n';
+            
+            await sleep(500);
+            output.textContent += 'User uploads image.jpg to S3\n\n';
+            
+            await sleep(500);
+            output.textContent += 'S3 event triggers Lambda function\n';
+            await sleep(300);
+            output.textContent += '  Event: { bucket: "photos", key: "image.jpg" }\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Lambda: Cold start (first invocation)\n';
+            await sleep(800);
+            output.textContent += '  1. Download runtime (Node.js) - 200ms\n';
+            await sleep(500);
+            output.textContent += '  2. Initialize container - 300ms\n';
+            await sleep(500);
+            output.textContent += '  3. Load function code - 100ms\n';
+            output.textContent += '  Cold start total: 600ms ⏱️\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Function executes:\n';
+            await sleep(300);
+            output.textContent += '  1. Download image from S3 - 150ms\n';
+            await sleep(300);
+            output.textContent += '  2. Resize to thumbnail - 200ms\n';
+            await sleep(300);
+            output.textContent += '  3. Upload thumbnail to S3 - 100ms\n';
+            output.textContent += '  Execution time: 450ms\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Total: 1050ms (cold start + execution)\n\n';
+            
+            await sleep(1000);
+            output.textContent += 'User uploads image2.jpg (10 seconds later)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Lambda: Warm start (container reused!)\n';
+            await sleep(300);
+            output.textContent += '  Container already initialized ✓\n';
+            output.textContent += '  Skip cold start steps!\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Function executes:\n';
+            await sleep(300);
+            output.textContent += '  Execution time: 450ms\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Total: 450ms (57% faster!) ⚡\n\n';
+            
+            output.textContent += 'Billing:\n';
+            output.textContent += '  Executions: 2\n';
+            output.textContent += '  Memory: 512 MB\n';
+            output.textContent += '  Duration: 1.5 seconds total\n';
+            output.textContent += '  Cost: $0.0000025 (fractions of a penny!)\n\n';
+            
+            output.textContent += 'No server to manage, pay per execution!';
+        }
+        
+        async function demoMultiTenant() {
+            const output = document.getElementById('cloudDemo');
+            output.textContent = '=== MULTI-TENANCY ISOLATION ===\n\n';
+            
+            output.textContent += 'SaaS Application: Project Management Tool\n';
+            output.textContent += 'Tenants: CompanyA, CompanyB, CompanyC\n';
+            output.textContent += 'Model: Shared database, separate schemas\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Request 1: CompanyA user queries projects\n';
+            await sleep(300);
+            output.textContent += '  JWT token: { tenantId: "company_a", userId: 101 }\n';
+            await sleep(300);
+            output.textContent += '  Middleware extracts tenantId: "company_a"\n';
+            await sleep(300);
+            output.textContent += '  Set schema: SET search_path = company_a\n';
+            await sleep(300);
+            output.textContent += '  Query: SELECT * FROM projects\n';
+            output.textContent += '  Returns: CompanyA\'s projects only ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Request 2: CompanyB user queries projects\n';
+            await sleep(300);
+            output.textContent += '  JWT token: { tenantId: "company_b", userId: 205 }\n';
+            await sleep(300);
+            output.textContent += '  Set schema: SET search_path = company_b\n';
+            await sleep(300);
+            output.textContent += '  Query: SELECT * FROM projects\n';
+            output.textContent += '  Returns: CompanyB\'s projects only ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Isolation verified:\n';
+            output.textContent += '  ✓ CompanyA cannot see CompanyB data\n';
+            output.textContent += '  ✓ Separate schemas enforce isolation\n';
+            output.textContent += '  ✓ Single application instance (efficient!)\n\n';
+            
+            output.textContent += 'Benefits:\n';
+            output.textContent += '  • Cost-effective (shared infrastructure)\n';
+            output.textContent += '  • Easy upgrades (one deployment, all tenants)\n';
+            output.textContent += '  • Resource pooling (better utilization)';
+        }
+        
+        async function demoCloudNative() {
+            const output = document.getElementById('cloudDemo');
+            output.textContent = '=== CLOUD-NATIVE PATTERN: CIRCUIT BREAKER + RETRY ===\n\n';
+            
+            output.textContent += 'Service A calling Service B (flaky external API)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Request 1: Call Service B\n';
+            await sleep(300);
+            output.textContent += '  Circuit: CLOSED (normal)\n';
+            await sleep(300);
+            output.textContent += '  Attempt 1: Timeout ❌\n';
+            await sleep(300);
+            output.textContent += '  Retry 1 (1s backoff): Success ✓\n';
+            output.textContent += '  Response: 200 OK\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Requests 2-5: Call Service B\n';
+            await sleep(300);
+            output.textContent += '  All timeout ❌\n';
+            output.textContent += '  Retries all fail\n';
+            output.textContent += '  Failure count: 4\n\n';
+            
+            await sleep(500);
+            output.textContent += '🔴 Circuit breaker OPENS (threshold: 5 failures)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Request 6: Call Service B\n';
+            await sleep(300);
+            output.textContent += '  Circuit: OPEN\n';
+            output.textContent += '  Action: Fail immediately (no network call!) ⚡\n';
+            output.textContent += '  Fallback: Return cached data\n';
+            output.textContent += '  Response time: 5ms (vs 5000ms timeout)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Requests 7-10: Same behavior\n';
+            output.textContent += '  Instant failure, use fallback\n';
+            output.textContent += '  Protect Service A from hanging! ✓\n\n';
+            
+            await sleep(1000);
+            output.textContent += '⏰ 30 seconds elapsed...\n\n';
+            
+            await sleep(500);
+            output.textContent += '🟡 Circuit transitions to HALF-OPEN\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Request 11: Test request\n';
+            await sleep(300);
+            output.textContent += '  Circuit: HALF-OPEN (testing)\n';
+            await sleep(500);
+            output.textContent += '  Call Service B... Success! ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '🟢 Circuit CLOSED (service recovered)\n\n';
+            
+            output.textContent += 'Cloud-native benefits:\n';
+            output.textContent += '  ✓ Resilient to failures\n';
+            output.textContent += '  ✓ Fast failure (don\'t wait for timeout)\n';
+            output.textContent += '  ✓ Automatic recovery detection\n';
+            output.textContent += '  ✓ Graceful degradation (fallback)';
+        }
+    </script>
+</body>
+</html>

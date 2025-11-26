@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 13: Distributed Databases</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+        }
+        
+        .shard {
+            display: inline-block;
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            min-width: 150px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .shard:hover {
+            transform: scale(1.05);
+        }
+        
+        .data-item {
+            background: #fff;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin: 5px;
+            font-size: 0.9em;
+            display: inline-block;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .partition-visual {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .nosql-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .nosql-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .nosql-icon {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .architecture-layer {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .query-flow {
+            background: white;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
+        .hash-visual {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .hash-bucket {
+            background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗄️ Chapter 13: Distributed Databases</h1>
+        
+        <div class="problem-box">
+            <h3>🎯 The Scaling Challenge</h3>
+            <p style="font-size: 1.2em;"><strong>Single database can't handle Google-scale data!</strong></p>
+            <p>Google processes billions of queries daily. Facebook has billions of users. Amazon handles millions of transactions per hour.</p>
+            <p><strong>Solution:</strong> Distribute data across thousands of machines. But how do we make it look like one database?</p>
+        </div>
+        
+        <h2>1️⃣ Distributed Database Architecture</h2>
+        
+        <div class="definition">
+            <h4>What is a Distributed Database?</h4>
+            <p>A <strong>distributed database</strong> is a collection of multiple, logically interrelated databases distributed over a computer network.</p>
+            <p><strong>Key property:</strong> Appears as a single database to users, but data is physically distributed across many nodes.</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Distributed Database Architecture Layers</h4>
+            
+            <div class="architecture-layer" style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); color: white;">
+                <h4>Application Layer</h4>
+                <p>Users/Applications interact with single logical database</p>
+            </div>
+            
+            <div style="text-align: center; font-size: 1.5em; margin: 10px 0;">↓</div>
+            
+            <div class="architecture-layer" style="background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%); color: white;">
+                <h4>Query Processing Layer</h4>
+                <p>Parse, optimize, and distribute queries</p>
+            </div>
+            
+            <div style="text-align: center; font-size: 1.5em; margin: 10px 0;">↓</div>
+            
+            <div class="architecture-layer" style="background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%); color: white;">
+                <h4>Distribution Layer</h4>
+                <p>Partition, replicate, route data</p>
+            </div>
+            
+            <div style="text-align: center; font-size: 1.5em; margin: 10px 0;">↓</div>
+            
+            <div class="architecture-layer" style="background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%); color: white;">
+                <h4>Storage Layer</h4>
+                <p>Physical data storage on multiple nodes</p>
+                <div style="display: flex; justify-content: center; gap: 10px; margin-top: 15px;">
+                    <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 5px;">Node 1</div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 5px;">Node 2</div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 5px;">Node 3</div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 5px;">...</div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 5px;">Node N</div>
+                </div>
+            </div>
+        </div>
+        
+        <h2>2️⃣ Data Partitioning/Sharding Strategies</h2>
+        
+        <div class="definition">
+            <h4>Why Partition Data?</h4>
+            <p><strong>Sharding</strong> (or partitioning) splits a large dataset across multiple machines.</p>
+            <p><strong>Goals:</strong> Scalability (store more data), Performance (parallel processing), Availability (isolate failures)</p>
+        </div>
+        
+        <h3>📊 Range-Based Partitioning</h3>
+        
+        <div class="key-point">
+            <h4>How it works:</h4>
+            <p>Divide data based on <strong>key ranges</strong>. Each partition stores a continuous range of keys.</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Range Partitioning Example: User IDs</h4>
+            
+            <div class="partition-visual">
+                <div class="shard">
+                    <strong>Shard 1</strong>
+                    <div style="margin-top: 10px;">Range: 1-1000</div>
+                    <div style="margin-top: 10px;">
+                        <div class="data-item">User 1</div>
+                        <div class="data-item">User 500</div>
+                        <div class="data-item">User 999</div>
+                    </div>
+                </div>
+                
+                <div class="shard">
+                    <strong>Shard 2</strong>
+                    <div style="margin-top: 10px;">Range: 1001-2000</div>
+                    <div style="margin-top: 10px;">
+                        <div class="data-item">User 1001</div>
+                        <div class="data-item">User 1500</div>
+                        <div class="data-item">User 2000</div>
+                    </div>
+                </div>
+                
+                <div class="shard">
+                    <strong>Shard 3</strong>
+                    <div style="margin-top: 10px;">Range: 2001-3000</div>
+                    <div style="margin-top: 10px;">
+                        <div class="data-item">User 2001</div>
+                        <div class="data-item">User 2500</div>
+                        <div class="data-item">User 3000</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                <strong>Routing:</strong> User 1500 → Hash(1500) → Shard 2 directly!
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li><strong>Range queries efficient:</strong> "Get users 100-200" hits one shard</li>
+                <li><strong>Ordered scans:</strong> Easy to scan in order</li>
+                <li><strong>Simple routing:</strong> Key determines shard directly</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li><strong>Hot spots:</strong> If keys aren't uniformly distributed, some shards get overloaded</li>
+                <li><strong>Example:</strong> Timestamp-based keys → all recent writes go to last shard!</li>
+                <li><strong>Rebalancing hard:</strong> Need to adjust ranges when adding shards</li>
+            </ul>
+        </div>
+        
+        <h3>#️⃣ Hash-Based Partitioning</h3>
+        
+        <div class="key-point">
+            <h4>How it works:</h4>
+            <p>Apply <strong>hash function</strong> to key, use hash to determine shard.</p>
+            <p><strong>Formula:</strong> Shard = hash(key) mod N (where N = number of shards)</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Hash Partitioning Example</h4>
+            
+            <div style="margin: 20px 0;">
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <strong>Hash Function Example:</strong>
+                    <div style="font-family: monospace; margin: 15px 0;">
+                        hash("Alice") = 73829 → 73829 % 4 = 1 → Shard 1<br>
+                        hash("Bob") = 42156 → 42156 % 4 = 0 → Shard 0<br>
+                        hash("Charlie") = 88391 → 88391 % 4 = 3 → Shard 3<br>
+                        hash("David") = 91244 → 91244 % 4 = 0 → Shard 0
+                    </div>
+                </div>
+                
+                <div class="hash-visual">
+                    <div class="hash-bucket">
+                        <strong>Shard 0</strong>
+                        <div style="margin-top: 10px;">
+                            <div class="data-item">Bob</div>
+                            <div class="data-item">David</div>
+                        </div>
+                    </div>
+                    <div class="hash-bucket">
+                        <strong>Shard 1</strong>
+                        <div style="margin-top: 10px;">
+                            <div class="data-item">Alice</div>
+                        </div>
+                    </div>
+                    <div class="hash-bucket">
+                        <strong>Shard 2</strong>
+                        <div style="margin-top: 10px;">
+                            <div class="data-item">(empty)</div>
+                        </div>
+                    </div>
+                    <div class="hash-bucket">
+                        <strong>Shard 3</strong>
+                        <div style="margin-top: 10px;">
+                            <div class="data-item">Charlie</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li><strong>Uniform distribution:</strong> Hash spreads data evenly</li>
+                <li><strong>No hot spots:</strong> Load balanced across shards</li>
+                <li><strong>Simple:</strong> Easy to implement</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li><strong>Range queries inefficient:</strong> Must query ALL shards</li>
+                <li><strong>Adding shards is expensive:</strong> Need to rehash and move data</li>
+                <li><strong>No ordering:</strong> Can't scan in key order</li>
+            </ul>
+        </div>
+        
+        <h3>🗂️ Consistent Hashing (Advanced Hash Partitioning)</h3>
+        
+        <div class="definition">
+            <h4>Solving the Rehashing Problem</h4>
+            <p><strong>Consistent Hashing:</strong> When adding/removing shards, only K/N keys need to move (instead of all keys).</p>
+            <p><strong>Key idea:</strong> Hash both keys and nodes onto a ring</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Consistent Hashing Ring</h4>
+            
+            <svg width="400" height="400" style="display: block; margin: 20px auto;">
+                <!-- Ring -->
+                <circle cx="200" cy="200" r="150" fill="none" stroke="#667eea" stroke-width="3"/>
+                
+                <!-- Nodes on ring -->
+                <circle cx="200" cy="50" r="20" fill="#4caf50"/>
+                <text x="200" y="55" text-anchor="middle" fill="white" font-weight="bold">N1</text>
+                
+                <circle cx="350" cy="200" r="20" fill="#4caf50"/>
+                <text x="350" y="205" text-anchor="middle" fill="white" font-weight="bold">N2</text>
+                
+                <circle cx="200" cy="350" r="20" fill="#4caf50"/>
+                <text x="200" y="355" text-anchor="middle" fill="white" font-weight="bold">N3</text>
+                
+                <circle cx="50" cy="200" r="20" fill="#4caf50"/>
+                <text x="50" y="205" text-anchor="middle" fill="white" font-weight="bold">N4</text>
+                
+                <!-- Keys on ring -->
+                <circle cx="270" cy="80" r="10" fill="#ff9800"/>
+                <text x="290" y="75" fill="#ff9800" font-weight="bold" font-size="12">Key A</text>
+                
+                <circle cx="320" cy="150" r="10" fill="#ff9800"/>
+                <text x="340" y="145" fill="#ff9800" font-weight="bold" font-size="12">Key B</text>
+                
+                <circle cx="150" cy="320" r="10" fill="#ff9800"/>
+                <text x="130" y="340" fill="#ff9800" font-weight="bold" font-size="12">Key C</text>
+                
+                <!-- Arrows showing clockwise traversal -->
+                <path d="M 210 55 Q 240 60 260 75" fill="none" stroke="#2196f3" stroke-width="2" marker-end="url(#arrowBlue)"/>
+                <text x="235" y="50" fill="#2196f3" font-size="11">clockwise</text>
+                
+                <defs>
+                    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <polygon points="0 0, 10 3, 0 6" fill="#2196f3"/>
+                    </marker>
+                </defs>
+            </svg>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                <strong>Key routing:</strong> Each key is assigned to first node clockwise on ring<br>
+                <ul style="margin-top: 10px;">
+                    <li>Key A → goes to N2 (first node clockwise)</li>
+                    <li>Key B → goes to N2</li>
+                    <li>Key C → goes to N3</li>
+                </ul>
+            </div>
+            
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                <strong>Adding Node N5:</strong> Only keys between N4 and N5 move!<br>
+                Much better than rehashing everything!
+            </div>
+        </div>
+        
+        <pre><code>// Consistent Hashing Implementation
+class ConsistentHash {
+    constructor(numVirtualNodes = 150) {
+        this.numVirtualNodes = numVirtualNodes;
+        this.ring = new Map(); // hash -> node
+        this.sortedHashes = [];
+        this.nodes = new Set();
+    }
+    
+    // Add a node to the ring
+    addNode(nodeId) {
+        this.nodes.add(nodeId);
+        
+        // Add virtual nodes for better distribution
+        for (let i = 0; i < this.numVirtualNodes; i++) {
+            const virtualKey = `${nodeId}-${i}`;
+            const hash = this.hash(virtualKey);
+            
+            this.ring.set(hash, nodeId);
+        }
+        
+        // Keep hashes sorted for binary search
+        this.sortedHashes = Array.from(this.ring.keys()).sort((a, b) => a - b);
+        
+        console.log(`Added node ${nodeId} with ${this.numVirtualNodes} virtual nodes`);
+    }
+    
+    // Remove a node
+    removeNode(nodeId) {
+        this.nodes.delete(nodeId);
+        
+        // Remove all virtual nodes
+        for (const [hash, node] of this.ring.entries()) {
+            if (node === nodeId) {
+                this.ring.delete(hash);
+            }
+        }
+        
+        this.sortedHashes = Array.from(this.ring.keys()).sort((a, b) => a - b);
+        console.log(`Removed node ${nodeId}`);
+    }
+    
+    // Get node for a key
+    getNode(key) {
+        if (this.ring.size === 0) {
+            return null;
+        }
+        
+        const hash = this.hash(key);
+        
+        // Find first node clockwise (binary search)
+        let idx = this.sortedHashes.findIndex(h => h >= hash);
+        
+        // If not found, wrap around to first
+        if (idx === -1) {
+            idx = 0;
+        }
+        
+        const nodeHash = this.sortedHashes[idx];
+        return this.ring.get(nodeHash);
+    }
+    
+    hash(key) {
+        // Simple hash function (use better one in production!)
+        let hash = 0;
+        for (let i = 0; i < key.length; i++) {
+            hash = ((hash << 5) - hash) + key.charCodeAt(i);
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return Math.abs(hash);
+    }
+}
+
+// Usage
+const ch = new ConsistentHash();
+
+// Add nodes
+ch.addNode('Server1');
+ch.addNode('Server2');
+ch.addNode('Server3');
+
+// Route keys
+console.log(`Alice → ${ch.getNode('Alice')}`);
+console.log(`Bob → ${ch.getNode('Bob')}`);
+console.log(`Charlie → ${ch.getNode('Charlie')}`);
+
+// Add new node
+ch.addNode('Server4');
+// Only some keys move to Server4!</code></pre>
+        
+        <h3>📁 Directory-Based Partitioning</h3>
+        
+        <div class="key-point">
+            <h4>How it works:</h4>
+            <p>Maintain a <strong>lookup table</strong> (directory) that maps keys to shards.</p>
+            <p><strong>Flexibility:</strong> Can use any partitioning logic!</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Directory-Based Partitioning</h4>
+            
+            <div style="margin: 20px 0;">
+                <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #667eea;">
+                    <h4 style="text-align: center; color: #667eea;">Partition Directory</h4>
+                    <table style="width: 100%; margin-top: 15px;">
+                        <tr style="background: #f8f9fa;">
+                            <th style="padding: 10px; text-align: left;">Key Range</th>
+                            <th style="padding: 10px; text-align: left;">Shard</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">A-F</td>
+                            <td style="padding: 10px;">→ Shard 1</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 10px;">G-M</td>
+                            <td style="padding: 10px;">→ Shard 2</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">N-S</td>
+                            <td style="padding: 10px;">→ Shard 3</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 10px;">T-Z</td>
+                            <td style="padding: 10px;">→ Shard 4</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <div style="display: inline-block; margin: 10px;">
+                        <div class="data-item" style="background: #e3f2fd;">Query: Get "Alice"</div>
+                        <div style="margin-top: 10px;">↓</div>
+                        <div style="background: #4caf50; color: white; padding: 10px; border-radius: 5px;">
+                            Lookup: A → Shard 1
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li><strong>Flexible:</strong> Can partition by any criteria</li>
+                <li><strong>Easy rebalancing:</strong> Just update directory</li>
+                <li><strong>Fine-grained control:</strong> Move individual partitions</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li><strong>Directory overhead:</strong> Extra lookup for every query</li>
+                <li><strong>Directory is SPOF:</strong> If directory fails, system fails</li>
+                <li><strong>Must be distributed/replicated:</strong> Directory itself needs to be HA</li>
+            </ul>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Strategy</th>
+                <th>Distribution</th>
+                <th>Range Queries</th>
+                <th>Hot Spots</th>
+                <th>Examples</th>
+            </tr>
+            <tr>
+                <td><strong>Range</strong></td>
+                <td>May be skewed</td>
+                <td>✅ Efficient</td>
+                <td>❌ Possible</td>
+                <td>HBase, Bigtable</td>
+            </tr>
+            <tr>
+                <td><strong>Hash</strong></td>
+                <td>✅ Uniform</td>
+                <td>❌ Inefficient</td>
+                <td>✅ Unlikely</td>
+                <td>Cassandra, DynamoDB</td>
+            </tr>
+            <tr>
+                <td><strong>Consistent Hash</strong></td>
+                <td>✅ Uniform</td>
+                <td>❌ Inefficient</td>
+                <td>✅ Rare</td>
+                <td>Cassandra, Riak</td>
+            </tr>
+            <tr>
+                <td><strong>Directory</strong></td>
+                <td>Configurable</td>
+                <td>✅ Can be efficient</td>
+                <td>Configurable</td>
+                <td>MongoDB, Couchbase</td>
+            </tr>
+        </table>
+        
+        <h2>3️⃣ Query Processing in Distributed Databases</h2>
+        
+        <div class="definition">
+            <h4>The Query Challenge</h4>
+            <p>Data is scattered across multiple nodes. How do we efficiently answer queries that might need data from many shards?</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Distributed Query Processing Steps</h4>
+            
+            <div class="query-flow">
+                <strong>Step 1: Query Parsing</strong>
+                <p>Parse SQL/query language, build query tree</p>
+            </div>
+            
+            <div class="query-flow">
+                <strong>Step 2: Query Optimization</strong>
+                <p>Rewrite query for efficiency, choose execution plan</p>
+            </div>
+            
+            <div class="query-flow">
+                <strong>Step 3: Query Distribution</strong>
+                <p>Determine which shards have relevant data</p>
+                <div style="margin: 10px 0; background: #f8f9fa; padding: 10px; border-radius: 5px;">
+                    <strong>Example:</strong> "SELECT * WHERE age > 25"<br>
+                    → Must query ALL shards (age not partitioning key)
+                </div>
+            </div>
+            
+            <div class="query-flow">
+                <strong>Step 4: Parallel Execution</strong>
+                <p>Execute query on each shard simultaneously</p>
+            </div>
+            
+            <div class="query-flow">
+                <strong>Step 5: Result Aggregation</strong>
+                <p>Combine results from all shards</p>
+                <div style="margin: 10px 0; background: #f8f9fa; padding: 10px; border-radius: 5px;">
+                    <strong>Operations:</strong> UNION, SORT, GROUP BY, JOIN
+                </div>
+            </div>
+            
+            <div class="query-flow">
+                <strong>Step 6: Return to Client</strong>
+                <p>Send final result set</p>
+            </div>
+        </div>
+        
+        <h3>🔗 Distributed Joins</h3>
+        
+        <div class="example">
+            <h4>The Join Challenge</h4>
+            <p><strong>Problem:</strong> Tables are partitioned across different nodes. How to join them?</p>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <strong>Scenario:</strong>
+                <ul>
+                    <li>Users table: Partitioned by user_id</li>
+                    <li>Orders table: Partitioned by order_id</li>
+                    <li>Query: "Find all orders for user Alice"</li>
+                </ul>
+            </div>
+            
+            <h4>Strategy 1: Broadcast Join</h4>
+            <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <ol>
+                    <li>Broadcast small table (Users) to all nodes</li>
+                    <li>Each node joins locally with its Orders partition</li>
+                    <li>Combine results</li>
+                </ol>
+                <p style="margin-top: 10px;"><strong>Use when:</strong> One table is small</p>
+            </div>
+            
+            <h4>Strategy 2: Shuffle Join (Repartition)</h4>
+            <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <ol>
+                    <li>Repartition both tables by join key</li>
+                    <li>Send matching rows to same node</li>
+                    <li>Each node joins its partition locally</li>
+                    <li>Combine results</li>
+                </ol>
+                <p style="margin-top: 10px;"><strong>Use when:</strong> Both tables are large</p>
+            </div>
+            
+            <h4>Strategy 3: Co-located Join</h4>
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Best case:</strong> Both tables partitioned by same key!<br>
+                No data movement needed - join locally on each node ✓
+                <p style="margin-top: 10px;"><strong>Example:</strong> Both partitioned by user_id → join locally</p>
+            </div>
+        </div>
+        
+        <h2>4️⃣ NoSQL Databases</h2>
+        
+        <div class="definition">
+            <h4>What is NoSQL?</h4>
+            <p><strong>NoSQL</strong> (Not Only SQL) databases are designed for distributed systems, sacrificing some ACID properties for scalability and availability.</p>
+            <p><strong>Key characteristics:</strong> Schema-less, horizontally scalable, eventual consistency (typically)</p>
+        </div>
+        
+        <h3>🔑 Key-Value Stores</h3>
+        
+        <div class="nosql-card">
+            <div class="nosql-icon">🗝️</div>
+            <h4>Key-Value Databases</h4>
+            <p><strong>Model:</strong> Simple dictionary/map. Store and retrieve values by unique key.</p>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Data Model:</strong>
+                <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; margin: 10px 0;"><code>{
+  "user:1001": "{name: 'Alice', age: 30}",
+  "user:1002": "{name: 'Bob', age: 25}",
+  "session:abc123": "{userId: 1001, expires: 1234567890}"
+}</code></pre>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Operations:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>GET(key) → value</li>
+                    <li>PUT(key, value)</li>
+                    <li>DELETE(key)</li>
+                </ul>
+                <p style="margin-top: 10px;"><strong>That's it!</strong> Very simple, very fast.</p>
+            </div>
+            
+            <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Examples:</strong> Redis, Riak, Amazon DynamoDB, Memcached
+            </div>
+            
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Use Cases:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Session storage</li>
+                    <li>Caching</li>
+                    <li>Shopping carts</li>
+                    <li>User preferences</li>
+                </ul>
+            </div>
+            
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li>Extremely fast (O(1) lookups)</li>
+                <li>Simple to scale horizontally</li>
+                <li>High performance</li>
+            </ul>
+            
+            <h4>❌ Limitations:</h4>
+            <ul>
+                <li>No complex queries (can't search by value)</li>
+                <li>No relationships between data</li>
+                <li>No aggregations or analytics</li>
+            </ul>
+        </div>
+        
+        <h3>📄 Document Stores</h3>
+        
+        <div class="nosql-card">
+            <div class="nosql-icon">📄</div>
+            <h4>Document Databases</h4>
+            <p><strong>Model:</strong> Store semi-structured documents (JSON, XML). Can query inside documents.</p>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Data Model:</strong>
+                <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; margin: 10px 0;"><code>// User document
+{
+  "_id": "user:1001",
+  "name": "Alice",
+  "age": 30,
+  "email": "alice@example.com",
+  "addresses": [
+    {"type": "home", "city": "NYC"},
+    {"type": "work", "city": "SF"}
+  ],
+  "orders": ["order:501", "order:502"]
+}</code></pre>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Query Example (MongoDB):</strong>
+                <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; margin: 10px 0;"><code>// Find users in NYC
+db.users.find({
+  "addresses.city": "NYC"
+})
+
+// Find users over 25 with orders
+db.users.find({
+  age: {$gt: 25},
+  orders: {$exists: true}
+})</code></pre>
+            </div>
+            
+            <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Examples:</strong> MongoDB, CouchDB, RavenDB
+            </div>
+            
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Use Cases:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Content management systems</li>
+                    <li>User profiles</li>
+                    <li>Product catalogs</li>
+                    <li>Real-time analytics</li>
+                </ul>
+            </div>
+            
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li>Flexible schema (no migrations!)</li>
+                <li>Nested data supported</li>
+                <li>Query inside documents</li>
+                <li>Natural for object-oriented apps</li>
+            </ul>
+            
+            <h4>❌ Limitations:</h4>
+            <ul>
+                <li>Joins are expensive (not optimized)</li>
+                <li>Denormalization common (duplicate data)</li>
+                <li>Consistency varies by system</li>
+            </ul>
+        </div>
+        
+        <h3>📊 Column-Family Stores</h3>
+        
+        <div class="nosql-card">
+            <div class="nosql-icon">📊</div>
+            <h4>Column-Family Databases</h4>
+            <p><strong>Model:</strong> Store data in column families. Optimized for wide tables with many columns.</p>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Data Model (Cassandra):</strong>
+                <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; margin: 10px 0;"><code>// Row key: user_id
+// Column family: user_profile
+{
+  "1001": {
+    "name": "Alice",
+    "age": "30",
+    "email": "alice@example.com",
+    "last_login": "2025-01-15"
+  },
+  "1002": {
+    "name": "Bob",
+    "age": "25"
+    // Can have different columns!
+  }
+}</code></pre>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Key Features:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Store columns together (better compression)</li>
+                    <li>Can have billions of columns per row</li>
+                    <li>Efficient for sparse data</li>
+                    <li>Time-series data perfect fit</li>
+                </ul>
+            </div>
+            
+            <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Examples:</strong> Cassandra, HBase, Google Bigtable
+            </div>
+            
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Use Cases:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Time-series data (sensor readings)</li>
+                    <li>Event logging</li>
+                    <li>Large-scale analytics</li>
+                    <li>Real-time big data</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>🕸️ Graph Databases</h3>
+        
+        <div class="nosql-card">
+            <div class="nosql-icon">🕸️</div>
+            <h4>Graph Databases</h4>
+            <p><strong>Model:</strong> Store nodes (entities) and edges (relationships). Optimized for connected data.</p>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Data Model:</strong>
+                <div style="margin: 15px 0;">
+                    <svg width="100%" height="250">
+                        <!-- Nodes -->
+                        <circle cx="100" cy="100" r="40" fill="#4caf50"/>
+                        <text x="100" y="105" text-anchor="middle" fill="white" font-weight="bold">Alice</text>
+                        
+                        <circle cx="300" cy="100" r="40" fill="#4caf50"/>
+                        <text x="300" y="105" text-anchor="middle" fill="white" font-weight="bold">Bob</text>
+                        
+                        <circle cx="200" cy="200" r="40" fill="#2196f3"/>
+                        <text x="200" y="205" text-anchor="middle" fill="white" font-weight="bold">Post 1</text>
+                        
+                        <!-- Edges -->
+                        <defs>
+                            <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0, 10 3, 0 6" fill="#ff9800"/>
+                            </marker>
+                        </defs>
+                        
+                        <line x1="140" y1="100" x2="260" y2="100" stroke="#ff9800" stroke-width="2" marker-end="url(#arrow)"/>
+                        <text x="200" y="90" text-anchor="middle" fill="#ff9800" font-weight="bold">FOLLOWS</text>
+                        
+                        <line x1="120" y1="135" x2="185" y2="180" stroke="#ff9800" stroke-width="2" marker-end="url(#arrow)"/>
+                        <text x="140" y="175" fill="#ff9800" font-weight="bold">WROTE</text>
+                        
+                        <line x1="280" y1="135" x2="215" y2="180" stroke="#ff9800" stroke-width="2" marker-end="url(#arrow)"/>
+                        <text x="260" y="175" fill="#ff9800" font-weight="bold">LIKED</text>
+                    </svg>
+                </div>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Query Example (Cypher for Neo4j):</strong>
+                <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; margin: 10px 0;"><code>// Find friends of friends
+MATCH (me:User {name: 'Alice'})
+      -[:FOLLOWS]->(friend)
+      -[:FOLLOWS]->(fof)
+RETURN fof.name
+
+// Shortest path between two users
+MATCH path = shortestPath(
+  (alice:User {name: 'Alice'})
+  -[*]-(bob:User {name: 'Bob'})
+)
+RETURN path</code></pre>
+            </div>
+            
+            <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Examples:</strong> Neo4j, Amazon Neptune, JanusGraph
+            </div>
+            
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Use Cases:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Social networks</li>
+                    <li>Recommendation engines</li>
+                    <li>Fraud detection</li>
+                    <li>Knowledge graphs</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>5️⃣ NewSQL Databases</h2>
+        
+        <div class="definition">
+            <h4>Best of Both Worlds</h4>
+            <p><strong>NewSQL:</strong> Modern databases that provide SQL interface and ACID guarantees while scaling horizontally like NoSQL.</p>
+            <p><strong>Goal:</strong> Don't sacrifice consistency for scalability!</p>
+        </div>
+        
+        <div class="example">
+            <h4>NewSQL Examples:</h4>
+            
+            <div class="nosql-card">
+                <h4>🌐 Google Spanner</h4>
+                <ul>
+                    <li><strong>Consistency:</strong> External consistency (stronger than linearizability!)</li>
+                    <li><strong>Scalability:</strong> Globally distributed, petabytes of data</li>
+                    <li><strong>Innovation:</strong> TrueTime API (synchronized clocks with GPS + atomic)</li>
+                    <li><strong>SQL:</strong> Full SQL support with ACID</li>
+                </ul>
+            </div>
+            
+            <div class="nosql-card">
+                <h4>🪳 CockroachDB</h4>
+                <ul>
+                    <li><strong>Consistency:</strong> Serializable isolation</li>
+                    <li><strong>Scalability:</strong> Horizontal scaling, Raft consensus</li>
+                    <li><strong>Geo-replication:</strong> Multi-region support</li>
+                    <li><strong>SQL:</strong> PostgreSQL compatible</li>
+                </ul>
+            </div>
+            
+            <div class="nosql-card">
+                <h4>⚡ VoltDB</h4>
+                <ul>
+                    <li><strong>Consistency:</strong> Strong consistency, ACID</li>
+                    <li><strong>Performance:</strong> In-memory, extremely fast</li>
+                    <li><strong>Partitioning:</strong> Automatic sharding</li>
+                    <li><strong>SQL:</strong> Full ANSI SQL</li>
+                </ul>
+            </div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Type</th>
+                <th>Data Model</th>
+                <th>Consistency</th>
+                <th>Scalability</th>
+                <th>Query Language</th>
+                <th>Best For</th>
+            </tr>
+            <tr>
+                <td><strong>Traditional SQL</strong></td>
+                <td>Relational (tables)</td>
+                <td>✅ ACID</td>
+                <td>❌ Vertical only</td>
+                <td>SQL</td>
+                <td>Complex queries, transactions</td>
+            </tr>
+            <tr>
+                <td><strong>Key-Value</strong></td>
+                <td>Key → Value</td>
+                <td>⚠️ Eventual</td>
+                <td>✅ Excellent</td>
+                <td>GET/PUT</td>
+                <td>Caching, sessions</td>
+            </tr>
+            <tr>
+                <td><strong>Document</strong></td>
+                <td>JSON documents</td>
+                <td>⚠️ Tunable</td>
+                <td>✅ Excellent</td>
+                <td>JSON queries</td>
+                <td>Content, catalogs</td>
+            </tr>
+            <tr>
+                <td><strong>Column-Family</strong></td>
+                <td>Wide columns</td>
+                <td>⚠️ Eventual</td>
+                <td>✅ Excellent</td>
+                <td>CQL/API</td>
+                <td>Time-series, analytics</td>
+            </tr>
+            <tr>
+                <td><strong>Graph</strong></td>
+                <td>Nodes + Edges</td>
+                <td>⚠️ Varies</td>
+                <td>⚠️ Moderate</td>
+                <td>Cypher/Gremlin</td>
+                <td>Social, recommendations</td>
+            </tr>
+            <tr>
+                <td><strong>NewSQL</strong></td>
+                <td>Relational</td>
+                <td>✅ ACID</td>
+                <td>✅ Excellent</td>
+                <td>SQL</td>
+                <td>Everything (expensive!)</td>
+            </tr>
+        </table>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: Database Type Demos</h3>
+            <p>See different database types in action:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demoSharding()">Sharding Strategy</button>
+                <button class="demo-button" onclick="demoKeyValue()">Key-Value Store</button>
+                <button class="demo-button" onclick="demoDocument()">Document Store</button>
+                <button class="demo-button" onclick="demoDistributedJoin()">Distributed Join</button>
+            </div>
+            <div id="dbDemo" class="demo-output">Click a button to see database concepts...</div>
+        </div>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 13</h3>
+            <ul style="line-height: 2;">
+                <li><strong>Distributed databases</strong> - partition data across nodes for scalability</li>
+                <li><strong>Sharding strategies</strong> - Range (ordered), Hash (uniform), Directory (flexible)</li>
+                <li><strong>Consistent hashing</strong> - minimizes data movement when adding nodes</li>
+                <li><strong>Query processing</strong> - parse, distribute, parallelize, aggregate</li>
+                <li><strong>Distributed joins</strong> - broadcast, shuffle, or co-locate</li>
+                <li><strong>NoSQL types</strong> - Key-Value, Document, Column-Family, Graph</li>
+                <li><strong>Key-Value</strong> - simplest, fastest, limited queries</li>
+                <li><strong>Document</strong> - flexible schema, JSON queries</li>
+                <li><strong>Column-Family</strong> - wide tables, time-series</li>
+                <li><strong>Graph</strong> - relationships, traversals</li>
+                <li><strong>NewSQL</strong> - SQL + Horizontal scaling + ACID</li>
+                <li><strong>Trade-off</strong> - Choose based on data model and query patterns</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>Why is sharding necessary for large-scale databases?</li>
+                <li>Compare range-based vs hash-based partitioning - when to use each?</li>
+                <li>How does consistent hashing improve on simple hash partitioning?</li>
+                <li>What makes distributed joins expensive? How to optimize?</li>
+                <li>When would you choose Key-Value over Document database?</li>
+                <li>Why are column-family stores good for time-series data?</li>
+                <li>What problems do graph databases solve that relational databases struggle with?</li>
+                <li>How do NewSQL databases achieve both ACID and scalability?</li>
+                <li>Design a system for: (a) user sessions, (b) social network, (c) sensor data. Choose DB type for each.</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function demoSharding() {
+            const output = document.getElementById('dbDemo');
+            output.textContent = '=== SHARDING STRATEGY COMPARISON ===\n\n';
+            
+            output.textContent += 'Dataset: 1 million users (user_id: 1 to 1,000,000)\n';
+            output.textContent += 'Shards: 4 nodes\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- RANGE-BASED SHARDING ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Partition ranges:\n';
+            output.textContent += '  Shard 1: user_id 1 - 250,000\n';
+            output.textContent += '  Shard 2: user_id 250,001 - 500,000\n';
+            output.textContent += '  Shard 3: user_id 500,001 - 750,000\n';
+            output.textContent += '  Shard 4: user_id 750,001 - 1,000,000\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Query: Get user_id = 125,000\n';
+            output.textContent += '  → 125,000 in range 1-250,000\n';
+            output.textContent += '  → Route to Shard 1 ✓\n';
+            output.textContent += '  → Single shard query (FAST!) ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Range Query: Get users 100,000 - 300,000\n';
+            output.textContent += '  → Spans Shard 1 and Shard 2\n';
+            output.textContent += '  → Query 2 shards (still efficient) ✓\n\n';
+            
+            await sleep(1000);
+            output.textContent += '--- HASH-BASED SHARDING ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Partition function: hash(user_id) % 4\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Query: Get user_id = 125,000\n';
+            output.textContent += '  → hash(125,000) % 4 = 2\n';
+            output.textContent += '  → Route to Shard 2 ✓\n';
+            output.textContent += '  → Single shard query (FAST!) ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Range Query: Get users 100,000 - 300,000\n';
+            output.textContent += '  → Keys hashed to different shards!\n';
+            output.textContent += '  → Must query ALL 4 shards ⚠️\n';
+            output.textContent += '  → Then filter results (SLOWER)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Summary:\n';
+            output.textContent += '  Range: Great for range queries, risk hot spots\n';
+            output.textContent += '  Hash: Uniform distribution, poor for ranges';
+        }
+        
+        async function demoKeyValue() {
+            const output = document.getElementById('dbDemo');
+            output.textContent = '=== KEY-VALUE STORE (Redis) ===\n\n';
+            
+            output.textContent += 'Simple API: GET, SET, DELETE\n\n';
+            
+            await sleep(500);
+            output.textContent += '// Store user session\n';
+            output.textContent += 'SET("session:abc123", "{userId: 1001, cart: [...]}")\n';
+            await sleep(300);
+            output.textContent += '  → Stored ✓\n';
+            output.textContent += '  → Time: <1ms (in-memory) ⚡\n\n';
+            
+            await sleep(500);
+            output.textContent += '// Retrieve session\n';
+            output.textContent += 'GET("session:abc123")\n';
+            await sleep(300);
+            output.textContent += '  → Returns: {userId: 1001, cart: [...]}\n';
+            output.textContent += '  → Time: <1ms ⚡\n\n';
+            
+            await sleep(500);
+            output.textContent += '// TTL (Time-to-Live)\n';
+            output.textContent += 'SETEX("session:abc123", 3600, "{...}")\n';
+            output.textContent += '  → Auto-expires in 1 hour ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '// Complex query?\n';
+            output.textContent += 'FIND_WHERE("cart contains \'laptop\'")\n';
+            await sleep(300);
+            output.textContent += '  → ❌ NOT SUPPORTED!\n';
+            output.textContent += '  → Must scan all keys (slow)\n\n';
+            
+            output.textContent += 'Key-Value: Simple and FAST!\n';
+            output.textContent += 'But limited to key-based access.';
+        }
+        
+        async function demoDocument() {
+            const output = document.getElementById('dbDemo');
+            output.textContent = '=== DOCUMENT STORE (MongoDB) ===\n\n';
+            
+            output.textContent += '// Insert document\n';
+            output.textContent += 'db.users.insert({\n';
+            output.textContent += '  name: "Alice",\n';
+            output.textContent += '  age: 30,\n';
+            output.textContent += '  email: "alice@example.com",\n';
+            output.textContent += '  addresses: [\n';
+            output.textContent += '    {type: "home", city: "NYC"},\n';
+            output.textContent += '    {type: "work", city: "SF"}\n';
+            output.textContent += '  ]\n';
+            output.textContent += '})\n';
+            await sleep(500);
+            output.textContent += '  → Inserted ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '// Query inside nested fields\n';
+            output.textContent += 'db.users.find({"addresses.city": "NYC"})\n';
+            await sleep(300);
+            output.textContent += '  → Returns: Alice (has NYC address) ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '// Complex query\n';
+            output.textContent += 'db.users.find({\n';
+            output.textContent += '  age: {$gt: 25},\n';
+            output.textContent += '  "addresses.city": "NYC"\n';
+            output.textContent += '})\n';
+            await sleep(300);
+            output.textContent += '  → Can query nested data! ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '// Update nested field\n';
+            output.textContent += 'db.users.update(\n';
+            output.textContent += '  {name: "Alice"},\n';
+            output.textContent += '  {$push: {addresses: {type: "vacation", city: "Paris"}}}\n';
+            output.textContent += ')\n';
+            await sleep(300);
+            output.textContent += '  → Added new address ✓\n\n';
+            
+            output.textContent += 'Document stores: Flexible schema!\n';
+            output.textContent += 'Can query inside documents.';
+        }
+        
+        async function demoDistributedJoin() {
+            const output = document.getElementById('dbDemo');
+            output.textContent = '=== DISTRIBUTED JOIN ===\n\n';
+            
+            output.textContent += 'Tables:\n';
+            output.textContent += '  Users: 1M rows, partitioned by user_id (4 shards)\n';
+            output.textContent += '  Orders: 10M rows, partitioned by order_id (4 shards)\n\n';
+            
+            output.textContent += 'Query: Get all orders for users in NYC\n';
+            output.textContent += 'SQL: SELECT * FROM Users u JOIN Orders o\n';
+            output.textContent += '     ON u.id = o.user_id WHERE u.city = "NYC"\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- STRATEGY: BROADCAST JOIN ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Step 1: Filter Users\n';
+            output.textContent += '  → Query all 4 user shards for city="NYC"\n';
+            output.textContent += '  → Found 100 users in NYC\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 2: Broadcast users to order shards\n';
+            output.textContent += '  → Send 100 NYC users to all 4 order shards\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 3: Local join on each order shard\n';
+            output.textContent += '  Shard 1: Join orders with NYC users → 25 matches\n';
+            output.textContent += '  Shard 2: Join orders with NYC users → 30 matches\n';
+            output.textContent += '  Shard 3: Join orders with NYC users → 20 matches\n';
+            output.textContent += '  Shard 4: Join orders with NYC users → 25 matches\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 4: Combine results\n';
+            output.textContent += '  → Total: 100 orders from NYC users ✓\n\n';
+            
+            output.textContent += 'Why broadcast?\n';
+            output.textContent += '  Users table is small (100 after filter)\n';
+            output.textContent += '  Cheaper to broadcast than shuffle orders\n\n';
+            
+            output.textContent += 'Cost: Network transfer of 100 users to 4 nodes\n';
+            output.textContent += 'Alternative: Shuffle both tables (much more expensive!)';
+        }
+    </script>
+</body>
+</html>

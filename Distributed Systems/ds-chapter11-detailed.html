@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 11: Distributed Transactions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+        }
+        
+        .acid-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .acid-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .acid-icon {
+            font-size: 3em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 30px 0;
+        }
+        
+        .timeline-step {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            top: 25px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 3px solid white;
+        }
+        
+        .transaction {
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .lock-visual {
+            display: inline-block;
+            background: #f44336;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin: 5px;
+            font-weight: bold;
+        }
+        
+        .lock-shared {
+            background: #4caf50;
+        }
+        
+        .lock-exclusive {
+            background: #f44336;
+        }
+        
+        .wait-graph {
+            background: white;
+            border: 2px solid #f44336;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .deadlock {
+            background: linear-gradient(135deg, #f44336 0%, #e57373 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .schedule {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .operation {
+            background: #e3f2fd;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin: 5px 0;
+            font-family: monospace;
+        }
+        
+        .serializable {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .not-serializable {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💳 Chapter 11: Distributed Transactions</h1>
+        
+        <div class="problem-box">
+            <h3>🤔 The Challenge</h3>
+            <p style="font-size: 1.2em;"><strong>How do we ensure multiple operations across multiple databases succeed or fail together?</strong></p>
+            <p>A transaction might need to update data in New York, London, and Tokyo. Either ALL updates succeed or ALL fail - no partial updates!</p>
+            <p><strong>Example:</strong> Transfer money between two banks. Can't deduct from one bank and fail to add to another!</p>
+        </div>
+        
+        <h2>1️⃣ ACID Properties</h2>
+        
+        <div class="definition">
+            <h4>What is ACID?</h4>
+            <p><strong>ACID</strong> is a set of properties that guarantee reliable transaction processing. The gold standard for database transactions.</p>
+            <p><strong>Mnemonic:</strong> <span class="highlight">A</span>tomicity, <span class="highlight">C</span>onsistency, <span class="highlight">I</span>solation, <span class="highlight">D</span>urability</p>
+        </div>
+        
+        <div class="grid-2">
+            <div class="acid-card">
+                <div class="acid-icon">⚛️</div>
+                <h4>A - Atomicity</h4>
+                <p><strong>All or Nothing:</strong> Transaction either completes fully or has no effect at all.</p>
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Example:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Transfer $100: Deduct from Alice, Add to Bob</li>
+                        <li>If deduct succeeds but add fails → ROLLBACK both</li>
+                        <li>Can't have Alice lose $100 without Bob gaining it!</li>
+                    </ul>
+                </div>
+                <div style="background: #ffebee; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Without Atomicity:</strong> Partial updates → Data corruption!
+                </div>
+            </div>
+            
+            <div class="acid-card">
+                <div class="acid-icon">✅</div>
+                <h4>C - Consistency</h4>
+                <p><strong>Valid State:</strong> Transaction moves database from one valid state to another.</p>
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Example:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Constraint: Account balance ≥ 0</li>
+                        <li>Transaction maintains this invariant</li>
+                        <li>If would violate → transaction rejected</li>
+                    </ul>
+                </div>
+                <div style="background: #ffebee; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Without Consistency:</strong> Invalid states → Business logic broken!
+                </div>
+            </div>
+            
+            <div class="acid-card">
+                <div class="acid-icon">🔒</div>
+                <h4>I - Isolation</h4>
+                <p><strong>No Interference:</strong> Concurrent transactions don't interfere with each other.</p>
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Example:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Two users booking the last airplane seat</li>
+                        <li>Transactions run as if serialized (one after the other)</li>
+                        <li>Only one succeeds, other sees "sold out"</li>
+                    </ul>
+                </div>
+                <div style="background: #ffebee; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Without Isolation:</strong> Race conditions → Double booking!
+                </div>
+            </div>
+            
+            <div class="acid-card">
+                <div class="acid-icon">💾</div>
+                <h4>D - Durability</h4>
+                <p><strong>Permanent:</strong> Once committed, changes survive crashes.</p>
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Example:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Transaction commits, you get confirmation</li>
+                        <li>Power failure 1 second later</li>
+                        <li>After restart → Your transaction is still there!</li>
+                    </ul>
+                </div>
+                <div style="background: #ffebee; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Without Durability:</strong> Lost transactions → Angry customers!
+                </div>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>🏦 Complete ACID Example: Bank Transfer</h4>
+            
+            <div class="visual-diagram">
+                <strong>Scenario:</strong> Transfer $100 from Alice to Bob
+                
+                <div style="margin: 20px 0;">
+                    <div class="transaction">
+                        BEGIN TRANSACTION
+                    </div>
+                    
+                    <div class="timeline">
+                        <div class="timeline-step">
+                            <strong>Step 1:</strong> Check Alice's balance ≥ $100
+                            <div style="margin-top: 10px; font-family: monospace;">
+                                Alice: $500 ✓ (sufficient funds)
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-step">
+                            <strong>Step 2:</strong> Deduct $100 from Alice
+                            <div style="margin-top: 10px; font-family: monospace;">
+                                Alice: $500 → $400
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-step">
+                            <strong>Step 3:</strong> Add $100 to Bob
+                            <div style="margin-top: 10px; font-family: monospace;">
+                                Bob: $300 → $400
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-step" style="border-left-color: #4caf50;">
+                            <strong>Step 4:</strong> All checks pass
+                            <div style="margin-top: 10px;">
+                                ✓ Atomicity: Both updates done<br>
+                                ✓ Consistency: Alice ≥ 0, Bob ≥ 0<br>
+                                ✓ Isolation: No other transaction sees intermediate state<br>
+                                ✓ Durability: Write to disk before commit
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="transaction" style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);">
+                        COMMIT ✓
+                    </div>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                    <strong>Result:</strong> $100 moved atomically, database remains consistent, changes are permanent!
+                </div>
+            </div>
+        </div>
+        
+        <h2>2️⃣ Distributed Transaction Processing</h2>
+        
+        <div class="definition">
+            <h4>The Distributed Challenge</h4>
+            <p>In distributed systems, a transaction might span <strong>multiple databases on different servers</strong>. How do we maintain ACID across all of them?</p>
+            <p><strong>Solution:</strong> Use 2PC (Chapter 10!) for atomic commitment</p>
+        </div>
+        
+        <div class="example">
+            <h4>🌐 Distributed Transaction Example</h4>
+            
+            <div class="visual-diagram">
+                <strong>Scenario:</strong> E-commerce order spanning 3 databases
+                
+                <div style="margin: 20px 0; background: white; padding: 20px; border-radius: 8px;">
+                    <strong>Transaction involves:</strong>
+                    <ul>
+                        <li><strong>Inventory DB (Server A):</strong> Decrease product stock by 1</li>
+                        <li><strong>Order DB (Server B):</strong> Create order record</li>
+                        <li><strong>Payment DB (Server C):</strong> Charge customer $50</li>
+                    </ul>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <strong>Using 2PC:</strong>
+                    <div class="timeline">
+                        <div class="timeline-step">
+                            Phase 1: Coordinator asks all DBs "Can you commit?"
+                        </div>
+                        <div class="timeline-step">
+                            Inventory DB: Check stock available → YES ✓
+                        </div>
+                        <div class="timeline-step">
+                            Order DB: Check constraints → YES ✓
+                        </div>
+                        <div class="timeline-step">
+                            Payment DB: Check card valid → YES ✓
+                        </div>
+                        <div class="timeline-step" style="border-left-color: #4caf50;">
+                            Phase 2: All voted YES → Coordinator sends COMMIT
+                        </div>
+                        <div class="timeline-step" style="border-left-color: #4caf50;">
+                            All DBs commit atomically! ✓
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h2>3️⃣ Concurrency Control</h2>
+        
+        <div class="definition">
+            <h4>Why Concurrency Control?</h4>
+            <p>When multiple transactions run concurrently, they can interfere with each other. <strong>Concurrency control</strong> ensures isolation (the I in ACID).</p>
+            <p><strong>Goal:</strong> Make concurrent execution equivalent to some serial execution</p>
+        </div>
+        
+        <div class="warning">
+            <h4>⚠️ Problems Without Concurrency Control</h4>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>1. Lost Update</strong>
+                <div style="margin: 10px 0; font-family: monospace; font-size: 0.95em;">
+                    T1: Read X (100)<br>
+                    T2: Read X (100)<br>
+                    T1: X = X + 50 → Write 150<br>
+                    T2: X = X + 30 → Write 130<br>
+                    <span style="color: #f44336; font-weight: bold;">Result: X = 130 (lost T1's +50!) ❌</span>
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>2. Dirty Read</strong>
+                <div style="margin: 10px 0; font-family: monospace; font-size: 0.95em;">
+                    T1: Write X = 200<br>
+                    T2: Read X (200) ← Dirty read!<br>
+                    T1: ROLLBACK (X back to 100)<br>
+                    <span style="color: #f44336; font-weight: bold;">T2 read value that never committed! ❌</span>
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>3. Non-Repeatable Read</strong>
+                <div style="margin: 10px 0; font-family: monospace; font-size: 0.95em;">
+                    T1: Read X (100)<br>
+                    T2: Write X = 200, COMMIT<br>
+                    T1: Read X (200) ← Different value!<br>
+                    <span style="color: #f44336; font-weight: bold;">Same transaction saw two different values! ❌</span>
+                </div>
+            </div>
+        </div>
+        
+        <h3>📊 Serializability</h3>
+        
+        <div class="key-point">
+            <h4>The Gold Standard</h4>
+            <p><strong>Serializability:</strong> Concurrent execution of transactions is equivalent to some serial (one-at-a-time) execution.</p>
+            <p><strong>In other words:</strong> Result looks like transactions ran sequentially, even though they ran concurrently.</p>
+        </div>
+        
+        <div class="example">
+            <h4>Serializable vs Non-Serializable</h4>
+            
+            <div class="schedule serializable">
+                <h4>✓ Serializable Schedule</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 15px 0;">
+                    <div>
+                        <strong>Concurrent Execution:</strong>
+                        <div class="operation">T1: Read(X) = 100</div>
+                        <div class="operation">T1: X = X + 50</div>
+                        <div class="operation">T1: Write(X) = 150</div>
+                        <div class="operation">T1: COMMIT</div>
+                        <div class="operation">T2: Read(X) = 150</div>
+                        <div class="operation">T2: X = X + 30</div>
+                        <div class="operation">T2: Write(X) = 180</div>
+                        <div class="operation">T2: COMMIT</div>
+                    </div>
+                    <div>
+                        <strong>Equivalent Serial Order:</strong>
+                        <div class="operation">T1 → T2</div>
+                        <div style="margin-top: 10px; padding: 10px; background: #e8f5e9; border-radius: 5px;">
+                            T1 runs completely, then T2<br>
+                            Final X = 180 ✓
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="schedule not-serializable">
+                <h4>✗ Non-Serializable Schedule</h4>
+                <div style="margin: 15px 0;">
+                    <strong>Interleaved Execution:</strong>
+                    <div class="operation">T1: Read(X) = 100</div>
+                    <div class="operation">T2: Read(X) = 100</div>
+                    <div class="operation">T1: Write(X) = 150</div>
+                    <div class="operation">T2: Write(X) = 130 ← Overwrites T1!</div>
+                    <div style="margin-top: 10px; padding: 10px; background: #ffebee; border-radius: 5px;">
+                        Final X = 130 (lost T1's update)<br>
+                        NOT equivalent to any serial execution ❌
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h2>4️⃣ Two-Phase Locking (2PL)</h2>
+        
+        <div class="definition">
+            <h4>What is Two-Phase Locking?</h4>
+            <p><strong>2PL</strong> is a concurrency control protocol that guarantees serializability using locks.</p>
+            <p><strong>Two phases:</strong></p>
+            <ol style="margin-top: 10px;">
+                <li><strong>Growing Phase:</strong> Transaction can acquire locks but not release</li>
+                <li><strong>Shrinking Phase:</strong> Transaction can release locks but not acquire</li>
+            </ol>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Two-Phase Locking Timeline</h4>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <svg width="600" height="200" style="display: block; margin: 0 auto;">
+                    <!-- Timeline -->
+                    <line x1="50" y1="100" x2="550" y2="100" stroke="#667eea" stroke-width="3"/>
+                    
+                    <!-- Growing Phase -->
+                    <rect x="50" y="50" width="250" height="100" fill="#4caf50" opacity="0.2" rx="10"/>
+                    <text x="175" y="30" text-anchor="middle" font-weight="bold" fill="#4caf50">GROWING PHASE</text>
+                    <text x="175" y="170" text-anchor="middle" font-size="14" fill="#666">Acquire locks only ↑</text>
+                    
+                    <!-- Shrinking Phase -->
+                    <rect x="300" y="50" width="250" height="100" fill="#f44336" opacity="0.2" rx="10"/>
+                    <text x="425" y="30" text-anchor="middle" font-weight="bold" fill="#f44336">SHRINKING PHASE</text>
+                    <text x="425" y="170" text-anchor="middle" font-size="14" fill="#666">Release locks only ↓</text>
+                    
+                    <!-- Lock Point -->
+                    <circle cx="300" cy="100" r="10" fill="#ff9800"/>
+                    <text x="300" y="190" text-anchor="middle" font-weight="bold" fill="#ff9800">Lock Point</text>
+                    
+                    <!-- Events -->
+                    <circle cx="100" cy="100" r="5" fill="#4caf50"/>
+                    <text x="100" y="85" text-anchor="middle" font-size="12">Lock X</text>
+                    
+                    <circle cx="200" cy="100" r="5" fill="#4caf50"/>
+                    <text x="200" y="85" text-anchor="middle" font-size="12">Lock Y</text>
+                    
+                    <circle cx="400" cy="100" r="5" fill="#f44336"/>
+                    <text x="400" y="120" text-anchor="middle" font-size="12">Unlock X</text>
+                    
+                    <circle cx="500" cy="100" r="5" fill="#f44336"/>
+                    <text x="500" y="120" text-anchor="middle" font-size="12">Unlock Y</text>
+                </svg>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>Lock Types:</h4>
+            <ul>
+                <li><strong>Shared Lock (S):</strong> Multiple transactions can read simultaneously</li>
+                <li><strong>Exclusive Lock (X):</strong> Only one transaction can write, blocks all others</li>
+            </ul>
+            
+            <div style="margin: 15px 0;">
+                <table class="comparison-table" style="margin-top: 15px;">
+                    <tr>
+                        <th></th>
+                        <th>Shared Lock</th>
+                        <th>Exclusive Lock</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Shared Lock</strong></td>
+                        <td style="background: #e8f5e9; color: #4caf50; font-weight: bold;">✓ Compatible</td>
+                        <td style="background: #ffebee; color: #f44336; font-weight: bold;">✗ Conflict</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Exclusive Lock</strong></td>
+                        <td style="background: #ffebee; color: #f44336; font-weight: bold;">✗ Conflict</td>
+                        <td style="background: #ffebee; color: #f44336; font-weight: bold;">✗ Conflict</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <pre><code>// Two-Phase Locking Implementation
+class TwoPhaseLocker {
+    constructor() {
+        this.locks = new Map(); // resource -> {type, holders}
+        this.transactionLocks = new Map(); // txId -> Set of locks held
+        this.phase = new Map(); // txId -> 'GROWING' or 'SHRINKING'
+    }
+    
+    acquireLock(txId, resource, lockType) {
+        // Check phase
+        if (this.phase.get(txId) === 'SHRINKING') {
+            throw new Error('Cannot acquire lock in SHRINKING phase!');
+        }
+        
+        this.phase.set(txId, 'GROWING');
+        
+        const currentLock = this.locks.get(resource);
+        
+        if (!currentLock) {
+            // No lock exists, grant it
+            this.grantLock(txId, resource, lockType);
+            return true;
+        }
+        
+        // Check compatibility
+        if (lockType === 'S' && currentLock.type === 'S') {
+            // Shared locks are compatible
+            currentLock.holders.add(txId);
+            this.trackLock(txId, resource);
+            console.log(`T${txId}: Acquired SHARED lock on ${resource}`);
+            return true;
+        }
+        
+        if (currentLock.holders.size === 1 && currentLock.holders.has(txId)) {
+            // We already hold the lock, can upgrade
+            if (lockType === 'X' && currentLock.type === 'S') {
+                currentLock.type = 'X';
+                console.log(`T${txId}: Upgraded to EXCLUSIVE lock on ${resource}`);
+                return true;
+            }
+        }
+        
+        // Lock conflict - must wait
+        console.log(`T${txId}: BLOCKED on ${resource} (held by T${Array.from(currentLock.holders)})`);
+        throw new Error('Lock conflict - transaction must wait');
+    }
+    
+    grantLock(txId, resource, lockType) {
+        this.locks.set(resource, {
+            type: lockType,
+            holders: new Set([txId])
+        });
+        
+        this.trackLock(txId, resource);
+        
+        const lockName = lockType === 'S' ? 'SHARED' : 'EXCLUSIVE';
+        console.log(`T${txId}: Acquired ${lockName} lock on ${resource}`);
+    }
+    
+    trackLock(txId, resource) {
+        if (!this.transactionLocks.has(txId)) {
+            this.transactionLocks.set(txId, new Set());
+        }
+        this.transactionLocks.get(txId).add(resource);
+    }
+    
+    releaseLock(txId, resource) {
+        // Transition to SHRINKING phase
+        this.phase.set(txId, 'SHRINKING');
+        
+        const lock = this.locks.get(resource);
+        if (lock && lock.holders.has(txId)) {
+            lock.holders.delete(txId);
+            
+            if (lock.holders.size === 0) {
+                this.locks.delete(resource);
+            }
+            
+            console.log(`T${txId}: Released lock on ${resource}`);
+        }
+    }
+    
+    releaseAllLocks(txId) {
+        const resources = this.transactionLocks.get(txId);
+        if (resources) {
+            for (const resource of resources) {
+                this.releaseLock(txId, resource);
+            }
+            this.transactionLocks.delete(txId);
+        }
+        this.phase.delete(txId);
+    }
+}
+
+// Usage Example
+const locker = new TwoPhaseLocker();
+
+// Transaction 1
+try {
+    locker.acquireLock(1, 'account_A', 'X'); // Exclusive for write
+    locker.acquireLock(1, 'account_B', 'X');
+    
+    // Do transaction work...
+    console.log('T1: Transferring money...');
+    
+    // Commit - release all locks
+    locker.releaseAllLocks(1);
+    console.log('T1: COMMITTED');
+} catch (error) {
+    console.error('T1:', error.message);
+    locker.releaseAllLocks(1); // Abort
+}</code></pre>
+        
+        <h3>🔐 Strict Two-Phase Locking (Strict 2PL)</h3>
+        
+        <div class="key-point">
+            <h4>Enhanced 2PL</h4>
+            <p><strong>Strict 2PL:</strong> Hold ALL locks until transaction commits or aborts.</p>
+            <p><strong>Benefit:</strong> Prevents cascading aborts (if T1 aborts, T2 doesn't need to abort)</p>
+            <p><strong>Most common in practice!</strong></p>
+        </div>
+        
+        <h2>5️⃣ Optimistic Concurrency Control (OCC)</h2>
+        
+        <div class="definition">
+            <h4>Different Approach: Assume No Conflicts</h4>
+            <p><strong>Philosophy:</strong> Don't lock during execution. Instead, validate before commit!</p>
+            <p><strong>Assumption:</strong> Conflicts are rare, so don't pay locking overhead</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Three Phases of OCC</h4>
+            
+            <div class="timeline">
+                <div class="timeline-step">
+                    <strong>Phase 1: READ</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Transaction reads data into private workspace</li>
+                        <li>Makes changes locally (not visible to others)</li>
+                        <li>No locks acquired!</li>
+                    </ul>
+                </div>
+                
+                <div class="timeline-step" style="border-left-color: #ff9800;">
+                    <strong>Phase 2: VALIDATE</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Check if any conflicts occurred</li>
+                        <li>Did any other transaction modify data we read?</li>
+                        <li>If conflict → ABORT</li>
+                        <li>If no conflict → Proceed to commit</li>
+                    </ul>
+                </div>
+                
+                <div class="timeline-step" style="border-left-color: #4caf50;">
+                    <strong>Phase 3: WRITE (if validated)</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Write changes to database</li>
+                        <li>Make changes visible to all</li>
+                        <li>COMMIT</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Optimistic Concurrency Control Implementation
+class OptimisticConcurrencyControl {
+    constructor() {
+        this.database = new Map(); // resource -> {value, version}
+        this.transactions = new Map(); // txId -> transaction info
+    }
+    
+    begin(txId) {
+        this.transactions.set(txId, {
+            readSet: new Map(), // resource -> version read
+            writeSet: new Map(), // resource -> new value
+            startTime: Date.now()
+        });
+        console.log(`T${txId}: BEGIN (no locks acquired)`);
+    }
+    
+    // PHASE 1: READ (into private workspace)
+    read(txId, resource) {
+        const tx = this.transactions.get(txId);
+        
+        // Check if we wrote it in this transaction
+        if (tx.writeSet.has(resource)) {
+            return tx.writeSet.get(resource);
+        }
+        
+        // Read from database
+        const data = this.database.get(resource) || { value: 0, version: 0 };
+        
+        // Track what we read and its version
+        tx.readSet.set(resource, data.version);
+        
+        console.log(`T${txId}: Read ${resource} = ${data.value} (v${data.version})`);
+        return data.value;
+    }
+    
+    // PHASE 1: WRITE (to private workspace)
+    write(txId, resource, value) {
+        const tx = this.transactions.get(txId);
+        
+        // Write to private workspace
+        tx.writeSet.set(resource, value);
+        
+        console.log(`T${txId}: Write ${resource} = ${value} (private workspace)`);
+    }
+    
+    // PHASE 2: VALIDATE
+    validate(txId) {
+        const tx = this.transactions.get(txId);
+        
+        console.log(`T${txId}: VALIDATING...`);
+        
+        // Check if any data we read has been modified
+        for (const [resource, versionRead] of tx.readSet.entries()) {
+            const current = this.database.get(resource);
+            const currentVersion = current ? current.version : 0;
+            
+            if (currentVersion > versionRead) {
+                console.log(`T${txId}: VALIDATION FAILED! ${resource} was modified`);
+                console.log(`  Read version: ${versionRead}, Current: ${currentVersion}`);
+                return false;
+            }
+        }
+        
+        console.log(`T${txId}: VALIDATION PASSED ✓`);
+        return true;
+    }
+    
+    // PHASE 3: COMMIT (if validation passed)
+    commit(txId) {
+        const tx = this.transactions.get(txId);
+        
+        // Validate first
+        if (!this.validate(txId)) {
+            this.abort(txId);
+            throw new Error('Validation failed - transaction aborted');
+        }
+        
+        // Write to database
+        console.log(`T${txId}: COMMITTING...`);
+        
+        for (const [resource, value] of tx.writeSet.entries()) {
+            const current = this.database.get(resource);
+            const newVersion = current ? current.version + 1 : 1;
+            
+            this.database.set(resource, {
+                value: value,
+                version: newVersion
+            });
+            
+            console.log(`T${txId}: Committed ${resource} = ${value} (v${newVersion})`);
+        }
+        
+        this.transactions.delete(txId);
+        console.log(`T${txId}: COMMITTED ✓`);
+    }
+    
+    abort(txId) {
+        console.log(`T${txId}: ABORTED (rolling back)`);
+        this.transactions.delete(txId);
+    }
+}
+
+// Usage Example
+const occ = new OptimisticConcurrencyControl();
+
+// Transaction 1
+occ.begin(1);
+const balance = occ.read(1, 'account_A'); // Read: 100
+occ.write(1, 'account_A', balance + 50); // Write: 150 (private)
+occ.commit(1); // Validate and commit
+
+// Transaction 2 (concurrent)
+occ.begin(2);
+const balance2 = occ.read(2, 'account_A'); // Read: 150 (after T1)
+occ.write(2, 'account_A', balance2 + 30); // Write: 180
+occ.commit(2); // Should succeed</code></pre>
+        
+        <div class="key-point">
+            <h4>✅ Advantages of OCC:</h4>
+            <ul>
+                <li><strong>No lock overhead:</strong> during execution</li>
+                <li><strong>No deadlocks:</strong> No locks to deadlock on!</li>
+                <li><strong>Better for read-heavy workloads:</strong> Reads don't block</li>
+                <li><strong>Good when conflicts are rare</strong></li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Disadvantages of OCC:</h4>
+            <ul>
+                <li><strong>Wasted work:</strong> If validation fails, entire transaction is retried</li>
+                <li><strong>Starvation possible:</strong> Long transactions might keep failing validation</li>
+                <li><strong>Not good for write-heavy:</strong> Many conflicts → many aborts</li>
+            </ul>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Aspect</th>
+                <th>Pessimistic (2PL)</th>
+                <th>Optimistic (OCC)</th>
+            </tr>
+            <tr>
+                <td><strong>When to use</strong></td>
+                <td>High contention (conflicts likely)</td>
+                <td>Low contention (conflicts rare)</td>
+            </tr>
+            <tr>
+                <td><strong>Overhead</strong></td>
+                <td>Lock management always</td>
+                <td>Validation only at commit</td>
+            </tr>
+            <tr>
+                <td><strong>Deadlocks</strong></td>
+                <td>Possible (need detection)</td>
+                <td>Not possible</td>
+            </tr>
+            <tr>
+                <td><strong>Wasted work</strong></td>
+                <td>Waiting on locks</td>
+                <td>Aborted transactions</td>
+            </tr>
+            <tr>
+                <td><strong>Read performance</strong></td>
+                <td>Slower (acquire locks)</td>
+                <td>Faster (no locks)</td>
+            </tr>
+            <tr>
+                <td><strong>Write-heavy</strong></td>
+                <td>✓ Good</td>
+                <td>✗ Poor (many aborts)</td>
+            </tr>
+            <tr>
+                <td><strong>Read-heavy</strong></td>
+                <td>⚠️ Moderate</td>
+                <td>✓ Good</td>
+            </tr>
+        </table>
+        
+        <h2>6️⃣ Deadlock Detection and Prevention</h2>
+        
+        <div class="definition">
+            <h4>What is Deadlock?</h4>
+            <p><strong>Deadlock:</strong> A situation where transactions wait for each other in a cycle, and none can proceed.</p>
+            <p><strong>Classic example:</strong> Transaction A waits for lock held by B, B waits for lock held by A → Both stuck forever!</p>
+        </div>
+        
+        <div class="wait-graph">
+            <h4>Deadlock Example with Wait-For Graph</h4>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <svg width="400" height="300" style="display: block; margin: 0 auto;">
+                    <!-- Transactions as nodes -->
+                    <circle cx="100" cy="100" r="40" fill="#2196f3" stroke="#1976d2" stroke-width="3"/>
+                    <text x="100" y="105" text-anchor="middle" fill="white" font-weight="bold" font-size="18">T1</text>
+                    
+                    <circle cx="300" cy="100" r="40" fill="#2196f3" stroke="#1976d2" stroke-width="3"/>
+                    <text x="300" y="105" text-anchor="middle" fill="white" font-weight="bold" font-size="18">T2</text>
+                    
+                    <circle cx="200" cy="250" r="40" fill="#2196f3" stroke="#1976d2" stroke-width="3"/>
+                    <text x="200" y="255" text-anchor="middle" fill="white" font-weight="bold" font-size="18">T3</text>
+                    
+                    <!-- Wait-for edges (showing cycle) -->
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <polygon points="0 0, 10 3, 0 6" fill="#f44336"/>
+                        </marker>
+                    </defs>
+                    
+                    <!-- T1 waits for T2 -->
+                    <path d="M 140 100 L 260 100" fill="none" stroke="#f44336" stroke-width="3" marker-end="url(#arrowhead)"/>
+                    <text x="200" y="90" text-anchor="middle" fill="#f44336" font-weight="bold" font-size="14">waits for</text>
+                    
+                    <!-- T2 waits for T3 -->
+                    <path d="M 280 130 L 230 220" fill="none" stroke="#f44336" stroke-width="3" marker-end="url(#arrowhead)"/>
+                    <text x="280" y="180" text-anchor="middle" fill="#f44336" font-weight="bold" font-size="14">waits for</text>
+                    
+                    <!-- T3 waits for T1 (creates cycle!) -->
+                    <path d="M 170 230 L 120 130" fill="none" stroke="#f44336" stroke-width="3" marker-end="url(#arrowhead)"/>
+                    <text x="120" y="180" text-anchor="middle" fill="#f44336" font-weight="bold" font-size="14">waits for</text>
+                </svg>
+                
+                <div class="deadlock">
+                    ⚠️ DEADLOCK DETECTED! Cycle: T1 → T2 → T3 → T1
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <strong>Concrete Scenario:</strong>
+                <ul>
+                    <li>T1 holds lock on X, wants lock on Y</li>
+                    <li>T2 holds lock on Y, wants lock on Z</li>
+                    <li>T3 holds lock on Z, wants lock on X</li>
+                    <li><strong>Circular wait!</strong> None can proceed. ❌</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>🛡️ Deadlock Prevention Strategies</h3>
+        
+        <div class="key-point">
+            <h4>Strategy 1: Lock Ordering</h4>
+            <p>Impose global order on resources. All transactions acquire locks in same order.</p>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Example:</strong>
+                <div style="margin: 10px 0; font-family: monospace;">
+                    Rule: Always lock in alphabetical order<br><br>
+                    
+                    T1: Lock(A), Lock(B) ✓<br>
+                    T2: Lock(A), Lock(B) ✓ (waits for T1 to release A)<br><br>
+                    
+                    No cycle possible! ✓
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>Strategy 2: Wait-Die (Timestamp-Based)</h4>
+            <p><strong>Older transactions wait, younger transactions die (abort).</strong></p>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Rule:</strong>
+                <div style="margin: 10px 0;">
+                    If T1 (older) wants lock held by T2 (younger):<br>
+                    → T1 <strong>WAITS</strong> (older gets priority)<br><br>
+                    
+                    If T2 (younger) wants lock held by T1 (older):<br>
+                    → T2 <strong>DIES</strong> (aborts and restarts with same timestamp)
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>Strategy 3: Wound-Wait (Timestamp-Based)</h4>
+            <p><strong>Older transactions wound (abort) younger, younger wait for older.</strong></p>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Rule:</strong>
+                <div style="margin: 10px 0;">
+                    If T1 (older) wants lock held by T2 (younger):<br>
+                    → T2 <strong>WOUNDS</strong> (T1 aborts T2, T1 gets lock)<br><br>
+                    
+                    If T2 (younger) wants lock held by T1 (older):<br>
+                    → T2 <strong>WAITS</strong> (respects elder)
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>Strategy 4: Timeout-Based</h4>
+            <p>If transaction waits too long for a lock → abort and retry.</p>
+            <p><strong>Simple but can lead to livelock</strong> (transactions keep aborting each other)</p>
+        </div>
+        
+        <h3>🔍 Deadlock Detection</h3>
+        
+        <div class="key-point">
+            <h4>How to Detect Deadlocks:</h4>
+            <ol>
+                <li>Build a <strong>wait-for graph</strong>: Edge from Ti to Tj if Ti waits for lock held by Tj</li>
+                <li>Detect <strong>cycles</strong> in the graph</li>
+                <li>If cycle found → Deadlock exists!</li>
+                <li>Abort one transaction to break the cycle</li>
+            </ol>
+        </div>
+        
+        <pre><code>// Deadlock Detection using Wait-For Graph
+class DeadlockDetector {
+    constructor() {
+        this.waitForGraph = new Map(); // txId -> Set of txIds it waits for
+    }
+    
+    addWaitFor(waitingTx, holdingTx) {
+        if (!this.waitForGraph.has(waitingTx)) {
+            this.waitForGraph.set(waitingTx, new Set());
+        }
+        this.waitForGraph.get(waitingTx).add(holdingTx);
+        
+        console.log(`T${waitingTx} waits for T${holdingTx}`);
+        
+        // Check for deadlock immediately
+        this.detectDeadlock();
+    }
+    
+    removeWaitFor(waitingTx, holdingTx) {
+        const waitSet = this.waitForGraph.get(waitingTx);
+        if (waitSet) {
+            waitSet.delete(holdingTx);
+            if (waitSet.size === 0) {
+                this.waitForGraph.delete(waitingTx);
+            }
+        }
+    }
+    
+    detectDeadlock() {
+        // Use DFS to detect cycles
+        for (const startTx of this.waitForGraph.keys()) {
+            const visited = new Set();
+            const path = [];
+            
+            if (this.hasCycle(startTx, visited, path)) {
+                console.log('\n🔴 DEADLOCK DETECTED!');
+                console.log(`Cycle: ${path.join(' → ')} → ${startTx}`);
+                this.resolveDeadlock(path);
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    hasCycle(currentTx, visited, path) {
+        if (path.includes(currentTx)) {
+            // Found cycle!
+            return true;
+        }
+        
+        if (visited.has(currentTx)) {
+            return false;
+        }
+        
+        visited.add(currentTx);
+        path.push(currentTx);
+        
+        const waitingFor = this.waitForGraph.get(currentTx);
+        if (waitingFor) {
+            for (const nextTx of waitingFor) {
+                if (this.hasCycle(nextTx, visited, path)) {
+                    return true;
+                }
+            }
+        }
+        
+        path.pop();
+        return false;
+    }
+    
+    resolveDeadlock(cycle) {
+        // Choose victim: youngest transaction (highest ID)
+        const victim = Math.max(...cycle);
+        
+        console.log(`Aborting T${victim} to break deadlock`);
+        
+        // Remove victim from graph
+        this.waitForGraph.delete(victim);
+        for (const [tx, waitSet] of this.waitForGraph.entries()) {
+            waitSet.delete(victim);
+        }
+        
+        console.log('Deadlock resolved ✓\n');
+    }
+}
+
+// Usage
+const detector = new DeadlockDetector();
+
+// Create circular wait
+detector.addWaitFor(1, 2); // T1 waits for T2
+detector.addWaitFor(2, 3); // T2 waits for T3
+detector.addWaitFor(3, 1); // T3 waits for T1 → CYCLE!</code></pre>
+        
+        <h2>7️⃣ Distributed Deadlock Algorithms</h2>
+        
+        <div class="definition">
+            <h4>The Distributed Challenge</h4>
+            <p>In a distributed system, transactions span multiple sites. Each site knows only its local wait-for graph.</p>
+            <p><strong>Problem:</strong> Global deadlock cycle might not be visible at any single site!</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Distributed Deadlock Scenario</h4>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                <div style="background: white; padding: 20px; border-radius: 8px;">
+                    <h4 style="text-align: center; color: #667eea;">Site A</h4>
+                    <div style="margin: 15px 0;">
+                        <strong>Local Wait-For Graph:</strong>
+                        <div style="margin: 10px 0; font-family: monospace;">
+                            T1 → T2<br>
+                            (T1 waits for T2's lock)
+                        </div>
+                    </div>
+                    <div style="background: #e3f2fd; padding: 10px; border-radius: 5px;">
+                        No cycle locally! ✓
+                    </div>
+                </div>
+                
+                <div style="background: white; padding: 20px; border-radius: 8px;">
+                    <h4 style="text-align: center; color: #667eea;">Site B</h4>
+                    <div style="margin: 15px 0;">
+                        <strong>Local Wait-For Graph:</strong>
+                        <div style="margin: 10px 0; font-family: monospace;">
+                            T2 → T1<br>
+                            (T2 waits for T1's lock)
+                        </div>
+                    </div>
+                    <div style="background: #e3f2fd; padding: 10px; border-radius: 5px;">
+                        No cycle locally! ✓
+                    </div>
+                </div>
+            </div>
+            
+            <div class="deadlock">
+                ⚠️ GLOBAL DEADLOCK! T1 → T2 (at A) → T1 (at B)<br>
+                But neither site sees it locally!
+            </div>
+        </div>
+        
+        <h3>🌐 Distributed Deadlock Detection Approaches</h3>
+        
+        <div class="key-point">
+            <h4>1. Centralized Detection</h4>
+            <p>One site collects all local wait-for graphs and builds global graph.</p>
+            <ul>
+                <li><strong>Pro:</strong> Simple, accurate detection</li>
+                <li><strong>Con:</strong> Central coordinator is bottleneck and SPOF</li>
+            </ul>
+        </div>
+        
+        <div class="key-point">
+            <h4>2. Distributed Detection (Edge-Chasing)</h4>
+            <p>When transaction waits, send "probe" message along wait-for edges. If probe returns to sender → cycle detected!</p>
+            <ul>
+                <li><strong>Pro:</strong> Fully distributed</li>
+                <li><strong>Con:</strong> More complex, higher message overhead</li>
+            </ul>
+        </div>
+        
+        <div class="key-point">
+            <h4>3. Timeout-Based (Practical)</h4>
+            <p>Assume deadlock if transaction waits too long.</p>
+            <ul>
+                <li><strong>Pro:</strong> Simple, handles all deadlocks</li>
+                <li><strong>Con:</strong> False positives (may abort non-deadlocked transactions)</li>
+                <li><strong>Most common in practice!</strong></li>
+            </ul>
+        </div>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: Transaction Scenarios</h3>
+            <p>See different concurrency control mechanisms in action:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demo2PL()">Two-Phase Locking</button>
+                <button class="demo-button" onclick="demoOCC()">Optimistic CC</button>
+                <button class="demo-button" onclick="demoDeadlock()">Deadlock Detection</button>
+                <button class="demo-button" onclick="demoDistributedTx()">Distributed Transaction</button>
+            </div>
+            <div id="txDemo" class="demo-output">Click a button to see transactions in action...</div>
+        </div>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 11</h3>
+            <ul style="line-height: 2;">
+                <li><strong>ACID guarantees</strong> - Atomicity, Consistency, Isolation, Durability</li>
+                <li><strong>Distributed transactions</strong> - use 2PC for atomic commitment across sites</li>
+                <li><strong>Concurrency control</strong> - ensures isolation (I in ACID)</li>
+                <li><strong>Two-Phase Locking</strong> - growing phase (acquire), shrinking phase (release)</li>
+                <li><strong>Strict 2PL</strong> - hold locks until commit (prevents cascading aborts)</li>
+                <li><strong>Optimistic CC</strong> - read/validate/write, no locks, good when conflicts rare</li>
+                <li><strong>Deadlock</strong> - circular wait in wait-for graph</li>
+                <li><strong>Prevention</strong> - lock ordering, wait-die, wound-wait</li>
+                <li><strong>Detection</strong> - cycle detection in wait-for graph</li>
+                <li><strong>Distributed deadlock</strong> - harder to detect, often use timeouts</li>
+                <li><strong>Trade-off:</strong> Pessimistic (2PL) vs Optimistic (OCC)</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>Explain each ACID property with a real-world example.</li>
+                <li>What happens if a distributed transaction fails on one site but succeeds on another?</li>
+                <li>Why does 2PL guarantee serializability?</li>
+                <li>When is OCC better than 2PL? When is 2PL better?</li>
+                <li>Draw a wait-for graph showing deadlock with 3 transactions.</li>
+                <li>How does lock ordering prevent deadlocks?</li>
+                <li>Compare wait-die vs wound-wait - which is more aggressive?</li>
+                <li>Why is distributed deadlock detection harder than centralized?</li>
+                <li>Design a banking system: Would you choose 2PL or OCC? Why?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function demo2PL() {
+            const output = document.getElementById('txDemo');
+            output.textContent = '=== TWO-PHASE LOCKING ===\n\n';
+            
+            output.textContent += 'Transaction T1: Transfer $50 (A → B)\n';
+            output.textContent += 'Transaction T2: Transfer $30 (B → A)\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- GROWING PHASE (T1) ---\n';
+            await sleep(300);
+            output.textContent += 'T1: Acquire EXCLUSIVE lock on A ✓\n';
+            await sleep(300);
+            output.textContent += 'T1: Read A = $100\n';
+            await sleep(300);
+            output.textContent += 'T1: Request EXCLUSIVE lock on B...\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- T2 TRIES TO START ---\n';
+            await sleep(300);
+            output.textContent += 'T2: Request EXCLUSIVE lock on B ✓\n';
+            await sleep(300);
+            output.textContent += 'T2: Read B = $200\n';
+            await sleep(300);
+            output.textContent += 'T2: Request EXCLUSIVE lock on A...\n';
+            await sleep(300);
+            output.textContent += 'T2: BLOCKED! (A is locked by T1) ⏳\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- T1 CONTINUES ---\n';
+            await sleep(300);
+            output.textContent += 'T1: BLOCKED! (B is locked by T2) ⏳\n\n';
+            
+            await sleep(500);
+            output.textContent += '🔴 DEADLOCK DETECTED!\n';
+            output.textContent += 'T1 waits for T2, T2 waits for T1\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Deadlock Resolution:\n';
+            await sleep(300);
+            output.textContent += '  → Abort T2 (victim selection)\n';
+            await sleep(300);
+            output.textContent += '  → T2 releases lock on B\n';
+            await sleep(300);
+            output.textContent += '  → T1 acquires lock on B ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- T1 COMPLETES ---\n';
+            await sleep(300);
+            output.textContent += 'T1: A = $100 - $50 = $50\n';
+            output.textContent += 'T1: B = $200 + $50 = $250\n';
+            await sleep(300);
+            output.textContent += 'T1: COMMIT ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- SHRINKING PHASE (T1) ---\n';
+            output.textContent += 'T1: Release lock on A\n';
+            output.textContent += 'T1: Release lock on B\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- T2 RETRIES ---\n';
+            output.textContent += 'T2: Acquires locks and completes ✓\n\n';
+            
+            output.textContent += 'Result: Both transactions complete!\n';
+            output.textContent += '2PL ensures serializability.';
+        }
+        
+        async function demoOCC() {
+            const output = document.getElementById('txDemo');
+            output.textContent = '=== OPTIMISTIC CONCURRENCY CONTROL ===\n\n';
+            
+            output.textContent += 'Database: account_A = 100 (version 1)\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- TRANSACTION 1 ---\n';
+            output.textContent += 'T1 Phase 1 (READ):\n';
+            await sleep(300);
+            output.textContent += '  Read account_A = 100 (v1)\n';
+            output.textContent += '  Private workspace: A = 150\n';
+            output.textContent += '  (No locks acquired!) ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- TRANSACTION 2 (Concurrent) ---\n';
+            output.textContent += 'T2 Phase 1 (READ):\n';
+            await sleep(300);
+            output.textContent += '  Read account_A = 100 (v1)\n';
+            output.textContent += '  Private workspace: A = 130\n';
+            output.textContent += '  (Also no locks!) ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- T1 TRIES TO COMMIT ---\n';
+            output.textContent += 'T1 Phase 2 (VALIDATE):\n';
+            await sleep(300);
+            output.textContent += '  Check: Has account_A changed?\n';
+            output.textContent += '  Current version: v1\n';
+            output.textContent += '  Read version: v1\n';
+            output.textContent += '  Validation: PASSED ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'T1 Phase 3 (WRITE):\n';
+            await sleep(300);
+            output.textContent += '  Write account_A = 150 (v2)\n';
+            output.textContent += '  T1: COMMITTED ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- T2 TRIES TO COMMIT ---\n';
+            output.textContent += 'T2 Phase 2 (VALIDATE):\n';
+            await sleep(300);
+            output.textContent += '  Check: Has account_A changed?\n';
+            output.textContent += '  Current version: v2 (T1 committed!)\n';
+            output.textContent += '  Read version: v1\n';
+            output.textContent += '  v2 > v1 → CONFLICT!\n\n';
+            
+            await sleep(500);
+            output.textContent += '  Validation: FAILED ❌\n';
+            output.textContent += '  T2: ABORTED (must retry)\n\n';
+            
+            output.textContent += 'Result:\n';
+            output.textContent += '  T1 succeeded, T2 detected conflict and aborted\n';
+            output.textContent += '  No wasted lock overhead during execution!\n';
+            output.textContent += '  But T2 must retry entire transaction.';
+        }
+        
+        async function demoDeadlock() {
+            const output = document.getElementById('txDemo');
+            output.textContent = '=== DEADLOCK DETECTION ===\n\n';
+            
+            output.textContent += 'Three transactions accessing shared resources:\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Initial locks:\n';
+            output.textContent += '  T1 holds lock on X\n';
+            output.textContent += '  T2 holds lock on Y\n';
+            output.textContent += '  T3 holds lock on Z\n\n';
+            
+            await sleep(500);
+            output.textContent += 'T1: Request lock on Y...\n';
+            await sleep(300);
+            output.textContent += '  → BLOCKED (Y held by T2) ⏳\n';
+            output.textContent += '  Wait-for graph: T1 → T2\n\n';
+            
+            await sleep(500);
+            output.textContent += 'T2: Request lock on Z...\n';
+            await sleep(300);
+            output.textContent += '  → BLOCKED (Z held by T3) ⏳\n';
+            output.textContent += '  Wait-for graph: T1 → T2 → T3\n\n';
+            
+            await sleep(500);
+            output.textContent += 'T3: Request lock on X...\n';
+            await sleep(300);
+            output.textContent += '  → BLOCKED (X held by T1) ⏳\n';
+            output.textContent += '  Wait-for graph: T1 → T2 → T3 → T1\n\n';
+            
+            await sleep(500);
+            output.textContent += '🔍 Running cycle detection...\n';
+            await sleep(500);
+            output.textContent += '🔴 DEADLOCK DETECTED!\n';
+            output.textContent += '  Cycle: T1 → T2 → T3 → T1\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Victim Selection:\n';
+            await sleep(300);
+            output.textContent += '  Criteria: Youngest transaction (or least work done)\n';
+            await sleep(300);
+            output.textContent += '  Selected: T3\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Resolution:\n';
+            output.textContent += '  → ABORT T3\n';
+            output.textContent += '  → T3 releases lock on Z\n';
+            output.textContent += '  → T2 acquires Z ✓\n';
+            output.textContent += '  → T2 completes and releases Y\n';
+            output.textContent += '  → T1 acquires Y ✓\n';
+            output.textContent += '  → T1 completes ✓\n\n';
+            
+            output.textContent += 'Deadlock broken! T3 will retry later.';
+        }
+        
+        async function demoDistributedTx() {
+            const output = document.getElementById('txDemo');
+            output.textContent = '=== DISTRIBUTED TRANSACTION (2PC) ===\n\n';
+            
+            output.textContent += 'Transaction: Book flight + hotel + car\n';
+            output.textContent += 'Participants:\n';
+            output.textContent += '  - FlightDB (Site A)\n';
+            output.textContent += '  - HotelDB (Site B)\n';
+            output.textContent += '  - CarDB (Site C)\n\n';
+            
+            await sleep(500);
+            output.textContent += '=== PHASE 1: PREPARE ===\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Coordinator → FlightDB: PREPARE\n';
+            await sleep(300);
+            output.textContent += 'FlightDB: Check seat available... ✓\n';
+            output.textContent += 'FlightDB: Write PREPARE to log\n';
+            output.textContent += 'FlightDB → Coordinator: YES\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Coordinator → HotelDB: PREPARE\n';
+            await sleep(300);
+            output.textContent += 'HotelDB: Check room available... ✓\n';
+            output.textContent += 'HotelDB: Write PREPARE to log\n';
+            output.textContent += 'HotelDB → Coordinator: YES\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Coordinator → CarDB: PREPARE\n';
+            await sleep(300);
+            output.textContent += 'CarDB: Check car available... ✓\n';
+            output.textContent += 'CarDB: Write PREPARE to log\n';
+            output.textContent += 'CarDB → Coordinator: YES\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Coordinator: All voted YES! ✓\n';
+            output.textContent += 'Coordinator: Write COMMIT decision to log\n\n';
+            
+            await sleep(500);
+            output.textContent += '=== PHASE 2: COMMIT ===\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Coordinator → FlightDB: COMMIT\n';
+            await sleep(300);
+            output.textContent += 'FlightDB: Reserve seat, write COMMIT to log ✓\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Coordinator → HotelDB: COMMIT\n';
+            await sleep(300);
+            output.textContent += 'HotelDB: Reserve room, write COMMIT to log ✓\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Coordinator → CarDB: COMMIT\n';
+            await sleep(300);
+            output.textContent += 'CarDB: Reserve car, write COMMIT to log ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Result: ATOMIC COMMIT across all sites! ✓\n\n';
+            
+            output.textContent += 'ACID Properties Satisfied:\n';
+            output.textContent += '  ✓ Atomicity: All 3 reservations or none\n';
+            output.textContent += '  ✓ Consistency: No partial bookings\n';
+            output.textContent += '  ✓ Isolation: Other transactions blocked during commit\n';
+            output.textContent += '  ✓ Durability: Logged to disk before commit';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 18: Microservices Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+        }
+        
+        .architecture-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .monolith {
+            background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .microservice {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            margin: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .microservice:hover {
+            transform: scale(1.05);
+        }
+        
+        .service-mesh-layer {
+            background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .circuit-state {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .state-closed {
+            border-color: #4caf50;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .state-open {
+            border-color: #f44336;
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .state-half {
+            border-color: #ff9800;
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .api-gateway {
+            background: linear-gradient(135deg, #ff5722 0%, #ff7043 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            margin: 20px auto;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .k8s-component {
+            background: white;
+            border: 2px solid #326ce5;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .trace-span {
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 5px 0;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏗️ Chapter 18: Microservices Architecture</h1>
+        
+        <div class="problem-box">
+            <h3>🤔 The Evolution Challenge</h3>
+            <p style="font-size: 1.2em;"><strong>Your monolithic app is slowing down development!</strong></p>
+            <p>Problems you're facing:</p>
+            <ul style="margin-top: 10px;">
+                <li>Code base: 500,000+ lines (nobody understands it all)</li>
+                <li>Deploy time: 2 hours (risky, infrequent releases)</li>
+                <li>Teams: 50 developers stepping on each other</li>
+                <li>Scaling: Must scale entire app (even parts you don't need)</li>
+                <li>Technology: Stuck with original stack (can't experiment)</li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>Solution:</strong> Break into microservices - small, independent, deployable services!</p>
+        </div>
+        
+        <h2>1️⃣ Monolithic vs Microservices</h2>
+        
+        <div class="visual-diagram">
+            <h4>Architecture Comparison</h4>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 30px 0;">
+                <div>
+                    <h4 style="text-align: center; color: #9c27b0;">🏛️ Monolithic Architecture</h4>
+                    
+                    <div style="margin: 30px 0;">
+                        <div class="monolith">
+                            <div style="font-size: 1.5em; margin-bottom: 15px;">ONE APPLICATION</div>
+                            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                                UI Layer
+                            </div>
+                            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                                Business Logic
+                            </div>
+                            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                                Data Access
+                            </div>
+                            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                                Single Database
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                        <strong>✅ Pros:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li>Simple to develop initially</li>
+                            <li>Easy to test (one app)</li>
+                            <li>Simple deployment</li>
+                            <li>No network calls</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: #ffebee; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                        <strong>❌ Cons:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li>Large, complex codebase</li>
+                            <li>Slow builds/deploys</li>
+                            <li>Scales as one unit</li>
+                            <li>Technology lock-in</li>
+                            <li>Team coordination hard</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="text-align: center; color: #4caf50;">🔷 Microservices Architecture</h4>
+                    
+                    <div style="margin: 30px 0;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="microservice" style="font-size: 0.85em;">User Service<br><small>Own DB</small></div>
+                            <div class="microservice" style="font-size: 0.85em;">Order Service<br><small>Own DB</small></div>
+                            <div class="microservice" style="font-size: 0.85em;">Payment Service<br><small>Own DB</small></div>
+                            <div class="microservice" style="font-size: 0.85em;">Inventory Service<br><small>Own DB</small></div>
+                            <div class="microservice" style="font-size: 0.85em;">Notification Service<br><small>Own DB</small></div>
+                            <div class="microservice" style="font-size: 0.85em;">Shipping Service<br><small>Own DB</small></div>
+                        </div>
+                        <div style="text-align: center; margin-top: 15px; color: #666; font-size: 0.9em;">
+                            Each service: Independent, Deployable, Scalable
+                        </div>
+                    </div>
+                    
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                        <strong>✅ Pros:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li>Independent deployment</li>
+                            <li>Technology flexibility</li>
+                            <li>Scale services independently</li>
+                            <li>Team autonomy</li>
+                            <li>Fault isolation</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: #ffebee; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                        <strong>❌ Cons:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li>Distributed complexity</li>
+                            <li>Network latency</li>
+                            <li>Data consistency hard</li>
+                            <li>Testing more complex</li>
+                            <li>Operational overhead</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Aspect</th>
+                <th>Monolithic</th>
+                <th>Microservices</th>
+            </tr>
+            <tr>
+                <td><strong>Deployment</strong></td>
+                <td>One unit (all or nothing)</td>
+                <td>Independent per service</td>
+            </tr>
+            <tr>
+                <td><strong>Scaling</strong></td>
+                <td>Scale entire app</td>
+                <td>Scale services individually</td>
+            </tr>
+            <tr>
+                <td><strong>Technology</strong></td>
+                <td>Single stack</td>
+                <td>Polyglot (different per service)</td>
+            </tr>
+            <tr>
+                <td><strong>Teams</strong></td>
+                <td>Shared codebase</td>
+                <td>Own service per team</td>
+            </tr>
+            <tr>
+                <td><strong>Failure Impact</strong></td>
+                <td>Entire app down</td>
+                <td>Isolated to service</td>
+            </tr>
+            <tr>
+                <td><strong>Database</strong></td>
+                <td>Shared database</td>
+                <td>Database per service</td>
+            </tr>
+        </table>
+        
+        <h2>2️⃣ Service Discovery</h2>
+        
+        <div class="definition">
+            <h4>The Dynamic Service Location Problem</h4>
+            <p><strong>Service Discovery:</strong> How services find each other in a dynamic environment where instances come and go.</p>
+            <p><strong>Challenge:</strong> Services have dynamic IPs (containers restart, auto-scale, etc.)</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Service Discovery Pattern</h4>
+            
+            <div style="margin: 30px 0;">
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <strong>Service Registry (Consul, Eureka, etcd)</strong>
+                    <div style="margin: 15px 0; background: #e3f2fd; padding: 15px; border-radius: 5px;">
+                        <table style="width: 100%; font-family: monospace; font-size: 0.9em;">
+                            <tr style="background: #667eea; color: white;">
+                                <th style="padding: 8px;">Service</th>
+                                <th style="padding: 8px;">Instances</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;">user-service</td>
+                                <td style="padding: 8px;">10.0.1.5:8080, 10.0.1.6:8080</td>
+                            </tr>
+                            <tr style="background: #f8f9fa;">
+                                <td style="padding: 8px;">order-service</td>
+                                <td style="padding: 8px;">10.0.2.3:8080, 10.0.2.4:8080</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <strong>Registration (Server-Side Discovery):</strong>
+                        <ol style="margin-top: 10px;">
+                            <li>Service starts up</li>
+                            <li>Registers itself with registry</li>
+                            <li>Sends periodic heartbeats</li>
+                            <li>If heartbeat stops → Deregistered</li>
+                        </ol>
+                    </div>
+                    
+                    <div>
+                        <strong>Lookup (Client-Side Discovery):</strong>
+                        <ol style="margin-top: 10px;">
+                            <li>Client needs to call service</li>
+                            <li>Queries registry for instances</li>
+                            <li>Chooses one (load balance)</li>
+                            <li>Makes direct call</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Service Discovery with Consul (JavaScript)
+const consul = require('consul')();
+
+// Service Registration
+async function registerService() {
+    await consul.agent.service.register({
+        name: 'user-service',
+        id: 'user-service-instance-1',
+        address: '10.0.1.5',
+        port: 8080,
+        check: {
+            http: 'http://10.0.1.5:8080/health',
+            interval: '10s', // Health check every 10s
+            timeout: '5s'
+        }
+    });
+    
+    console.log('Service registered with Consul');
+}
+
+// Service Discovery
+async function callUserService() {
+    // Query registry for healthy instances
+    const result = await consul.health.service({
+        service: 'user-service',
+        passing: true // Only healthy instances
+    });
+    
+    const instances = result.map(r => ({
+        address: r.Service.Address,
+        port: r.Service.Port
+    }));
+    
+    // Load balance (round-robin, random, etc.)
+    const instance = instances[Math.floor(Math.random() * instances.length)];
+    
+    // Make call
+    const response = await fetch(
+        `http://${instance.address}:${instance.port}/api/users/123`
+    );
+    
+    return await response.json();
+}
+
+// Kubernetes Service Discovery (DNS-based)
+// Services accessible via DNS: service-name.namespace.svc.cluster.local
+const userServiceUrl = 'http://user-service.default.svc.cluster.local:8080';
+const response = await fetch(`${userServiceUrl}/api/users/123`);</code></pre>
+        
+        <h2>3️⃣ API Gateway</h2>
+        
+        <div class="definition">
+            <h4>Single Entry Point Pattern</h4>
+            <p><strong>API Gateway:</strong> Single entry point for all client requests. Routes to appropriate microservice.</p>
+            <p><strong>Think:</strong> Reception desk at a hotel - directs guests to right department</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>API Gateway Pattern</h4>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; flex-wrap: wrap;">
+                    <div class="microservice" style="background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%); padding: 15px;">Mobile App</div>
+                    <div class="microservice" style="background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%); padding: 15px;">Web App</div>
+                    <div class="microservice" style="background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%); padding: 15px;">Partner API</div>
+                </div>
+                
+                <div style="font-size: 1.5em; margin: 15px 0;">↓</div>
+                
+                <div class="api-gateway">
+                    🚪 API GATEWAY<br>
+                    <small style="font-size: 0.7em;">Authentication, Rate Limiting, Routing</small>
+                </div>
+                
+                <div style="font-size: 1.5em; margin: 15px 0;">↓</div>
+                
+                <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                    <div class="microservice" style="padding: 15px; font-size: 0.85em;">User<br>Service</div>
+                    <div class="microservice" style="padding: 15px; font-size: 0.85em;">Order<br>Service</div>
+                    <div class="microservice" style="padding: 15px; font-size: 0.85em;">Payment<br>Service</div>
+                    <div class="microservice" style="padding: 15px; font-size: 0.85em;">Product<br>Service</div>
+                    <div class="microservice" style="padding: 15px; font-size: 0.85em;">Shipping<br>Service</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>API Gateway Responsibilities:</h4>
+            <ul>
+                <li><strong>Request Routing:</strong> /api/users/* → User Service</li>
+                <li><strong>Authentication:</strong> Verify JWT tokens</li>
+                <li><strong>Rate Limiting:</strong> Prevent abuse (100 req/min per user)</li>
+                <li><strong>Request/Response Transformation:</strong> Adapt APIs for different clients</li>
+                <li><strong>Aggregation:</strong> Combine multiple service calls into one</li>
+                <li><strong>Caching:</strong> Cache responses</li>
+                <li><strong>Monitoring:</strong> Centralized logging, metrics</li>
+            </ul>
+        </div>
+        
+        <h2>4️⃣ Service Mesh</h2>
+        
+        <div class="definition">
+            <h4>Infrastructure Layer for Service Communication</h4>
+            <p><strong>Service Mesh:</strong> Dedicated infrastructure layer that handles service-to-service communication.</p>
+            <p><strong>Pattern:</strong> Sidecar proxy alongside each service instance</p>
+            <p><strong>Popular:</strong> Istio, Linkerd, Consul Connect</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Service Mesh Architecture</h4>
+            
+            <div style="margin: 30px 0;">
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                        <div style="border: 2px dashed #667eea; padding: 15px; border-radius: 8px;">
+                            <div class="microservice" style="margin: 5px; font-size: 0.85em;">User<br>Service</div>
+                            <div class="service-mesh-layer" style="font-size: 0.75em;">Envoy Proxy<br>(Sidecar)</div>
+                        </div>
+                        
+                        <div style="border: 2px dashed #667eea; padding: 15px; border-radius: 8px;">
+                            <div class="microservice" style="margin: 5px; font-size: 0.85em;">Order<br>Service</div>
+                            <div class="service-mesh-layer" style="font-size: 0.75em;">Envoy Proxy<br>(Sidecar)</div>
+                        </div>
+                        
+                        <div style="border: 2px dashed #667eea; padding: 15px; border-radius: 8px;">
+                            <div class="microservice" style="margin: 5px; font-size: 0.85em;">Payment<br>Service</div>
+                            <div class="service-mesh-layer" style="font-size: 0.75em;">Envoy Proxy<br>(Sidecar)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; text-align: center;">
+                    <strong>Control Plane (Istio/Linkerd)</strong><br>
+                    <small>Configures all proxies, telemetry, policies</small>
+                </div>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <strong>Traffic Flow:</strong>
+                <ol style="margin-top: 10px;">
+                    <li>User Service wants to call Order Service</li>
+                    <li>Request goes to User's sidecar proxy first</li>
+                    <li>Proxy routes to Order's sidecar proxy</li>
+                    <li>Order's proxy forwards to Order Service</li>
+                    <li>Response follows reverse path</li>
+                </ol>
+                <p style="margin-top: 15px;"><strong>Key:</strong> Service code doesn't handle networking! Proxy does it all.</p>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>Service Mesh Features:</h4>
+            <ul>
+                <li><strong>Traffic Management:</strong> Load balancing, routing, retries</li>
+                <li><strong>Security:</strong> mTLS encryption between services</li>
+                <li><strong>Observability:</strong> Automatic metrics, logs, traces</li>
+                <li><strong>Resilience:</strong> Circuit breakers, timeouts, retries</li>
+                <li><strong>Policy Enforcement:</strong> Rate limits, quotas</li>
+            </ul>
+        </div>
+        
+        <h2>5️⃣ Circuit Breaker Pattern</h2>
+        
+        <div class="definition">
+            <h4>Preventing Cascading Failures</h4>
+            <p><strong>Circuit Breaker:</strong> Automatically detect failures and prevent cascading failures by temporarily blocking requests to failing service.</p>
+            <p><strong>Analogy:</strong> Like electrical circuit breaker - trips open when detecting problems</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Circuit Breaker States</h4>
+            
+            <div style="display: flex; justify-content: center; align-items: center; gap: 40px; flex-wrap: wrap; margin: 30px 0;">
+                <div style="text-align: center;">
+                    <div class="circuit-state state-closed">
+                        CLOSED<br>
+                        <small>Normal</small>
+                    </div>
+                    <div style="margin-top: 10px; color: #4caf50;">
+                        ✓ Requests flow<br>
+                        ✓ Counting failures
+                    </div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <div style="font-size: 2em; color: #f44336;">→</div>
+                    <div style="font-size: 0.9em; color: #666;">Failure threshold<br>exceeded</div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <div class="circuit-state state-open">
+                        OPEN<br>
+                        <small>Tripped</small>
+                    </div>
+                    <div style="margin-top: 10px; color: #f44336;">
+                        ❌ Reject requests<br>
+                        ⏰ Wait timeout
+                    </div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <div style="font-size: 2em; color: #ff9800;">→</div>
+                    <div style="font-size: 0.9em; color: #666;">Timeout<br>expires</div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <div class="circuit-state state-half">
+                        HALF-OPEN<br>
+                        <small>Testing</small>
+                    </div>
+                    <div style="margin-top: 10px; color: #ff9800;">
+                        ⚠️ Allow test request<br>
+                        🔍 Check if recovered
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <div style="display: inline-block; background: #e8f5e9; padding: 15px; border-radius: 8px;">
+                    <strong>Success →</strong> Back to CLOSED ✓
+                </div>
+                <div style="display: inline-block; margin: 0 20px; font-size: 1.5em;">|</div>
+                <div style="display: inline-block; background: #ffebee; padding: 15px; border-radius: 8px;">
+                    <strong>Failure →</strong> Back to OPEN ❌
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Circuit Breaker Implementation
+class CircuitBreaker {
+    constructor(options = {}) {
+        this.failureThreshold = options.failureThreshold || 5;
+        this.timeout = options.timeout || 60000; // 60 seconds
+        this.state = 'CLOSED';
+        this.failureCount = 0;
+        this.nextAttempt = Date.now();
+    }
+    
+    async execute(operation) {
+        // Check state
+        if (this.state === 'OPEN') {
+            if (Date.now() < this.nextAttempt) {
+                throw new Error('Circuit breaker is OPEN');
+            }
+            // Timeout expired, try half-open
+            this.state = 'HALF_OPEN';
+            console.log('Circuit breaker: HALF-OPEN (testing)');
+        }
+        
+        try {
+            // Execute the operation
+            const result = await operation();
+            
+            // Success!
+            this.onSuccess();
+            return result;
+            
+        } catch (error) {
+            // Failure
+            this.onFailure();
+            throw error;
+        }
+    }
+    
+    onSuccess() {
+        this.failureCount = 0;
+        
+        if (this.state === 'HALF_OPEN') {
+            console.log('Circuit breaker: CLOSED (recovered)');
+            this.state = 'CLOSED';
+        }
+    }
+    
+    onFailure() {
+        this.failureCount++;
+        
+        if (this.state === 'HALF_OPEN') {
+            // Failed during test, back to open
+            this.state = 'OPEN';
+            this.nextAttempt = Date.now() + this.timeout;
+            console.log('Circuit breaker: OPEN (still failing)');
+            return;
+        }
+        
+        if (this.failureCount >= this.failureThreshold) {
+            // Threshold exceeded, trip breaker
+            this.state = 'OPEN';
+            this.nextAttempt = Date.now() + this.timeout;
+            console.log(`Circuit breaker: OPEN (${this.failureCount} failures)`);
+        }
+    }
+}
+
+// Usage
+const breaker = new CircuitBreaker({
+    failureThreshold: 3,
+    timeout: 30000
+});
+
+async function callPaymentService() {
+    try {
+        return await breaker.execute(async () => {
+            const response = await fetch('http://payment-service/charge');
+            if (!response.ok) throw new Error('Payment failed');
+            return await response.json();
+        });
+    } catch (error) {
+        console.error('Payment service unavailable:', error.message);
+        // Fallback: Queue for later or use backup service
+        return { status: 'queued' };
+    }
+}</code></pre>
+        
+        <h3>🛡️ Bulkhead Pattern</h3>
+        
+        <div class="key-point">
+            <h4>Isolate Resources</h4>
+            <p><strong>Bulkhead:</strong> Isolate resources (threads, connections) for different services to prevent one failing service from exhausting all resources.</p>
+            <p><strong>Analogy:</strong> Ship compartments - if one floods, others stay intact</p>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Example:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Thread pool for User Service: 20 threads</li>
+                    <li>Thread pool for Payment Service: 20 threads</li>
+                    <li>Thread pool for Order Service: 20 threads</li>
+                </ul>
+                <p style="margin-top: 10px;">If Payment Service hangs → only its 20 threads blocked, others unaffected!</p>
+            </div>
+        </div>
+        
+        <h2>6️⃣ Distributed Tracing</h2>
+        
+        <div class="definition">
+            <h4>Following Requests Across Services</h4>
+            <p><strong>Distributed Tracing:</strong> Track a single request as it flows through multiple microservices.</p>
+            <p><strong>Tools:</strong> Jaeger, Zipkin, AWS X-Ray</p>
+            <p><strong>Why needed:</strong> Single request might touch 10+ services. How to debug?</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Distributed Trace Example</h4>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <strong>Request: Place Order</strong>
+                
+                <div style="margin: 20px 0;">
+                    <div style="background: #667eea; color: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                        <strong>Trace ID:</strong> trace-abc123 (follows entire request)
+                    </div>
+                    
+                    <div class="trace-span">
+                        Span 1: API Gateway (100ms total)
+                    </div>
+                    
+                    <div style="margin-left: 30px;">
+                        <div class="trace-span">
+                            Span 2: User Service (20ms) - Verify user
+                        </div>
+                        
+                        <div class="trace-span">
+                            Span 3: Inventory Service (40ms) - Check stock
+                        </div>
+                        
+                        <div class="trace-span">
+                            Span 4: Payment Service (200ms) - Charge card
+                        </div>
+                        
+                        <div style="margin-left: 30px;">
+                            <div class="trace-span" style="background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);">
+                                Span 5: Fraud Service (150ms) - Check fraud
+                            </div>
+                        </div>
+                        
+                        <div class="trace-span">
+                            Span 6: Order Service (30ms) - Create order
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #fff3e0; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                    <strong>Analysis:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Total time: 540ms</li>
+                        <li>Bottleneck: Payment Service (200ms, includes Fraud check)</li>
+                        <li>Fraud Service: 150ms of that 200ms → Optimize this!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <h2>7️⃣ Container Orchestration (Kubernetes)</h2>
+        
+        <div class="definition">
+            <h4>Managing Containers at Scale</h4>
+            <p><strong>Kubernetes (K8s):</strong> Open-source platform for automating deployment, scaling, and management of containerized applications.</p>
+            <p><strong>Why needed:</strong> Managing 100+ microservices manually = impossible!</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Kubernetes Architecture</h4>
+            
+            <div style="margin: 30px 0;">
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h4 style="text-align: center; color: #1976d2;">Control Plane (Master)</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                        <div class="k8s-component">
+                            <strong>API Server</strong><br>
+                            <small>Central management</small>
+                        </div>
+                        <div class="k8s-component">
+                            <strong>etcd</strong><br>
+                            <small>Configuration store</small>
+                        </div>
+                        <div class="k8s-component">
+                            <strong>Scheduler</strong><br>
+                            <small>Assigns pods to nodes</small>
+                        </div>
+                        <div class="k8s-component">
+                            <strong>Controller Manager</strong><br>
+                            <small>Maintains desired state</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px;">
+                    <h4 style="text-align: center; color: #2e7d32;">Worker Nodes</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px;">
+                        <div style="border: 2px solid #4caf50; padding: 15px; border-radius: 8px;">
+                            <strong>Node 1</strong>
+                            <div style="margin-top: 10px;">
+                                <div style="background: #c8e6c9; padding: 8px; margin: 5px 0; border-radius: 5px; font-size: 0.85em;">
+                                    Pod: User Service
+                                </div>
+                                <div style="background: #c8e6c9; padding: 8px; margin: 5px 0; border-radius: 5px; font-size: 0.85em;">
+                                    Pod: Order Service
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="border: 2px solid #4caf50; padding: 15px; border-radius: 8px;">
+                            <strong>Node 2</strong>
+                            <div style="margin-top: 10px;">
+                                <div style="background: #c8e6c9; padding: 8px; margin: 5px 0; border-radius: 5px; font-size: 0.85em;">
+                                    Pod: Payment Service
+                                </div>
+                                <div style="background: #c8e6c9; padding: 8px; margin: 5px 0; border-radius: 5px; font-size: 0.85em;">
+                                    Pod: Inventory
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="border: 2px solid #4caf50; padding: 15px; border-radius: 8px;">
+                            <strong>Node 3</strong>
+                            <div style="margin-top: 10px;">
+                                <div style="background: #c8e6c9; padding: 8px; margin: 5px 0; border-radius: 5px; font-size: 0.85em;">
+                                    Pod: Shipping
+                                </div>
+                                <div style="background: #c8e6c9; padding: 8px; margin: 5px 0; border-radius: 5px; font-size: 0.85em;">
+                                    Pod: Notification
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>Kubernetes Key Concepts:</h4>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>Pod:</strong> Smallest deployable unit (one or more containers)
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>Service:</strong> Stable endpoint for pods (load balancing)
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>Deployment:</strong> Declarative updates for pods (rolling updates)
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>ConfigMap/Secret:</strong> Configuration and sensitive data
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>Ingress:</strong> External access to services (HTTP routing)
+            </div>
+        </div>
+        
+        <pre><code># Kubernetes Deployment YAML
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 3  # Run 3 instances
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: myregistry/user-service:v1.2.3
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+        livenessProbe:  # Health check
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: url
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  selector:
+    app: user-service
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: ClusterIP  # Internal load balancer</code></pre>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: Microservices Demos</h3>
+            <p>Explore microservices patterns:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demoServiceDiscovery()">Service Discovery</button>
+                <button class="demo-button" onclick="demoCircuitBreaker()">Circuit Breaker</button>
+                <button class="demo-button" onclick="demoDistributedTrace()">Distributed Tracing</button>
+                <button class="demo-button" onclick="demoK8sScaling()">K8s Auto-Scaling</button>
+            </div>
+            <div id="microDemo" class="demo-output">Click a button to see microservices patterns...</div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Pattern/Tool</th>
+                <th>Purpose</th>
+                <th>Examples</th>
+            </tr>
+            <tr>
+                <td><strong>Service Discovery</strong></td>
+                <td>Find service instances dynamically</td>
+                <td>Consul, Eureka, K8s DNS</td>
+            </tr>
+            <tr>
+                <td><strong>API Gateway</strong></td>
+                <td>Single entry point, routing, auth</td>
+                <td>Kong, AWS API Gateway, Nginx</td>
+            </tr>
+            <tr>
+                <td><strong>Service Mesh</strong></td>
+                <td>Inter-service communication layer</td>
+                <td>Istio, Linkerd, Consul Connect</td>
+            </tr>
+            <tr>
+                <td><strong>Circuit Breaker</strong></td>
+                <td>Prevent cascading failures</td>
+                <td>Hystrix, Resilience4j</td>
+            </tr>
+            <tr>
+                <td><strong>Distributed Tracing</strong></td>
+                <td>Track requests across services</td>
+                <td>Jaeger, Zipkin, X-Ray</td>
+            </tr>
+            <tr>
+                <td><strong>Container Orchestration</strong></td>
+                <td>Manage containers at scale</td>
+                <td>Kubernetes, Docker Swarm</td>
+            </tr>
+        </table>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 18</h3>
+            <ul style="line-height: 2;">
+                <li><strong>Microservices</strong> - small, independent services vs monolithic app</li>
+                <li><strong>Service discovery</strong> - dynamic service location (Consul, K8s DNS)</li>
+                <li><strong>API Gateway</strong> - single entry point for routing, auth, rate limiting</li>
+                <li><strong>Service mesh</strong> - sidecar proxies handle networking (Istio, Linkerd)</li>
+                <li><strong>Inter-service communication</strong> - REST, gRPC, message queues</li>
+                <li><strong>Circuit breaker</strong> - prevent cascading failures (CLOSED → OPEN → HALF-OPEN)</li>
+                <li><strong>Bulkhead</strong> - isolate resources per service</li>
+                <li><strong>Distributed tracing</strong> - track requests across services (Jaeger)</li>
+                <li><strong>Kubernetes</strong> - orchestrates containers, auto-scaling, self-healing</li>
+                <li><strong>Trade-off</strong> - flexibility vs complexity</li>
+                <li><strong>Not always better</strong> - monolith fine for small teams/apps</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>When should you NOT use microservices? (Hint: Small team, simple app)</li>
+                <li>How does service discovery solve the dynamic IP problem?</li>
+                <li>What's the difference between API Gateway and Service Mesh?</li>
+                <li>Explain circuit breaker state transitions with an example.</li>
+                <li>Why is distributed tracing essential for microservices?</li>
+                <li>How does Kubernetes provide self-healing?</li>
+                <li>Compare REST vs gRPC for inter-service communication.</li>
+                <li>What problems does service mesh solve that API gateway doesn't?</li>
+                <li>Design microservices for e-commerce: how many services? Which patterns?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function demoServiceDiscovery() {
+            const output = document.getElementById('microDemo');
+            output.textContent = '=== SERVICE DISCOVERY ===\n\n';
+            
+            output.textContent += 'Scenario: Order Service needs to call User Service\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 1: User Service instances start\n';
+            await sleep(300);
+            output.textContent += '  Instance 1: 10.0.1.5:8080 → Register with Consul\n';
+            await sleep(300);
+            output.textContent += '  Instance 2: 10.0.1.6:8080 → Register with Consul\n';
+            await sleep(300);
+            output.textContent += '  Instance 3: 10.0.1.7:8080 → Register with Consul\n';
+            output.textContent += '  All send heartbeats every 10s ❤️\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 2: Order Service needs User Service\n';
+            await sleep(300);
+            output.textContent += '  Order Service → Consul: "Where is user-service?"\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 3: Consul returns healthy instances\n';
+            await sleep(300);
+            output.textContent += '  Consul → Order Service:\n';
+            output.textContent += '    - 10.0.1.5:8080 (healthy ✓)\n';
+            output.textContent += '    - 10.0.1.6:8080 (healthy ✓)\n';
+            output.textContent += '    - 10.0.1.7:8080 (healthy ✓)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 4: Order Service picks one (load balance)\n';
+            await sleep(300);
+            output.textContent += '  Selected: 10.0.1.6:8080 (random selection)\n';
+            output.textContent += '  Order → User: GET /api/users/123\n';
+            output.textContent += '  Response received ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 5: Instance 2 crashes! 💥\n';
+            await sleep(300);
+            output.textContent += '  Heartbeat stops from 10.0.1.6\n';
+            await sleep(500);
+            output.textContent += '  Consul: Marks 10.0.1.6 as unhealthy ❌\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 6: Next request\n';
+            output.textContent += '  Order → Consul: "Where is user-service?"\n';
+            await sleep(300);
+            output.textContent += '  Consul returns only healthy:\n';
+            output.textContent += '    - 10.0.1.5:8080 ✓\n';
+            output.textContent += '    - 10.0.1.7:8080 ✓\n';
+            output.textContent += '  (10.0.1.6 excluded automatically!)\n\n';
+            
+            output.textContent += 'Benefits:\n';
+            output.textContent += '  ✓ Automatic failure detection\n';
+            output.textContent += '  ✓ No hardcoded IPs\n';
+            output.textContent += '  ✓ Dynamic scaling supported';
+        }
+        
+        async function demoCircuitBreaker() {
+            const output = document.getElementById('microDemo');
+            output.textContent = '=== CIRCUIT BREAKER PATTERN ===\n\n';
+            
+            output.textContent += 'Service: Order calling Payment (5 failure threshold)\n';
+            output.textContent += 'Initial State: CLOSED (normal operation)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Request 1: Call Payment Service\n';
+            await sleep(300);
+            output.textContent += '  → Success ✓ (failure count: 0)\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Request 2: Call Payment Service\n';
+            await sleep(300);
+            output.textContent += '  → Success ✓ (failure count: 0)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Payment Service starts having issues...\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Request 3: Call Payment Service\n';
+            await sleep(300);
+            output.textContent += '  → Timeout! ❌ (failure count: 1)\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Request 4-7: Call Payment Service\n';
+            await sleep(300);
+            output.textContent += '  → All timeout! ❌\n';
+            await sleep(300);
+            output.textContent += '  → Failure count: 5\n\n';
+            
+            await sleep(500);
+            output.textContent += '🔴 CIRCUIT BREAKER TRIPS OPEN!\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Request 8-12: Attempt to call Payment\n';
+            await sleep(300);
+            output.textContent += '  → Circuit OPEN: Fail immediately ⚡\n';
+            output.textContent += '  → No network call made (save resources!)\n';
+            output.textContent += '  → Return cached response or error\n\n';
+            
+            await sleep(800);
+            output.textContent += '⏰ Wait 30 seconds...\n\n';
+            
+            await sleep(500);
+            output.textContent += '🟡 Circuit transitions to HALF-OPEN\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Request 13: Test request\n';
+            await sleep(300);
+            output.textContent += '  → Call Payment Service (testing recovery)\n';
+            await sleep(500);
+            output.textContent += '  → Success! ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '🟢 Circuit CLOSED (recovered!)\n\n';
+            
+            output.textContent += 'Circuit breaker prevented:\n';
+            output.textContent += '  • Cascading failures\n';
+            output.textContent += '  • Resource exhaustion\n';
+            output.textContent += '  • Slow responses (fail fast)\n';
+            output.textContent += '  • Allowed service to recover';
+        }
+        
+        async function demoDistributedTrace() {
+            const output = document.getElementById('microDemo');
+            output.textContent = '=== DISTRIBUTED TRACING ===\n\n';
+            
+            output.textContent += 'Request: GET /api/checkout\n';
+            output.textContent += 'Trace ID: trace-xyz789\n\n';
+            
+            await sleep(500);
+            output.textContent += '[00ms] API Gateway receives request\n';
+            output.textContent += '  Span: gateway (trace-xyz789)\n';
+            await sleep(300);
+            output.textContent += '  → Generate trace ID, start span\n\n';
+            
+            await sleep(500);
+            output.textContent += '[10ms] API Gateway → User Service\n';
+            output.textContent += '  Span: user-service (parent: gateway)\n';
+            await sleep(300);
+            output.textContent += '  → Verify user authentication\n';
+            await sleep(500);
+            output.textContent += '  → User valid ✓\n';
+            output.textContent += '  Duration: 20ms\n\n';
+            
+            await sleep(500);
+            output.textContent += '[30ms] API Gateway → Cart Service\n';
+            output.textContent += '  Span: cart-service (parent: gateway)\n';
+            await sleep(300);
+            output.textContent += '  → Get cart items\n';
+            await sleep(500);
+            output.textContent += '  Duration: 15ms\n\n';
+            
+            await sleep(500);
+            output.textContent += '[45ms] API Gateway → Payment Service\n';
+            output.textContent += '  Span: payment-service (parent: gateway)\n';
+            await sleep(300);
+            output.textContent += '  → Process payment\n\n';
+            
+            await sleep(500);
+            output.textContent += '  [50ms] Payment → Fraud Detection\n';
+            output.textContent += '    Span: fraud-service (parent: payment)\n';
+            await sleep(500);
+            output.textContent += '    → Check fraud... SLOW! ⏰\n';
+            await sleep(800);
+            output.textContent += '    Duration: 180ms (bottleneck!)\n\n';
+            
+            await sleep(500);
+            output.textContent += '[235ms] Payment completes\n';
+            output.textContent += '  Duration: 190ms (includes fraud check)\n\n';
+            
+            await sleep(500);
+            output.textContent += '[240ms] API Gateway → Order Service\n';
+            output.textContent += '  Span: order-service (parent: gateway)\n';
+            await sleep(300);
+            output.textContent += '  → Create order\n';
+            await sleep(500);
+            output.textContent += '  Duration: 25ms\n\n';
+            
+            await sleep(500);
+            output.textContent += '[265ms] API Gateway completes\n';
+            output.textContent += '  Total duration: 265ms\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Trace Analysis:\n';
+            output.textContent += '  Bottleneck: Fraud Detection (180ms / 265ms = 68%!)\n';
+            output.textContent += '  Action: Optimize fraud detection service\n';
+            output.textContent += '  Potential: Could reduce to 50ms → Total 135ms! ⚡\n\n';
+            
+            output.textContent += 'Without tracing: Would never know where time spent!';
+        }
+        
+        async function demoK8sScaling() {
+            const output = document.getElementById('microDemo');
+            output.textContent = '=== KUBERNETES AUTO-SCALING ===\n\n';
+            
+            output.textContent += 'Deployment: user-service (initially 2 replicas)\n';
+            output.textContent += 'Auto-scaling: Target 70% CPU utilization\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Current state:\n';
+            output.textContent += '  Pod 1: CPU 65%\n';
+            output.textContent += '  Pod 2: CPU 68%\n';
+            output.textContent += '  Average: 66.5% (under target) ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '📈 Traffic surge! (Black Friday sale)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'After 30 seconds:\n';
+            output.textContent += '  Pod 1: CPU 95% ⚠️\n';
+            output.textContent += '  Pod 2: CPU 92% ⚠️\n';
+            output.textContent += '  Average: 93.5% (exceeds 70% target!)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Kubernetes HPA (Horizontal Pod Autoscaler):\n';
+            await sleep(300);
+            output.textContent += '  → Detected high CPU\n';
+            await sleep(300);
+            output.textContent += '  → Calculate desired replicas:\n';
+            output.textContent += '     Current: 2, Target: 70%, Actual: 93.5%\n';
+            output.textContent += '     Desired = 2 × (93.5 / 70) ≈ 3\n';
+            await sleep(300);
+            output.textContent += '  → Scale up to 3 replicas ↗️\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Kubernetes creates Pod 3:\n';
+            await sleep(500);
+            output.textContent += '  → Scheduler assigns to Node 2\n';
+            await sleep(300);
+            output.textContent += '  → Pull container image\n';
+            await sleep(500);
+            output.textContent += '  → Start container\n';
+            await sleep(500);
+            output.textContent += '  → Health check passes ✓\n';
+            await sleep(300);
+            output.textContent += '  → Add to Service load balancer\n\n';
+            
+            await sleep(500);
+            output.textContent += 'New state:\n';
+            output.textContent += '  Pod 1: CPU 62%\n';
+            output.textContent += '  Pod 2: CPU 64%\n';
+            output.textContent += '  Pod 3: CPU 60%\n';
+            output.textContent += '  Average: 62% (back under target!) ✓\n\n';
+            
+            output.textContent += 'Auto-scaling handled surge automatically!\n';
+            output.textContent += 'No manual intervention needed.';
+        }
+    </script>
+</body>
+</html>

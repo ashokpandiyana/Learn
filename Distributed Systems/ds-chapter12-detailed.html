@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 12: CAP Theorem and BASE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+        }
+        
+        .cap-triangle {
+            position: relative;
+            width: 500px;
+            height: 450px;
+            margin: 30px auto;
+        }
+        
+        .cap-vertex {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .cap-vertex:hover {
+            transform: scale(1.1);
+        }
+        
+        .consistency-vertex {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .availability-vertex {
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            bottom: 0;
+            left: 0;
+        }
+        
+        .partition-vertex {
+            background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+            bottom: 0;
+            right: 0;
+        }
+        
+        .cap-edge {
+            position: absolute;
+            background: rgba(0,0,0,0.1);
+            height: 3px;
+            transform-origin: left center;
+        }
+        
+        .cap-label {
+            position: absolute;
+            background: white;
+            border: 2px solid #667eea;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .cap-label:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .system-example {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .system-example:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .property-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .base-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .base-card {
+            background: white;
+            border: 2px solid #ff9800;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .base-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .base-icon {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .scenario-box {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .choice-cp {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        
+        .choice-ap {
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        
+        .pacelc-diagram {
+            background: #f8f9fa;
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .decision-tree {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .tree-node {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .tree-arrow {
+            text-align: center;
+            font-size: 1.5em;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .tree-leaf {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚖️ Chapter 12: CAP Theorem and BASE</h1>
+        
+        <div class="problem-box">
+            <h3>🎯 The Most Famous Theorem in Distributed Systems</h3>
+            <p style="font-size: 1.2em;"><strong>CAP Theorem: You can't have all three!</strong></p>
+            <p>Eric Brewer (2000) proved that in a distributed system with network partitions, you must choose between <strong>Consistency</strong> and <strong>Availability</strong>.</p>
+            <p><strong>Why it matters:</strong> Explains fundamental trade-offs in system design and why different databases make different choices.</p>
+        </div>
+        
+        <h2>1️⃣ CAP Theorem Deep Dive</h2>
+        
+        <div class="definition">
+            <h4>The CAP Theorem Statement</h4>
+            <p style="font-size: 1.1em; font-weight: bold; color: #e91e63;">
+                "A distributed system can satisfy at most TWO out of these three guarantees simultaneously:"
+            </p>
+            <ul style="margin-top: 15px;">
+                <li><strong>Consistency (C):</strong> All nodes see the same data at the same time</li>
+                <li><strong>Availability (A):</strong> Every request receives a response (success or failure)</li>
+                <li><strong>Partition Tolerance (P):</strong> System continues operating despite network failures</li>
+            </ul>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4 style="text-align: center; margin-bottom: 30px;">The CAP Triangle</h4>
+            
+            <svg width="600" height="500" style="display: block; margin: 0 auto;">
+                <!-- Triangle edges -->
+                <line x1="300" y1="80" x2="100" y2="400" stroke="#ccc" stroke-width="4"/>
+                <line x1="300" y1="80" x2="500" y2="400" stroke="#ccc" stroke-width="4"/>
+                <line x1="100" y1="400" x2="500" y2="400" stroke="#ccc" stroke-width="4"/>
+                
+                <!-- Vertices -->
+                <circle cx="300" cy="80" r="70" fill="#4caf50" opacity="0.9"/>
+                <text x="300" y="75" text-anchor="middle" fill="white" font-weight="bold" font-size="28">C</text>
+                <text x="300" y="100" text-anchor="middle" fill="white" font-size="16">Consistency</text>
+                
+                <circle cx="100" cy="400" r="70" fill="#2196f3" opacity="0.9"/>
+                <text x="100" y="395" text-anchor="middle" fill="white" font-weight="bold" font-size="28">A</text>
+                <text x="100" y="420" text-anchor="middle" fill="white" font-size="16">Availability</text>
+                
+                <circle cx="500" cy="400" r="70" fill="#ff9800" opacity="0.9"/>
+                <text x="500" y="395" text-anchor="middle" fill="white" font-weight="bold" font-size="28">P</text>
+                <text x="500" y="420" text-anchor="middle" fill="white" font-size="16">Partition</text>
+                
+                <!-- Edge labels -->
+                <!-- CA (top-left edge) -->
+                <rect x="140" y="220" width="100" height="60" fill="white" stroke="#667eea" stroke-width="2" rx="8"/>
+                <text x="190" y="245" text-anchor="middle" font-weight="bold" fill="#667eea" font-size="18">CA</text>
+                <text x="190" y="265" text-anchor="middle" fill="#666" font-size="13">RDBMS</text>
+                
+                <!-- CP (top-right edge) -->
+                <rect x="360" y="220" width="100" height="60" fill="white" stroke="#667eea" stroke-width="2" rx="8"/>
+                <text x="410" y="245" text-anchor="middle" font-weight="bold" fill="#667eea" font-size="18">CP</text>
+                <text x="410" y="265" text-anchor="middle" fill="#666" font-size="13">MongoDB</text>
+                
+                <!-- AP (bottom edge) -->
+                <rect x="250" y="420" width="100" height="60" fill="white" stroke="#667eea" stroke-width="2" rx="8"/>
+                <text x="300" y="445" text-anchor="middle" font-weight="bold" fill="#667eea" font-size="18">AP</text>
+                <text x="300" y="465" text-anchor="middle" fill="#666" font-size="13">Cassandra</text>
+            </svg>
+        </div>
+        
+        <h2>2️⃣ Understanding Each Property</h2>
+        
+        <h3>🟢 Consistency (C)</h3>
+        
+        <div class="property-card">
+            <h4>What it means:</h4>
+            <p><strong>Every read receives the most recent write or an error.</strong></p>
+            <p>All nodes see the same data at the same time. Single, up-to-date copy illusion.</p>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>✓ Consistent System:</strong>
+                <div style="margin: 10px 0; font-family: monospace;">
+                    Client 1: Write X = 5 to Node A<br>
+                    System: Replicate to all nodes BEFORE returning success<br>
+                    Client 2: Read X from Node B → Returns 5 ✓<br>
+                    <span style="color: #4caf50; font-weight: bold;">Everyone sees the same value!</span>
+                </div>
+            </div>
+            
+            <div style="background: #ffebee; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>✗ Not Consistent:</strong>
+                <div style="margin: 10px 0; font-family: monospace;">
+                    Client 1: Write X = 5 to Node A<br>
+                    System: Returns success immediately<br>
+                    Client 2: Read X from Node B → Returns 1 (old value!)<br>
+                    <span style="color: #f44336; font-weight: bold;">Different nodes show different values!</span>
+                </div>
+            </div>
+        </div>
+        
+        <h3>🔵 Availability (A)</h3>
+        
+        <div class="property-card">
+            <h4>What it means:</h4>
+            <p><strong>Every request receives a (non-error) response, without guarantee that it contains the most recent write.</strong></p>
+            <p>System always responds, even if some nodes are down.</p>
+            
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>✓ Available System:</strong>
+                <div style="margin: 10px 0; font-family: monospace;">
+                    Node A is down ❌<br>
+                    Client: Read X from Node B<br>
+                    System: Returns value from Node B ✓<br>
+                    <span style="color: #2196f3; font-weight: bold;">Always responds, even if stale!</span>
+                </div>
+            </div>
+            
+            <div style="background: #ffebee; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>✗ Not Available:</strong>
+                <div style="margin: 10px 0; font-family: monospace;">
+                    Node A is down ❌<br>
+                    Client: Read X from Node B<br>
+                    System: Returns error (can't guarantee consistency) ❌<br>
+                    <span style="color: #f44336; font-weight: bold;">Refuses to respond!</span>
+                </div>
+            </div>
+        </div>
+        
+        <h3>🟠 Partition Tolerance (P)</h3>
+        
+        <div class="property-card">
+            <h4>What it means:</h4>
+            <p><strong>The system continues to operate despite arbitrary message loss or failure of part of the system.</strong></p>
+            <p>Network can split into separate groups that can't communicate.</p>
+            
+            <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Network Partition:</strong>
+                <div style="margin: 10px 0;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 15px 0;">
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 5px;">
+                            <strong>Partition 1:</strong><br>
+                            Nodes A, B<br>
+                            Can communicate ✓
+                        </div>
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 5px;">
+                            <strong>Partition 2:</strong><br>
+                            Nodes C, D<br>
+                            Can communicate ✓
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin: 10px 0; color: #f44336; font-weight: bold;">
+                        ⚡ NO communication between partitions! ⚡
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="warning">
+            <h4>⚠️ Key Insight: P is NOT Optional!</h4>
+            <p><strong>Network partitions happen in the real world.</strong> You can't prevent them (physics, router failures, cable cuts).</p>
+            <p><strong>Therefore:</strong> The real choice is between <span class="highlight">C and A</span> during a partition.</p>
+            <p><strong>CAP is really about:</strong> When partition happens, do you choose consistency or availability?</p>
+        </div>
+        
+        <h2>3️⃣ Real-World Trade-offs</h2>
+        
+        <h3>🟢 CP Systems (Consistency + Partition Tolerance)</h3>
+        
+        <div class="choice-cp">
+            <h4>Choose Consistency Over Availability</h4>
+            <p><strong>Behavior during partition:</strong> Refuse to respond if can't guarantee consistency</p>
+            
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Decision Logic:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Can't reach all replicas? → Return error</li>
+                    <li>Can't guarantee all see same data? → Reject write</li>
+                    <li>Better to be unavailable than inconsistent</li>
+                </ul>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Examples:</strong>
+                <ul style="margin-top: 10px;">
+                    <li><strong>MongoDB:</strong> Primary-based, returns error if can't reach majority</li>
+                    <li><strong>HBase:</strong> Strong consistency, may be unavailable during failures</li>
+                    <li><strong>Redis (cluster):</strong> Consistency over availability</li>
+                    <li><strong>Google Spanner:</strong> Strong consistency, may reject writes</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>🏦 CP Example: Banking System</h4>
+            
+            <div class="scenario-box">
+                <strong>Scenario:</strong> Bank with replicas in NY and London
+                
+                <div style="margin: 20px 0;">
+                    <strong>Normal Operation:</strong>
+                    <div style="margin: 10px 0; background: #e8f5e9; padding: 10px; border-radius: 5px;">
+                        Client: Transfer $100 from Alice to Bob<br>
+                        System: Update both replicas synchronously ✓<br>
+                        Client: Success! Both replicas consistent ✓
+                    </div>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <strong>During Network Partition:</strong>
+                    <div style="margin: 10px 0; background: #ffebee; padding: 10px; border-radius: 5px;">
+                        ⚡ Trans-Atlantic cable cut! NY ↔ London broken<br><br>
+                        
+                        Client in NY: Transfer $100<br>
+                        NY replica: Can't reach London replica<br>
+                        NY replica: Can't guarantee consistency<br>
+                        NY replica: <strong>REJECT transaction</strong> ❌<br><br>
+                        
+                        <span style="color: #f44336; font-weight: bold;">System is UNAVAILABLE but remains CONSISTENT</span>
+                    </div>
+                </div>
+                
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                    <strong>Why this is correct for banking:</strong><br>
+                    Better to be down than allow inconsistent balances!<br>
+                    Can't risk money appearing/disappearing.
+                </div>
+            </div>
+        </div>
+        
+        <h3>🔵 AP Systems (Availability + Partition Tolerance)</h3>
+        
+        <div class="choice-ap">
+            <h4>Choose Availability Over Consistency</h4>
+            <p><strong>Behavior during partition:</strong> Accept operations on both sides, resolve conflicts later</p>
+            
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Decision Logic:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Can't reach all replicas? → Accept anyway</li>
+                    <li>May create divergent data? → Fix it later (conflict resolution)</li>
+                    <li>Better to be inconsistent than unavailable</li>
+                </ul>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Examples:</strong>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Cassandra:</strong> Eventually consistent, always available</li>
+                    <li><strong>DynamoDB:</strong> Accepts writes during partitions</li>
+                    <li><strong>Riak:</strong> AP with conflict resolution</li>
+                    <li><strong>CouchDB:</strong> Multi-master, always writable</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>📱 AP Example: Social Media Feed</h4>
+            
+            <div class="scenario-box">
+                <strong>Scenario:</strong> Twitter with replicas in US and Europe
+                
+                <div style="margin: 20px 0;">
+                    <strong>Normal Operation:</strong>
+                    <div style="margin: 10px 0; background: #e8f5e9; padding: 10px; border-radius: 5px;">
+                        Client: Post "Hello World!"<br>
+                        System: Write to US replica immediately ✓<br>
+                        System: Replicate to Europe asynchronously<br>
+                        Client: Success! (fast!)
+                    </div>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <strong>During Network Partition:</strong>
+                    <div style="margin: 10px 0; background: #e3f2fd; padding: 10px; border-radius: 5px;">
+                        ⚡ Atlantic link fails! US ↔ Europe broken<br><br>
+                        
+                        User in US: Posts "I love NYC!"<br>
+                        US replica: <strong>ACCEPTS</strong> ✓<br><br>
+                        
+                        User in Europe: Posts "I love Paris!"<br>
+                        Europe replica: <strong>ACCEPTS</strong> ✓<br><br>
+                        
+                        <span style="color: #2196f3; font-weight: bold;">Both sides AVAILABLE, but INCONSISTENT</span>
+                    </div>
+                </div>
+                
+                <div style="background: #fff3e0; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                    <strong>After partition heals:</strong><br>
+                    System merges posts from both sides<br>
+                    Eventually consistent - both posts appear everywhere ✓
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                    <strong>Why this is acceptable for social media:</strong><br>
+                    Seeing posts 30 seconds late is fine!<br>
+                    Being unable to post would frustrate users more.
+                </div>
+            </div>
+        </div>
+        
+        <h3>⚪ CA Systems (Consistency + Availability)</h3>
+        
+        <div class="warning">
+            <h4>The Impossible Choice (In Practice)</h4>
+            <p><strong>CA systems assume network never partitions.</strong> This is unrealistic in distributed systems!</p>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Examples:</strong>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Single-server RDBMS:</strong> PostgreSQL, MySQL (on one machine)</li>
+                    <li><strong>Why CA?</strong> No network = no partitions!</li>
+                    <li><strong>Limitation:</strong> Can't scale horizontally, single point of failure</li>
+                </ul>
+            </div>
+            
+            <p style="margin-top: 15px;"><strong>Reality:</strong> As soon as you distribute across network, partitions become possible. So you're really choosing CP or AP!</p>
+        </div>
+        
+        <h2>4️⃣ BASE Properties</h2>
+        
+        <div class="definition">
+            <h4>BASE: The Alternative to ACID</h4>
+            <p><strong>BASE</strong> is the consistency model for AP systems. A direct contrast to ACID!</p>
+            <p><strong>Mnemonic:</strong> <span class="highlight">BA</span>sically Available, <span class="highlight">S</span>oft state, <span class="highlight">E</span>ventual consistency</p>
+        </div>
+        
+        <div class="base-grid">
+            <div class="base-card">
+                <div class="base-icon">📡</div>
+                <h4>BA - Basically Available</h4>
+                <p><strong>The system guarantees availability.</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li>Might not be the most recent data</li>
+                    <li>Might experience partial failures</li>
+                    <li>But system responds to requests</li>
+                </ul>
+                <div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Example:</strong> Amazon shopping cart works even if recommendation service is down
+                </div>
+            </div>
+            
+            <div class="base-card">
+                <div class="base-icon">🌊</div>
+                <h4>S - Soft State</h4>
+                <p><strong>State may change without input due to eventual consistency.</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li>Data can change over time</li>
+                    <li>Replicas converge asynchronously</li>
+                    <li>No strong consistency guarantees</li>
+                </ul>
+                <div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Example:</strong> Your tweet count might fluctuate as system reconciles
+                </div>
+            </div>
+            
+            <div class="base-card">
+                <div class="base-icon">⏰</div>
+                <h4>E - Eventual Consistency</h4>
+                <p><strong>System will eventually become consistent if no new updates.</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li>Replicas may be inconsistent temporarily</li>
+                    <li>Given time, all replicas converge</li>
+                    <li>No immediate consistency guarantee</li>
+                </ul>
+                <div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Example:</strong> DNS updates take hours to propagate worldwide
+                </div>
+            </div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Aspect</th>
+                <th>ACID (CP Systems)</th>
+                <th>BASE (AP Systems)</th>
+            </tr>
+            <tr>
+                <td><strong>Philosophy</strong></td>
+                <td>Consistency is critical</td>
+                <td>Availability is critical</td>
+            </tr>
+            <tr>
+                <td><strong>Consistency</strong></td>
+                <td>Strong (immediate)</td>
+                <td>Eventual (delayed)</td>
+            </tr>
+            <tr>
+                <td><strong>Availability</strong></td>
+                <td>May sacrifice for consistency</td>
+                <td>Always available</td>
+            </tr>
+            <tr>
+                <td><strong>During Partition</strong></td>
+                <td>Return errors</td>
+                <td>Continue operating</td>
+            </tr>
+            <tr>
+                <td><strong>State</strong></td>
+                <td>Hard (durable, consistent)</td>
+                <td>Soft (may change)</td>
+            </tr>
+            <tr>
+                <td><strong>Performance</strong></td>
+                <td>Slower (wait for sync)</td>
+                <td>Faster (async replication)</td>
+            </tr>
+            <tr>
+                <td><strong>Complexity</strong></td>
+                <td>Simpler to reason about</td>
+                <td>More complex (conflicts)</td>
+            </tr>
+            <tr>
+                <td><strong>Examples</strong></td>
+                <td>Traditional databases</td>
+                <td>NoSQL, caching, CDN</td>
+            </tr>
+            <tr>
+                <td><strong>Use Cases</strong></td>
+                <td>Banking, inventory, bookings</td>
+                <td>Social media, analytics, logs</td>
+            </tr>
+        </table>
+        
+        <h2>5️⃣ PACELC Theorem</h2>
+        
+        <div class="definition">
+            <h4>Extending CAP</h4>
+            <p><strong>PACELC</strong> extends CAP by considering what happens when there is NO partition.</p>
+            <p><strong>Statement:</strong> If there is a <strong>P</strong>artition, choose between <strong>A</strong>vailability and <strong>C</strong>onsistency; <strong>E</strong>lse (no partition), choose between <strong>L</strong>atency and <strong>C</strong>onsistency.</p>
+        </div>
+        
+        <div class="pacelc-diagram">
+            <h4 style="text-align: center; color: #667eea; margin-bottom: 20px;">PACELC Decision Tree</h4>
+            
+            <div style="text-align: center;">
+                <div class="tree-node">
+                    Network Partition?
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 20px;">
+                    <div>
+                        <div class="tree-arrow">↓ YES (Partition exists)</div>
+                        <div class="tree-node" style="background: #ffebee; border-color: #f44336;">
+                            Choose: A or C?
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                            <div class="tree-leaf">
+                                <strong>PA</strong><br>
+                                Choose Availability<br>
+                                <small>(AP system)</small>
+                            </div>
+                            <div class="tree-leaf">
+                                <strong>PC</strong><br>
+                                Choose Consistency<br>
+                                <small>(CP system)</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="tree-arrow">↓ NO (Normal operation)</div>
+                        <div class="tree-node" style="background: #e8f5e9; border-color: #4caf50;">
+                            Choose: L or C?
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                            <div class="tree-leaf">
+                                <strong>EL</strong><br>
+                                Choose Latency<br>
+                                <small>(Async replication)</small>
+                            </div>
+                            <div class="tree-leaf">
+                                <strong>EC</strong><br>
+                                Choose Consistency<br>
+                                <small>(Sync replication)</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>Four PACELC Categories:</h4>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>PA/EL (Prioritize Availability & Latency):</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Partition: Choose Availability</li>
+                    <li>Else: Choose Low Latency (async replication)</li>
+                    <li><strong>Examples:</strong> Cassandra, DynamoDB, Riak</li>
+                    <li><strong>Trade-off:</strong> Fast and available, but eventual consistency</li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>PC/EC (Prioritize Consistency always):</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Partition: Choose Consistency</li>
+                    <li>Else: Choose Consistency (sync replication)</li>
+                    <li><strong>Examples:</strong> Google Spanner, VoltDB</li>
+                    <li><strong>Trade-off:</strong> Strongly consistent, but higher latency</li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>PA/EC (Availability during partition, Consistency normally):</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Partition: Choose Availability</li>
+                    <li>Else: Choose Consistency</li>
+                    <li><strong>Examples:</strong> MongoDB (with settings)</li>
+                    <li><strong>Trade-off:</strong> Best of both worlds (complex!)</li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>PC/EL (Consistency during partition, Latency normally):</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Partition: Choose Consistency</li>
+                    <li>Else: Choose Low Latency</li>
+                    <li><strong>Examples:</strong> Rare in practice</li>
+                    <li><strong>Trade-off:</strong> Inconsistent priorities</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>6️⃣ Choosing Consistency Models</h2>
+        
+        <div class="decision-tree">
+            <h4 style="text-align: center; color: #667eea; margin-bottom: 20px;">Decision Framework</h4>
+            
+            <div class="tree-node">
+                Q1: Is data correctness absolutely critical?<br>
+                <small>(money, inventory, bookings, medical records)</small>
+            </div>
+            
+            <div class="tree-arrow">↓ YES</div>
+            
+            <div class="tree-leaf">
+                Choose: <strong>CP System (ACID)</strong><br>
+                Examples: Traditional RDBMS, MongoDB, HBase<br>
+                Accept: Lower availability during failures
+            </div>
+            
+            <div class="tree-arrow">↓ NO</div>
+            
+            <div class="tree-node">
+                Q2: Can users tolerate seeing stale data?<br>
+                <small>(social media, analytics, caching)</small>
+            </div>
+            
+            <div class="tree-arrow">↓ YES</div>
+            
+            <div class="tree-leaf">
+                Choose: <strong>AP System (BASE)</strong><br>
+                Examples: Cassandra, DynamoDB, Riak<br>
+                Accept: Eventual consistency, possible conflicts
+            </div>
+            
+            <div class="tree-arrow">↓ NO</div>
+            
+            <div class="tree-node">
+                Q3: Need low latency?
+            </div>
+            
+            <div class="tree-arrow">↓ YES</div>
+            
+            <div class="tree-leaf">
+                Choose: <strong>Tunable Consistency</strong><br>
+                Examples: Cassandra with quorum reads<br>
+                Trade: Flexibility vs Complexity
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>🎯 Real-World System Choices</h4>
+            
+            <div class="system-example">
+                <h4>🏦 Banking System → CP (ACID)</h4>
+                <ul>
+                    <li><strong>Requirement:</strong> Money must be accurate</li>
+                    <li><strong>Choice:</strong> Strong consistency</li>
+                    <li><strong>Accept:</strong> May be unavailable during network issues</li>
+                    <li><strong>Implementation:</strong> Synchronous replication, 2PC</li>
+                    <li><strong>Example:</strong> PostgreSQL with synchronous replication</li>
+                </ul>
+            </div>
+            
+            <div class="system-example">
+                <h4>📱 Social Media Feed → AP (BASE)</h4>
+                <ul>
+                    <li><strong>Requirement:</strong> Always allow posting</li>
+                    <li><strong>Choice:</strong> Availability</li>
+                    <li><strong>Accept:</strong> May see stale/inconsistent feeds temporarily</li>
+                    <li><strong>Implementation:</strong> Async replication, conflict resolution</li>
+                    <li><strong>Example:</strong> Cassandra for Twitter timelines</li>
+                </ul>
+            </div>
+            
+            <div class="system-example">
+                <h4>🛒 Shopping Cart → AP with Session Consistency</h4>
+                <ul>
+                    <li><strong>Requirement:</strong> Users must see their own items</li>
+                    <li><strong>Choice:</strong> Availability + Read-Your-Writes</li>
+                    <li><strong>Accept:</strong> Different users might see different cart states</li>
+                    <li><strong>Implementation:</strong> Session stickiness, client-centric consistency</li>
+                    <li><strong>Example:</strong> DynamoDB with session routing</li>
+                </ul>
+            </div>
+            
+            <div class="system-example">
+                <h4>🎫 Ticket Booking → CP (ACID)</h4>
+                <ul>
+                    <li><strong>Requirement:</strong> Can't oversell seats</li>
+                    <li><strong>Choice:</strong> Strong consistency</li>
+                    <li><strong>Accept:</strong> May show "service unavailable" during issues</li>
+                    <li><strong>Implementation:</strong> Distributed locks, pessimistic concurrency</li>
+                    <li><strong>Example:</strong> Google Spanner with external consistency</li>
+                </ul>
+            </div>
+        </div>
+        
+        <pre><code>// BASE System Implementation (Eventual Consistency)
+class BaseSystem {
+    constructor(replicas) {
+        this.replicas = replicas;
+        this.replicationQueue = [];
+        this.startAsyncReplication();
+    }
+    
+    // Write: Fast, always available
+    async write(key, value) {
+        // Write to local replica immediately
+        const localReplica = this.selectLocalReplica();
+        
+        await localReplica.write(key, value);
+        console.log(`✓ Write accepted by ${localReplica.id} (FAST!)`);
+        
+        // Queue async replication (don't wait!)
+        this.replicationQueue.push({
+            key,
+            value,
+            timestamp: Date.now(),
+            sourceReplica: localReplica.id
+        });
+        
+        return { 
+            success: true, 
+            replica: localReplica.id,
+            note: 'Eventually consistent - replicating in background'
+        };
+    }
+    
+    // Read: May return stale data
+    async read(key) {
+        const replica = this.selectLocalReplica();
+        const value = await replica.read(key);
+        
+        console.log(`Read from ${replica.id}: ${key} = ${value}`);
+        console.log('  ⚠️ May be stale (eventual consistency)');
+        
+        return value;
+    }
+    
+    // Background replication
+    startAsyncReplication() {
+        setInterval(async () => {
+            while (this.replicationQueue.length > 0) {
+                const update = this.replicationQueue.shift();
+                
+                // Replicate to all other replicas
+                for (const replica of this.replicas) {
+                    if (replica.id !== update.sourceReplica) {
+                        try {
+                            await replica.write(update.key, update.value);
+                            console.log(`  → Replicated to ${replica.id}`);
+                        } catch (error) {
+                            // Failed replication - will retry
+                            console.log(`  ✗ Failed to replicate to ${replica.id}`);
+                            this.replicationQueue.push(update);
+                        }
+                    }
+                }
+            }
+        }, 100); // Replicate every 100ms
+    }
+    
+    selectLocalReplica() {
+        // In real system: select geographically closest
+        return this.replicas[0];
+    }
+}
+
+// Contrast: ACID System (Strong Consistency)
+class AcidSystem {
+    constructor(replicas) {
+        this.replicas = replicas;
+    }
+    
+    // Write: Slower, but consistent
+    async write(key, value) {
+        console.log('Writing to all replicas synchronously...');
+        
+        // Write to ALL replicas (wait for all!)
+        const promises = this.replicas.map(replica =>
+            replica.write(key, value)
+                .then(() => console.log(`  ✓ ${replica.id} written`))
+        );
+        
+        try {
+            await Promise.all(promises);
+            console.log('✓ Write completed (ALL replicas updated)');
+            return { success: true, consistent: true };
+        } catch (error) {
+            console.log('✗ Write failed - rolling back');
+            // Rollback on any failure
+            throw error;
+        }
+    }
+    
+    // Read: Always current
+    async read(key) {
+        // Read from any replica (all are consistent)
+        const value = await this.replicas[0].read(key);
+        console.log(`Read: ${key} = ${value} (guaranteed current!)`);
+        return value;
+    }
+}
+
+// Compare performance
+async function compareACIDvsBase() {
+    console.log('=== WRITE PERFORMANCE ===\n');
+    
+    console.log('ACID System (CP):');
+    const acidStart = Date.now();
+    await acidSystem.write('balance', 1000);
+    console.log(`Time: ${Date.now() - acidStart}ms (wait for all replicas)\n`);
+    
+    console.log('BASE System (AP):');
+    const baseStart = Date.now();
+    await baseSystem.write('balance', 1000);
+    console.log(`Time: ${Date.now() - baseStart}ms (return immediately!)\n`);
+    
+    console.log('BASE is much faster, but eventual consistency!');
+}</code></pre>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: CAP Trade-offs Simulator</h3>
+            <p>Experience the CAP trade-offs in different scenarios:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demoCPSystem()">CP System (Banking)</button>
+                <button class="demo-button" onclick="demoAPSystem()">AP System (Social Media)</button>
+                <button class="demo-button" onclick="demoPartition()">Network Partition</button>
+                <button class="demo-button" onclick="demoPACELC()">PACELC Comparison</button>
+            </div>
+            <div id="capDemo" class="demo-output">Click a button to explore CAP trade-offs...</div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>System</th>
+                <th>CAP Choice</th>
+                <th>PACELC</th>
+                <th>Behavior</th>
+            </tr>
+            <tr>
+                <td><strong>Cassandra</strong></td>
+                <td>AP</td>
+                <td>PA/EL</td>
+                <td>Always available, eventual consistency, low latency</td>
+            </tr>
+            <tr>
+                <td><strong>MongoDB</strong></td>
+                <td>CP</td>
+                <td>PC/EC</td>
+                <td>Strong consistency, may be unavailable, sync replication</td>
+            </tr>
+            <tr>
+                <td><strong>DynamoDB</strong></td>
+                <td>AP</td>
+                <td>PA/EL</td>
+                <td>Always available, eventual by default, fast</td>
+            </tr>
+            <tr>
+                <td><strong>HBase</strong></td>
+                <td>CP</td>
+                <td>PC/EC</td>
+                <td>Strong consistency, may fail during partition</td>
+            </tr>
+            <tr>
+                <td><strong>Riak</strong></td>
+                <td>AP</td>
+                <td>PA/EL</td>
+                <td>Tunable, defaults to availability</td>
+            </tr>
+            <tr>
+                <td><strong>Google Spanner</strong></td>
+                <td>CP</td>
+                <td>PC/EC</td>
+                <td>External consistency, high latency for sync</td>
+            </tr>
+            <tr>
+                <td><strong>CouchDB</strong></td>
+                <td>AP</td>
+                <td>PA/EL</td>
+                <td>Multi-master, conflict resolution</td>
+            </tr>
+        </table>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 12</h3>
+            <ul style="line-height: 2;">
+                <li><strong>CAP Theorem</strong> - can have at most 2 of 3: Consistency, Availability, Partition tolerance</li>
+                <li><strong>P is required</strong> - network partitions happen, so real choice is C vs A</li>
+                <li><strong>CP Systems</strong> - reject requests during partition (MongoDB, HBase)</li>
+                <li><strong>AP Systems</strong> - accept requests, resolve conflicts later (Cassandra, DynamoDB)</li>
+                <li><strong>CA is unrealistic</strong> - assumes no network partitions (single-node only)</li>
+                <li><strong>BASE vs ACID</strong> - AP systems use BASE (eventual consistency)</li>
+                <li><strong>PACELC extends CAP</strong> - considers latency vs consistency trade-off during normal operation</li>
+                <li><strong>No perfect choice</strong> - choose based on application requirements</li>
+                <li><strong>Banking needs CP</strong> - correctness over availability</li>
+                <li><strong>Social media needs AP</strong> - availability over immediate consistency</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>Why can't a distributed system have C + A + P during a network partition?</li>
+                <li>Explain why P (partition tolerance) is not optional in real systems.</li>
+                <li>Give an example where CP is the right choice and one where AP is better.</li>
+                <li>What does "basically available" mean in BASE?</li>
+                <li>How does PACELC extend CAP theorem?</li>
+                <li>Why is Cassandra classified as PA/EL in PACELC?</li>
+                <li>Compare ACID vs BASE - when would you use each?</li>
+                <li>Design a distributed system for: (a) stock trading, (b) blog comments. Which CAP choice?</li>
+                <li>What happens to a CP system during a network partition?</li>
+                <li>Can eventual consistency guarantee a specific time to converge?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function demoCPSystem() {
+            const output = document.getElementById('capDemo');
+            output.textContent = '=== CP SYSTEM: BANKING (Consistency over Availability) ===\n\n';
+            
+            output.textContent += 'Setup: Bank with 3 replicas (NY, London, Tokyo)\n';
+            output.textContent += 'Replication: Synchronous (wait for all)\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- NORMAL OPERATION ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Client: Transfer $100 from Alice to Bob\n';
+            await sleep(300);
+            output.textContent += '  → Writing to NY replica... ✓\n';
+            await sleep(300);
+            output.textContent += '  → Writing to London replica... ✓\n';
+            await sleep(300);
+            output.textContent += '  → Writing to Tokyo replica... ✓\n';
+            await sleep(300);
+            output.textContent += '  → All replicas updated!\n';
+            output.textContent += '  → Return SUCCESS to client ✓\n';
+            output.textContent += '  Time: 300ms (wait for all)\n\n';
+            
+            output.textContent += 'All replicas consistent: Alice=$900, Bob=$1100 ✓\n\n';
+            
+            await sleep(1000);
+            output.textContent += '--- NETWORK PARTITION OCCURS ---\n\n';
+            
+            await sleep(300);
+            output.textContent += '⚡ Trans-Atlantic cable cut!\n';
+            output.textContent += 'NY ↔ London: DISCONNECTED\n';
+            output.textContent += 'NY ↔ Tokyo: DISCONNECTED\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Client: Transfer $50\n';
+            await sleep(300);
+            output.textContent += '  → Writing to NY replica... ✓\n';
+            await sleep(300);
+            output.textContent += '  → Writing to London replica... ⏰ TIMEOUT\n';
+            await sleep(300);
+            output.textContent += '  → Writing to Tokyo replica... ⏰ TIMEOUT\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Decision: Cannot reach majority of replicas\n';
+            output.textContent += 'Action: REJECT transaction ❌\n';
+            output.textContent += '  → Return ERROR to client\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Result:\n';
+            output.textContent += '  ✓ Consistency maintained (no partial updates)\n';
+            output.textContent += '  ✗ System UNAVAILABLE during partition\n\n';
+            
+            output.textContent += 'CP Choice: Better safe than sorry!\n';
+            output.textContent += 'Banking can\'t tolerate inconsistent balances.';
+        }
+        
+        async function demoAPSystem() {
+            const output = document.getElementById('capDemo');
+            output.textContent = '=== AP SYSTEM: SOCIAL MEDIA (Availability over Consistency) ===\n\n';
+            
+            output.textContent += 'Setup: Twitter with 3 replicas (US, Europe, Asia)\n';
+            output.textContent += 'Replication: Asynchronous (return immediately)\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- NORMAL OPERATION ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Alice: Post "Hello World!"\n';
+            await sleep(300);
+            output.textContent += '  → Writing to US replica... ✓\n';
+            output.textContent += '  → Return SUCCESS immediately!\n';
+            output.textContent += '  Time: 50ms (don\'t wait for replication)\n';
+            output.textContent += '  → Async replication to Europe, Asia...\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Bob in Europe: Refresh feed\n';
+            await sleep(300);
+            output.textContent += '  → Read from Europe replica\n';
+            output.textContent += '  → Doesn\'t see Alice\'s post yet ⏳\n';
+            output.textContent += '  (Replication still in progress)\n\n';
+            
+            await sleep(500);
+            output.textContent += '100ms later...\n';
+            output.textContent += '  → Europe replica updated ✓\n';
+            output.textContent += 'Bob refreshes: Now sees "Hello World!" ✓\n\n';
+            
+            await sleep(1000);
+            output.textContent += '--- NETWORK PARTITION OCCURS ---\n\n';
+            
+            await sleep(300);
+            output.textContent += '⚡ Trans-Atlantic link fails!\n';
+            output.textContent += 'US ↔ Europe: DISCONNECTED\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Alice in US: Post "I love NY!"\n';
+            await sleep(300);
+            output.textContent += '  → Writing to US replica... ✓\n';
+            output.textContent += '  → Return SUCCESS! ✓\n';
+            output.textContent += '  (Can\'t reach Europe, but accept anyway)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Charlie in Europe: Post "I love Paris!"\n';
+            await sleep(300);
+            output.textContent += '  → Writing to Europe replica... ✓\n';
+            output.textContent += '  → Return SUCCESS! ✓\n';
+            output.textContent += '  (Can\'t reach US, but accept anyway)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Result during partition:\n';
+            output.textContent += '  ✓ Both writes ACCEPTED (AVAILABLE)\n';
+            output.textContent += '  ⚠️ Replicas DIVERGED (INCONSISTENT)\n';
+            output.textContent += '  US: has "I love NY", missing "I love Paris"\n';
+            output.textContent += '  EU: has "I love Paris", missing "I love NY"\n\n';
+            
+            await sleep(1000);
+            output.textContent += '--- PARTITION HEALS ---\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Replicas sync:\n';
+            output.textContent += '  → Merge posts from both sides\n';
+            output.textContent += '  → Both posts now visible everywhere ✓\n\n';
+            
+            output.textContent += 'AP Choice: Availability wins!\n';
+            output.textContent += 'Users could post during partition.\n';
+            output.textContent += 'Temporary inconsistency is acceptable.';
+        }
+        
+        async function demoPartition() {
+            const output = document.getElementById('capDemo');
+            output.textContent = '=== NETWORK PARTITION: THE CAP MOMENT ===\n\n';
+            
+            output.textContent += 'System: 2 nodes (A and B), both have X = 10\n\n';
+            
+            await sleep(500);
+            output.textContent += '⚡ NETWORK PARTITION!\n';
+            output.textContent += 'Nodes A and B cannot communicate\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Client 1 → Node A: Write X = 20\n';
+            output.textContent += 'Client 2 → Node B: Write X = 30\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- CP SYSTEM BEHAVIOR ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Node A: "I can\'t reach B to sync"\n';
+            output.textContent += 'Node A: "Consistency requires both nodes agree"\n';
+            output.textContent += 'Node A: REJECT write ❌\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Node B: "I can\'t reach A to sync"\n';
+            output.textContent += 'Node B: "Consistency requires both nodes agree"\n';
+            output.textContent += 'Node B: REJECT write ❌\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Result: UNAVAILABLE but CONSISTENT\n';
+            output.textContent += '  Both still have X = 10\n';
+            output.textContent += '  No divergence ✓\n\n';
+            
+            await sleep(1000);
+            output.textContent += '--- AP SYSTEM BEHAVIOR ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Node A: "Can\'t reach B, but accept anyway"\n';
+            output.textContent += 'Node A: X = 20, ACCEPT write ✓\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Node B: "Can\'t reach A, but accept anyway"\n';
+            output.textContent += 'Node B: X = 30, ACCEPT write ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Result: AVAILABLE but INCONSISTENT\n';
+            output.textContent += '  Node A: X = 20\n';
+            output.textContent += '  Node B: X = 30\n';
+            output.textContent += '  Diverged! Must resolve later ⚠️\n\n';
+            
+            await sleep(500);
+            output.textContent += 'THE CAP CHOICE:\n';
+            output.textContent += '  CP: Reject writes → Unavailable\n';
+            output.textContent += '  AP: Accept writes → Inconsistent\n\n';
+            
+            output.textContent += 'You MUST choose during partition!';
+        }
+        
+        async function demoPACELC() {
+            const output = document.getElementById('capDemo');
+            output.textContent = '=== PACELC THEOREM ===\n\n';
+            
+            output.textContent += 'Comparing: Cassandra (PA/EL) vs MongoDB (PC/EC)\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- SCENARIO 1: NETWORK PARTITION ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Cassandra (PA/EL):\n';
+            output.textContent += '  Choice: Availability (PA)\n';
+            output.textContent += '  Action: Accept writes on both sides ✓\n';
+            output.textContent += '  Result: Available but may diverge\n\n';
+            
+            await sleep(300);
+            output.textContent += 'MongoDB (PC/EC):\n';
+            output.textContent += '  Choice: Consistency (PC)\n';
+            output.textContent += '  Action: Minority partition rejects writes ❌\n';
+            output.textContent += '  Result: Consistent but less available\n\n';
+            
+            await sleep(1000);
+            output.textContent += '--- SCENARIO 2: NO PARTITION (Normal) ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Cassandra (PA/EL):\n';
+            output.textContent += '  Choice: Latency (EL)\n';
+            output.textContent += '  Replication: Asynchronous\n';
+            output.textContent += '  Write latency: 5ms (one replica)\n';
+            output.textContent += '  Consistency: Eventual ⏰\n\n';
+            
+            await sleep(300);
+            output.textContent += 'MongoDB (PC/EC):\n';
+            output.textContent += '  Choice: Consistency (EC)\n';
+            output.textContent += '  Replication: Synchronous (wait for majority)\n';
+            output.textContent += '  Write latency: 50ms (wait for replicas)\n';
+            output.textContent += '  Consistency: Strong ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'PACELC Summary:\n';
+            output.textContent += '  Cassandra: Fast & Available (eventual consistency)\n';
+            output.textContent += '  MongoDB: Strong Consistency (slower, less available)\n\n';
+            
+            output.textContent += 'Different priorities for different use cases!';
+        }
+    </script>
+</body>
+</html>

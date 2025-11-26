@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Control Flow - Chapter 2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #f093fb;
+        }
+        
+        .section h2 {
+            color: #f5576c;
+            margin-bottom: 20px;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section h3 {
+            color: #f093fb;
+            margin: 25px 0 15px 0;
+            font-size: 1.5em;
+        }
+        
+        .section h4 {
+            color: #666;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+        
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow-x: auto;
+            position: relative;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+        
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .number { color: #d19a66; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+        
+        .visual-box {
+            background: white;
+            border: 2px solid #f093fb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: #f093fb;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f1f3f5;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .note strong {
+            color: #856404;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .warning strong {
+            color: #721c24;
+        }
+        
+        .tip {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .tip strong {
+            color: #0c5460;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .success strong {
+            color: #155724;
+        }
+        
+        .interactive-demo {
+            background: white;
+            border: 2px solid #f5576c;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .interactive-demo button {
+            background: #f093fb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        
+        .interactive-demo button:hover {
+            background: #f5576c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .interactive-demo input,
+        .interactive-demo select {
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            margin: 5px;
+        }
+        
+        .output {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+        
+        .flowchart {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .flow-box {
+            display: inline-block;
+            padding: 15px 25px;
+            margin: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        .flow-condition {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+        }
+        
+        .flow-action {
+            background: #d4edda;
+            border: 2px solid #28a745;
+        }
+        
+        .flow-arrow {
+            display: inline-block;
+            margin: 0 10px;
+            font-size: 24px;
+            color: #f5576c;
+        }
+        
+        .loop-visualization {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .loop-step {
+            background: #f093fb;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 80px;
+            text-align: center;
+            font-weight: bold;
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        .syntax-pattern {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔀 Chapter 2: Control Flow</h1>
+            <p>Master Decision Making & Loops in JavaScript</p>
+        </header>
+        
+        <div class="content">
+            <!-- Section 1: Conditional Statements -->
+            <div class="section" id="conditionals">
+                <h2>🤔 1. Conditional Statements</h2>
+                
+                <p>Conditional statements allow your code to make decisions and execute different code blocks based on conditions.</p>
+                
+                <h3>1.1 if Statement</h3>
+                <p>The most basic conditional - executes code if a condition is true.</p>
+                
+                <div class="syntax-pattern">
+                    <strong>Syntax:</strong><br>
+                    if (condition) {<br>
+                    &nbsp;&nbsp;// code to execute if condition is true<br>
+                    }
+                </div>
+                
+                <div class="code-block">
+<code><span class="keyword">let</span> age = <span class="number">20</span>;
+
+<span class="keyword">if</span> (age >= <span class="number">18</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"You are an adult"</span>);
+}
+
+<span class="comment">// Multiple conditions</span>
+<span class="keyword">let</span> temperature = <span class="number">30</span>;
+
+<span class="keyword">if</span> (temperature > <span class="number">25</span> && temperature < <span class="number">35</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Perfect weather!"</span>);
+}</code>
+                </div>
+                
+                <h3>1.2 if-else Statement</h3>
+                <p>Executes one block if condition is true, another if false.</p>
+                
+                <div class="code-block">
+<code><span class="keyword">let</span> score = <span class="number">75</span>;
+
+<span class="keyword">if</span> (score >= <span class="number">60</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Pass"</span>);
+} <span class="keyword">else</span> {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Fail"</span>);
+}
+
+<span class="comment">// Output: "Pass"</span></code>
+                </div>
+                
+                <div class="flowchart">
+                    <div class="flow-box flow-condition">age >= 18?</div>
+                    <div class="flow-arrow">↓ YES</div>
+                    <div class="flow-box flow-action">"Adult"</div>
+                    <br>
+                    <div class="flow-arrow">↓ NO</div>
+                    <div class="flow-box flow-action">"Minor"</div>
+                </div>
+                
+                <h3>1.3 if-else if-else Ladder</h3>
+                <p>Test multiple conditions in sequence.</p>
+                
+                <div class="code-block">
+<code><span class="keyword">let</span> grade = <span class="number">85</span>;
+
+<span class="keyword">if</span> (grade >= <span class="number">90</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"A - Excellent!"</span>);
+} <span class="keyword">else if</span> (grade >= <span class="number">80</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"B - Good!"</span>);
+} <span class="keyword">else if</span> (grade >= <span class="number">70</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"C - Average"</span>);
+} <span class="keyword">else if</span> (grade >= <span class="number">60</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"D - Pass"</span>);
+} <span class="keyword">else</span> {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"F - Fail"</span>);
+}
+
+<span class="comment">// Output: "B - Good!"</span></code>
+                </div>
+                
+                <div class="note">
+                    <strong>💡 Important:</strong> The conditions are checked in order from top to bottom. Once a condition is true, the corresponding block executes and the rest are skipped.
+                </div>
+                
+                <h3>1.4 Nested if Statements</h3>
+                <p>if statements inside other if statements for complex logic.</p>
+                
+                <div class="code-block">
+<code><span class="keyword">let</span> age = <span class="number">25</span>;
+<span class="keyword">let</span> hasLicense = <span class="keyword">true</span>;
+
+<span class="keyword">if</span> (age >= <span class="number">18</span>) {
+    <span class="keyword">if</span> (hasLicense) {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">"You can drive"</span>);
+    } <span class="keyword">else</span> {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">"You need a license"</span>);
+    }
+} <span class="keyword">else</span> {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"You are too young to drive"</span>);
+}</code>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Avoid Deep Nesting:</strong> Too many nested if statements make code hard to read. Consider using logical operators (&&, ||) or early returns instead.
+                </div>
+                
+                <h3>1.5 Ternary Operator</h3>
+                <p>A shorthand for simple if-else statements.</p>
+                
+                <div class="syntax-pattern">
+                    <strong>Syntax:</strong> condition ? valueIfTrue : valueIfFalse
+                </div>
+                
+                <div class="code-block">
+<code><span class="keyword">let</span> age = <span class="number">20</span>;
+<span class="keyword">let</span> status = age >= <span class="number">18</span> ? <span class="string">"adult"</span> : <span class="string">"minor"</span>;
+<span class="function">console</span>.<span class="function">log</span>(status);  <span class="comment">// "adult"</span>
+
+<span class="comment">// Nested ternary (use sparingly!)</span>
+<span class="keyword">let</span> score = <span class="number">85</span>;
+<span class="keyword">let</span> grade = score >= <span class="number">90</span> ? <span class="string">"A"</span> : 
+              score >= <span class="number">80</span> ? <span class="string">"B"</span> : 
+              score >= <span class="number">70</span> ? <span class="string">"C"</span> : <span class="string">"F"</span>;
+
+<span class="comment">// In function returns</span>
+<span class="keyword">function</span> <span class="function">canVote</span>(age) {
+    <span class="keyword">return</span> age >= <span class="number">18</span> ? <span class="string">"Yes"</span> : <span class="string">"No"</span>;
+}</code>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 When to use:</strong> Use ternary for simple conditions. For complex logic, use if-else for better readability.
+                </div>
+                
+                <h3>1.6 Switch Statement</h3>
+                <p>Efficient way to check a variable against multiple values.</p>
+                
+                <div class="syntax-pattern">
+                    <strong>Syntax:</strong><br>
+                    switch (expression) {<br>
+                    &nbsp;&nbsp;case value1:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;// code<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;break;<br>
+                    &nbsp;&nbsp;default:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;// code<br>
+                    }
+                </div>
+                
+                <div class="code-block">
+<code><span class="keyword">let</span> day = <span class="number">3</span>;
+<span class="keyword">let</span> dayName;
+
+<span class="keyword">switch</span> (day) {
+    <span class="keyword">case</span> <span class="number">1</span>:
+        dayName = <span class="string">"Monday"</span>;
+        <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="number">2</span>:
+        dayName = <span class="string">"Tuesday"</span>;
+        <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="number">3</span>:
+        dayName = <span class="string">"Wednesday"</span>;
+        <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="number">4</span>:
+        dayName = <span class="string">"Thursday"</span>;
+        <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="number">5</span>:
+        dayName = <span class="string">"Friday"</span>;
+        <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="number">6</span>:
+    <span class="keyword">case</span> <span class="number">7</span>:
+        dayName = <span class="string">"Weekend"</span>;
+        <span class="keyword">break</span>;
+    <span class="keyword">default</span>:
+        dayName = <span class="string">"Invalid day"</span>;
+}
+
+<span class="function">console</span>.<span class="function">log</span>(dayName);  <span class="comment">// "Wednesday"</span></code>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Don't Forget break!</strong> Without <code>break</code>, execution "falls through" to the next case. This is a common bug!
+                </div>
+                
+                <div class="code-block">
+<code><span class="comment">// Fall-through example (intentional)</span>
+<span class="keyword">let</span> month = <span class="string">"March"</span>;
+
+<span class="keyword">switch</span> (month) {
+    <span class="keyword">case</span> <span class="string">"December"</span>:
+    <span class="keyword">case</span> <span class="string">"January"</span>:
+    <span class="keyword">case</span> <span class="string">"February"</span>:
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Winter"</span>);
+        <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="string">"March"</span>:
+    <span class="keyword">case</span> <span class="string">"April"</span>:
+    <span class="keyword">case</span> <span class="string">"May"</span>:
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Spring"</span>);
+        <span class="keyword">break</span>;
+    <span class="comment">// ... more cases</span>
+}</code>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>if-else</th>
+                            <th>switch</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Best for</strong></td>
+                            <td>Complex conditions, ranges</td>
+                            <td>Multiple specific values</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Comparison</strong></td>
+                            <td>Uses ===, can use any operator</td>
+                            <td>Uses === only (strict equality)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Readability</strong></td>
+                            <td>Better for 2-3 conditions</td>
+                            <td>Better for 4+ conditions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Performance</strong></td>
+                            <td>Checks each condition</td>
+                            <td>Optimized by engine (faster for many cases)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Try It: Grade Calculator</h4>
+                    <input type="number" id="gradeInput" placeholder="Enter score (0-100)" min="0" max="100">
+                    <button onclick="calculateGrade()">Calculate Grade</button>
+                    <div class="output" id="gradeOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 2: Loops -->
+            <div class="section" id="loops">
+                <h2>🔁 2. Loops</h2>
+                
+                <p>Loops allow you to execute a block of code repeatedly. JavaScript has several types of loops.</p>
+                
+                <h3>2.1 for Loop</h3>
+                <p>The most common loop - when you know how many iterations you need.</p>
+                
+                <div class="syntax-pattern">
+                    <strong>Syntax:</strong> for (initialization; condition; increment) { code }
+                </div>
+                
+                <div class="code-block">
+<code><span class="comment">// Basic for loop</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">5</span>; i++) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Iteration ${i}`</span>);
+}
+<span class="comment">// Output: Iteration 0, 1, 2, 3, 4</span>
+
+<span class="comment">// Array iteration</span>
+<span class="keyword">const</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>];
+
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < fruits.length; i++) {
+    <span class="function">console</span>.<span class="function">log</span>(fruits[i]);
+}
+
+<span class="comment">// Reverse loop</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">5</span>; i > <span class="number">0</span>; i--) {
+    <span class="function">console</span>.<span class="function">log</span>(i);
+}
+<span class="comment">// Output: 5, 4, 3, 2, 1</span>
+
+<span class="comment">// Skip by 2</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">10</span>; i += <span class="number">2</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(i);
+}
+<span class="comment">// Output: 0, 2, 4, 6, 8</span></code>
+                </div>
+                
+                <div class="visual-box">
+                    <h4>for Loop Execution Flow</h4>
+                    <p><strong>1. Initialization</strong> → <strong>2. Check Condition</strong> → <strong>3. Execute Code</strong> → <strong>4. Increment</strong> → <strong>2. Check Condition</strong> → ...</p>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <div class="flow-box flow-action">let i = 0</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box flow-condition">i < 5?</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box flow-action">Execute</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box flow-action">i++</div>
+                        <div class="flow-arrow">↻</div>
+                    </div>
+                </div>
+                
+                <h3>2.2 while Loop</h3>
+                <p>Executes while a condition is true - when you don't know the exact number of iterations.</p>
+                
+                <div class="code-block">
+<code><span class="keyword">let</span> count = <span class="number">0</span>;
+
+<span class="keyword">while</span> (count < <span class="number">5</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Count: ${count}`</span>);
+    count++;
+}
+
+<span class="comment">// Practical example: Finding a value</span>
+<span class="keyword">let</span> numbers = [<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span>];
+<span class="keyword">let</span> index = <span class="number">0</span>;
+<span class="keyword">let</span> target = <span class="number">7</span>;
+
+<span class="keyword">while</span> (index < numbers.length) {
+    <span class="keyword">if</span> (numbers[index] === target) {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Found ${target} at index ${index}`</span>);
+        <span class="keyword">break</span>;
+    }
+    index++;
+}</code>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Infinite Loop Risk!</strong> Always ensure the condition will eventually become false, or you'll create an infinite loop that can crash the browser!
+                </div>
+                
+                <div class="code-block">
+<code><span class="comment">// ❌ BAD - Infinite loop!</span>
+<span class="keyword">let</span> x = <span class="number">0</span>;
+<span class="keyword">while</span> (x < <span class="number">10</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(x);
+    <span class="comment">// Missing x++ - x never increases!</span>
+}
+
+<span class="comment">// ✅ GOOD</span>
+<span class="keyword">let</span> x = <span class="number">0</span>;
+<span class="keyword">while</span> (x < <span class="number">10</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(x);
+    x++;
+}</code>
+                </div>
+                
+                <h3>2.3 do-while Loop</h3>
+                <p>Similar to while, but executes at least once before checking the condition.</p>
+                
+                <div class="code-block">
+<code><span class="keyword">let</span> num = <span class="number">0</span>;
+
+<span class="keyword">do</span> {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Number: ${num}`</span>);
+    num++;
+} <span class="keyword">while</span> (num < <span class="number">5</span>);
+
+<span class="comment">// Key difference: runs at least once even if condition is false</span>
+<span class="keyword">let</span> x = <span class="number">10</span>;
+
+<span class="keyword">do</span> {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"This runs once"</span>);
+} <span class="keyword">while</span> (x < <span class="number">5</span>);  <span class="comment">// Condition is false but code still ran!</span></code>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Loop Type</th>
+                            <th>When to Use</th>
+                            <th>Checks Condition</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>for</strong></td>
+                            <td>Known number of iterations</td>
+                            <td>Before each iteration</td>
+                        </tr>
+                        <tr>
+                            <td><strong>while</strong></td>
+                            <td>Unknown iterations, may not run at all</td>
+                            <td>Before each iteration</td>
+                        </tr>
+                        <tr>
+                            <td><strong>do-while</strong></td>
+                            <td>Unknown iterations, must run at least once</td>
+                            <td>After each iteration</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>2.4 for...in Loop</h3>
+                <p>Iterates over <strong>enumerable properties</strong> of an object (including inherited ones).</p>
+                
+                <div class="code-block">
+<code><span class="comment">// Best for objects</span>
+<span class="keyword">const</span> person = {
+    name: <span class="string">"John"</span>,
+    age: <span class="number">30</span>,
+    city: <span class="string">"New York"</span>
+};
+
+<span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> person) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`${key}: ${person[key]}`</span>);
+}
+<span class="comment">// Output:
+// name: John
+// age: 30
+// city: New York</span>
+
+<span class="comment">// Can be used with arrays (but not recommended)</span>
+<span class="keyword">const</span> arr = [<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>];
+
+<span class="keyword">for</span> (<span class="keyword">let</span> index <span class="keyword">in</span> arr) {
+    <span class="function">console</span>.<span class="function">log</span>(index);  <span class="comment">// "0", "1", "2" (strings, not numbers!)</span>
+}</code>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Warning:</strong> <code>for...in</code> should NOT be used with arrays! It iterates over all enumerable properties, including inherited ones, and indices are strings.
+                </div>
+                
+                <h3>2.5 for...of Loop (ES6)</h3>
+                <p>Iterates over <strong>iterable values</strong> (arrays, strings, Maps, Sets, etc.).</p>
+                
+                <div class="code-block">
+<code><span class="comment">// Best for arrays</span>
+<span class="keyword">const</span> fruits = [<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"orange"</span>];
+
+<span class="keyword">for</span> (<span class="keyword">let</span> fruit <span class="keyword">of</span> fruits) {
+    <span class="function">console</span>.<span class="function">log</span>(fruit);
+}
+<span class="comment">// Output: apple, banana, orange</span>
+
+<span class="comment">// Works with strings</span>
+<span class="keyword">const</span> word = <span class="string">"hello"</span>;
+
+<span class="keyword">for</span> (<span class="keyword">let</span> char <span class="keyword">of</span> word) {
+    <span class="function">console</span>.<span class="function">log</span>(char);
+}
+<span class="comment">// Output: h, e, l, l, o</span>
+
+<span class="comment">// With array entries</span>
+<span class="keyword">const</span> colors = [<span class="string">"red"</span>, <span class="string">"green"</span>, <span class="string">"blue"</span>];
+
+<span class="keyword">for</span> (<span class="keyword">let</span> [index, color] <span class="keyword">of</span> colors.<span class="function">entries</span>()) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`${index}: ${color}`</span>);
+}</code>
+                </div>
+                
+                <div class="visual-box">
+                    <h4>for...in vs for...of - Quick Reference</h4>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>for...in</th>
+                                <th>for...of</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Iterates over</strong></td>
+                                <td>Keys/Indices (enumerable properties)</td>
+                                <td>Values (iterable elements)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Best for</strong></td>
+                                <td>Objects</td>
+                                <td>Arrays, Strings, Maps, Sets</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Returns</strong></td>
+                                <td>Property names (strings)</td>
+                                <td>Property values</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Array usage</strong></td>
+                                <td>❌ Not recommended</td>
+                                <td>✅ Recommended</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Object usage</strong></td>
+                                <td>✅ Recommended</td>
+                                <td>❌ Won't work</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 Interview Favorite:</strong> Remember - <code>for...in</code> for <strong>IN</strong>dices/keys (objects), <code>for...of</code> for <strong>OF</strong> values (arrays)!
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Loop Visualizer</h4>
+                    <select id="loopType">
+                        <option value="for">for loop</option>
+                        <option value="while">while loop</option>
+                        <option value="forOf">for...of loop</option>
+                    </select>
+                    <button onclick="visualizeLoop()">Visualize</button>
+                    <div class="output" id="loopOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 3: Break and Continue -->
+            <div class="section" id="break-continue">
+                <h2>⏹️ 3. Break and Continue Statements</h2>
+                
+                <h3>3.1 break Statement</h3>
+                <p>Exits the loop completely, regardless of the condition.</p>
+                
+                <div class="code-block">
+<code><span class="comment">// Exit loop when condition is met</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">10</span>; i++) {
+    <span class="keyword">if</span> (i === <span class="number">5</span>) {
+        <span class="keyword">break</span>;  <span class="comment">// Stop the loop</span>
+    }
+    <span class="function">console</span>.<span class="function">log</span>(i);
+}
+<span class="comment">// Output: 0, 1, 2, 3, 4 (stops at 5)</span>
+
+<span class="comment">// Practical example: Finding first match</span>
+<span class="keyword">const</span> numbers = [<span class="number">10</span>, <span class="number">25</span>, <span class="number">30</span>, <span class="number">45</span>, <span class="number">50</span>];
+<span class="keyword">let</span> found = <span class="keyword">false</span>;
+
+<span class="keyword">for</span> (<span class="keyword">let</span> num <span class="keyword">of</span> numbers) {
+    <span class="keyword">if</span> (num > <span class="number">30</span>) {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`First number > 30 is ${num}`</span>);
+        found = <span class="keyword">true</span>;
+        <span class="keyword">break</span>;  <span class="comment">// No need to check rest</span>
+    }
+}
+<span class="comment">// Output: First number > 30 is 45</span></code>
+                </div>
+                
+                <h3>3.2 continue Statement</h3>
+                <p>Skips the current iteration and moves to the next one.</p>
+                
+                <div class="code-block">
+<code><span class="comment">// Skip specific values</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">10</span>; i++) {
+    <span class="keyword">if</span> (i % <span class="number">2</span> === <span class="number">0</span>) {
+        <span class="keyword">continue</span>;  <span class="comment">// Skip even numbers</span>
+    }
+    <span class="function">console</span>.<span class="function">log</span>(i);
+}
+<span class="comment">// Output: 1, 3, 5, 7, 9 (only odd numbers)</span>
+
+<span class="comment">// Practical example: Filter data</span>
+<span class="keyword">const</span> scores = [<span class="number">45</span>, <span class="number">78</span>, <span class="number">-5</span>, <span class="number">92</span>, <span class="number">105</span>, <span class="number">68</span>];
+
+<span class="keyword">for</span> (<span class="keyword">let</span> score <span class="keyword">of</span> scores) {
+    <span class="keyword">if</span> (score < <span class="number">0</span> || score > <span class="number">100</span>) {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Invalid score: ${score}`</span>);
+        <span class="keyword">continue</span>;  <span class="comment">// Skip invalid scores</span>
+    }
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Valid score: ${score}`</span>);
+}</code>
+                </div>
+                
+                <div class="visual-box">
+                    <h4>break vs continue Visualization</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <h4 style="text-align: center; color: #f5576c;">break</h4>
+                            <div style="text-align: center;">
+                                <div class="loop-step">i=0</div>
+                                <div class="loop-step">i=1</div>
+                                <div class="loop-step">i=2</div>
+                                <div class="loop-step" style="background: #dc3545;">break! ⛔</div>
+                                <p style="margin-top: 10px; color: #666;">Loop ends completely</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 style="text-align: center; color: #f093fb;">continue</h4>
+                            <div style="text-align: center;">
+                                <div class="loop-step">i=0</div>
+                                <div class="loop-step">i=1</div>
+                                <div class="loop-step" style="background: #ffc107;">skip ⏭️</div>
+                                <div class="loop-step">i=3</div>
+                                <div class="loop-step">i=4</div>
+                                <p style="margin-top: 10px; color: #666;">Skips iteration, continues loop</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Statement</th>
+                            <th>Action</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>break</strong></td>
+                            <td>Exits loop completely</td>
+                            <td>When you've found what you need</td>
+                        </tr>
+                        <tr>
+                            <td><strong>continue</strong></td>
+                            <td>Skips to next iteration</td>
+                            <td>When you want to skip certain values</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>3.3 Nested Loop Control</h3>
+                <p>break and continue only affect the innermost loop by default.</p>
+                
+                <div class="code-block">
+<code><span class="comment">// break in nested loop</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">3</span>; i++) {
+    <span class="keyword">for</span> (<span class="keyword">let</span> j = <span class="number">0</span>; j < <span class="number">3</span>; j++) {
+        <span class="keyword">if</span> (j === <span class="number">1</span>) {
+            <span class="keyword">break</span>;  <span class="comment">// Only breaks inner loop</span>
+        }
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`i=${i}, j=${j}`</span>);
+    }
+}
+<span class="comment">// Output: i=0,j=0  i=1,j=0  i=2,j=0</span></code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Break vs Continue Demo</h4>
+                    <button onclick="demoBreak()">Demo break</button>
+                    <button onclick="demoContinue()">Demo continue</button>
+                    <div class="output" id="breakContinueOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 4: Labels -->
+            <div class="section" id="labels">
+                <h2>🏷️ 4. Labels</h2>
+                
+                <p>Labels allow you to identify loops and break/continue outer loops from within nested loops.</p>
+                
+                <div class="syntax-pattern">
+                    <strong>Syntax:</strong><br>
+                    labelName: for (...) { ... }
+                </div>
+                
+                <div class="code-block">
+<code><span class="comment">// Breaking out of nested loops</span>
+outerLoop: <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">3</span>; i++) {
+    <span class="keyword">for</span> (<span class="keyword">let</span> j = <span class="number">0</span>; j < <span class="number">3</span>; j++) {
+        <span class="keyword">if</span> (i === <span class="number">1</span> && j === <span class="number">1</span>) {
+            <span class="keyword">break</span> outerLoop;  <span class="comment">// Breaks outer loop</span>
+        }
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`i=${i}, j=${j}`</span>);
+    }
+}
+<span class="comment">// Output: i=0,j=0  i=0,j=1  i=0,j=2  i=1,j=0</span>
+
+<span class="comment">// Practical example: 2D array search</span>
+<span class="keyword">const</span> matrix = [
+    [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],
+    [<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>],
+    [<span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>]
+];
+
+<span class="keyword">let</span> found = <span class="keyword">false</span>;
+search: <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < matrix.length; i++) {
+    <span class="keyword">for</span> (<span class="keyword">let</span> j = <span class="number">0</span>; j < matrix[i].length; j++) {
+        <span class="keyword">if</span> (matrix[i][j] === <span class="number">5</span>) {
+            <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Found 5 at [${i}][${j}]`</span>);
+            found = <span class="keyword">true</span>;
+            <span class="keyword">break</span> search;  <span class="comment">// Exit both loops</span>
+        }
+    }
+}
+<span class="comment">// Output: Found 5 at [1][1]</span></code>
+                </div>
+                
+                <div class="code-block">
+<code><span class="comment">// Continue with labels</span>
+outerLoop: <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">3</span>; i++) {
+    <span class="keyword">for</span> (<span class="keyword">let</span> j = <span class="number">0</span>; j < <span class="number">3</span>; j++) {
+        <span class="keyword">if</span> (j === <span class="number">1</span>) {
+            <span class="keyword">continue</span> outerLoop;  <span class="comment">// Skip to next i</span>
+        }
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`i=${i}, j=${j}`</span>);
+    }
+}
+<span class="comment">// Output: i=0,j=0  i=1,j=0  i=2,j=0</span></code>
+                </div>
+                
+                <div class="note">
+                    <strong>💡 When to use labels:</strong>
+                    <ul>
+                        <li>Searching in 2D arrays/matrices</li>
+                        <li>Complex nested loop logic</li>
+                        <li>When you need to exit multiple loop levels</li>
+                    </ul>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Use Sparingly:</strong> Labels can make code harder to read. Consider refactoring into functions with early returns instead.
+                </div>
+                
+                <div class="code-block">
+<code><span class="comment">// Alternative to labels: Use functions</span>
+<span class="keyword">function</span> <span class="function">findInMatrix</span>(matrix, target) {
+    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < matrix.length; i++) {
+        <span class="keyword">for</span> (<span class="keyword">let</span> j = <span class="number">0</span>; j < matrix[i].length; j++) {
+            <span class="keyword">if</span> (matrix[i][j] === target) {
+                <span class="keyword">return</span> { i, j };  <span class="comment">// Early return exits all loops</span>
+            }
+        }
+    }
+    <span class="keyword">return</span> <span class="keyword">null</span>;
+}</code>
+                </div>
+            </div>
+
+            <!-- Section 5: Best Practices -->
+            <div class="section" id="best-practices">
+                <h2>✨ 5. Best Practices & Common Patterns</h2>
+                
+                <h3>5.1 Avoid Modifying Loop Variables</h3>
+                <div class="code-block">
+<code><span class="comment">// ❌ BAD - Unpredictable behavior</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">10</span>; i++) {
+    i += <span class="number">2</span>;  <span class="comment">// Modifying inside loop body</span>
+    <span class="function">console</span>.<span class="function">log</span>(i);
+}
+
+<span class="comment">// ✅ GOOD - Use step in loop declaration</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">10</span>; i += <span class="number">3</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(i);
+}</code>
+                </div>
+                
+                <h3>5.2 Cache Array Length</h3>
+                <div class="code-block">
+<code><span class="comment">// ❌ Less efficient - recalculates length each iteration</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < arr.length; i++) {
+    <span class="comment">// code</span>
+}
+
+<span class="comment">// ✅ More efficient - caches length</span>
+<span class="keyword">const</span> len = arr.length;
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < len; i++) {
+    <span class="comment">// code</span>
+}</code>
+                </div>
+                
+                <h3>5.3 Choose the Right Loop</h3>
+                <div class="success">
+                    <strong>✅ Modern JavaScript Preferences:</strong>
+                    <ul>
+                        <li><code>for...of</code> for arrays and iterables</li>
+                        <li><code>forEach()</code> for functional approach</li>
+                        <li><code>map()</code>, <code>filter()</code>, <code>reduce()</code> for transformations</li>
+                        <li>Traditional <code>for</code> when you need index control</li>
+                        <li><code>for...in</code> only for objects</li>
+                    </ul>
+                </div>
+                
+                <h3>5.4 Common Interview Patterns</h3>
+                <div class="code-block">
+<code><span class="comment">// Pattern 1: Sum of array</span>
+<span class="keyword">function</span> <span class="function">sum</span>(arr) {
+    <span class="keyword">let</span> total = <span class="number">0</span>;
+    <span class="keyword">for</span> (<span class="keyword">let</span> num <span class="keyword">of</span> arr) {
+        total += num;
+    }
+    <span class="keyword">return</span> total;
+}
+
+<span class="comment">// Pattern 2: Find max value</span>
+<span class="keyword">function</span> <span class="function">findMax</span>(arr) {
+    <span class="keyword">let</span> max = arr[<span class="number">0</span>];
+    <span class="keyword">for</span> (<span class="keyword">let</span> num <span class="keyword">of</span> arr) {
+        <span class="keyword">if</span> (num > max) {
+            max = num;
+        }
+    }
+    <span class="keyword">return</span> max;
+}
+
+<span class="comment">// Pattern 3: Reverse array in-place</span>
+<span class="keyword">function</span> <span class="function">reverseArray</span>(arr) {
+    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < arr.length / <span class="number">2</span>; i++) {
+        <span class="keyword">let</span> temp = arr[i];
+        arr[i] = arr[arr.length - <span class="number">1</span> - i];
+        arr[arr.length - <span class="number">1</span> - i] = temp;
+    }
+    <span class="keyword">return</span> arr;
+}
+
+<span class="comment">// Pattern 4: FizzBuzz (classic interview)</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i <= <span class="number">100</span>; i++) {
+    <span class="keyword">if</span> (i % <span class="number">15</span> === <span class="number">0</span>) {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">"FizzBuzz"</span>);
+    } <span class="keyword">else if</span> (i % <span class="number">3</span> === <span class="number">0</span>) {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Fizz"</span>);
+    } <span class="keyword">else if</span> (i % <span class="number">5</span> === <span class="number">0</span>) {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Buzz"</span>);
+    } <span class="keyword">else</span> {
+        <span class="function">console</span>.<span class="function">log</span>(i);
+    }
+}</code>
+                </div>
+            </div>
+
+            <!-- Section 6: Summary -->
+            <div class="section" id="summary">
+                <h2>📝 Chapter Summary & Interview Questions</h2>
+                
+                <h3>Key Takeaways:</h3>
+                <ol>
+                    <li><strong>Conditionals:</strong> Use <code>if-else</code> for complex conditions, <code>switch</code> for multiple specific values, ternary for simple cases</li>
+                    <li><strong>Loops:</strong> <code>for</code> (known iterations), <code>while</code> (unknown), <code>do-while</code> (at least once)</li>
+                    <li><strong>for...in vs for...of:</strong> <code>in</code> for object keys, <code>of</code> for array values</li>
+                    <li><strong>break:</strong> Exit loop completely</li>
+                    <li><strong>continue:</strong> Skip current iteration</li>
+                    <li><strong>Labels:</strong> Control nested loops (use sparingly)</li>
+                    <li><strong>Best Practice:</strong> Always use strict equality (===), cache array lengths, choose appropriate loop type</li>
+                </ol>
+                
+                <h3>Common Interview Questions:</h3>
+                <div class="visual-box">
+                    <ol>
+                        <li><strong>Q:</strong> What's the difference between <code>for...in</code> and <code>for...of</code>?<br>
+                            <strong>A:</strong> <code>for...in</code> iterates over enumerable property names (keys), best for objects. <code>for...of</code> iterates over iterable values, best for arrays.</li>
+                        
+                        <li><strong>Q:</strong> What's the difference between <code>break</code> and <code>continue</code>?<br>
+                            <strong>A:</strong> <code>break</code> exits the loop entirely. <code>continue</code> skips the current iteration and moves to the next.</li>
+                        
+                        <li><strong>Q:</strong> When would you use a <code>do-while</code> loop?<br>
+                            <strong>A:</strong> When you need the code to execute at least once before checking the condition.</li>
+                        
+                        <li><strong>Q:</strong> What's wrong with using <code>var</code> in loops?<br>
+                            <strong>A:</strong> <code>var</code> is function-scoped, not block-scoped. In callbacks/closures, all iterations reference the same variable. Use <code>let</code> instead.</li>
+                        
+                        <li><strong>Q:</strong> Write FizzBuzz.<br>
+                            <strong>A:</strong> See Best Practices section above!</li>
+                        
+                        <li><strong>Q:</strong> How do you break out of nested loops?<br>
+                            <strong>A:</strong> Use labeled statements or extract into a function with early return.</li>
+                    </ol>
+                </div>
+                
+                <div class="tip">
+                    <strong>💪 Practice Exercises:</strong>
+                    <ol>
+                        <li>Write a function that prints all prime numbers up to n</li>
+                        <li>Implement a function to find the second largest number in an array</li>
+                        <li>Create a multiplication table using nested loops</li>
+                        <li>Write a function that reverses a string using a loop</li>
+                        <li>Implement a pattern printer (triangle, pyramid, etc.)</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateGrade() {
+            const score = parseInt(document.getElementById('gradeInput').value);
+            const output = document.getElementById('gradeOutput');
+            
+            if (isNaN(score) || score < 0 || score > 100) {
+                output.textContent = '❌ Please enter a valid score (0-100)';
+                return;
+            }
+            
+            let grade, message;
+            
+            if (score >= 90) {
+                grade = 'A';
+                message = 'Excellent! 🌟';
+            } else if (score >= 80) {
+                grade = 'B';
+                message = 'Good job! 👍';
+            } else if (score >= 70) {
+                grade = 'C';
+                message = 'Average 📝';
+            } else if (score >= 60) {
+                grade = 'D';
+                message = 'Passing 😅';
+            } else {
+                grade = 'F';
+                message = 'Failed ❌';
+            }
+            
+            output.textContent = `Score: ${score}\nGrade: ${grade}\n${message}`;
+        }
+        
+        function visualizeLoop() {
+            const loopType = document.getElementById('loopType').value;
+            const output = document.getElementById('loopOutput');
+            let result = '';
+            
+            if (loopType === 'for') {
+                result = '=== for Loop Visualization ===\n\n';
+                for (let i = 0; i < 5; i++) {
+                    result += `Iteration ${i}: i = ${i}\n`;
+                }
+            } else if (loopType === 'while') {
+                result = '=== while Loop Visualization ===\n\n';
+                let count = 0;
+                while (count < 5) {
+                    result += `Iteration ${count}: count = ${count}\n`;
+                    count++;
+                }
+            } else if (loopType === 'forOf') {
+                result = '=== for...of Loop Visualization ===\n\n';
+                const fruits = ['apple', 'banana', 'orange', 'grape'];
+                let i = 0;
+                for (let fruit of fruits) {
+                    result += `Iteration ${i}: ${fruit}\n`;
+                    i++;
+                }
+            }
+            
+            output.textContent = result;
+        }
+        
+        function demoBreak() {
+            const output = document.getElementById('breakContinueOutput');
+            let result = '=== break Demo ===\n\n';
+            result += 'Searching for number 5 in [1,2,3,4,5,6,7,8,9,10]:\n\n';
+            
+            const numbers = [1,2,3,4,5,6,7,8,9,10];
+            for (let num of numbers) {
+                result += `Checking ${num}... `;
+                if (num === 5) {
+                    result += '✓ Found! Breaking loop.\n';
+                    break;
+                }
+                result += '\n';
+            }
+            
+            result += '\nLoop ended. Remaining numbers not checked.';
+            output.textContent = result;
+        }
+        
+        function demoContinue() {
+            const output = document.getElementById('breakContinueOutput');
+            let result = '=== continue Demo ===\n\n';
+            result += 'Printing odd numbers from 1-10:\n\n';
+            
+            for (let i = 1; i <= 10; i++) {
+                if (i % 2 === 0) {
+                    result += `${i} is even - skipping\n`;
+                    continue;
+                }
+                result += `${i} ✓ (odd number)\n`;
+            }
+            
+            result += '\nAll iterations completed, even numbers skipped.';
+            output.textContent = result;
+        }
+    </script>
+</body>
+</html>

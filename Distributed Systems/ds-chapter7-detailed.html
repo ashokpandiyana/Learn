@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 7: Fault Tolerance Fundamentals</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+        }
+        
+        .node {
+            display: inline-block;
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            min-width: 100px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .node:hover {
+            transform: scale(1.05);
+        }
+        
+        .node-failed {
+            background: linear-gradient(135deg, #f44336 0%, #e57373 100%);
+            text-decoration: line-through;
+        }
+        
+        .node-warning {
+            background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+        }
+        
+        .heartbeat {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #4caf50;
+            border-radius: 50%;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.5; }
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 30px 0;
+        }
+        
+        .timeline-step {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            top: 25px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 3px solid white;
+        }
+        
+        .checkpoint {
+            background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .recovery-path {
+            border: 3px dashed #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            background: #fff3e0;
+        }
+        
+        .redundancy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .redundancy-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .redundancy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .failure-type {
+            background: white;
+            border-left: 4px solid #f44336;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .replication-visual {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+        
+        .replica {
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px;
+            min-width: 120px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .primary {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            border: 3px solid #2e7d32;
+        }
+        
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ Chapter 7: Fault Tolerance Fundamentals</h1>
+        
+        <div class="problem-box">
+            <h3>💥 The Fundamental Reality</h3>
+            <p style="font-size: 1.2em;"><strong>In distributed systems, failures are not just possible—they're inevitable!</strong></p>
+            <p>Servers crash, networks fail, disks die, processes hang, and messages get lost. <strong>Fault tolerance</strong> is the ability of a system to continue operating correctly even when components fail.</p>
+            <p><strong>Design principle:</strong> Assume everything will fail, and build systems that work anyway!</p>
+        </div>
+        
+        <h2>1️⃣ Types of Failures</h2>
+        
+        <div class="definition">
+            <h4>Failure Taxonomy</h4>
+            <p>Understanding different failure types helps us design appropriate recovery mechanisms. Each type requires different detection and recovery strategies.</p>
+        </div>
+        
+        <h3>🔴 Crash Failures (Fail-Stop)</h3>
+        
+        <div class="failure-type">
+            <h4>What happens:</h4>
+            <p>A component stops working completely and never recovers. It halts and doesn't respond to any requests.</p>
+            
+            <div class="visual-diagram">
+                <div style="text-align: center;">
+                    <div class="node">Server A<br>✓ Running</div>
+                    <div class="arrow">→</div>
+                    <div class="node node-failed">Server A<br>❌ Crashed</div>
+                </div>
+                <p style="margin-top: 20px; font-weight: bold;">Complete halt - no more responses</p>
+            </div>
+            
+            <h4>Characteristics:</h4>
+            <ul>
+                <li><strong>Clean failure:</strong> Component stops cleanly without corrupting data</li>
+                <li><strong>Detectable:</strong> Absence of heartbeats/responses indicates failure</li>
+                <li><strong>Permanent:</strong> Won't recover on its own</li>
+                <li><strong>Most common:</strong> Power loss, hardware failure, OS crash</li>
+            </ul>
+            
+            <div class="example">
+                <h4>Examples:</h4>
+                <ul>
+                    <li>Power outage takes down server</li>
+                    <li>Out of memory causes process to be killed</li>
+                    <li>Hardware failure (CPU overheats, disk dies)</li>
+                    <li>Segmentation fault crashes application</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>🟡 Omission Failures</h3>
+        
+        <div class="failure-type">
+            <h4>What happens:</h4>
+            <p>Component fails to send or receive messages, but continues operating. Messages are lost in transit or not processed.</p>
+            
+            <div class="visual-diagram">
+                <div style="text-align: center;">
+                    <div class="node">Client</div>
+                    <div class="arrow">→</div>
+                    <div style="display: inline-block; margin: 0 20px;">
+                        <div style="color: #f44336; font-weight: bold; font-size: 1.2em;">✗ Message Lost!</div>
+                        <div style="color: #666; font-size: 0.9em;">(network drops packet)</div>
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="node">Server<br>(Never receives)</div>
+                </div>
+            </div>
+            
+            <h4>Types:</h4>
+            <ul>
+                <li><strong>Send omission:</strong> Sender fails to send message</li>
+                <li><strong>Receive omission:</strong> Receiver fails to receive message</li>
+                <li><strong>Channel omission:</strong> Message lost in network</li>
+            </ul>
+            
+            <div class="example">
+                <h4>Examples:</h4>
+                <ul>
+                    <li>Network congestion causes packet drops</li>
+                    <li>Buffer overflow - receiver can't keep up</li>
+                    <li>Firewall drops packets</li>
+                    <li>Wireless interference corrupts message</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>🔵 Timing Failures</h3>
+        
+        <div class="failure-type">
+            <h4>What happens:</h4>
+            <p>Component responds, but too late (or too early). Response time violates expected bounds.</p>
+            
+            <div class="example">
+                <h4>Examples:</h4>
+                <ul>
+                    <li>Database query takes 30 seconds instead of 100ms</li>
+                    <li>Real-time system misses deadline</li>
+                    <li>Clock skew causes incorrect timestamps</li>
+                    <li>Load spike causes requests to timeout</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>⚫ Byzantine Failures</h3>
+        
+        <div class="failure-type">
+            <h4>What happens:</h4>
+            <p>Component behaves arbitrarily - sends wrong data, lies, or acts maliciously. Most severe and hardest to handle!</p>
+            
+            <div class="visual-diagram">
+                <div style="text-align: center; margin: 20px 0;">
+                    <div class="node">Honest Node A<br>Says: "X = 5"</div>
+                    <div class="node node-failed">Byzantine Node<br>Tells A: "X = 5"<br>Tells B: "X = 10" 😈</div>
+                    <div class="node">Honest Node B<br>Confused!</div>
+                </div>
+                <p style="font-weight: bold; color: #f44336;">Sends different information to different nodes!</p>
+            </div>
+            
+            <div class="example">
+                <h4>Examples:</h4>
+                <ul>
+                    <li>Compromised server sends fake data</li>
+                    <li>Corrupted memory causes incorrect results</li>
+                    <li>Malicious node in blockchain network</li>
+                    <li>Software bug produces wrong output</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>2️⃣ Failure Detection</h2>
+        
+        <div class="definition">
+            <h4>The Challenge:</h4>
+            <p>In distributed systems, <strong>we cannot distinguish between a slow process and a dead process</strong>. Failure detection provides probabilistic guarantees that a process has failed.</p>
+        </div>
+        
+        <h3>💓 Heartbeat Mechanism</h3>
+        
+        <div class="key-point">
+            <h4>How it works:</h4>
+            <p>Processes periodically send "I'm alive" messages. If heartbeat stops arriving, the process is suspected to have failed.</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Heartbeat Flow</h4>
+            <div class="timeline">
+                <div class="timeline-step">
+                    <strong>T = 0s:</strong> Server sends heartbeat <span class="heartbeat"></span>
+                </div>
+                <div class="timeline-step">
+                    <strong>T = 1s:</strong> Server sends heartbeat <span class="heartbeat"></span>
+                </div>
+                <div class="timeline-step">
+                    <strong>T = 2s:</strong> Server sends heartbeat <span class="heartbeat"></span>
+                </div>
+                <div class="timeline-step" style="border-left-color: #ff9800;">
+                    <strong>T = 3s:</strong> No heartbeat! ⚠️
+                </div>
+                <div class="timeline-step" style="border-left-color: #f44336;">
+                    <strong>T = 4s:</strong> Still no heartbeat! Declare failure ❌
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Heartbeat Implementation
+
+// Server side - sends heartbeats
+class Server {
+    constructor(id, monitor) {
+        this.id = id;
+        this.monitor = monitor;
+        this.alive = true;
+        this.startHeartbeat();
+    }
+    
+    startHeartbeat() {
+        // Send heartbeat every second
+        this.heartbeatInterval = setInterval(() => {
+            if (this.alive) {
+                this.monitor.receiveHeartbeat(this.id);
+                console.log(`Server ${this.id}: Sending heartbeat 💓`);
+            }
+        }, 1000);
+    }
+    
+    crash() {
+        this.alive = false;
+        console.log(`Server ${this.id}: CRASHED! 💥`);
+    }
+    
+    stop() {
+        clearInterval(this.heartbeatInterval);
+    }
+}
+
+// Monitor side - detects failures
+class FailureDetector {
+    constructor(timeout = 3000) {
+        this.timeout = timeout; // 3 seconds
+        this.lastHeartbeat = new Map();
+        this.suspectedFailures = new Set();
+        this.startMonitoring();
+    }
+    
+    receiveHeartbeat(serverId) {
+        this.lastHeartbeat.set(serverId, Date.now());
+        
+        // If was suspected, clear suspicion
+        if (this.suspectedFailures.has(serverId)) {
+            console.log(`Server ${serverId}: Recovered! ✓`);
+            this.suspectedFailures.delete(serverId);
+        }
+    }
+    
+    startMonitoring() {
+        // Check for failures every second
+        setInterval(() => {
+            const now = Date.now();
+            
+            for (const [serverId, lastTime] of this.lastHeartbeat.entries()) {
+                const elapsed = now - lastTime;
+                
+                if (elapsed > this.timeout) {
+                    if (!this.suspectedFailures.has(serverId)) {
+                        console.log(`Server ${serverId}: SUSPECTED FAILURE! ⚠️`);
+                        this.suspectedFailures.add(serverId);
+                        this.onFailureDetected(serverId);
+                    }
+                }
+            }
+        }, 1000);
+    }
+    
+    onFailureDetected(serverId) {
+        console.log(`Taking action for failed server ${serverId}`);
+        // Trigger failover, remove from load balancer, etc.
+    }
+    
+    isAlive(serverId) {
+        return !this.suspectedFailures.has(serverId);
+    }
+}
+
+// Usage
+const monitor = new FailureDetector(3000);
+
+const server1 = new Server(1, monitor);
+const server2 = new Server(2, monitor);
+const server3 = new Server(3, monitor);
+
+// Simulate server 2 crashing after 5 seconds
+setTimeout(() => {
+    server2.crash();
+}, 5000);
+
+// After 8 seconds (5s + 3s timeout), server 2 will be marked as failed</code></pre>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li>Simple to implement</li>
+                <li>Low overhead (small periodic messages)</li>
+                <li>Scalable (each process monitors independently)</li>
+                <li>Works well in practice</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>⚠️ Issues:</h4>
+            <ul>
+                <li><strong>False positives:</strong> Network delay might trigger false failure detection</li>
+                <li><strong>False negatives:</strong> Process might be hung but still sending heartbeats</li>
+                <li><strong>Timeout tuning:</strong> Too short = false alarms, too long = slow detection</li>
+            </ul>
+        </div>
+        
+        <h3>🏓 Ping-Ack (Request-Response)</h3>
+        
+        <div class="key-point">
+            <h4>How it works:</h4>
+            <p>Monitor actively pings the process and expects an acknowledgment. No response within timeout = failure.</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Ping-Ack Flow</h4>
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 10px 0;">
+                    <strong>Monitor:</strong> PING → Server<br>
+                    <strong>Server:</strong> ← ACK (I'm alive!)<br>
+                    <strong>Result:</strong> ✓ Server is alive
+                </div>
+                
+                <div style="background: #ffebee; padding: 20px; border-radius: 8px; margin: 10px 0;">
+                    <strong>Monitor:</strong> PING → Server<br>
+                    <strong>Server:</strong> (no response)<br>
+                    <strong>Monitor:</strong> Timeout! ⏰<br>
+                    <strong>Result:</strong> ❌ Server suspected failed
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Ping-Ack Implementation
+class PingAckMonitor {
+    constructor(servers, timeout = 2000, interval = 5000) {
+        this.servers = servers;
+        this.timeout = timeout;
+        this.interval = interval;
+        this.suspectedFailures = new Set();
+        this.startPinging();
+    }
+    
+    async ping(server) {
+        return new Promise((resolve, reject) => {
+            const timeoutId = setTimeout(() => {
+                reject(new Error('Timeout'));
+            }, this.timeout);
+            
+            server.ping().then(() => {
+                clearTimeout(timeoutId);
+                resolve();
+            }).catch(reject);
+        });
+    }
+    
+    startPinging() {
+        setInterval(async () => {
+            for (const server of this.servers) {
+                try {
+                    await this.ping(server);
+                    
+                    // Successful ping
+                    if (this.suspectedFailures.has(server.id)) {
+                        console.log(`Server ${server.id}: Recovered! ✓`);
+                        this.suspectedFailures.delete(server.id);
+                    }
+                    
+                } catch (error) {
+                    // Failed ping
+                    if (!this.suspectedFailures.has(server.id)) {
+                        console.log(`Server ${server.id}: SUSPECTED FAILURE! ⚠️`);
+                        this.suspectedFailures.add(server.id);
+                        this.onFailureDetected(server.id);
+                    }
+                }
+            }
+        }, this.interval);
+    }
+    
+    onFailureDetected(serverId) {
+        console.log(`Triggering failover for server ${serverId}`);
+        // Initiate recovery procedures
+    }
+}
+
+// Server responds to pings
+class PingableServer {
+    constructor(id) {
+        this.id = id;
+        this.alive = true;
+        this.responseDelay = 100; // Simulate processing
+    }
+    
+    async ping() {
+        if (!this.alive) {
+            throw new Error('Server is down');
+        }
+        
+        // Simulate response time
+        await new Promise(resolve => 
+            setTimeout(resolve, this.responseDelay)
+        );
+        
+        return { status: 'ok', timestamp: Date.now() };
+    }
+    
+    crash() {
+        this.alive = false;
+        console.log(`Server ${this.id}: CRASHED! 💥`);
+    }
+}</code></pre>
+        
+        <h3>⚖️ Heartbeat vs Ping-Ack</h3>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Aspect</th>
+                <th>Heartbeat</th>
+                <th>Ping-Ack</th>
+            </tr>
+            <tr>
+                <td><strong>Who initiates?</strong></td>
+                <td>Monitored process (push)</td>
+                <td>Monitor (pull)</td>
+            </tr>
+            <tr>
+                <td><strong>Network traffic</strong></td>
+                <td>Constant (periodic heartbeats)</td>
+                <td>On-demand (when checking)</td>
+            </tr>
+            <tr>
+                <td><strong>Scalability</strong></td>
+                <td>Good (processes independent)</td>
+                <td>Limited (monitor must ping all)</td>
+            </tr>
+            <tr>
+                <td><strong>False positives</strong></td>
+                <td>More susceptible (network delays)</td>
+                <td>Less (request-response confirms)</td>
+            </tr>
+            <tr>
+                <td><strong>Use case</strong></td>
+                <td>Large-scale systems, clusters</td>
+                <td>Small systems, critical processes</td>
+            </tr>
+        </table>
+        
+        <h2>3️⃣ Redundancy Techniques</h2>
+        
+        <div class="definition">
+            <h4>Core Principle:</h4>
+            <p><strong>Redundancy = Having multiple copies</strong> of critical components. If one fails, others take over seamlessly.</p>
+            <p><strong>Types:</strong> Information redundancy, Time redundancy, Physical redundancy</p>
+        </div>
+        
+        <div class="redundancy-grid">
+            <div class="redundancy-card">
+                <h4>🗄️ Data Redundancy</h4>
+                <p><strong>Principle:</strong> Store multiple copies of data</p>
+                <ul>
+                    <li>Replication (multiple identical copies)</li>
+                    <li>RAID (Redundant Array of Independent Disks)</li>
+                    <li>Error-correcting codes</li>
+                    <li>Backup systems</li>
+                </ul>
+                <div style="background: #e8f5e9; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Example:</strong> Store file on 3 servers. If 1 fails, data still accessible!
+                </div>
+            </div>
+            
+            <div class="redundancy-card">
+                <h4>⚙️ Process Redundancy</h4>
+                <p><strong>Principle:</strong> Run multiple instances of process</p>
+                <ul>
+                    <li>Active replication (all process requests)</li>
+                    <li>Passive replication (primary + backups)</li>
+                    <li>State machine replication</li>
+                    <li>Leader-follower pattern</li>
+                </ul>
+                <div style="background: #e8f5e9; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Example:</strong> Run 5 web servers. If 2 fail, 3 still serve traffic!
+                </div>
+            </div>
+            
+            <div class="redundancy-card">
+                <h4>🔄 Time Redundancy</h4>
+                <p><strong>Principle:</strong> Retry operations that fail</p>
+                <ul>
+                    <li>Retry with exponential backoff</li>
+                    <li>Idempotent operations</li>
+                    <li>Transaction rollback and retry</li>
+                    <li>Message acknowledgments</li>
+                </ul>
+                <div style="background: #e8f5e9; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Example:</strong> If network request fails, retry 3 times before giving up!
+                </div>
+            </div>
+            
+            <div class="redundancy-card">
+                <h4>🌍 Geographic Redundancy</h4>
+                <p><strong>Principle:</strong> Spread across locations</p>
+                <ul>
+                    <li>Multiple data centers</li>
+                    <li>Cross-region replication</li>
+                    <li>Disaster recovery sites</li>
+                    <li>Content delivery networks</li>
+                </ul>
+                <div style="background: #e8f5e9; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Example:</strong> Netflix has data centers worldwide. If California has earthquake, users still watch!
+                </div>
+            </div>
+        </div>
+        
+        <h2>4️⃣ Process Resilience</h2>
+        
+        <h3>👥 Process Groups</h3>
+        
+        <div class="definition">
+            <h4>What are Process Groups?</h4>
+            <p>A <strong>process group</strong> is a collection of processes that work together to provide a service. If one process fails, others continue providing the service.</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Process Group Architecture</h4>
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="border: 3px dashed #667eea; padding: 30px; border-radius: 12px; display: inline-block;">
+                    <div style="font-weight: bold; margin-bottom: 15px; font-size: 1.2em;">Process Group: Web Service</div>
+                    <div class="replica primary">Process 1<br>(Primary)</div>
+                    <div class="replica">Process 2<br>(Backup)</div>
+                    <div class="replica">Process 3<br>(Backup)</div>
+                    <div class="replica">Process 4<br>(Backup)</div>
+                </div>
+                
+                <div style="margin-top: 30px; padding: 20px; background: #e8f5e9; border-radius: 8px;">
+                    <strong>If Primary fails:</strong> One of the backups is elected as new primary ✓
+                </div>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>📊 Real-World Example: Kafka Cluster</h4>
+            <ul>
+                <li><strong>Broker group:</strong> Multiple Kafka brokers form a cluster</li>
+                <li><strong>Topic partitions:</strong> Each partition has a leader + followers</li>
+                <li><strong>Failure handling:</strong> If leader dies, a follower becomes leader</li>
+                <li><strong>Result:</strong> Service continues without interruption</li>
+            </ul>
+        </div>
+        
+        <h3>🔄 Replication Strategies</h3>
+        
+        <div class="key-point">
+            <h4>Primary-Backup Replication (Passive Replication)</h4>
+            <p>One primary process handles all requests. Backups stay synchronized. If primary fails, a backup takes over.</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Primary-Backup Pattern</h4>
+            <div class="replication-visual">
+                <div>
+                    <div class="replica primary">Primary<br>✓ Active</div>
+                    <div style="margin-top: 10px; font-size: 0.9em;">Handles all requests</div>
+                </div>
+                
+                <div class="arrow">→<br>State<br>Updates</div>
+                
+                <div>
+                    <div class="replica">Backup 1<br>⏸ Standby</div>
+                    <div style="margin-top: 10px; font-size: 0.9em;">Receives state</div>
+                </div>
+                
+                <div>
+                    <div class="replica">Backup 2<br>⏸ Standby</div>
+                    <div style="margin-top: 10px; font-size: 0.9em;">Receives state</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px; padding: 20px; background: #ffebee; border-radius: 8px;">
+                <strong>Primary Crashes! 💥</strong>
+            </div>
+            
+            <div class="replication-visual" style="margin-top: 20px;">
+                <div>
+                    <div class="replica" style="background: linear-gradient(135deg, #f44336 0%, #e57373 100%); text-decoration: line-through;">Primary<br>❌ Dead</div>
+                </div>
+                
+                <div class="arrow">Election</div>
+                
+                <div>
+                    <div class="replica primary">Backup 1<br>✓ New Primary!</div>
+                    <div style="margin-top: 10px; font-size: 0.9em;">Takes over</div>
+                </div>
+                
+                <div>
+                    <div class="replica">Backup 2<br>⏸ Still Standby</div>
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Primary-Backup Replication Implementation
+class PrimaryBackupSystem {
+    constructor() {
+        this.primary = null;
+        this.backups = [];
+        this.state = {};
+    }
+    
+    setPrimary(process) {
+        this.primary = process;
+        process.role = 'primary';
+        console.log(`Process ${process.id} is PRIMARY`);
+    }
+    
+    addBackup(process) {
+        this.backups.push(process);
+        process.role = 'backup';
+        console.log(`Process ${process.id} is BACKUP`);
+    }
+    
+    async handleRequest(request) {
+        if (!this.primary) {
+            throw new Error('No primary available');
+        }
+        
+        // Primary processes request
+        const result = await this.primary.process(request);
+        
+        // Update state
+        this.state[request.key] = request.value;
+        
+        // Replicate state to backups (async)
+        this.replicateState();
+        
+        return result;
+    }
+    
+    async replicateState() {
+        // Send state updates to all backups
+        const promises = this.backups
+            .filter(b => b.alive)
+            .map(backup => 
+                backup.updateState(this.state).catch(err => {
+                    console.error(`Failed to replicate to ${backup.id}:`, err);
+                })
+            );
+        
+        await Promise.allSettled(promises);
+    }
+    
+    handlePrimaryFailure() {
+        console.log(`Primary ${this.primary.id} failed! 💥`);
+        
+        // Elect new primary from backups
+        const newPrimary = this.backups.find(b => b.alive);
+        
+        if (newPrimary) {
+            // Remove from backups
+            this.backups = this.backups.filter(b => b !== newPrimary);
+            
+            // Promote to primary
+            this.setPrimary(newPrimary);
+            
+            console.log(`Failover complete! New primary: ${newPrimary.id} ✓`);
+        } else {
+            console.error('No backup available for failover! ❌');
+        }
+    }
+}
+
+class Process {
+    constructor(id) {
+        this.id = id;
+        this.alive = true;
+        this.role = null;
+        this.state = {};
+    }
+    
+    async process(request) {
+        if (this.role !== 'primary') {
+            throw new Error('Not primary');
+        }
+        
+        console.log(`Primary ${this.id}: Processing ${request.key}`);
+        return { success: true };
+    }
+    
+    async updateState(state) {
+        this.state = { ...state };
+        console.log(`Backup ${this.id}: State updated`);
+    }
+    
+    crash() {
+        this.alive = false;
+        console.log(`Process ${this.id}: CRASHED! 💥`);
+    }
+}
+
+// Usage
+const system = new PrimaryBackupSystem();
+const p1 = new Process(1);
+const p2 = new Process(2);
+const p3 = new Process(3);
+
+system.setPrimary(p1);
+system.addBackup(p2);
+system.addBackup(p3);
+
+// Handle request
+await system.handleRequest({ key: 'x', value: 100 });
+
+// Simulate primary failure
+p1.crash();
+system.handlePrimaryFailure();
+
+// System continues with new primary
+await system.handleRequest({ key: 'y', value: 200 });</code></pre>
+        
+        <div class="key-point">
+            <h4>Active Replication</h4>
+            <p>All replicas process all requests simultaneously. They should produce identical results (deterministic execution).</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Active Replication Pattern</h4>
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <strong>Client Request</strong>
+                </div>
+                
+                <div style="font-size: 2em; margin: 10px 0;">↓ Broadcast to all ↓</div>
+                
+                <div class="replication-visual">
+                    <div class="replica primary">Replica 1<br>✓ Processes</div>
+                    <div class="replica primary">Replica 2<br>✓ Processes</div>
+                    <div class="replica primary">Replica 3<br>✓ Processes</div>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                    <strong>All replicas produce same result (if deterministic)</strong>
+                </div>
+            </div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Aspect</th>
+                <th>Primary-Backup</th>
+                <th>Active Replication</th>
+            </tr>
+            <tr>
+                <td><strong>Who processes?</strong></td>
+                <td>Only primary</td>
+                <td>All replicas</td>
+            </tr>
+            <tr>
+                <td><strong>Failover speed</strong></td>
+                <td>Slow (elect + catch up)</td>
+                <td>Fast (already in sync)</td>
+            </tr>
+            <tr>
+                <td><strong>Resource usage</strong></td>
+                <td>Low (backups idle)</td>
+                <td>High (all active)</td>
+            </tr>
+            <tr>
+                <td><strong>Complexity</strong></td>
+                <td>Simple</td>
+                <td>Complex (need determinism)</td>
+            </tr>
+            <tr>
+                <td><strong>Use case</strong></td>
+                <td>Databases, stateful services</td>
+                <td>State machine replication</td>
+            </tr>
+        </table>
+        
+        <h2>5️⃣ Checkpointing and Recovery</h2>
+        
+        <div class="definition">
+            <h4>What is Checkpointing?</h4>
+            <p><strong>Checkpointing</strong> is periodically saving the state of a process to stable storage. After failure, process can restart from last checkpoint instead of beginning.</p>
+            <p><strong>Analogy:</strong> Like saving progress in a video game - if you die, restart from last save point!</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Checkpointing Timeline</h4>
+            <div class="timeline">
+                <div class="timeline-step">
+                    <strong>T0:</strong> Process starts, State = {x: 0, y: 0}
+                </div>
+                
+                <div class="checkpoint" style="margin: 20px 0;">
+                    📸 CHECKPOINT 1: {x: 10, y: 5}
+                </div>
+                
+                <div class="timeline-step">
+                    <strong>T1:</strong> Process work, State = {x: 20, y: 15}
+                </div>
+                
+                <div class="checkpoint" style="margin: 20px 0;">
+                    📸 CHECKPOINT 2: {x: 20, y: 15}
+                </div>
+                
+                <div class="timeline-step">
+                    <strong>T2:</strong> Process work, State = {x: 35, y: 28}
+                </div>
+                
+                <div class="timeline-step" style="background: #ffebee; border-left-color: #f44336;">
+                    <strong>T3:</strong> 💥 CRASH! State lost!
+                </div>
+                
+                <div class="recovery-path">
+                    <strong>Recovery:</strong><br>
+                    1. Restore from Checkpoint 2: {x: 20, y: 15} ✓<br>
+                    2. Replay operations from T2 to T3<br>
+                    3. Continue execution
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Checkpointing Implementation
+class CheckpointedProcess {
+    constructor(id, checkpointInterval = 5000) {
+        this.id = id;
+        this.state = { counter: 0, data: {} };
+        this.checkpoints = [];
+        this.operations = []; // Operations since last checkpoint
+        this.checkpointInterval = checkpointInterval;
+        this.startCheckpointing();
+    }
+    
+    execute(operation) {
+        // Execute operation
+        console.log(`Process ${this.id}: Executing ${operation.type}`);
+        
+        switch(operation.type) {
+            case 'increment':
+                this.state.counter++;
+                break;
+            case 'set':
+                this.state.data[operation.key] = operation.value;
+                break;
+        }
+        
+        // Log operation for potential replay
+        this.operations.push({
+            ...operation,
+            timestamp: Date.now()
+        });
+    }
+    
+    createCheckpoint() {
+        const checkpoint = {
+            id: this.checkpoints.length,
+            timestamp: Date.now(),
+            state: JSON.parse(JSON.stringify(this.state)), // Deep copy
+            operationCount: this.operations.length
+        };
+        
+        this.checkpoints.push(checkpoint);
+        
+        // Save to stable storage (disk)
+        this.saveCheckpointToDisk(checkpoint);
+        
+        console.log(`📸 Checkpoint ${checkpoint.id} created: counter=${this.state.counter}`);
+        
+        // Clear old operations (before checkpoint)
+        this.operations = [];
+    }
+    
+    startCheckpointing() {
+        // Create checkpoint periodically
+        this.checkpointTimer = setInterval(() => {
+            this.createCheckpoint();
+        }, this.checkpointInterval);
+    }
+    
+    crash() {
+        console.log(`💥 Process ${this.id} CRASHED!`);
+        clearInterval(this.checkpointTimer);
+        this.state = null; // Lose in-memory state
+    }
+    
+    recover() {
+        console.log(`🔧 Process ${this.id}: Starting recovery...`);
+        
+        // Load last checkpoint from disk
+        const lastCheckpoint = this.loadCheckpointFromDisk();
+        
+        if (lastCheckpoint) {
+            // Restore state
+            this.state = lastCheckpoint.state;
+            console.log(`✓ Restored from checkpoint ${lastCheckpoint.id}`);
+            
+            // Replay operations since checkpoint
+            const opsToReplay = this.loadOperationsSince(lastCheckpoint.timestamp);
+            console.log(`Replaying ${opsToReplay.length} operations...`);
+            
+            for (const op of opsToReplay) {
+                this.execute(op);
+            }
+            
+            console.log(`✓ Recovery complete! Counter=${this.state.counter}`);
+            
+            // Resume normal operation
+            this.startCheckpointing();
+        } else {
+            console.log('No checkpoint found, starting fresh');
+            this.state = { counter: 0, data: {} };
+        }
+    }
+    
+    saveCheckpointToDisk(checkpoint) {
+        // In real system: write to disk/database
+        // For demo: just store in memory
+        console.log(`  → Saving to disk...`);
+    }
+    
+    loadCheckpointFromDisk() {
+        // In real system: read from disk/database
+        // For demo: return last checkpoint
+        return this.checkpoints[this.checkpoints.length - 1];
+    }
+    
+    loadOperationsSince(timestamp) {
+        // In real system: read from operation log
+        // For demo: filter operations
+        return this.operations.filter(op => op.timestamp > timestamp);
+    }
+}
+
+// Usage Example
+const process = new CheckpointedProcess(1, 5000);
+
+// Do work
+process.execute({ type: 'increment' });
+process.execute({ type: 'increment' });
+process.execute({ type: 'set', key: 'name', value: 'Alice' });
+
+// Wait for checkpoint
+setTimeout(() => {
+    process.execute({ type: 'increment' });
+    process.execute({ type: 'increment' });
+    
+    // Simulate crash
+    setTimeout(() => {
+        process.crash();
+        
+        // Recover
+        setTimeout(() => {
+            process.recover();
+        }, 1000);
+    }, 2000);
+}, 6000);</code></pre>
+        
+        <div class="key-point">
+            <h4>Checkpoint Strategies:</h4>
+            <ul>
+                <li><strong>Independent Checkpointing:</strong> Each process checkpoints independently (simple but may need coordination)</li>
+                <li><strong>Coordinated Checkpointing:</strong> All processes checkpoint together (consistent global state)</li>
+                <li><strong>Communication-Induced Checkpointing:</strong> Checkpoint triggered by message patterns</li>
+            </ul>
+        </div>
+        
+        <h2>6️⃣ Forward and Backward Error Recovery</h2>
+        
+        <div class="definition">
+            <h4>Two Recovery Approaches:</h4>
+            <p><strong>Backward Recovery:</strong> Roll back to previous correct state (undo)</p>
+            <p><strong>Forward Recovery:</strong> Continue forward, fixing errors as we go</p>
+        </div>
+        
+        <h3>⏪ Backward Error Recovery</h3>
+        
+        <div class="visual-diagram">
+            <h4>Rollback Recovery</h4>
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; display: inline-block;">
+                    <strong>State 1</strong><br>✓ Correct
+                </div>
+                <div class="arrow">→</div>
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; display: inline-block;">
+                    <strong>State 2</strong><br>✓ Correct
+                </div>
+                <div class="arrow">→</div>
+                <div style="background: #ffebee; padding: 20px; border-radius: 8px; display: inline-block;">
+                    <strong>State 3</strong><br>❌ Error!
+                </div>
+                
+                <div style="margin: 30px 0; font-size: 1.5em; color: #f44336;">
+                    ⏪ ROLLBACK
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; display: inline-block;">
+                    <strong>State 2</strong><br>✓ Restored!
+                </div>
+                <div class="arrow">→</div>
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; display: inline-block;">
+                    <strong>Try Again</strong><br>Different path
+                </div>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>📊 Examples of Backward Recovery:</h4>
+            <ul>
+                <li><strong>Database transactions:</strong> ROLLBACK on error</li>
+                <li><strong>Checkpointing:</strong> Restore from last checkpoint</li>
+                <li><strong>Version control:</strong> Git revert to previous commit</li>
+                <li><strong>Virtual machines:</strong> Restore from snapshot</li>
+            </ul>
+        </div>
+        
+        <pre><code>// Backward Recovery with Transactions
+class TransactionalSystem {
+    constructor() {
+        this.state = { balance: 1000 };
+        this.history = [];
+    }
+    
+    beginTransaction() {
+        // Save current state
+        const savepoint = {
+            state: JSON.parse(JSON.stringify(this.state)),
+            timestamp: Date.now()
+        };
+        this.history.push(savepoint);
+        
+        console.log('Transaction started, savepoint created');
+        return savepoint;
+    }
+    
+    commit() {
+        console.log('✓ Transaction committed');
+        // Can clear old history
+    }
+    
+    rollback(savepoint) {
+        console.log('⏪ Rolling back transaction...');
+        
+        // Restore state from savepoint
+        this.state = JSON.parse(JSON.stringify(savepoint.state));
+        
+        console.log(`✓ State restored to balance=${this.state.balance}`);
+    }
+    
+    transfer(amount) {
+        const savepoint = this.beginTransaction();
+        
+        try {
+            // Check balance
+            if (this.state.balance < amount) {
+                throw new Error('Insufficient funds');
+            }
+            
+            // Deduct amount
+            this.state.balance -= amount;
+            console.log(`Transfer ${amount}, new balance: ${this.state.balance}`);
+            
+            // Simulate error
+            if (Math.random() < 0.3) {
+                throw new Error('Network error during transfer!');
+            }
+            
+            this.commit();
+            return true;
+            
+        } catch (error) {
+            console.error('Error:', error.message);
+            this.rollback(savepoint);
+            return false;
+        }
+    }
+}
+
+// Usage
+const system = new TransactionalSystem();
+console.log('Initial balance:', system.state.balance);
+
+system.transfer(100); // May succeed or rollback
+console.log('Final balance:', system.state.balance);</code></pre>
+        
+        <h3>⏩ Forward Error Recovery</h3>
+        
+        <div class="visual-diagram">
+            <h4>Forward Recovery</h4>
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; display: inline-block;">
+                    <strong>State 1</strong><br>✓ Working
+                </div>
+                <div class="arrow">→</div>
+                <div style="background: #ffebee; padding: 20px; border-radius: 8px; display: inline-block;">
+                    <strong>Error!</strong><br>❌ Detected
+                </div>
+                <div class="arrow">→</div>
+                <div style="background: #fff3e0; padding: 20px; border-radius: 8px; display: inline-block;">
+                    <strong>Compensate</strong><br>⚠️ Fix error
+                </div>
+                <div class="arrow">→</div>
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; display: inline-block;">
+                    <strong>State 2</strong><br>✓ Continue!
+                </div>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>📊 Examples of Forward Recovery:</h4>
+            <ul>
+                <li><strong>Error-correcting codes:</strong> Detect and fix bit errors</li>
+                <li><strong>Retry mechanisms:</strong> Retry failed operations</li>
+                <li><strong>Exception handling:</strong> Catch error, continue execution</li>
+                <li><strong>Circuit breakers:</strong> Stop cascading failures</li>
+            </ul>
+        </div>
+        
+        <pre><code>// Forward Recovery with Retry and Circuit Breaker
+class ForwardRecoverySystem {
+    constructor(maxRetries = 3) {
+        this.maxRetries = maxRetries;
+        this.circuitBreakerState = 'CLOSED'; // CLOSED, OPEN, HALF_OPEN
+        this.failureCount = 0;
+        this.failureThreshold = 5;
+    }
+    
+    async executeWithRetry(operation, ...args) {
+        let lastError;
+        
+        for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+            try {
+                // Check circuit breaker
+                if (this.circuitBreakerState === 'OPEN') {
+                    throw new Error('Circuit breaker is OPEN - service unavailable');
+                }
+                
+                console.log(`Attempt ${attempt}/${this.maxRetries}...`);
+                const result = await operation(...args);
+                
+                // Success! Reset failure count
+                this.failureCount = 0;
+                if (this.circuitBreakerState === 'HALF_OPEN') {
+                    this.circuitBreakerState = 'CLOSED';
+                    console.log('Circuit breaker CLOSED - service recovered');
+                }
+                
+                return result;
+                
+            } catch (error) {
+                lastError = error;
+                console.error(`Attempt ${attempt} failed:`, error.message);
+                
+                // Update failure count
+                this.failureCount++;
+                
+                // Check if should open circuit breaker
+                if (this.failureCount >= this.failureThreshold) {
+                    this.circuitBreakerState = 'OPEN';
+                    console.log('🔴 Circuit breaker OPEN - too many failures!');
+                    
+                    // Try to recover after timeout
+                    setTimeout(() => {
+                        this.circuitBreakerState = 'HALF_OPEN';
+                        console.log('🟡 Circuit breaker HALF_OPEN - testing recovery...');
+                    }, 10000);
+                }
+                
+                // Don't retry if this is last attempt
+                if (attempt < this.maxRetries) {
+                    // Exponential backoff
+                    const delay = Math.pow(2, attempt) * 1000;
+                    console.log(`  Retrying in ${delay}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+        
+        // All retries exhausted
+        throw new Error(`Failed after ${this.maxRetries} attempts: ${lastError.message}`);
+    }
+    
+    // Simulate unreliable operation
+    async unreliableOperation(data) {
+        // Randomly fail
+        if (Math.random() < 0.7) {
+            throw new Error('Temporary network error');
+        }
+        
+        return { success: true, data };
+    }
+}
+
+// Usage
+const recovery = new ForwardRecoverySystem(3);
+
+async function processData() {
+    try {
+        const result = await recovery.executeWithRetry(
+            recovery.unreliableOperation.bind(recovery),
+            'important-data'
+        );
+        console.log('✓ Success:', result);
+    } catch (error) {
+        console.error('❌ Final failure:', error.message);
+        // Forward recovery: continue with degraded functionality
+        console.log('⚠️ Using cached data instead...');
+    }
+}
+
+processData();</code></pre>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Aspect</th>
+                <th>Backward Recovery</th>
+                <th>Forward Recovery</th>
+            </tr>
+            <tr>
+                <td><strong>Direction</strong></td>
+                <td>Go back to previous state</td>
+                <td>Continue forward, compensate</td>
+            </tr>
+            <tr>
+                <td><strong>Complexity</strong></td>
+                <td>Simple (restore checkpoint)</td>
+                <td>Complex (need error handling logic)</td>
+            </tr>
+            <tr>
+                <td><strong>Lost work</strong></td>
+                <td>Yes (since checkpoint)</td>
+                <td>No (continue from error point)</td>
+            </tr>
+            <tr>
+                <td><strong>Use case</strong></td>
+                <td>Transient errors, transactions</td>
+                <td>Permanent errors, must continue</td>
+            </tr>
+            <tr>
+                <td><strong>Examples</strong></td>
+                <td>Database rollback, VM snapshots</td>
+                <td>Retry, circuit breakers, ECC</td>
+            </tr>
+        </table>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: Fault Tolerance Simulator</h3>
+            <p>See different fault tolerance techniques in action:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demoHeartbeat()">Heartbeat Detection</button>
+                <button class="demo-button" onclick="demoFailover()">Primary-Backup Failover</button>
+                <button class="demo-button" onclick="demoCheckpoint()">Checkpointing</button>
+                <button class="demo-button" onclick="demoRetry()">Retry with Backoff</button>
+            </div>
+            <div id="faultDemo" class="demo-output">Click a button to see fault tolerance mechanisms...</div>
+        </div>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 7</h3>
+            <ul style="line-height: 2;">
+                <li><strong>Failures are inevitable</strong> - design for failure, not just for success</li>
+                <li><strong>Failure types:</strong> Crash (clean halt), Omission (lost messages), Timing (too slow), Byzantine (arbitrary)</li>
+                <li><strong>Detection mechanisms:</strong> Heartbeat (push) vs Ping-Ack (pull)</li>
+                <li><strong>Redundancy is key:</strong> Data, process, time, and geographic redundancy</li>
+                <li><strong>Process groups:</strong> Multiple processes provide same service</li>
+                <li><strong>Replication strategies:</strong> Primary-Backup (simple) vs Active (fast failover)</li>
+                <li><strong>Checkpointing:</strong> Save state periodically, recover from last checkpoint</li>
+                <li><strong>Recovery directions:</strong> Backward (rollback) vs Forward (compensate)</li>
+                <li><strong>Trade-off:</strong> Fault tolerance adds complexity and cost</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>What's the difference between crash failure and Byzantine failure?</li>
+                <li>When would you choose heartbeat over ping-ack for failure detection?</li>
+                <li>Explain why we can't perfectly detect failures in asynchronous systems.</li>
+                <li>Compare Primary-Backup vs Active Replication - which is better for databases?</li>
+                <li>How does checkpointing help with recovery? What's the trade-off?</li>
+                <li>When is forward recovery better than backward recovery?</li>
+                <li>Design a fault-tolerant web service: What redundancy techniques would you use?</li>
+                <li>How many replicas do you need to tolerate f crash failures? What about Byzantine?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function demoHeartbeat() {
+            const output = document.getElementById('faultDemo');
+            output.textContent = '=== HEARTBEAT FAILURE DETECTION ===\n\n';
+            
+            output.textContent += 'Server: Sending heartbeats every 1 second\n';
+            output.textContent += 'Monitor: Timeout = 3 seconds\n\n';
+            
+            await sleep(500);
+            output.textContent += 'T=0s: ❤️ Heartbeat received\n';
+            await sleep(1000);
+            output.textContent += 'T=1s: ❤️ Heartbeat received\n';
+            await sleep(1000);
+            output.textContent += 'T=2s: ❤️ Heartbeat received\n';
+            await sleep(1000);
+            output.textContent += 'T=3s: ❤️ Heartbeat received\n\n';
+            
+            await sleep(1000);
+            output.textContent += '💥 SERVER CRASHES!\n\n';
+            
+            await sleep(1000);
+            output.textContent += 'T=4s: ⏰ No heartbeat (1s elapsed)\n';
+            await sleep(1000);
+            output.textContent += 'T=5s: ⏰ No heartbeat (2s elapsed)\n';
+            await sleep(1000);
+            output.textContent += 'T=6s: ⏰ No heartbeat (3s elapsed)\n';
+            await sleep(500);
+            output.textContent += '\n🚨 TIMEOUT! Server declared FAILED!\n\n';
+            
+            output.textContent += 'Actions:\n';
+            output.textContent += '  ✓ Remove from load balancer\n';
+            output.textContent += '  ✓ Trigger failover to backup\n';
+            output.textContent += '  ✓ Alert operations team\n';
+        }
+        
+        async function demoFailover() {
+            const output = document.getElementById('faultDemo');
+            output.textContent = '=== PRIMARY-BACKUP FAILOVER ===\n\n';
+            
+            output.textContent += 'Setup:\n';
+            output.textContent += '  Primary: Server A (handling requests)\n';
+            output.textContent += '  Backup: Server B (receiving state updates)\n';
+            output.textContent += '  Backup: Server C (receiving state updates)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Normal operation:\n';
+            await sleep(300);
+            output.textContent += '  Client → Request → Primary A\n';
+            output.textContent += '  Primary A → State update → Backups B, C\n';
+            output.textContent += '  Primary A → Response → Client\n\n';
+            
+            await sleep(1000);
+            output.textContent += '💥 PRIMARY A CRASHES!\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Failure detection:\n';
+            await sleep(300);
+            output.textContent += '  ✓ Heartbeat timeout detected\n';
+            output.textContent += '  ✓ Primary A marked as failed\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Election process:\n';
+            await sleep(300);
+            output.textContent += '  → Backup B has complete state\n';
+            output.textContent += '  → Backup C has complete state\n';
+            output.textContent += '  → Selecting B as new primary...\n\n';
+            
+            await sleep(500);
+            output.textContent += '✓ FAILOVER COMPLETE!\n\n';
+            output.textContent += 'New configuration:\n';
+            output.textContent += '  Primary: Server B (now handling requests) 👑\n';
+            output.textContent += '  Backup: Server C (receiving state updates)\n\n';
+            
+            output.textContent += 'Service continues without interruption!\n';
+            output.textContent += 'Clients automatically routed to new primary.';
+        }
+        
+        async function demoCheckpoint() {
+            const output = document.getElementById('faultDemo');
+            output.textContent = '=== CHECKPOINTING AND RECOVERY ===\n\n';
+            
+            output.textContent += 'Process execution:\n\n';
+            
+            await sleep(500);
+            output.textContent += 'T=0s: State = {counter: 0}\n';
+            await sleep(300);
+            output.textContent += 'T=1s: Increment → State = {counter: 1}\n';
+            await sleep(300);
+            output.textContent += 'T=2s: Increment → State = {counter: 2}\n\n';
+            
+            await sleep(500);
+            output.textContent += '📸 CHECKPOINT 1: Saved {counter: 2}\n\n';
+            
+            await sleep(500);
+            output.textContent += 'T=3s: Increment → State = {counter: 3}\n';
+            await sleep(300);
+            output.textContent += 'T=4s: Increment → State = {counter: 4}\n';
+            await sleep(300);
+            output.textContent += 'T=5s: Increment → State = {counter: 5}\n\n';
+            
+            await sleep(500);
+            output.textContent += '📸 CHECKPOINT 2: Saved {counter: 5}\n\n';
+            
+            await sleep(500);
+            output.textContent += 'T=6s: Increment → State = {counter: 6}\n';
+            await sleep(300);
+            output.textContent += 'T=7s: Increment → State = {counter: 7}\n\n';
+            
+            await sleep(500);
+            output.textContent += '💥 CRASH at T=8s! State lost!\n\n';
+            
+            await sleep(1000);
+            output.textContent += '🔧 RECOVERY:\n';
+            await sleep(300);
+            output.textContent += '  Step 1: Load last checkpoint → {counter: 5} ✓\n';
+            await sleep(300);
+            output.textContent += '  Step 2: Replay operations from log:\n';
+            output.textContent += '    → T=6s: Increment → {counter: 6}\n';
+            output.textContent += '    → T=7s: Increment → {counter: 7}\n';
+            await sleep(500);
+            output.textContent += '  Step 3: Resume execution ✓\n\n';
+            
+            output.textContent += 'Result: State restored to {counter: 7}\n';
+            output.textContent += 'Only lost work since crash (none in this case!)';
+        }
+        
+        async function demoRetry() {
+            const output = document.getElementById('faultDemo');
+            output.textContent = '=== RETRY WITH EXPONENTIAL BACKOFF ===\n\n';
+            
+            output.textContent += 'Operation: Send critical message\n';
+            output.textContent += 'Strategy: Retry up to 3 times\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Attempt 1:\n';
+            await sleep(300);
+            output.textContent += '  → Sending message...\n';
+            await sleep(500);
+            output.textContent += '  ❌ Network timeout!\n';
+            output.textContent += '  → Waiting 1 second before retry...\n\n';
+            
+            await sleep(1000);
+            output.textContent += 'Attempt 2:\n';
+            await sleep(300);
+            output.textContent += '  → Sending message...\n';
+            await sleep(500);
+            output.textContent += '  ❌ Connection refused!\n';
+            output.textContent += '  → Waiting 2 seconds before retry (exponential backoff)...\n\n';
+            
+            await sleep(2000);
+            output.textContent += 'Attempt 3:\n';
+            await sleep(300);
+            output.textContent += '  → Sending message...\n';
+            await sleep(500);
+            output.textContent += '  ✓ Success! Message sent.\n\n';
+            
+            output.textContent += 'Forward recovery succeeded!\n';
+            output.textContent += 'System continued despite transient failures.\n\n';
+            
+            output.textContent += 'Key points:\n';
+            output.textContent += '  • Transient errors are common\n';
+            output.textContent += '  • Exponential backoff prevents overwhelming server\n';
+            output.textContent += '  • Retry limit prevents infinite loops\n';
+            output.textContent += '  • Operation eventually succeeds!';
+        }
+    </script>
+</body>
+</html>

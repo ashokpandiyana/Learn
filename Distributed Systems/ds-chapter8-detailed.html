@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 8: Reliable Communication</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+        }
+        
+        .node {
+            display: inline-block;
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 50%;
+            margin: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            min-width: 80px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .node:hover {
+            transform: scale(1.1);
+        }
+        
+        .sender {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+        }
+        
+        .message {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .arrow {
+            display: inline-block;
+            color: #667eea;
+            font-size: 2em;
+            margin: 0 10px;
+        }
+        
+        .multicast-group {
+            border: 3px dashed #667eea;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 30px 0;
+        }
+        
+        .timeline-step {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            top: 25px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 3px solid white;
+        }
+        
+        .gossip-round {
+            background: white;
+            border: 2px solid #9c27b0;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .infection-visual {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .cell {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .susceptible {
+            background: #e0e0e0;
+            color: #666;
+        }
+        
+        .infected {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .protocol-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .protocol-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .ordering-example {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📡 Chapter 8: Reliable Communication</h1>
+        
+        <div class="problem-box">
+            <h3>🤔 The Challenge</h3>
+            <p style="font-size: 1.2em;"><strong>Networks are unreliable!</strong></p>
+            <p>Messages can be <strong>lost</strong>, <strong>duplicated</strong>, <strong>delayed</strong>, or <strong>reordered</strong>. Yet applications need reliable communication. How do we build reliable communication on top of unreliable networks?</p>
+            <p><strong>Key insight:</strong> Add protocols and mechanisms to detect and recover from communication failures!</p>
+        </div>
+        
+        <h2>1️⃣ Point-to-Point Communication</h2>
+        
+        <div class="definition">
+            <h4>What is Point-to-Point Communication?</h4>
+            <p><strong>Point-to-point</strong> communication is between exactly two processes: one sender and one receiver.</p>
+            <p><strong>Goal:</strong> Ensure message is delivered reliably despite network failures.</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Point-to-Point Communication</h4>
+            <div style="text-align: center; margin: 30px 0;">
+                <div class="node sender">Sender<br>Process A</div>
+                <div class="arrow">→</div>
+                <div class="message">Message</div>
+                <div class="arrow">→</div>
+                <div class="node">Receiver<br>Process B</div>
+            </div>
+            <p style="text-align: center; margin-top: 20px; font-weight: bold;">One-to-One Communication</p>
+        </div>
+        
+        <h3>🔄 TCP: Reliable Point-to-Point Protocol</h3>
+        
+        <div class="key-point">
+            <h4>How TCP Ensures Reliability:</h4>
+            <ul>
+                <li><strong>Acknowledgments (ACK):</strong> Receiver confirms receipt</li>
+                <li><strong>Sequence numbers:</strong> Detect duplicates and order</li>
+                <li><strong>Timeouts and retransmission:</strong> Resend if no ACK</li>
+                <li><strong>Checksums:</strong> Detect corruption</li>
+                <li><strong>Flow control:</strong> Prevent receiver overflow</li>
+            </ul>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>TCP Reliable Delivery Protocol</h4>
+            <div class="timeline">
+                <div class="timeline-step">
+                    <strong>Step 1:</strong> Sender sends message #1
+                </div>
+                <div class="timeline-step">
+                    <strong>Step 2:</strong> Receiver gets message #1, sends ACK
+                </div>
+                <div class="timeline-step">
+                    <strong>Step 3:</strong> Sender receives ACK ✓
+                </div>
+                <div class="timeline-step" style="border-left-color: #ff9800;">
+                    <strong>Step 4:</strong> Sender sends message #2
+                </div>
+                <div class="timeline-step" style="border-left-color: #f44336;">
+                    <strong>Step 5:</strong> Message #2 lost in network! ❌
+                </div>
+                <div class="timeline-step" style="border-left-color: #ff9800;">
+                    <strong>Step 6:</strong> Timeout! Sender resends message #2
+                </div>
+                <div class="timeline-step" style="border-left-color: #4caf50;">
+                    <strong>Step 7:</strong> Receiver gets message #2, sends ACK ✓
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Reliable Point-to-Point Communication
+class ReliableChannel {
+    constructor(timeout = 2000, maxRetries = 3) {
+        this.timeout = timeout;
+        this.maxRetries = maxRetries;
+        this.sequenceNumber = 0;
+        this.pendingAcks = new Map();
+    }
+    
+    async send(receiver, message) {
+        const seqNum = this.sequenceNumber++;
+        const packet = {
+            seqNum,
+            data: message,
+            timestamp: Date.now()
+        };
+        
+        let attempts = 0;
+        
+        while (attempts < this.maxRetries) {
+            try {
+                console.log(`Sending message #${seqNum} (attempt ${attempts + 1})`);
+                
+                // Send packet
+                await this.transmit(receiver, packet);
+                
+                // Wait for ACK
+                const ack = await this.waitForAck(seqNum);
+                
+                console.log(`✓ Message #${seqNum} acknowledged`);
+                return true;
+                
+            } catch (error) {
+                attempts++;
+                console.log(`✗ Attempt ${attempts} failed: ${error.message}`);
+                
+                if (attempts < this.maxRetries) {
+                    console.log(`  Retrying in ${this.timeout}ms...`);
+                    await this.sleep(this.timeout);
+                }
+            }
+        }
+        
+        throw new Error(`Failed to send after ${this.maxRetries} attempts`);
+    }
+    
+    async transmit(receiver, packet) {
+        // Simulate unreliable network
+        if (Math.random() < 0.3) {
+            throw new Error('Network error - packet lost');
+        }
+        
+        // Send to receiver
+        receiver.receive(packet);
+    }
+    
+    async waitForAck(seqNum) {
+        return new Promise((resolve, reject) => {
+            // Store resolve function
+            this.pendingAcks.set(seqNum, resolve);
+            
+            // Timeout
+            setTimeout(() => {
+                if (this.pendingAcks.has(seqNum)) {
+                    this.pendingAcks.delete(seqNum);
+                    reject(new Error('ACK timeout'));
+                }
+            }, this.timeout);
+        });
+    }
+    
+    receiveAck(seqNum) {
+        const resolve = this.pendingAcks.get(seqNum);
+        if (resolve) {
+            this.pendingAcks.delete(seqNum);
+            resolve();
+        }
+    }
+    
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+}
+
+class Receiver {
+    constructor(channel) {
+        this.channel = channel;
+        this.receivedMessages = new Set();
+    }
+    
+    receive(packet) {
+        const { seqNum, data } = packet;
+        
+        // Check for duplicate
+        if (this.receivedMessages.has(seqNum)) {
+            console.log(`Duplicate message #${seqNum} ignored`);
+            // Still send ACK (might be retransmission)
+            this.sendAck(seqNum);
+            return;
+        }
+        
+        // Process message
+        console.log(`Received message #${seqNum}: ${data}`);
+        this.receivedMessages.add(seqNum);
+        
+        // Send ACK
+        this.sendAck(seqNum);
+    }
+    
+    sendAck(seqNum) {
+        console.log(`Sending ACK for message #${seqNum}`);
+        this.channel.receiveAck(seqNum);
+    }
+}
+
+// Usage
+const channel = new ReliableChannel();
+const receiver = new Receiver(channel);
+
+await channel.send(receiver, 'Hello, World!');
+await channel.send(receiver, 'Second message');</code></pre>
+        
+        <h2>2️⃣ Reliable Multicast</h2>
+        
+        <div class="definition">
+            <h4>What is Multicast?</h4>
+            <p><strong>Multicast</strong> is sending a message from one sender to multiple receivers simultaneously.</p>
+            <p><strong>Challenge:</strong> Ensure ALL receivers get the message, despite failures.</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Multicast Communication</h4>
+            <div style="text-align: center; margin: 30px 0;">
+                <div class="node sender">Sender<br>Process A</div>
+                
+                <div style="margin: 30px 0;">
+                    <div style="font-size: 1.5em; color: #667eea;">Broadcasts to all ↓</div>
+                </div>
+                
+                <div class="multicast-group">
+                    <div style="text-align: center; font-weight: bold; margin-bottom: 20px;">Multicast Group</div>
+                    <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+                        <div class="node">Process B</div>
+                        <div class="node">Process C</div>
+                        <div class="node">Process D</div>
+                        <div class="node">Process E</div>
+                    </div>
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 20px; font-weight: bold;">One-to-Many Communication</p>
+        </div>
+        
+        <h3>📋 Reliability Guarantees</h3>
+        
+        <div class="protocol-card">
+            <h4>1. Best-Effort Multicast</h4>
+            <p><strong>Guarantee:</strong> Try to deliver, but no guarantees if failures occur.</p>
+            <ul>
+                <li>Send to all members once</li>
+                <li>No retransmission</li>
+                <li>Fast but unreliable</li>
+            </ul>
+            <div style="background: #ffebee; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                <strong>Problem:</strong> Some receivers might not get the message!
+            </div>
+        </div>
+        
+        <div class="protocol-card">
+            <h4>2. Reliable Multicast</h4>
+            <p><strong>Guarantee:</strong> If sender doesn't crash, all non-faulty receivers get the message.</p>
+            <ul>
+                <li>Use ACKs from all receivers</li>
+                <li>Retransmit if needed</li>
+                <li>Slower but reliable</li>
+            </ul>
+        </div>
+        
+        <div class="protocol-card">
+            <h4>3. Uniform Reliable Multicast</h4>
+            <p><strong>Guarantee:</strong> If ANY process (even faulty sender) delivers message, ALL non-faulty processes deliver it.</p>
+            <ul>
+                <li>Strongest guarantee</li>
+                <li>Receivers help each other</li>
+                <li>Most expensive</li>
+            </ul>
+        </div>
+        
+        <div class="example">
+            <h4>🌐 Real-World Example: Video Conferencing</h4>
+            <p><strong>Scenario:</strong> 5 people in a Zoom call</p>
+            <ul>
+                <li><strong>Best-effort multicast:</strong> Live video stream (ok to drop frames)</li>
+                <li><strong>Reliable multicast:</strong> Chat messages (everyone should see them)</li>
+                <li><strong>Atomic multicast:</strong> "End meeting" command (all must agree)</li>
+            </ul>
+        </div>
+        
+        <pre><code>// Reliable Multicast Implementation
+class ReliableMulticast {
+    constructor(groupMembers) {
+        this.groupMembers = groupMembers;
+        this.messageId = 0;
+    }
+    
+    async multicast(message) {
+        const msgId = this.messageId++;
+        const packet = {
+            id: msgId,
+            data: message,
+            timestamp: Date.now()
+        };
+        
+        console.log(`Multicasting message #${msgId} to ${this.groupMembers.length} members`);
+        
+        // Send to all members
+        const promises = this.groupMembers.map(member => 
+            this.sendReliably(member, packet)
+        );
+        
+        // Wait for all to acknowledge
+        try {
+            await Promise.all(promises);
+            console.log(`✓ Message #${msgId} delivered to all members`);
+            return true;
+        } catch (error) {
+            console.error(`✗ Failed to deliver to all members:`, error);
+            throw error;
+        }
+    }
+    
+    async sendReliably(member, packet) {
+        const maxRetries = 3;
+        let attempts = 0;
+        
+        while (attempts < maxRetries) {
+            try {
+                await member.deliver(packet);
+                console.log(`  ✓ Delivered to ${member.id}`);
+                return;
+            } catch (error) {
+                attempts++;
+                if (attempts < maxRetries) {
+                    await this.sleep(1000 * attempts); // Exponential backoff
+                }
+            }
+        }
+        
+        throw new Error(`Failed to deliver to ${member.id}`);
+    }
+    
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+}
+
+class GroupMember {
+    constructor(id) {
+        this.id = id;
+        this.receivedMessages = new Set();
+        this.alive = true;
+    }
+    
+    async deliver(packet) {
+        if (!this.alive) {
+            throw new Error('Process is down');
+        }
+        
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, Math.random() * 100));
+        
+        // Check duplicate
+        if (this.receivedMessages.has(packet.id)) {
+            console.log(`  ${this.id}: Duplicate message #${packet.id} ignored`);
+            return;
+        }
+        
+        // Deliver message
+        this.receivedMessages.add(packet.id);
+        console.log(`  ${this.id}: Received message #${packet.id}`);
+    }
+}
+
+// Usage
+const members = [
+    new GroupMember('P1'),
+    new GroupMember('P2'),
+    new GroupMember('P3'),
+    new GroupMember('P4')
+];
+
+const multicast = new ReliableMulticast(members);
+await multicast.multicast('Hello, everyone!');</code></pre>
+        
+        <h2>3️⃣ Atomic Multicast</h2>
+        
+        <div class="definition">
+            <h4>What is Atomic Multicast?</h4>
+            <p><strong>Atomic multicast</strong> (also called atomic broadcast) guarantees that <span class="highlight">all processes deliver the same set of messages in the same order</span>.</p>
+            <p><strong>Key property:</strong> Either ALL deliver or NONE deliver (like database transactions).</p>
+        </div>
+        
+        <div class="key-point">
+            <h4>Atomic Multicast Guarantees:</h4>
+            <ol>
+                <li><strong>Validity:</strong> If sender is correct and broadcasts m, then it eventually delivers m</li>
+                <li><strong>Uniform Agreement:</strong> If a process delivers m, then all correct processes eventually deliver m</li>
+                <li><strong>Uniform Integrity:</strong> Each process delivers m at most once, and only if m was broadcast</li>
+                <li><strong>Uniform Total Order:</strong> If processes p and q both deliver messages m and m', then p delivers m before m' if and only if q delivers m before m'</li>
+            </ol>
+        </div>
+        
+        <div class="example">
+            <h4>💰 Real-World Example: Distributed Banking</h4>
+            <div class="visual-diagram">
+                <strong>Scenario:</strong> Multiple bank branches need consistent account updates
+                
+                <div style="margin: 20px 0; background: #e8f5e9; padding: 15px; border-radius: 8px;">
+                    <strong>✓ With Atomic Multicast:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Branch A broadcasts: "Transfer $100 from Alice to Bob"</li>
+                        <li>ALL branches receive and apply in same order</li>
+                        <li>Everyone sees: Alice = $900, Bob = $1100</li>
+                        <li>Consistent state across all branches ✓</li>
+                    </ul>
+                </div>
+                
+                <div style="margin: 20px 0; background: #ffebee; padding: 15px; border-radius: 8px;">
+                    <strong>✗ Without Atomic Multicast:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Branch A: "Transfer $100 Alice→Bob"</li>
+                        <li>Branch B: "Transfer $50 Bob→Alice"</li>
+                        <li>Different branches apply in different order!</li>
+                        <li>Inconsistent state! ❌</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <h2>4️⃣ Ordered Multicast</h2>
+        
+        <div class="definition">
+            <h4>Message Ordering Guarantees</h4>
+            <p>Different applications need different ordering guarantees. Three main types:</p>
+        </div>
+        
+        <h3>📨 FIFO Ordering</h3>
+        
+        <div class="key-point">
+            <h4>FIFO (First-In-First-Out) Ordering</h4>
+            <p><strong>Guarantee:</strong> Messages from the same sender are delivered in the order they were sent.</p>
+            <p><strong>Note:</strong> Messages from different senders can be delivered in any order.</p>
+        </div>
+        
+        <div class="ordering-example">
+            <h4>FIFO Example:</h4>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                <strong>Sender P1:</strong> Sends M1, then M2, then M3<br>
+                <strong>Sender P2:</strong> Sends M4, then M5
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                <strong>✓ Valid FIFO delivery:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Receiver sees: M1, M4, M2, M5, M3</li>
+                    <li>P1's order preserved: M1 → M2 → M3 ✓</li>
+                    <li>P2's order preserved: M4 → M5 ✓</li>
+                </ul>
+            </div>
+            
+            <div style="background: #ffebee; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                <strong>✗ Invalid FIFO delivery:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Receiver sees: M2, M1, M3 (M2 before M1!)</li>
+                    <li>P1's order violated ❌</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>💬 Use Case: Chat Application</h4>
+            <p>Alice sends: "Hello", "How are you?"</p>
+            <p><strong>FIFO ensures:</strong> Everyone sees "Hello" before "How are you?"</p>
+            <p><strong>But:</strong> Bob's "I'm fine" can appear anywhere (different sender)</p>
+        </div>
+        
+        <h3>🔗 Causal Ordering</h3>
+        
+        <div class="key-point">
+            <h4>Causal Ordering</h4>
+            <p><strong>Guarantee:</strong> Messages that are causally related are delivered in causal order.</p>
+            <p><strong>Uses:</strong> Vector clocks (Chapter 4!) to track causality</p>
+        </div>
+        
+        <div class="ordering-example">
+            <h4>Causal Example:</h4>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                <strong>Scenario:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Alice: "What's 2+2?" (M1)</li>
+                    <li>Bob: "It's 4!" (M2) - <em>Reply to M1</em></li>
+                    <li>Charlie: "Nice weather!" (M3) - <em>Independent</em></li>
+                </ul>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                <strong>✓ Valid Causal delivery:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>M1, M2, M3 (question before answer) ✓</li>
+                    <li>M1, M3, M2 (M3 is concurrent with M1/M2) ✓</li>
+                </ul>
+            </div>
+            
+            <div style="background: #ffebee; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                <strong>✗ Invalid Causal delivery:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>M2, M1, M3 (answer before question!) ❌</li>
+                    <li>M2 causally depends on M1</li>
+                </ul>
+            </div>
+        </div>
+        
+        <pre><code>// Causal Ordering with Vector Clocks
+class CausalMulticast {
+    constructor(processId, numProcesses) {
+        this.processId = processId;
+        this.vectorClock = new Array(numProcesses).fill(0);
+        this.messageBuffer = [];
+        this.deliveredMessages = new Set();
+    }
+    
+    broadcast(message) {
+        // Increment own clock
+        this.vectorClock[this.processId]++;
+        
+        const packet = {
+            id: `${this.processId}-${this.vectorClock[this.processId]}`,
+            senderId: this.processId,
+            data: message,
+            vectorClock: [...this.vectorClock]
+        };
+        
+        console.log(`P${this.processId}: Broadcasting with VC ${this.vectorClock}`);
+        
+        // Send to all processes (including self)
+        return packet;
+    }
+    
+    receive(packet) {
+        // Check if we can deliver this message
+        if (this.canDeliver(packet)) {
+            this.deliver(packet);
+            this.checkBuffer(); // Try to deliver buffered messages
+        } else {
+            console.log(`P${this.processId}: Buffering message (waiting for causal dependencies)`);
+            this.messageBuffer.push(packet);
+        }
+    }
+    
+    canDeliver(packet) {
+        const msgVC = packet.vectorClock;
+        const senderId = packet.senderId;
+        
+        // Check causal dependencies
+        for (let i = 0; i < this.vectorClock.length; i++) {
+            if (i === senderId) {
+                // Sender's clock should be exactly one more than ours
+                if (msgVC[i] !== this.vectorClock[i] + 1) {
+                    return false;
+                }
+            } else {
+                // Other clocks should not be ahead of ours
+                if (msgVC[i] > this.vectorClock[i]) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+    
+    deliver(packet) {
+        if (this.deliveredMessages.has(packet.id)) {
+            return; // Already delivered
+        }
+        
+        console.log(`P${this.processId}: Delivering message: ${packet.data}`);
+        this.deliveredMessages.add(packet.id);
+        
+        // Update vector clock
+        for (let i = 0; i < this.vectorClock.length; i++) {
+            this.vectorClock[i] = Math.max(
+                this.vectorClock[i],
+                packet.vectorClock[i]
+            );
+        }
+        
+        console.log(`P${this.processId}: Updated VC to ${this.vectorClock}`);
+    }
+    
+    checkBuffer() {
+        let delivered = true;
+        
+        while (delivered) {
+            delivered = false;
+            
+            for (let i = 0; i < this.messageBuffer.length; i++) {
+                if (this.canDeliver(this.messageBuffer[i])) {
+                    const packet = this.messageBuffer.splice(i, 1)[0];
+                    this.deliver(packet);
+                    delivered = true;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+// Usage
+const p1 = new CausalMulticast(0, 3);
+const p2 = new CausalMulticast(1, 3);
+const p3 = new CausalMulticast(2, 3);
+
+// P1: "What's 2+2?"
+const m1 = p1.broadcast("What's 2+2?");
+p2.receive(m1);
+p3.receive(m1);
+
+// P2: "It's 4!" (causally depends on m1)
+const m2 = p2.broadcast("It's 4!");
+
+// If P3 receives m2 before m1, it will buffer m2!
+p3.receive(m2); // Will be buffered if m1 not yet received</code></pre>
+        
+        <h3>🔢 Total Ordering</h3>
+        
+        <div class="key-point">
+            <h4>Total Ordering (Atomic Broadcast)</h4>
+            <p><strong>Guarantee:</strong> ALL processes deliver ALL messages in the SAME order.</p>
+            <p><strong>Strongest ordering guarantee</strong> - implies FIFO and Causal.</p>
+        </div>
+        
+        <div class="ordering-example">
+            <h4>Total Order Example:</h4>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                <strong>Messages sent:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>P1 broadcasts: M1</li>
+                    <li>P2 broadcasts: M2</li>
+                    <li>P3 broadcasts: M3</li>
+                </ul>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                <strong>✓ Total Order (all see same order):</strong>
+                <ul style="margin-top: 10px;">
+                    <li>All processes deliver: M1, M2, M3</li>
+                    <li>OR all processes deliver: M2, M1, M3</li>
+                    <li>Everyone agrees on order! ✓</li>
+                </ul>
+            </div>
+            
+            <div style="background: #ffebee; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                <strong>✗ Not Total Order:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>P1 delivers: M1, M2, M3</li>
+                    <li>P2 delivers: M2, M1, M3</li>
+                    <li>Different orders! ❌</li>
+                </ul>
+            </div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Ordering</th>
+                <th>Guarantee</th>
+                <th>Use Case</th>
+                <th>Complexity</th>
+            </tr>
+            <tr>
+                <td><strong>FIFO</strong></td>
+                <td>Per-sender order preserved</td>
+                <td>Chat messages from same user</td>
+                <td>Low (sequence numbers)</td>
+            </tr>
+            <tr>
+                <td><strong>Causal</strong></td>
+                <td>Causally related messages ordered</td>
+                <td>Comment threads, collaborative editing</td>
+                <td>Medium (vector clocks)</td>
+            </tr>
+            <tr>
+                <td><strong>Total</strong></td>
+                <td>All messages globally ordered</td>
+                <td>State machine replication, distributed transactions</td>
+                <td>High (consensus required)</td>
+            </tr>
+        </table>
+        
+        <h2>5️⃣ Gossip Protocols</h2>
+        
+        <div class="definition">
+            <h4>What are Gossip Protocols?</h4>
+            <p><strong>Gossip protocols</strong> (also called epidemic protocols) spread information through a system like gossip spreads through a social network or disease through a population.</p>
+            <p><strong>Key idea:</strong> Each node periodically picks random neighbors and shares information.</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>How Gossip Spreads</h4>
+            
+            <div style="margin: 20px 0;">
+                <strong>Round 1:</strong> Node A has information (red)
+                <div class="infection-visual">
+                    <div class="cell infected">A</div>
+                    <div class="cell susceptible">B</div>
+                    <div class="cell susceptible">C</div>
+                    <div class="cell susceptible">D</div>
+                    <div class="cell susceptible">E</div>
+                </div>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <strong>Round 2:</strong> A gossips to B and C
+                <div class="infection-visual">
+                    <div class="cell infected">A</div>
+                    <div class="cell infected">B</div>
+                    <div class="cell infected">C</div>
+                    <div class="cell susceptible">D</div>
+                    <div class="cell susceptible">E</div>
+                </div>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <strong>Round 3:</strong> B gossips to D, C gossips to E
+                <div class="infection-visual">
+                    <div class="cell infected">A</div>
+                    <div class="cell infected">B</div>
+                    <div class="cell infected">C</div>
+                    <div class="cell infected">D</div>
+                    <div class="cell infected">E</div>
+                </div>
+            </div>
+            
+            <p style="text-align: center; margin-top: 20px; font-weight: bold;">
+                Information spreads exponentially fast!
+            </p>
+        </div>
+        
+        <div class="key-point">
+            <h4>Gossip Protocol Characteristics:</h4>
+            <ul>
+                <li><strong>Probabilistic:</strong> Not guaranteed, but very likely</li>
+                <li><strong>Scalable:</strong> Works for thousands of nodes</li>
+                <li><strong>Fault-tolerant:</strong> Keeps spreading even if nodes fail</li>
+                <li><strong>Eventually consistent:</strong> All nodes get the update eventually</li>
+                <li><strong>Decentralized:</strong> No coordinator needed</li>
+            </ul>
+        </div>
+        
+        <pre><code>// Gossip Protocol Implementation
+class GossipNode {
+    constructor(id, allNodes, gossipInterval = 1000, fanout = 2) {
+        this.id = id;
+        this.allNodes = allNodes;
+        this.gossipInterval = gossipInterval;
+        this.fanout = fanout; // How many nodes to gossip to
+        this.data = new Map(); // Key -> {value, version}
+        this.gossipTimer = null;
+    }
+    
+    start() {
+        // Start periodic gossip
+        this.gossipTimer = setInterval(() => {
+            this.gossip();
+        }, this.gossipInterval);
+    }
+    
+    stop() {
+        if (this.gossipTimer) {
+            clearInterval(this.gossipTimer);
+        }
+    }
+    
+    // Update local data
+    update(key, value) {
+        const currentVersion = this.data.has(key) 
+            ? this.data.get(key).version 
+            : 0;
+        
+        this.data.set(key, {
+            value,
+            version: currentVersion + 1,
+            timestamp: Date.now()
+        });
+        
+        console.log(`Node ${this.id}: Updated ${key} = ${value} (v${currentVersion + 1})`);
+    }
+    
+    // Gossip to random neighbors
+    gossip() {
+        // Select random neighbors
+        const neighbors = this.selectRandomNeighbors(this.fanout);
+        
+        if (neighbors.length === 0) return;
+        
+        console.log(`Node ${this.id}: Gossiping to ${neighbors.length} neighbors`);
+        
+        // Send our data to neighbors
+        for (const neighbor of neighbors) {
+            this.sendGossip(neighbor);
+        }
+    }
+    
+    selectRandomNeighbors(count) {
+        const others = this.allNodes.filter(n => n !== this);
+        const selected = [];
+        
+        // Random selection
+        while (selected.length < count && selected.length < others.length) {
+            const randomIndex = Math.floor(Math.random() * others.length);
+            const node = others[randomIndex];
+            
+            if (!selected.includes(node)) {
+                selected.push(node);
+            }
+        }
+        
+        return selected;
+    }
+    
+    sendGossip(neighbor) {
+        // Send all our data
+        const gossipData = new Map(this.data);
+        neighbor.receiveGossip(this, gossipData);
+    }
+    
+    receiveGossip(sender, gossipData) {
+        let updated = false;
+        
+        // Merge received data
+        for (const [key, incomingData] of gossipData.entries()) {
+            const localData = this.data.get(key);
+            
+            // Update if we don't have it or incoming is newer
+            if (!localData || incomingData.version > localData.version) {
+                this.data.set(key, incomingData);
+                console.log(`  Node ${this.id}: Learned ${key} = ${incomingData.value} (v${incomingData.version}) from Node ${sender.id}`);
+                updated = true;
+            }
+        }
+        
+        return updated;
+    }
+    
+    get(key) {
+        const data = this.data.get(key);
+        return data ? data.value : null;
+    }
+}
+
+// Usage Example
+const nodes = [];
+for (let i = 0; i < 10; i++) {
+    nodes.push(new GossipNode(i, nodes));
+}
+
+// Start all nodes
+nodes.forEach(node => node.start());
+
+// Node 0 updates data
+nodes[0].update('temperature', 72);
+
+// Watch it spread!
+setTimeout(() => {
+    console.log('\nChecking spread after 5 seconds:');
+    nodes.forEach(node => {
+        const temp = node.get('temperature');
+        console.log(`Node ${node.id}: temperature = ${temp}`);
+    });
+}, 5000);
+
+// Stop after 10 seconds
+setTimeout(() => {
+    nodes.forEach(node => node.stop());
+}, 10000);</code></pre>
+        
+        <h2>6️⃣ Epidemic Algorithms</h2>
+        
+        <div class="definition">
+            <h4>Epidemic Model</h4>
+            <p>Models information spread like disease epidemics. Nodes can be in three states:</p>
+            <ul>
+                <li><strong>Susceptible:</strong> Don't have the information yet</li>
+                <li><strong>Infected:</strong> Have the information and actively spreading it</li>
+                <li><strong>Removed:</strong> Have the information but stopped spreading</li>
+            </ul>
+        </div>
+        
+        <h3>📈 Spread Analysis</h3>
+        
+        <div class="key-point">
+            <h4>Epidemic Spread Properties:</h4>
+            <ul>
+                <li><strong>Logarithmic spread:</strong> Reaches all N nodes in O(log N) rounds</li>
+                <li><strong>High probability:</strong> With fanout k, probability of not reaching a node is exponentially small</li>
+                <li><strong>Network overhead:</strong> O(N log N) total messages</li>
+                <li><strong>Resilient:</strong> Works even with node failures</li>
+            </ul>
+        </div>
+        
+        <div class="example">
+            <h4>📊 Spread Speed Example</h4>
+            <div class="visual-diagram">
+                <strong>Network with 1024 nodes, fanout = 2</strong>
+                
+                <div style="margin: 20px 0;">
+                    <table style="width: 100%; text-align: center;">
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 10px;">Round</th>
+                            <th style="padding: 10px;">Infected Nodes</th>
+                            <th style="padding: 10px;">Growth</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">0</td>
+                            <td style="padding: 10px;">1</td>
+                            <td style="padding: 10px;">-</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 10px;">1</td>
+                            <td style="padding: 10px;">3 (1×2 + self)</td>
+                            <td style="padding: 10px;">3x</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">2</td>
+                            <td style="padding: 10px;">9</td>
+                            <td style="padding: 10px;">3x</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 10px;">3</td>
+                            <td style="padding: 10px;">27</td>
+                            <td style="padding: 10px;">3x</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">...</td>
+                            <td style="padding: 10px;">...</td>
+                            <td style="padding: 10px;">...</td>
+                        </tr>
+                        <tr style="background: #e8f5e9;">
+                            <td style="padding: 10px;"><strong>~10</strong></td>
+                            <td style="padding: 10px;"><strong>1024</strong></td>
+                            <td style="padding: 10px;"><strong>All nodes! ✓</strong></td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <p style="margin-top: 20px; font-weight: bold; text-align: center;">
+                    Reaches 1024 nodes in only ~10 rounds!<br>
+                    Compare to: Broadcasting to each node = 1024 messages
+                </p>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>🌐 Real-World Applications:</h4>
+            
+            <div class="gossip-round">
+                <h4>1. Cassandra Database</h4>
+                <p><strong>Uses gossip for:</strong></p>
+                <ul>
+                    <li>Membership information (which nodes are alive)</li>
+                    <li>Schema changes</li>
+                    <li>Node status updates</li>
+                </ul>
+                <p><strong>Benefit:</strong> No single point of failure, scales to thousands of nodes</p>
+            </div>
+            
+            <div class="gossip-round">
+                <h4>2. Amazon Dynamo</h4>
+                <p><strong>Uses gossip for:</strong></p>
+                <ul>
+                    <li>Detecting failures</li>
+                    <li>Maintaining membership</li>
+                    <li>Spreading configuration changes</li>
+                </ul>
+                <p><strong>Benefit:</strong> Decentralized, highly available</p>
+            </div>
+            
+            <div class="gossip-round">
+                <h4>3. Bitcoin Network</h4>
+                <p><strong>Uses gossip for:</strong></p>
+                <ul>
+                    <li>Broadcasting new transactions</li>
+                    <li>Propagating new blocks</li>
+                    <li>Peer discovery</li>
+                </ul>
+                <p><strong>Benefit:</strong> Censorship-resistant, no central authority</p>
+            </div>
+        </div>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: Communication Patterns Demo</h3>
+            <p>See different communication mechanisms in action:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demoReliableP2P()">Reliable P2P</button>
+                <button class="demo-button" onclick="demoMulticast()">Reliable Multicast</button>
+                <button class="demo-button" onclick="demoCausal()">Causal Ordering</button>
+                <button class="demo-button" onclick="demoGossip()">Gossip Protocol</button>
+            </div>
+            <div id="commDemo" class="demo-output">Click a button to see communication patterns...</div>
+        </div>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 8</h3>
+            <ul style="line-height: 2;">
+                <li><strong>Point-to-Point:</strong> Use ACKs, sequence numbers, timeouts for reliability</li>
+                <li><strong>Multicast:</strong> One-to-many communication with varying reliability guarantees</li>
+                <li><strong>Atomic Multicast:</strong> All or none, same order everywhere (strongest guarantee)</li>
+                <li><strong>FIFO Ordering:</strong> Per-sender order preserved (simple)</li>
+                <li><strong>Causal Ordering:</strong> Causally related messages ordered (uses vector clocks)</li>
+                <li><strong>Total Ordering:</strong> Global order across all processes (requires consensus)</li>
+                <li><strong>Gossip Protocols:</strong> Probabilistic, scalable, fault-tolerant spreading</li>
+                <li><strong>Epidemic Algorithms:</strong> Spread info like disease - O(log N) rounds</li>
+                <li><strong>Trade-off:</strong> Stronger guarantees = higher overhead</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>Why do we need ACKs in reliable point-to-point communication?</li>
+                <li>What's the difference between reliable multicast and atomic multicast?</li>
+                <li>Give an example where FIFO ordering is sufficient vs needing causal ordering.</li>
+                <li>How does gossip protocol achieve O(log N) spread time?</li>
+                <li>Why is total ordering more expensive than causal ordering?</li>
+                <li>In a 1000-node network with fanout=3, how many rounds to reach all nodes?</li>
+                <li>Design a chat application: Which ordering guarantee would you choose?</li>
+                <li>Compare gossip vs flooding for spreading information - pros/cons?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function demoReliableP2P() {
+            const output = document.getElementById('commDemo');
+            output.textContent = '=== RELIABLE POINT-TO-POINT ===\n\n';
+            
+            output.textContent += 'Sender: Sending message #1\n';
+            await sleep(300);
+            output.textContent += 'Network: Message delivered ✓\n';
+            await sleep(300);
+            output.textContent += 'Receiver: Sending ACK for #1\n';
+            await sleep(300);
+            output.textContent += 'Sender: ACK received ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Sender: Sending message #2\n';
+            await sleep(300);
+            output.textContent += 'Network: ❌ MESSAGE LOST!\n';
+            await sleep(500);
+            output.textContent += 'Sender: Timeout! No ACK for #2\n';
+            await sleep(300);
+            output.textContent += 'Sender: Retransmitting message #2...\n';
+            await sleep(300);
+            output.textContent += 'Network: Message delivered ✓\n';
+            await sleep(300);
+            output.textContent += 'Receiver: Sending ACK for #2\n';
+            await sleep(300);
+            output.textContent += 'Sender: ACK received ✓\n\n';
+            
+            output.textContent += 'Result: All messages delivered reliably!\n';
+            output.textContent += 'ACKs + Timeouts + Retransmission = Reliability';
+        }
+        
+        async function demoMulticast() {
+            const output = document.getElementById('commDemo');
+            output.textContent = '=== RELIABLE MULTICAST ===\n\n';
+            
+            output.textContent += 'Sender: Multicasting to group [P1, P2, P3, P4]\n';
+            output.textContent += 'Message: "Meeting at 3pm"\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Sending to P1... ✓ ACK received\n';
+            await sleep(300);
+            output.textContent += 'Sending to P2... ✓ ACK received\n';
+            await sleep(300);
+            output.textContent += 'Sending to P3... ❌ Timeout!\n';
+            await sleep(300);
+            output.textContent += 'Sending to P4... ✓ ACK received\n\n';
+            
+            await sleep(500);
+            output.textContent += 'P3 failed to ACK, retrying...\n';
+            await sleep(500);
+            output.textContent += 'Retry to P3... ✓ ACK received\n\n';
+            
+            output.textContent += 'Result: Message delivered to ALL members ✓\n\n';
+            
+            output.textContent += 'Delivery status:\n';
+            output.textContent += '  P1: Received "Meeting at 3pm" ✓\n';
+            output.textContent += '  P2: Received "Meeting at 3pm" ✓\n';
+            output.textContent += '  P3: Received "Meeting at 3pm" ✓\n';
+            output.textContent += '  P4: Received "Meeting at 3pm" ✓\n\n';
+            
+            output.textContent += 'Reliable multicast ensures ALL get the message!';
+        }
+        
+        async function demoCausal() {
+            const output = document.getElementById('commDemo');
+            output.textContent = '=== CAUSAL ORDERING ===\n\n';
+            
+            output.textContent += 'Alice: "What\'s the capital of France?" VC=[1,0,0]\n';
+            await sleep(500);
+            output.textContent += 'Bob receives Alice\'s message\n';
+            output.textContent += 'Bob: "It\'s Paris!" VC=[1,1,0] (reply to Alice)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Network delay! Charlie receives messages in wrong order:\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Charlie receives Bob\'s "It\'s Paris!" VC=[1,1,0]\n';
+            await sleep(300);
+            output.textContent += 'Charlie checks: Need VC[0]=1 but have VC[0]=0\n';
+            output.textContent += '  → Missing Alice\'s message!\n';
+            output.textContent += '  → BUFFER Bob\'s message ⏳\n\n';
+            
+            await sleep(800);
+            output.textContent += 'Charlie receives Alice\'s "What\'s...?" VC=[1,0,0]\n';
+            await sleep(300);
+            output.textContent += 'Charlie checks: Can deliver! ✓\n';
+            output.textContent += '  → DELIVER Alice\'s message\n';
+            output.textContent += '  → Update VC to [1,0,1]\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Charlie checks buffer...\n';
+            await sleep(300);
+            output.textContent += 'Bob\'s message VC=[1,1,0] can now be delivered!\n';
+            output.textContent += '  → DELIVER Bob\'s message\n';
+            output.textContent += '  → Update VC to [1,1,2]\n\n';
+            
+            output.textContent += 'Result: Charlie sees messages in causal order!\n';
+            output.textContent += 'Question comes before answer, despite network delay ✓';
+        }
+        
+        async function demoGossip() {
+            const output = document.getElementById('commDemo');
+            output.textContent = '=== GOSSIP PROTOCOL ===\n\n';
+            
+            output.textContent += 'Network: 10 nodes [N0, N1, N2, ..., N9]\n';
+            output.textContent += 'Fanout: 2 (each node gossips to 2 random neighbors)\n';
+            output.textContent += 'Update: temperature = 72°F\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Round 0:\n';
+            output.textContent += '  N0 has update\n';
+            output.textContent += '  Infected nodes: 1/10\n\n';
+            
+            await sleep(800);
+            output.textContent += 'Round 1:\n';
+            output.textContent += '  N0 gossips to N3, N7\n';
+            output.textContent += '  Infected nodes: 3/10 (N0, N3, N7)\n\n';
+            
+            await sleep(800);
+            output.textContent += 'Round 2:\n';
+            output.textContent += '  N0 → N1, N5\n';
+            output.textContent += '  N3 → N2, N8\n';
+            output.textContent += '  N7 → N4, N9\n';
+            output.textContent += '  Infected nodes: 9/10\n\n';
+            
+            await sleep(800);
+            output.textContent += 'Round 3:\n';
+            output.textContent += '  Multiple nodes gossip to N6\n';
+            output.textContent += '  Infected nodes: 10/10 (ALL!) ✓\n\n';
+            
+            output.textContent += 'Result: Information spread to entire network in 3 rounds!\n';
+            output.textContent += 'Exponential growth: 1 → 3 → 9 → 10\n\n';
+            
+            output.textContent += 'Key properties:\n';
+            output.textContent += '  • No coordinator needed\n';
+            output.textContent += '  • Fault-tolerant (keeps spreading if nodes fail)\n';
+            output.textContent += '  • Scalable (O(log N) rounds)\n';
+            output.textContent += '  • Eventually consistent';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Scope & Closures - Chapter 6</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #8e54e9 0%, #4776e6 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #8e54e9 0%, #4776e6 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #8e54e9;
+        }
+        
+        .section h2 {
+            color: #8e54e9;
+            margin-bottom: 20px;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section h3 {
+            color: #4776e6;
+            margin: 25px 0 15px 0;
+            font-size: 1.5em;
+        }
+        
+        .section h4 {
+            color: #666;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+        
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow-x: auto;
+            position: relative;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+        
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .number { color: #d19a66; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+        .property { color: #e06c75; }
+        
+        .visual-box {
+            background: white;
+            border: 2px solid #8e54e9;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: #8e54e9;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f1f3f5;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .note strong {
+            color: #856404;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .warning strong {
+            color: #721c24;
+        }
+        
+        .tip {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .tip strong {
+            color: #0c5460;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .success strong {
+            color: #155724;
+        }
+        
+        .interactive-demo {
+            background: white;
+            border: 2px solid #4776e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .interactive-demo button {
+            background: #8e54e9;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        
+        .interactive-demo button:hover {
+            background: #4776e6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .output {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+        
+        .scope-diagram {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border: 3px solid #8e54e9;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .scope-level {
+            background: white;
+            border: 2px solid #4776e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .scope-level h4 {
+            color: #8e54e9;
+            margin: 0 0 15px 0;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .scope-badge {
+            background: #8e54e9;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: normal;
+        }
+        
+        .nested-scope {
+            background: #fff9e6;
+            border: 2px dashed #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0 15px 30px;
+        }
+        
+        .nested-scope h4 {
+            color: #f57c00;
+        }
+        
+        .double-nested {
+            background: #e8f5e9;
+            border: 2px dashed #4caf50;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0 15px 30px;
+        }
+        
+        .double-nested h4 {
+            color: #2e7d32;
+        }
+        
+        .variable-box {
+            background: #f8f9fa;
+            border-left: 4px solid #8e54e9;
+            padding: 10px 15px;
+            margin: 8px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        
+        .closure-visual {
+            background: white;
+            border: 3px solid #8e54e9;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .closure-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border: 2px solid #4776e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .memory-ref {
+            background: #fff3cd;
+            border: 2px dashed #ffc107;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .arrow {
+            text-align: center;
+            font-size: 24px;
+            color: #8e54e9;
+            margin: 10px 0;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .example-card {
+            background: white;
+            border: 2px solid #8e54e9;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .example-card h4 {
+            color: #8e54e9;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 Chapter 6: Scope and Closures</h1>
+            <p>Master JavaScript's Most Powerful Feature</p>
+        </header>
+        
+        <div class="content">
+            <!-- Section 1: Understanding Scope -->
+            <div class="section" id="scope-basics">
+                <h2>🌍 1. Understanding Scope</h2>
+                
+                <p><strong>Scope</strong> determines the accessibility (visibility) of variables. It defines where variables can be accessed in your code.</p>
+                
+                <h3>1.1 Types of Scope</h3>
+                
+                <div class="scope-diagram">
+                    <h4>📊 Scope Hierarchy</h4>
+                    
+                    <div class="scope-level">
+                        <h4>🌍 Global Scope <span class="scope-badge">Accessible Everywhere</span></h4>
+                        <p>Variables declared outside any function or block.</p>
+                        <div class="variable-box">let globalVar = "I'm global";</div>
+                        
+                        <div class="nested-scope">
+                            <h4>📦 Function Scope <span class="scope-badge">Function Level</span></h4>
+                            <p>Variables declared inside a function with var, let, or const.</p>
+                            <div class="variable-box">function outer() { let functionVar = "I'm local"; }</div>
+                            
+                            <div class="double-nested">
+                                <h4>🔒 Block Scope <span class="scope-badge">Block Level</span></h4>
+                                <p>Variables declared with let/const inside { } blocks.</p>
+                                <div class="variable-box">{ let blockVar = "I'm block scoped"; }</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>1.2 Global Scope</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Variables declared outside any function or block</span>
+<span class="keyword">var</span> globalVar1 = <span class="string">"Global with var"</span>;
+<span class="keyword">let</span> globalVar2 = <span class="string">"Global with let"</span>;
+<span class="keyword">const</span> globalVar3 = <span class="string">"Global with const"</span>;
+
+<span class="keyword">function</span> <span class="function">testGlobal</span>() {
+    <span class="function">console</span>.<span class="function">log</span>(globalVar1);  <span class="comment">// ✅ Accessible</span>
+    <span class="function">console</span>.<span class="function">log</span>(globalVar2);  <span class="comment">// ✅ Accessible</span>
+    <span class="function">console</span>.<span class="function">log</span>(globalVar3);  <span class="comment">// ✅ Accessible</span>
+}
+
+<span class="comment">// Global variables are accessible everywhere</span>
+<span class="function">testGlobal</span>();
+<span class="function">console</span>.<span class="function">log</span>(globalVar1);  <span class="comment">// ✅ Works</span></code>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Global Scope Pollution:</strong> Avoid creating too many global variables. They can cause naming conflicts and make debugging difficult. Use modules and encapsulation instead.
+                </div>
+                
+                <h3>1.3 Function Scope</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">myFunction</span>() {
+    <span class="keyword">var</span> functionVar = <span class="string">"Function scoped"</span>;
+    <span class="keyword">let</span> functionLet = <span class="string">"Also function scoped"</span>;
+    <span class="keyword">const</span> functionConst = <span class="string">"Also function scoped"</span>;
+    
+    <span class="function">console</span>.<span class="function">log</span>(functionVar);    <span class="comment">// ✅ Works</span>
+    <span class="function">console</span>.<span class="function">log</span>(functionLet);    <span class="comment">// ✅ Works</span>
+    <span class="function">console</span>.<span class="function">log</span>(functionConst);  <span class="comment">// ✅ Works</span>
+}
+
+<span class="function">myFunction</span>();
+
+<span class="comment">// Outside function - not accessible</span>
+<span class="function">console</span>.<span class="function">log</span>(functionVar);  <span class="comment">// ❌ ReferenceError</span></code>
+                </div>
+                
+                <h3>1.4 Block Scope (ES6)</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Block scope with let and const</span>
+<span class="keyword">if</span> (<span class="keyword">true</span>) {
+    <span class="keyword">var</span> varVariable = <span class="string">"var ignores block scope"</span>;
+    <span class="keyword">let</span> letVariable = <span class="string">"let respects block scope"</span>;
+    <span class="keyword">const</span> constVariable = <span class="string">"const respects block scope"</span>;
+}
+
+<span class="function">console</span>.<span class="function">log</span>(varVariable);    <span class="comment">// ✅ "var ignores block scope"</span>
+<span class="function">console</span>.<span class="function">log</span>(letVariable);    <span class="comment">// ❌ ReferenceError</span>
+<span class="function">console</span>.<span class="function">log</span>(constVariable);  <span class="comment">// ❌ ReferenceError</span>
+
+<span class="comment">// Loop example</span>
+<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i < <span class="number">3</span>; i++) {
+    <span class="comment">// var is function-scoped</span>
+}
+<span class="function">console</span>.<span class="function">log</span>(i);  <span class="comment">// ✅ 3 (accessible outside loop!)</span>
+
+<span class="keyword">for</span> (<span class="keyword">let</span> j = <span class="number">0</span>; j < <span class="number">3</span>; j++) {
+    <span class="comment">// let is block-scoped</span>
+}
+<span class="function">console</span>.<span class="function">log</span>(j);  <span class="comment">// ❌ ReferenceError (not accessible)</span></code>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Keyword</th>
+                            <th>Scope</th>
+                            <th>Hoisting</th>
+                            <th>Re-declaration</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>var</strong></td>
+                            <td>Function scope</td>
+                            <td>Yes (undefined)</td>
+                            <td>✅ Allowed</td>
+                            <td>❌ Avoid in modern JS</td>
+                        </tr>
+                        <tr>
+                            <td><strong>let</strong></td>
+                            <td>Block scope</td>
+                            <td>Yes (TDZ)</td>
+                            <td>❌ Not allowed</td>
+                            <td>✅ Mutable variables</td>
+                        </tr>
+                        <tr>
+                            <td><strong>const</strong></td>
+                            <td>Block scope</td>
+                            <td>Yes (TDZ)</td>
+                            <td>❌ Not allowed</td>
+                            <td>✅ Constants (default choice)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Scope Visualizer</h4>
+                    <button onclick="demoScope()">Run Scope Demo</button>
+                    <div class="output" id="scopeOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 2: Lexical Scope -->
+            <div class="section" id="lexical-scope">
+                <h2>🔗 2. Lexical Scope (Static Scope)</h2>
+                
+                <p><strong>Lexical scope</strong> means that scope is determined by the physical placement of code in the source file. Inner functions have access to variables in outer functions.</p>
+                
+                <h3>2.1 Scope Chain</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">const</span> globalVar = <span class="string">"global"</span>;
+
+<span class="keyword">function</span> <span class="function">outer</span>() {
+    <span class="keyword">const</span> outerVar = <span class="string">"outer"</span>;
+    
+    <span class="keyword">function</span> <span class="function">middle</span>() {
+        <span class="keyword">const</span> middleVar = <span class="string">"middle"</span>;
+        
+        <span class="keyword">function</span> <span class="function">inner</span>() {
+            <span class="keyword">const</span> innerVar = <span class="string">"inner"</span>;
+            
+            <span class="comment">// Inner can access ALL outer scopes!</span>
+            <span class="function">console</span>.<span class="function">log</span>(innerVar);    <span class="comment">// ✅ "inner"</span>
+            <span class="function">console</span>.<span class="function">log</span>(middleVar);   <span class="comment">// ✅ "middle"</span>
+            <span class="function">console</span>.<span class="function">log</span>(outerVar);    <span class="comment">// ✅ "outer"</span>
+            <span class="function">console</span>.<span class="function">log</span>(globalVar);   <span class="comment">// ✅ "global"</span>
+        }
+        
+        <span class="function">inner</span>();
+        <span class="function">console</span>.<span class="function">log</span>(innerVar);  <span class="comment">// ❌ ReferenceError</span>
+    }
+    
+    <span class="function">middle</span>();
+}
+
+<span class="function">outer</span>();</code>
+                </div>
+                
+                <div class="scope-diagram">
+                    <h4>🔍 Scope Chain Lookup</h4>
+                    <div class="scope-level">
+                        <h4>🌍 Global Scope</h4>
+                        <div class="variable-box">globalVar = "global"</div>
+                        
+                        <div class="nested-scope">
+                            <h4>📦 outer() Function</h4>
+                            <div class="variable-box">outerVar = "outer"</div>
+                            <p style="margin: 10px 0; color: #666;">Can access: outerVar, globalVar ✅</p>
+                            
+                            <div class="double-nested">
+                                <h4>📦 middle() Function</h4>
+                                <div class="variable-box">middleVar = "middle"</div>
+                                <p style="margin: 10px 0; color: #666;">Can access: middleVar, outerVar, globalVar ✅</p>
+                                
+                                <div style="background: #e1f5fe; border: 2px dashed #0288d1; border-radius: 8px; padding: 15px; margin: 15px 0 0 30px;">
+                                    <h4 style="color: #01579b;">📦 inner() Function</h4>
+                                    <div class="variable-box">innerVar = "inner"</div>
+                                    <p style="margin: 10px 0; color: #666;">Can access: innerVar, middleVar, outerVar, globalVar ✅</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 Scope Chain Rule:</strong> When JavaScript looks for a variable, it starts in the current scope and moves outward through parent scopes until it finds it or reaches the global scope.
+                </div>
+                
+                <h3>2.2 Variable Shadowing</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">const</span> x = <span class="number">1</span>;
+
+<span class="keyword">function</span> <span class="function">level1</span>() {
+    <span class="keyword">const</span> x = <span class="number">2</span>;  <span class="comment">// Shadows global x</span>
+    
+    <span class="keyword">function</span> <span class="function">level2</span>() {
+        <span class="keyword">const</span> x = <span class="number">3</span>;  <span class="comment">// Shadows level1 x</span>
+        
+        <span class="keyword">function</span> <span class="function">level3</span>() {
+            <span class="keyword">const</span> x = <span class="number">4</span>;  <span class="comment">// Shadows level2 x</span>
+            <span class="function">console</span>.<span class="function">log</span>(x);  <span class="comment">// 4 (innermost)</span>
+        }
+        
+        <span class="function">level3</span>();
+        <span class="function">console</span>.<span class="function">log</span>(x);  <span class="comment">// 3</span>
+    }
+    
+    <span class="function">level2</span>();
+    <span class="function">console</span>.<span class="function">log</span>(x);  <span class="comment">// 2</span>
+}
+
+<span class="function">level1</span>();
+<span class="function">console</span>.<span class="function">log</span>(x);  <span class="comment">// 1 (global)</span></code>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Shadowing Caution:</strong> While legal, excessive shadowing can make code confusing. Use different variable names when possible to improve readability.
+                </div>
+            </div>
+
+            <!-- Section 3: Closures -->
+            <div class="section" id="closures">
+                <h2>🔐 3. Closures - The Secret Power</h2>
+                
+                <p><strong>A closure</strong> is a function that has access to variables in its outer (enclosing) function's scope, even after the outer function has returned. This is JavaScript's most powerful and misunderstood feature!</p>
+                
+                <h3>3.1 Understanding Closures</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Basic closure example</span>
+<span class="keyword">function</span> <span class="function">outer</span>() {
+    <span class="keyword">const</span> outerVar = <span class="string">"I'm from outer!"</span>;
+    
+    <span class="keyword">function</span> <span class="function">inner</span>() {
+        <span class="function">console</span>.<span class="function">log</span>(outerVar);  <span class="comment">// Can access outerVar</span>
+    }
+    
+    <span class="keyword">return</span> inner;
+}
+
+<span class="keyword">const</span> closureFunc = <span class="function">outer</span>();  <span class="comment">// outer() finishes executing</span>
+<span class="function">closureFunc</span>();  <span class="comment">// "I'm from outer!" - Still has access! 🎉</span></code>
+                </div>
+                
+                <div class="closure-visual">
+                    <h4>🎬 Closure Execution Flow</h4>
+                    
+                    <div class="closure-box">
+                        <strong>Step 1: outer() executes</strong>
+                        <div class="variable-box">outerVar = "I'm from outer!"</div>
+                        <div class="variable-box">inner function is created</div>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <div class="closure-box">
+                        <strong>Step 2: outer() returns inner</strong>
+                        <div class="variable-box">inner function is returned</div>
+                        <div class="memory-ref">inner "remembers" outerVar! 🧠</div>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <div class="closure-box">
+                        <strong>Step 3: closureFunc() is called</strong>
+                        <div class="variable-box">inner executes</div>
+                        <div class="variable-box">Still has access to outerVar ✨</div>
+                    </div>
+                </div>
+                
+                <div class="note">
+                    <strong>💡 Key Point:</strong> The closure "closes over" the variables from its parent scope. Even after the outer function finishes, those variables remain in memory because the inner function still references them.
+                </div>
+                
+                <h3>3.2 Practical Closure: Counter Function</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Classic closure example - private counter</span>
+<span class="keyword">function</span> <span class="function">createCounter</span>() {
+    <span class="keyword">let</span> count = <span class="number">0</span>;  <span class="comment">// Private variable!</span>
+    
+    <span class="keyword">return</span> {
+        increment: <span class="keyword">function</span>() {
+            count++;
+            <span class="keyword">return</span> count;
+        },
+        decrement: <span class="keyword">function</span>() {
+            count--;
+            <span class="keyword">return</span> count;
+        },
+        getCount: <span class="keyword">function</span>() {
+            <span class="keyword">return</span> count;
+        }
+    };
+}
+
+<span class="keyword">const</span> counter = <span class="function">createCounter</span>();
+
+<span class="function">console</span>.<span class="function">log</span>(counter.<span class="function">increment</span>());  <span class="comment">// 1</span>
+<span class="function">console</span>.<span class="function">log</span>(counter.<span class="function">increment</span>());  <span class="comment">// 2</span>
+<span class="function">console</span>.<span class="function">log</span>(counter.<span class="function">decrement</span>());  <span class="comment">// 1</span>
+<span class="function">console</span>.<span class="function">log</span>(counter.<span class="function">getCount</span>());   <span class="comment">// 1</span>
+
+<span class="comment">// Cannot access count directly!</span>
+<span class="function">console</span>.<span class="function">log</span>(counter.count);  <span class="comment">// undefined - it's private! 🔒</span></code>
+                </div>
+                
+                <div class="success">
+                    <strong>✅ Data Privacy:</strong> Closures provide true data privacy in JavaScript. The <code>count</code> variable cannot be accessed or modified directly - only through the methods we provide!
+                </div>
+                
+                <h3>3.3 Closure Use Cases</h3>
+                
+                <div class="grid-2">
+                    <div class="example-card">
+                        <h4>1. Function Factory</h4>
+                        <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">makeMultiplier</span>(x) {
+    <span class="keyword">return</span> <span class="keyword">function</span>(y) {
+        <span class="keyword">return</span> x * y;
+    };
+}
+
+<span class="keyword">const</span> double = <span class="function">makeMultiplier</span>(<span class="number">2</span>);
+<span class="keyword">const</span> triple = <span class="function">makeMultiplier</span>(<span class="number">3</span>);
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">double</span>(<span class="number">5</span>));  <span class="comment">// 10</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">triple</span>(<span class="number">5</span>));  <span class="comment">// 15</span></code>
+                        </div>
+                    </div>
+                    
+                    <div class="example-card">
+                        <h4>2. Event Handlers</h4>
+                        <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">setupButtons</span>() {
+    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i <= <span class="number">3</span>; i++) {
+        <span class="keyword">const</span> btn = document
+            .<span class="function">getElementById</span>(<span class="string">`btn${i}`</span>);
+        
+        btn.<span class="function">addEventListener</span>(<span class="string">'click'</span>, 
+            <span class="keyword">function</span>() {
+                <span class="function">alert</span>(<span class="string">`Button ${i} clicked`</span>);
+            }
+        );
+    }
+}</code>
+                        </div>
+                    </div>
+                    
+                    <div class="example-card">
+                        <h4>3. Once Function</h4>
+                        <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">once</span>(fn) {
+    <span class="keyword">let</span> called = <span class="keyword">false</span>;
+    
+    <span class="keyword">return</span> <span class="keyword">function</span>(...args) {
+        <span class="keyword">if</span> (!called) {
+            called = <span class="keyword">true</span>;
+            <span class="keyword">return</span> <span class="function">fn</span>(...args);
+        }
+    };
+}
+
+<span class="keyword">const</span> initialize = <span class="function">once</span>(() => {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Initialized!"</span>);
+});
+
+<span class="function">initialize</span>();  <span class="comment">// "Initialized!"</span>
+<span class="function">initialize</span>();  <span class="comment">// (nothing)</span></code>
+                        </div>
+                    </div>
+                    
+                    <div class="example-card">
+                        <h4>4. Memoization</h4>
+                        <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">memoize</span>(fn) {
+    <span class="keyword">const</span> cache = {};
+    
+    <span class="keyword">return</span> <span class="keyword">function</span>(n) {
+        <span class="keyword">if</span> (n <span class="keyword">in</span> cache) {
+            <span class="keyword">return</span> cache[n];
+        }
+        <span class="keyword">const</span> result = <span class="function">fn</span>(n);
+        cache[n] = result;
+        <span class="keyword">return</span> result;
+    };
+}
+
+<span class="keyword">const</span> fibonacci = <span class="function">memoize</span>(n => {
+    <span class="keyword">if</span> (n <= <span class="number">1</span>) <span class="keyword">return</span> n;
+    <span class="keyword">return</span> <span class="function">fibonacci</span>(n-<span class="number">1</span>) + <span class="function">fibonacci</span>(n-<span class="number">2</span>);
+});</code>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>3.4 The Classic Interview Problem</h3>
+                
+                <div class="warning">
+                    <strong>⚠️ Most Asked Interview Question:</strong> This closure problem trips up many candidates!
+                </div>
+                
+                <div class="code-block">
+<code><span class="comment">// ❌ PROBLEM: What gets logged?</span>
+<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i < <span class="number">3</span>; i++) {
+    <span class="function">setTimeout</span>(<span class="keyword">function</span>() {
+        <span class="function">console</span>.<span class="function">log</span>(i);
+    }, <span class="number">1000</span>);
+}
+<span class="comment">// Output: 3, 3, 3 (not 0, 1, 2!) 😱</span>
+
+<span class="comment">// Why? var is function-scoped, all callbacks reference same i</span>
+<span class="comment">// By the time they execute, loop finished and i = 3</span></code>
+                </div>
+                
+                <div class="code-block">
+<code><span class="comment">// ✅ SOLUTION 1: Use let (block-scoped)</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">3</span>; i++) {
+    <span class="function">setTimeout</span>(<span class="keyword">function</span>() {
+        <span class="function">console</span>.<span class="function">log</span>(i);
+    }, <span class="number">1000</span>);
+}
+<span class="comment">// Output: 0, 1, 2 ✅ Each iteration has its own i</span>
+
+<span class="comment">// ✅ SOLUTION 2: Create closure with IIFE</span>
+<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i < <span class="number">3</span>; i++) {
+    (<span class="keyword">function</span>(j) {
+        <span class="function">setTimeout</span>(<span class="keyword">function</span>() {
+            <span class="function">console</span>.<span class="function">log</span>(j);
+        }, <span class="number">1000</span>);
+    })(i);
+}
+<span class="comment">// Output: 0, 1, 2 ✅ Each IIFE captures its own j</span>
+
+<span class="comment">// ✅ SOLUTION 3: Pass as parameter</span>
+<span class="keyword">function</span> <span class="function">logWithDelay</span>(value) {
+    <span class="function">setTimeout</span>(<span class="keyword">function</span>() {
+        <span class="function">console</span>.<span class="function">log</span>(value);
+    }, <span class="number">1000</span>);
+}
+
+<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i < <span class="number">3</span>; i++) {
+    <span class="function">logWithDelay</span>(i);
+}
+<span class="comment">// Output: 0, 1, 2 ✅</span></code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Closure Counter Demo</h4>
+                    <button onclick="createNewCounter()">Create Counter</button>
+                    <button onclick="incrementCounter()">Increment</button>
+                    <button onclick="decrementCounter()">Decrement</button>
+                    <button onclick="showCount()">Show Count</button>
+                    <div class="output" id="closureOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 4: IIFE -->
+            <div class="section" id="iife">
+                <h2>🚀 4. IIFE (Immediately Invoked Function Expression)</h2>
+                
+                <p><strong>IIFE</strong> is a function that runs immediately after it's defined. Used to create private scopes and avoid polluting the global namespace.</p>
+                
+                <h3>4.1 IIFE Syntax</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Basic IIFE syntax</span>
+(<span class="keyword">function</span>() {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"I run immediately!"</span>);
+})();
+
+<span class="comment">// With parameters</span>
+(<span class="keyword">function</span>(name) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Hello, ${name}!`</span>);
+})(<span class="string">"Alice"</span>);
+
+<span class="comment">// Arrow function IIFE</span>
+(() => {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Arrow IIFE"</span>);
+})();
+
+<span class="comment">// With return value</span>
+<span class="keyword">const</span> result = (<span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="number">5</span> + <span class="number">10</span>;
+})();
+<span class="function">console</span>.<span class="function">log</span>(result);  <span class="comment">// 15</span></code>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 Parentheses Requirement:</strong> The wrapping parentheses are required to tell JavaScript this is a function expression, not a declaration. The second set of () invokes the function.
+                </div>
+                
+                <h3>4.2 Why Use IIFE?</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// 1. Create private scope (avoid global pollution)</span>
+(<span class="keyword">function</span>() {
+    <span class="keyword">const</span> privateVar = <span class="string">"I'm private"</span>;
+    <span class="keyword">const</span> privateFunc = () => <span class="function">console</span>.<span class="function">log</span>(privateVar);
+    
+    <span class="function">privateFunc</span>();
+})();
+
+<span class="comment">// privateVar is not accessible here - it's encapsulated!</span>
+
+<span class="comment">// 2. Module pattern (before ES6 modules)</span>
+<span class="keyword">const</span> calculator = (<span class="keyword">function</span>() {
+    <span class="comment">// Private variables and functions</span>
+    <span class="keyword">let</span> result = <span class="number">0</span>;
+    
+    <span class="keyword">function</span> <span class="function">validateNumber</span>(n) {
+        <span class="keyword">return</span> <span class="keyword">typeof</span> n === <span class="string">'number'</span>;
+    }
+    
+    <span class="comment">// Public API</span>
+    <span class="keyword">return</span> {
+        add: <span class="keyword">function</span>(n) {
+            <span class="keyword">if</span> (<span class="function">validateNumber</span>(n)) result += n;
+            <span class="keyword">return</span> <span class="keyword">this</span>;
+        },
+        subtract: <span class="keyword">function</span>(n) {
+            <span class="keyword">if</span> (<span class="function">validateNumber</span>(n)) result -= n;
+            <span class="keyword">return</span> <span class="keyword">this</span>;
+        },
+        getResult: <span class="keyword">function</span>() {
+            <span class="keyword">return</span> result;
+        }
+    };
+})();
+
+calculator.<span class="function">add</span>(<span class="number">10</span>).<span class="function">subtract</span>(<span class="number">5</span>);
+<span class="function">console</span>.<span class="function">log</span>(calculator.<span class="function">getResult</span>());  <span class="comment">// 5</span></code>
+                </div>
+                
+                <h3>4.3 Named IIFE</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Named IIFE (useful for recursion)</span>
+(<span class="keyword">function</span> <span class="function">countdown</span>(n) {
+    <span class="function">console</span>.<span class="function">log</span>(n);
+    <span class="keyword">if</span> (n > <span class="number">0</span>) {
+        <span class="function">countdown</span>(n - <span class="number">1</span>);  <span class="comment">// Can reference itself</span>
+    }
+})(<span class="number">5</span>);
+<span class="comment">// Output: 5, 4, 3, 2, 1, 0</span></code>
+                </div>
+            </div>
+
+            <!-- Section 5: Module Pattern -->
+            <div class="section" id="module-pattern">
+                <h2>📦 5. Module Pattern</h2>
+                
+                <p>The <strong>module pattern</strong> uses closures to create private and public members, providing encapsulation.</p>
+                
+                <h3>5.1 Basic Module Pattern</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">const</span> bankAccount = (<span class="keyword">function</span>() {
+    <span class="comment">// Private variables</span>
+    <span class="keyword">let</span> balance = <span class="number">0</span>;
+    <span class="keyword">const</span> transactionHistory = [];
+    
+    <span class="comment">// Private methods</span>
+    <span class="keyword">function</span> <span class="function">recordTransaction</span>(type, amount) {
+        transactionHistory.<span class="function">push</span>({
+            type,
+            amount,
+            date: <span class="keyword">new</span> <span class="function">Date</span>()
+        });
+    }
+    
+    <span class="comment">// Public API</span>
+    <span class="keyword">return</span> {
+        deposit: <span class="keyword">function</span>(amount) {
+            <span class="keyword">if</span> (amount > <span class="number">0</span>) {
+                balance += amount;
+                <span class="function">recordTransaction</span>(<span class="string">'deposit'</span>, amount);
+                <span class="keyword">return</span> <span class="string">`Deposited: $${amount}`</span>;
+            }
+            <span class="keyword">return</span> <span class="string">"Invalid amount"</span>;
+        },
+        
+        withdraw: <span class="keyword">function</span>(amount) {
+            <span class="keyword">if</span> (amount > <span class="number">0</span> && amount <= balance) {
+                balance -= amount;
+                <span class="function">recordTransaction</span>(<span class="string">'withdrawal'</span>, amount);
+                <span class="keyword">return</span> <span class="string">`Withdrew: $${amount}`</span>;
+            }
+            <span class="keyword">return</span> <span class="string">"Invalid amount or insufficient funds"</span>;
+        },
+        
+        getBalance: <span class="keyword">function</span>() {
+            <span class="keyword">return</span> balance;
+        },
+        
+        getHistory: <span class="keyword">function</span>() {
+            <span class="keyword">return</span> [...transactionHistory];  <span class="comment">// Return copy</span>
+        }
+    };
+})();
+
+<span class="function">console</span>.<span class="function">log</span>(bankAccount.<span class="function">deposit</span>(<span class="number">100</span>));    <span class="comment">// "Deposited: $100"</span>
+<span class="function">console</span>.<span class="function">log</span>(bankAccount.<span class="function">withdraw</span>(<span class="number">30</span>));    <span class="comment">// "Withdrew: $30"</span>
+<span class="function">console</span>.<span class="function">log</span>(bankAccount.<span class="function">getBalance</span>());   <span class="comment">// 70</span>
+
+<span class="comment">// Cannot access private variables!</span>
+<span class="function">console</span>.<span class="function">log</span>(bankAccount.balance);  <span class="comment">// undefined 🔒</span></code>
+                </div>
+                
+                <h3>5.2 Revealing Module Pattern</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">const</span> userModule = (<span class="keyword">function</span>() {
+    <span class="comment">// Private</span>
+    <span class="keyword">let</span> name = <span class="string">"Anonymous"</span>;
+    <span class="keyword">let</span> age = <span class="number">0</span>;
+    
+    <span class="keyword">function</span> <span class="function">validateAge</span>(a) {
+        <span class="keyword">return</span> a > <span class="number">0</span> && a < <span class="number">150</span>;
+    }
+    
+    <span class="keyword">function</span> <span class="function">setName</span>(n) {
+        name = n;
+    }
+    
+    <span class="keyword">function</span> <span class="function">setAge</span>(a) {
+        <span class="keyword">if</span> (<span class="function">validateAge</span>(a)) {
+            age = a;
+        }
+    }
+    
+    <span class="keyword">function</span> <span class="function">getInfo</span>() {
+        <span class="keyword">return</span> <span class="string">`${name}, ${age} years old`</span>;
+    }
+    
+    <span class="comment">// Reveal public interface</span>
+    <span class="keyword">return</span> {
+        setName: setName,
+        setAge: setAge,
+        getInfo: getInfo
+    };
+})();
+
+userModule.<span class="function">setName</span>(<span class="string">"Alice"</span>);
+userModule.<span class="function">setAge</span>(<span class="number">25</span>);
+<span class="function">console</span>.<span class="function">log</span>(userModule.<span class="function">getInfo</span>());  <span class="comment">// "Alice, 25 years old"</span></code>
+                </div>
+                
+                <div class="success">
+                    <strong>✅ Module Pattern Benefits:</strong>
+                    <ul>
+                        <li>Encapsulation - hide implementation details</li>
+                        <li>Private state - true data privacy</li>
+                        <li>Public API - clean interface</li>
+                        <li>Namespace management - avoid global pollution</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 6: Memory & Performance -->
+            <div class="section" id="memory">
+                <h2>💾 6. Memory Considerations</h2>
+                
+                <h3>6.1 Memory Leaks with Closures</h3>
+                
+                <div class="warning">
+                    <strong>⚠️ Be Careful:</strong> Closures keep references to outer variables, which can lead to memory leaks if not managed properly.
+                </div>
+                
+                <div class="code-block">
+<code><span class="comment">// ❌ Potential memory leak</span>
+<span class="keyword">function</span> <span class="function">createElement</span>() {
+    <span class="keyword">const</span> largeData = <span class="keyword">new</span> <span class="function">Array</span>(<span class="number">1000000</span>).<span class="function">fill</span>(<span class="string">"data"</span>);
+    
+    <span class="keyword">return</span> <span class="keyword">function</span>() {
+        <span class="comment">// This closure keeps largeData in memory</span>
+        <span class="comment">// even if we only need a small part</span>
+        <span class="function">console</span>.<span class="function">log</span>(largeData[<span class="number">0</span>]);
+    };
+}
+
+<span class="keyword">const</span> fn = <span class="function">createElement</span>();  <span class="comment">// largeData stays in memory!</span>
+
+<span class="comment">// ✅ Better approach</span>
+<span class="keyword">function</span> <span class="function">createElementBetter</span>() {
+    <span class="keyword">const</span> largeData = <span class="keyword">new</span> <span class="function">Array</span>(<span class="number">1000000</span>).<span class="function">fill</span>(<span class="string">"data"</span>);
+    <span class="keyword">const</span> firstItem = largeData[<span class="number">0</span>];  <span class="comment">// Extract only what you need</span>
+    
+    <span class="keyword">return</span> <span class="keyword">function</span>() {
+        <span class="function">console</span>.<span class="function">log</span>(firstItem);  <span class="comment">// Only keeps firstItem in memory</span>
+    };
+}</code>
+                </div>
+                
+                <h3>6.2 Common Leak Patterns</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// 1. Forgotten timers</span>
+<span class="keyword">function</span> <span class="function">setupTimer</span>() {
+    <span class="keyword">const</span> bigArray = <span class="keyword">new</span> <span class="function">Array</span>(<span class="number">1000000</span>);
+    
+    <span class="function">setInterval</span>(() => {
+        <span class="function">console</span>.<span class="function">log</span>(bigArray.length);  <span class="comment">// Keeps bigArray in memory</span>
+    }, <span class="number">1000</span>);
+    
+    <span class="comment">// Timer never cleared - memory leak!</span>
+}
+
+<span class="comment">// ✅ Fix: Clear when done</span>
+<span class="keyword">function</span> <span class="function">setupTimerFixed</span>() {
+    <span class="keyword">const</span> bigArray = <span class="keyword">new</span> <span class="function">Array</span>(<span class="number">1000000</span>);
+    
+    <span class="keyword">const</span> timerId = <span class="function">setInterval</span>(() => {
+        <span class="function">console</span>.<span class="function">log</span>(bigArray.length);
+    }, <span class="number">1000</span>);
+    
+    <span class="comment">// Cleanup function</span>
+    <span class="keyword">return</span> () => <span class="function">clearInterval</span>(timerId);
+}</code>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 Best Practices:</strong>
+                    <ul>
+                        <li>Only keep necessary data in closures</li>
+                        <li>Clear timers and event listeners when done</li>
+                        <li>Set references to null when no longer needed</li>
+                        <li>Use WeakMap/WeakSet for object references</li>
+                        <li>Profile your application for memory leaks</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 7: Summary -->
+            <div class="section" id="summary">
+                <h2>📝 Chapter Summary & Interview Questions</h2>
+                
+                <h3>Key Takeaways:</h3>
+                <ol>
+                    <li><strong>Scope:</strong> Determines variable accessibility (global, function, block)</li>
+                    <li><strong>Lexical Scope:</strong> Inner functions access outer variables (scope chain)</li>
+                    <li><strong>Closures:</strong> Functions remember their creation environment</li>
+                    <li><strong>var vs let:</strong> var is function-scoped, let/const are block-scoped</li>
+                    <li><strong>IIFE:</strong> Immediately invoked functions create private scopes</li>
+                    <li><strong>Module Pattern:</strong> Uses closures for encapsulation</li>
+                    <li><strong>Memory:</strong> Closures keep references - watch for leaks</li>
+                </ol>
+                
+                <h3>Common Interview Questions:</h3>
+                <div class="visual-box">
+                    <ol>
+                        <li><strong>Q:</strong> What is a closure?<br>
+                            <strong>A:</strong> A closure is a function that has access to variables in its outer (enclosing) scope, even after the outer function has returned.</li>
+                        
+                        <li><strong>Q:</strong> Explain the classic setTimeout loop problem.<br>
+                            <strong>A:</strong> With <code>var</code>, all callbacks reference the same variable. Use <code>let</code> (block scope) or create closure with IIFE to capture each value.</li>
+                        
+                        <li><strong>Q:</strong> What's the difference between function and block scope?<br>
+                            <strong>A:</strong> Function scope: variables accessible anywhere in function. Block scope: variables accessible only in {} block.</li>
+                        
+                        <li><strong>Q:</strong> How do closures enable data privacy?<br>
+                            <strong>A:</strong> Variables in outer function are private to inner function - inaccessible from outside.</li>
+                        
+                        <li><strong>Q:</strong> What is lexical scoping?<br>
+                            <strong>A:</strong> Scope determined by code structure. Inner functions can access outer variables based on where they're written.</li>
+                        
+                        <li><strong>Q:</strong> Create a private counter using closures.<br>
+                            <strong>A:</strong> See section 3.2 above.</li>
+                        
+                        <li><strong>Q:</strong> What is IIFE and why use it?<br>
+                            <strong>A:</strong> Immediately Invoked Function Expression. Creates private scope, avoids global pollution.</li>
+                    </ol>
+                </div>
+                
+                <div class="success">
+                    <strong>💪 Practice Exercises:</strong>
+                    <ol>
+                        <li>Create a function that returns a function (closure)</li>
+                        <li>Implement private variables using closure</li>
+                        <li>Fix the setTimeout loop problem</li>
+                        <li>Create a module with private/public methods</li>
+                        <li>Implement a function that only runs once</li>
+                        <li>Create a memoization function</li>
+                        <li>Build a counter with increment/decrement/reset</li>
+                        <li>Explain why this logs 3, 3, 3: <code>for(var i=0; i<3; i++) setTimeout(() => console.log(i), 100)</code></li>
+                    </ol>
+                </div>
+                
+                <div class="note">
+                    <strong>🎯 Master These Concepts:</strong> Scope and closures are fundamental to understanding JavaScript. They appear in almost every technical interview. Practice creating closures and explaining them clearly!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoScope() {
+            const output = document.getElementById('scopeOutput');
+            let result = '=== Scope Demo ===\n\n';
+            
+            // Global scope
+            const globalVar = 'global';
+            result += '1. GLOBAL SCOPE:\n';
+            result += `globalVar = "${globalVar}"\n\n`;
+            
+            // Function scope
+            function testFunction() {
+                const funcVar = 'function';
+                result += '2. FUNCTION SCOPE:\n';
+                result += `funcVar = "${funcVar}"\n`;
+                result += `Can access globalVar: "${globalVar}" ✓\n\n`;
+                
+                // Block scope
+                if (true) {
+                    let blockVar = 'block';
+                    const constVar = 'const block';
+                    result += '3. BLOCK SCOPE:\n';
+                    result += `blockVar = "${blockVar}"\n`;
+                    result += `Can access funcVar: "${funcVar}" ✓\n`;
+                    result += `Can access globalVar: "${globalVar}" ✓\n\n`;
+                }
+                
+                result += '4. AFTER BLOCK:\n';
+                result += 'blockVar is NOT accessible here ✗\n';
+                result += `funcVar still accessible: "${funcVar}" ✓\n`;
+            }
+            
+            testFunction();
+            result += '\n5. BACK IN GLOBAL:\n';
+            result += 'funcVar is NOT accessible here ✗\n';
+            result += `globalVar still accessible: "${globalVar}" ✓`;
+            
+            output.textContent = result;
+        }
+        
+        let counter = null;
+        
+        function createNewCounter() {
+            function createCounter() {
+                let count = 0;
+                return {
+                    increment: () => ++count,
+                    decrement: () => --count,
+                    getCount: () => count
+                };
+            }
+            
+            counter = createCounter();
+            const output = document.getElementById('closureOutput');
+            output.textContent = '✓ New counter created with initial value 0\nTry increment/decrement buttons!';
+        }
+        
+        function incrementCounter() {
+            const output = document.getElementById('closureOutput');
+            if (!counter) {
+                output.textContent = '❌ Create a counter first!';
+                return;
+            }
+            const newCount = counter.increment();
+            output.textContent = `✓ Incremented! Count is now: ${newCount}`;
+        }
+        
+        function decrementCounter() {
+            const output = document.getElementById('closureOutput');
+            if (!counter) {
+                output.textContent = '❌ Create a counter first!';
+                return;
+            }
+            const newCount = counter.decrement();
+            output.textContent = `✓ Decremented! Count is now: ${newCount}`;
+        }
+        
+        function showCount() {
+            const output = document.getElementById('closureOutput');
+            if (!counter) {
+                output.textContent = '❌ Create a counter first!';
+                return;
+            }
+            const count = counter.getCount();
+            output.textContent = `Current count: ${count}\n\n` +
+                               '🔒 Notice: The "count" variable is private!\n' +
+                               'You can only access it through the methods.';
+        }
+    </script>
+</body>
+</html>

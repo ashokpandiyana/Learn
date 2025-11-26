@@ -1,0 +1,2343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventual Consistency Patterns</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 3px solid #667eea;
+            overflow-x: auto;
+        }
+        
+        .nav-tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1em;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .nav-tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+        
+        .nav-tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            margin-bottom: -3px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.6em;
+            margin: 25px 0 15px 0;
+        }
+        
+        h4 {
+            color: #667eea;
+            font-size: 1.3em;
+            margin: 20px 0 10px 0;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+        
+        .visual-demo {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .demo-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .node {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: transform 0.3s;
+        }
+        
+        .node:hover {
+            transform: translateY(-5px);
+        }
+        
+        .node-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+        
+        .node-desc {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .replica-node {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .conflict-node {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .resolved-node {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            margin: 0 10px;
+        }
+        
+        .arrow-down {
+            font-size: 2em;
+            color: #667eea;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 25px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .keyword {
+            color: #ff79c6;
+        }
+        
+        .string {
+            color: #f1fa8c;
+        }
+        
+        .comment {
+            color: #6272a4;
+            font-style: italic;
+        }
+        
+        .function {
+            color: #50fa7b;
+        }
+        
+        .number {
+            color: #bd93f9;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px;
+            text-align: left;
+            font-size: 1.05em;
+        }
+        
+        .comparison-table td {
+            padding: 18px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .feature-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .feature-box h4 {
+            color: #667eea;
+            margin-bottom: 12px;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
+            padding: 20px;
+            border-left: 5px solid #ffc107;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .highlight strong {
+            color: #f57c00;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 20px;
+            border-left: 5px solid #2196f3;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .info-box strong {
+            color: #1976d2;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            padding: 20px;
+            border-left: 5px solid #f44336;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .warning-box strong {
+            color: #c62828;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .card-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .card-title {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .card-desc {
+            text-align: center;
+            color: #666;
+        }
+        
+        ul {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline-item {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-item h4 {
+            margin-top: 0;
+        }
+        
+        .interactive-demo {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .demo-output {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            min-height: 100px;
+        }
+        
+        @media (max-width: 768px) {
+            .demo-row {
+                flex-direction: column;
+            }
+            
+            .arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔄 Eventual Consistency Patterns</h1>
+            <p>Building Resilient Distributed Systems with Convergent Behavior</p>
+        </header>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('overview')">Overview</button>
+            <button class="nav-tab" onclick="showTab('crdts')">CRDTs</button>
+            <button class="nav-tab" onclick="showTab('ot')">Operational Transform</button>
+            <button class="nav-tab" onclick="showTab('anti-entropy')">Anti-Entropy</button>
+            <button class="nav-tab" onclick="showTab('repair')">Read Repair & Handoff</button>
+            <button class="nav-tab" onclick="showTab('vector-clocks')">Vector Clocks</button>
+            <button class="nav-tab" onclick="showTab('real-world')">Real-World Examples</button>
+        </div>
+        
+        <div class="content">
+            <!-- Tab 1: Overview -->
+            <div id="overview" class="tab-content active">
+                <div class="section">
+                    <h2><span class="icon">📚</span>Eventual Consistency Fundamentals</h2>
+                    
+                    <p>Eventual consistency is a consistency model used in distributed systems where updates made to one replica will eventually propagate to all other replicas. It trades immediate consistency for availability and partition tolerance (AP in CAP theorem).</p>
+                    
+                    <h3>The Problem: Concurrent Updates</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Two Users Edit Same Document Simultaneously</h4>
+                        <div class="demo-row">
+                            <div class="node replica-node">
+                                <div class="node-title">Replica A (US)</div>
+                                <div class="node-desc">
+                                    Doc: "Hello"<br>
+                                    User 1 adds "World"<br>
+                                    → "Hello World"
+                                </div>
+                            </div>
+                            <div class="node conflict-node">
+                                <div class="node-title">⚠️ CONFLICT</div>
+                                <div class="node-desc">
+                                    Both replicas diverged!<br>
+                                    How to merge?
+                                </div>
+                            </div>
+                            <div class="node replica-node">
+                                <div class="node-title">Replica B (EU)</div>
+                                <div class="node-desc">
+                                    Doc: "Hello"<br>
+                                    User 2 adds "There"<br>
+                                    → "Hello There"
+                                </div>
+                            </div>
+                        </div>
+                        <div class="arrow-down">↓ Synchronization ↓</div>
+                        <div class="demo-row">
+                            <div class="node resolved-node">
+                                <div class="node-title">✓ Resolution Needed</div>
+                                <div class="node-desc">
+                                    Last Write Wins? Both?<br>
+                                    Merge intelligently?<br>
+                                    User decides?
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Key Properties</h3>
+                    
+                    <div class="grid-container">
+                        <div class="card">
+                            <div class="card-icon">🔄</div>
+                            <div class="card-title">Convergence</div>
+                            <div class="card-desc">All replicas eventually reach same state when updates stop</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">⚡</div>
+                            <div class="card-title">High Availability</div>
+                            <div class="card-desc">System remains available during network partitions</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">🌍</div>
+                            <div class="card-title">Low Latency</div>
+                            <div class="card-desc">Local writes, no coordination needed</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">🔀</div>
+                            <div class="card-title">Conflict Resolution</div>
+                            <div class="card-desc">Systematic way to merge divergent states</div>
+                        </div>
+                    </div>
+                    
+                    <h3>Strong vs Eventual Consistency</h3>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Strong Consistency</th>
+                                <th>Eventual Consistency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Read After Write</strong></td>
+                                <td>✅ Always sees latest write</td>
+                                <td>⚠️ May see stale data temporarily</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Availability</strong></td>
+                                <td>❌ Blocks during network partition</td>
+                                <td>✅ Always available</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Latency</strong></td>
+                                <td>⚠️ Higher (coordination required)</td>
+                                <td>✅ Lower (local operations)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Complexity</strong></td>
+                                <td>✅ Simpler (no conflicts)</td>
+                                <td>⚠️ More complex (conflict resolution)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CAP Theorem</strong></td>
+                                <td>CP (Consistency + Partition tolerance)</td>
+                                <td>AP (Availability + Partition tolerance)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Examples</strong></td>
+                                <td>Banking, inventory management</td>
+                                <td>Social media, collaborative editing</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>Conflict Resolution Strategies</h3>
+                    
+                    <div class="feature-box">
+                        <h4>1. Last Write Wins (LWW)</h4>
+                        <p>Use timestamp to pick most recent update. Simple but loses data.</p>
+                        <ul>
+                            <li><strong>Pros:</strong> Simple, deterministic</li>
+                            <li><strong>Cons:</strong> Data loss, requires synchronized clocks</li>
+                            <li><strong>Use case:</strong> Caching, session data</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h4>2. Multi-Value (Keep All)</h4>
+                        <p>Store all conflicting versions, let application or user resolve.</p>
+                        <ul>
+                            <li><strong>Pros:</strong> No data loss</li>
+                            <li><strong>Cons:</strong> Application complexity, user burden</li>
+                            <li><strong>Use case:</strong> Shopping carts, version control</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h4>3. Semantic Resolution (CRDTs)</h4>
+                        <p>Use data structure properties to automatically merge conflicts.</p>
+                        <ul>
+                            <li><strong>Pros:</strong> Automatic, guaranteed convergence</li>
+                            <li><strong>Cons:</strong> Limited to specific data types</li>
+                            <li><strong>Use case:</strong> Collaborative editing, distributed counters</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="highlight">
+                        <strong>⚖️ Trade-offs:</strong> Eventual consistency prioritizes availability and partition tolerance over immediate consistency. Perfect for scenarios where temporary inconsistency is acceptable (social media feeds, product catalogs, DNS) but not for critical operations (financial transactions, seat reservations).
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 2: CRDTs -->
+            <div id="crdts" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">🔀</span>CRDTs: Conflict-Free Replicated Data Types</h2>
+                    
+                    <p>CRDTs are data structures that guarantee eventual consistency without coordination. They achieve this by ensuring all operations are commutative, associative, and idempotent - meaning operations can be applied in any order and produce the same result.</p>
+                    
+                    <h3>Two CRDT Families</h3>
+                    
+                    <div class="grid-container">
+                        <div class="card">
+                            <div class="card-icon">📊</div>
+                            <div class="card-title">State-based (CvRDT)</div>
+                            <div class="card-desc">
+                                Send entire state<br>
+                                Merge function combines states<br>
+                                Higher bandwidth, simpler
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">⚡</div>
+                            <div class="card-title">Operation-based (CmRDT)</div>
+                            <div class="card-desc">
+                                Send operations<br>
+                                Operations must commute<br>
+                                Lower bandwidth, needs reliable delivery
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>1. G-Counter (Grow-only Counter)</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center;">Each replica tracks its own increments</h4>
+                        <div class="demo-row">
+                            <div class="node replica-node">
+                                <div class="node-title">Replica A</div>
+                                <div class="node-desc">
+                                    [A:5, B:0, C:0]<br>
+                                    Increment 3 times locally
+                                </div>
+                            </div>
+                            <div class="node replica-node">
+                                <div class="node-title">Replica B</div>
+                                <div class="node-desc">
+                                    [A:0, B:7, C:0]<br>
+                                    Increment 7 times locally
+                                </div>
+                            </div>
+                            <div class="node replica-node">
+                                <div class="node-title">Replica C</div>
+                                <div class="node-desc">
+                                    [A:0, B:0, C:2]<br>
+                                    Increment 2 times locally
+                                </div>
+                            </div>
+                        </div>
+                        <div class="arrow-down">↓ Merge (element-wise max) ↓</div>
+                        <div class="demo-row">
+                            <div class="node resolved-node">
+                                <div class="node-title">Merged State</div>
+                                <div class="node-desc">
+                                    [A:5, B:7, C:2]<br>
+                                    Total = 5+7+2 = 14
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block">
+<span class="comment">// G-Counter Implementation</span>
+<span class="keyword">class</span> <span class="function">GCounter</span> {
+    <span class="keyword">constructor</span>(replicaId, replicas) {
+        <span class="keyword">this</span>.replicaId = replicaId;
+        <span class="comment">// Each replica tracks count for every replica</span>
+        <span class="keyword">this</span>.counts = {};
+        replicas.forEach(id => {
+            <span class="keyword">this</span>.counts[id] = <span class="number">0</span>;
+        });
+    }
+    
+    <span class="function">increment</span>() {
+        <span class="comment">// Only increment own counter</span>
+        <span class="keyword">this</span>.counts[<span class="keyword">this</span>.replicaId]++;
+    }
+    
+    <span class="function">value</span>() {
+        <span class="comment">// Sum all replica counts</span>
+        <span class="keyword">return</span> Object.values(<span class="keyword">this</span>.counts).reduce((a, b) => a + b, <span class="number">0</span>);
+    }
+    
+    <span class="function">merge</span>(other) {
+        <span class="comment">// Take max for each replica (idempotent)</span>
+        <span class="keyword">for</span> (<span class="keyword">let</span> id <span class="keyword">in</span> other.counts) {
+            <span class="keyword">this</span>.counts[id] = Math.max(
+                <span class="keyword">this</span>.counts[id] || <span class="number">0</span>,
+                other.counts[id]
+            );
+        }
+    }
+    
+    <span class="function">compare</span>(other) {
+        <span class="comment">// Check if this is >= other for all replicas</span>
+        <span class="keyword">for</span> (<span class="keyword">let</span> id <span class="keyword">in</span> other.counts) {
+            <span class="keyword">if</span> ((<span class="keyword">this</span>.counts[id] || <span class="number">0</span>) < other.counts[id]) {
+                <span class="keyword">return false</span>;
+            }
+        }
+        <span class="keyword">return true</span>;
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> replicas = [<span class="string">'A'</span>, <span class="string">'B'</span>, <span class="string">'C'</span>];
+<span class="keyword">const</span> counterA = <span class="keyword">new</span> GCounter(<span class="string">'A'</span>, replicas);
+<span class="keyword">const</span> counterB = <span class="keyword">new</span> GCounter(<span class="string">'B'</span>, replicas);
+
+counterA.increment();
+counterA.increment();
+counterA.increment();  <span class="comment">// A: 3</span>
+
+counterB.increment();  <span class="comment">// B: 1</span>
+
+console.log(counterA.value());  <span class="comment">// 3</span>
+console.log(counterB.value());  <span class="comment">// 1</span>
+
+<span class="comment">// Merge B into A</span>
+counterA.merge(counterB);
+console.log(counterA.value());  <span class="comment">// 4 (3 + 1)</span>
+                    </div>
+                    
+                    <h3>2. PN-Counter (Positive-Negative Counter)</h3>
+                    
+                    <p>Extends G-Counter to support decrements by maintaining two G-Counters: one for increments, one for decrements.</p>
+                    
+                    <div class="code-block">
+<span class="keyword">class</span> <span class="function">PNCounter</span> {
+    <span class="keyword">constructor</span>(replicaId, replicas) {
+        <span class="keyword">this</span>.replicaId = replicaId;
+        <span class="keyword">this</span>.increments = <span class="keyword">new</span> GCounter(replicaId, replicas);
+        <span class="keyword">this</span>.decrements = <span class="keyword">new</span> GCounter(replicaId, replicas);
+    }
+    
+    <span class="function">increment</span>() {
+        <span class="keyword">this</span>.increments.increment();
+    }
+    
+    <span class="function">decrement</span>() {
+        <span class="keyword">this</span>.decrements.increment();  <span class="comment">// Add to decrement counter</span>
+    }
+    
+    <span class="function">value</span>() {
+        <span class="keyword">return this</span>.increments.value() - <span class="keyword">this</span>.decrements.value();
+    }
+    
+    <span class="function">merge</span>(other) {
+        <span class="keyword">this</span>.increments.merge(other.increments);
+        <span class="keyword">this</span>.decrements.merge(other.decrements);
+    }
+}
+
+<span class="comment">// Example: Distributed like counter</span>
+<span class="keyword">const</span> likesA = <span class="keyword">new</span> PNCounter(<span class="string">'serverA'</span>, [<span class="string">'serverA'</span>, <span class="string">'serverB'</span>]);
+<span class="keyword">const</span> likesB = <span class="keyword">new</span> PNCounter(<span class="string">'serverB'</span>, [<span class="string">'serverA'</span>, <span class="string">'serverB'</span>]);
+
+likesA.increment();  <span class="comment">// +1</span>
+likesA.increment();  <span class="comment">// +1</span>
+likesB.increment();  <span class="comment">// +1</span>
+likesB.decrement();  <span class="comment">// -1</span>
+
+likesA.merge(likesB);
+console.log(likesA.value());  <span class="comment">// 2 (3 increments - 1 decrement)</span>
+                    </div>
+                    
+                    <h3>3. LWW-Element-Set (Last-Write-Wins Set)</h3>
+                    
+                    <p>Set CRDT where each element has a timestamp. Add wins over remove if timestamps are equal.</p>
+                    
+                    <div class="code-block">
+<span class="keyword">class</span> <span class="function">LWWSet</span> {
+    <span class="keyword">constructor</span>() {
+        <span class="keyword">this</span>.addSet = <span class="keyword">new</span> Map();  <span class="comment">// element → timestamp</span>
+        <span class="keyword">this</span>.removeSet = <span class="keyword">new</span> Map();  <span class="comment">// element → timestamp</span>
+    }
+    
+    <span class="function">add</span>(element, timestamp = Date.now()) {
+        <span class="keyword">this</span>.addSet.set(element, timestamp);
+    }
+    
+    <span class="function">remove</span>(element, timestamp = Date.now()) {
+        <span class="keyword">this</span>.removeSet.set(element, timestamp);
+    }
+    
+    <span class="function">contains</span>(element) {
+        <span class="keyword">const</span> addTime = <span class="keyword">this</span>.addSet.get(element) || <span class="number">0</span>;
+        <span class="keyword">const</span> removeTime = <span class="keyword">this</span>.removeSet.get(element) || <span class="number">0</span>;
+        
+        <span class="comment">// Element exists if added more recently than removed</span>
+        <span class="comment">// Bias towards add on tie</span>
+        <span class="keyword">return</span> addTime >= removeTime && addTime > <span class="number">0</span>;
+    }
+    
+    <span class="function">values</span>() {
+        <span class="keyword">const</span> result = [];
+        <span class="keyword">for</span> (<span class="keyword">let</span> element <span class="keyword">of this</span>.addSet.keys()) {
+            <span class="keyword">if</span> (<span class="keyword">this</span>.contains(element)) {
+                result.push(element);
+            }
+        }
+        <span class="keyword">return</span> result;
+    }
+    
+    <span class="function">merge</span>(other) {
+        <span class="comment">// Merge add sets (take max timestamp)</span>
+        <span class="keyword">for</span> (<span class="keyword">let</span> [element, timestamp] <span class="keyword">of</span> other.addSet) {
+            <span class="keyword">const</span> currentTime = <span class="keyword">this</span>.addSet.get(element) || <span class="number">0</span>;
+            <span class="keyword">this</span>.addSet.set(element, Math.max(currentTime, timestamp));
+        }
+        
+        <span class="comment">// Merge remove sets</span>
+        <span class="keyword">for</span> (<span class="keyword">let</span> [element, timestamp] <span class="keyword">of</span> other.removeSet) {
+            <span class="keyword">const</span> currentTime = <span class="keyword">this</span>.removeSet.get(element) || <span class="number">0</span>;
+            <span class="keyword">this</span>.removeSet.set(element, Math.max(currentTime, timestamp));
+        }
+    }
+}
+
+<span class="comment">// Example: Shopping cart across devices</span>
+<span class="keyword">const</span> cartMobile = <span class="keyword">new</span> LWWSet();
+<span class="keyword">const</span> cartDesktop = <span class="keyword">new</span> LWWSet();
+
+cartMobile.add(<span class="string">'item1'</span>, <span class="number">100</span>);
+cartDesktop.add(<span class="string">'item2'</span>, <span class="number">200</span>);
+cartDesktop.remove(<span class="string">'item1'</span>, <span class="number">150</span>);  <span class="comment">// Removed after add</span>
+
+cartMobile.merge(cartDesktop);
+console.log(cartMobile.values());  <span class="comment">// ['item2'] - item1 was removed</span>
+                    </div>
+                    
+                    <h3>4. OR-Set (Observed-Remove Set)</h3>
+                    
+                    <p>More sophisticated set that tracks unique IDs for each add. Remove only affects observed adds.</p>
+                    
+                    <div class="code-block">
+<span class="keyword">class</span> <span class="function">ORSet</span> {
+    <span class="keyword">constructor</span>() {
+        <span class="comment">// element → Set of unique tags</span>
+        <span class="keyword">this</span>.elements = <span class="keyword">new</span> Map();
+        <span class="keyword">this</span>.tombstones = <span class="keyword">new</span> Set();  <span class="comment">// Removed tags</span>
+    }
+    
+    <span class="function">add</span>(element) {
+        <span class="comment">// Create unique tag for this add operation</span>
+        <span class="keyword">const</span> tag = `${element}-${Date.now()}-${Math.random()}`;
+        
+        <span class="keyword">if</span> (!<span class="keyword">this</span>.elements.has(element)) {
+            <span class="keyword">this</span>.elements.set(element, <span class="keyword">new</span> Set());
+        }
+        <span class="keyword">this</span>.elements.get(element).add(tag);
+        <span class="keyword">return</span> tag;
+    }
+    
+    <span class="function">remove</span>(element) {
+        <span class="comment">// Remove all observed tags for this element</span>
+        <span class="keyword">if</span> (<span class="keyword">this</span>.elements.has(element)) {
+            <span class="keyword">for</span> (<span class="keyword">let</span> tag <span class="keyword">of this</span>.elements.get(element)) {
+                <span class="keyword">this</span>.tombstones.add(tag);
+            }
+        }
+    }
+    
+    <span class="function">contains</span>(element) {
+        <span class="keyword">if</span> (!<span class="keyword">this</span>.elements.has(element)) <span class="keyword">return false</span>;
+        
+        <span class="comment">// Element exists if it has any non-tombstoned tags</span>
+        <span class="keyword">for</span> (<span class="keyword">let</span> tag <span class="keyword">of this</span>.elements.get(element)) {
+            <span class="keyword">if</span> (!<span class="keyword">this</span>.tombstones.has(tag)) {
+                <span class="keyword">return true</span>;
+            }
+        }
+        <span class="keyword">return false</span>;
+    }
+    
+    <span class="function">values</span>() {
+        <span class="keyword">return</span> Array.from(<span class="keyword">this</span>.elements.keys()).filter(e => <span class="keyword">this</span>.contains(e));
+    }
+    
+    <span class="function">merge</span>(other) {
+        <span class="comment">// Merge elements (union of tags)</span>
+        <span class="keyword">for</span> (<span class="keyword">let</span> [element, tags] <span class="keyword">of</span> other.elements) {
+            <span class="keyword">if</span> (!<span class="keyword">this</span>.elements.has(element)) {
+                <span class="keyword">this</span>.elements.set(element, <span class="keyword">new</span> Set());
+            }
+            <span class="keyword">for</span> (<span class="keyword">let</span> tag <span class="keyword">of</span> tags) {
+                <span class="keyword">this</span>.elements.get(element).add(tag);
+            }
+        }
+        
+        <span class="comment">// Merge tombstones</span>
+        <span class="keyword">for</span> (<span class="keyword">let</span> tag <span class="keyword">of</span> other.tombstones) {
+            <span class="keyword">this</span>.tombstones.add(tag);
+        }
+    }
+}
+
+<span class="comment">// Example: Concurrent add/remove</span>
+<span class="keyword">const</span> setA = <span class="keyword">new</span> ORSet();
+<span class="keyword">const</span> setB = <span class="keyword">new</span> ORSet();
+
+setA.add(<span class="string">'apple'</span>);
+setB.add(<span class="string">'apple'</span>);  <span class="comment">// Different tag!</span>
+setA.remove(<span class="string">'apple'</span>);  <span class="comment">// Only removes A's version</span>
+
+setA.merge(setB);
+console.log(setA.contains(<span class="string">'apple'</span>));  <span class="comment">// true - B's add survives!</span>
+                    </div>
+                    
+                    <h3>CRDT Comparison</h3>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>CRDT Type</th>
+                                <th>Use Case</th>
+                                <th>Pros</th>
+                                <th>Cons</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>G-Counter</strong></td>
+                                <td>View counts, likes (increment only)</td>
+                                <td>Simple, small state</td>
+                                <td>Cannot decrement</td>
+                            </tr>
+                            <tr>
+                                <td><strong>PN-Counter</strong></td>
+                                <td>Inventory, ratings (inc/dec)</td>
+                                <td>Full counter semantics</td>
+                                <td>State grows with replicas</td>
+                            </tr>
+                            <tr>
+                                <td><strong>LWW-Set</strong></td>
+                                <td>Session data, recent items</td>
+                                <td>Simple, bounded size</td>
+                                <td>Requires synchronized clocks, data loss possible</td>
+                            </tr>
+                            <tr>
+                                <td><strong>OR-Set</strong></td>
+                                <td>Collaborative lists, tags</td>
+                                <td>No data loss, strong semantics</td>
+                                <td>State grows with operations</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="info-box">
+                        <strong>🎯 Real-World CRDT Usage:</strong>
+                        <ul>
+                            <li><strong>Redis:</strong> PN-Counter for distributed counters</li>
+                            <li><strong>Riak:</strong> Multiple CRDTs (counters, sets, maps)</li>
+                            <li><strong>Soundcloud:</strong> Used Riak CRDTs for user interactions</li>
+                            <li><strong>League of Legends:</strong> Chat system using CRDTs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 3: Operational Transformation -->
+            <div id="ot" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">✏️</span>Operational Transformation</h2>
+                    
+                    <p>Operational Transformation (OT) is a technique for maintaining consistency in collaborative real-time editing. It transforms operations based on concurrent changes to ensure all replicas converge. Used by Google Docs, Figma, and collaborative code editors.</p>
+                    
+                    <h3>The Problem: Concurrent Text Editing</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Two Users Edit "ABC" Simultaneously</h4>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <h4>Initial State</h4>
+                                <p><strong>Both users see:</strong> "ABC"</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Concurrent Operations</h4>
+                                <p><strong>User 1:</strong> Insert("X", position=1) → "AXBC"</p>
+                                <p><strong>User 2:</strong> Insert("Y", position=2) → "ABYC"</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Without OT (Wrong!)</h4>
+                                <p><strong>User 1 applies User 2's op:</strong> Insert("Y", 2) on "AXBC" → "AXYBC" ❌</p>
+                                <p><strong>User 2 applies User 1's op:</strong> Insert("X", 1) on "ABYC" → "AXBYC" ❌</p>
+                                <p style="color: #f44336;">⚠️ Different results! Divergence!</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>With OT (Correct!)</h4>
+                                <p><strong>User 1:</strong> Transforms Insert("Y", 2) → Insert("Y", 3) → "AXYBC" ✅</p>
+                                <p><strong>User 2:</strong> Transforms Insert("X", 1) → Insert("X", 1) → "AXYBC" ✅</p>
+                                <p style="color: #4caf50;">✓ Same result! Convergence!</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>OT Algorithm</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Simple Operational Transformation for Text</span>
+<span class="keyword">class</span> <span class="function">Operation</span> {
+    <span class="keyword">constructor</span>(type, position, char = <span class="keyword">null</span>) {
+        <span class="keyword">this</span>.type = type;  <span class="comment">// 'insert' or 'delete'</span>
+        <span class="keyword">this</span>.position = position;
+        <span class="keyword">this</span>.char = char;
+    }
+}
+
+<span class="keyword">class</span> <span class="function">OTDocument</span> {
+    <span class="keyword">constructor</span>(initialText = <span class="string">''</span>) {
+        <span class="keyword">this</span>.text = initialText;
+        <span class="keyword">this</span>.version = <span class="number">0</span>;
+    }
+    
+    <span class="function">apply</span>(op) {
+        <span class="keyword">if</span> (op.type === <span class="string">'insert'</span>) {
+            <span class="keyword">this</span>.text = 
+                <span class="keyword">this</span>.text.slice(<span class="number">0</span>, op.position) + 
+                op.char + 
+                <span class="keyword">this</span>.text.slice(op.position);
+        } <span class="keyword">else if</span> (op.type === <span class="string">'delete'</span>) {
+            <span class="keyword">this</span>.text = 
+                <span class="keyword">this</span>.text.slice(<span class="number">0</span>, op.position) + 
+                <span class="keyword">this</span>.text.slice(op.position + <span class="number">1</span>);
+        }
+        <span class="keyword">this</span>.version++;
+    }
+    
+    <span class="comment">/**
+     * Transform operation op1 against op2
+     * Returns transformed version of op1 that accounts for op2
+     */</span>
+    <span class="keyword">static</span> <span class="function">transform</span>(op1, op2) {
+        <span class="comment">// Both are inserts</span>
+        <span class="keyword">if</span> (op1.type === <span class="string">'insert'</span> && op2.type === <span class="string">'insert'</span>) {
+            <span class="keyword">if</span> (op1.position < op2.position) {
+                <span class="comment">// op1 is before op2, no change needed</span>
+                <span class="keyword">return new</span> Operation(op1.type, op1.position, op1.char);
+            } <span class="keyword">else if</span> (op1.position > op2.position) {
+                <span class="comment">// op1 is after op2, shift position forward</span>
+                <span class="keyword">return new</span> Operation(op1.type, op1.position + <span class="number">1</span>, op1.char);
+            } <span class="keyword">else</span> {
+                <span class="comment">// Same position, use tie-breaker (e.g., client ID)</span>
+                <span class="keyword">return new</span> Operation(op1.type, op1.position + <span class="number">1</span>, op1.char);
+            }
+        }
+        
+        <span class="comment">// op1 is insert, op2 is delete</span>
+        <span class="keyword">if</span> (op1.type === <span class="string">'insert'</span> && op2.type === <span class="string">'delete'</span>) {
+            <span class="keyword">if</span> (op1.position <= op2.position) {
+                <span class="keyword">return new</span> Operation(op1.type, op1.position, op1.char);
+            } <span class="keyword">else</span> {
+                <span class="comment">// Shift back since character was deleted</span>
+                <span class="keyword">return new</span> Operation(op1.type, op1.position - <span class="number">1</span>, op1.char);
+            }
+        }
+        
+        <span class="comment">// op1 is delete, op2 is insert</span>
+        <span class="keyword">if</span> (op1.type === <span class="string">'delete'</span> && op2.type === <span class="string">'insert'</span>) {
+            <span class="keyword">if</span> (op1.position < op2.position) {
+                <span class="keyword">return new</span> Operation(op1.type, op1.position, op1.char);
+            } <span class="keyword">else</span> {
+                <span class="comment">// Shift forward since character was inserted</span>
+                <span class="keyword">return new</span> Operation(op1.type, op1.position + <span class="number">1</span>, op1.char);
+            }
+        }
+        
+        <span class="comment">// Both are deletes</span>
+        <span class="keyword">if</span> (op1.type === <span class="string">'delete'</span> && op2.type === <span class="string">'delete'</span>) {
+            <span class="keyword">if</span> (op1.position < op2.position) {
+                <span class="keyword">return new</span> Operation(op1.type, op1.position, op1.char);
+            } <span class="keyword">else if</span> (op1.position > op2.position) {
+                <span class="keyword">return new</span> Operation(op1.type, op1.position - <span class="number">1</span>, op1.char);
+            } <span class="keyword">else</span> {
+                <span class="comment">// Same position, op becomes no-op</span>
+                <span class="keyword">return null</span>;  <span class="comment">// Character already deleted</span>
+            }
+        }
+        
+        <span class="keyword">return</span> op1;
+    }
+}
+
+<span class="comment">// Simulation of concurrent editing</span>
+<span class="keyword">const</span> doc1 = <span class="keyword">new</span> OTDocument(<span class="string">'ABC'</span>);
+<span class="keyword">const</span> doc2 = <span class="keyword">new</span> OTDocument(<span class="string">'ABC'</span>);
+
+<span class="comment">// User 1 inserts 'X' at position 1</span>
+<span class="keyword">const</span> op1 = <span class="keyword">new</span> Operation(<span class="string">'insert'</span>, <span class="number">1</span>, <span class="string">'X'</span>);
+doc1.apply(op1);
+console.log(<span class="string">'Doc1:'</span>, doc1.text);  <span class="comment">// "AXBC"</span>
+
+<span class="comment">// User 2 inserts 'Y' at position 2</span>
+<span class="keyword">const</span> op2 = <span class="keyword">new</span> Operation(<span class="string">'insert'</span>, <span class="number">2</span>, <span class="string">'Y'</span>);
+doc2.apply(op2);
+console.log(<span class="string">'Doc2:'</span>, doc2.text);  <span class="comment">// "ABYC"</span>
+
+<span class="comment">// Transform and apply operations</span>
+<span class="keyword">const</span> op2_transformed = OTDocument.transform(op2, op1);
+doc1.apply(op2_transformed);
+console.log(<span class="string">'Doc1 after merge:'</span>, doc1.text);  <span class="comment">// "AXYBC"</span>
+
+<span class="keyword">const</span> op1_transformed = OTDocument.transform(op1, op2);
+doc2.apply(op1_transformed);
+console.log(<span class="string">'Doc2 after merge:'</span>, doc2.text);  <span class="comment">// "AXYBC"</span>
+
+console.log(<span class="string">'Converged:'</span>, doc1.text === doc2.text);  <span class="comment">// true!</span>
+                    </div>
+                    
+                    <h3>OT Properties</h3>
+                    
+                    <div class="feature-box">
+                        <h4>TP1: Convergence</h4>
+                        <p>For any two operations o1 and o2, applying them in different orders should produce the same result:</p>
+                        <p><code>apply(o1, transform(o2, o1)) = apply(o2, transform(o1, o2))</code></p>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h4>TP2: Intention Preservation</h4>
+                        <p>The effect of executing an operation at all sites should be the same as its effect at the original site and achieve the original intention.</p>
+                    </div>
+                    
+                    <h3>Advanced: Google Docs Architecture</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Real-time Collaboration Flow</h4>
+                        <div class="demo-row" style="flex-direction: column;">
+                            <div class="node replica-node">
+                                <div class="node-title">Client 1 (Browser)</div>
+                                <div class="node-desc">
+                                    Generates ops locally<br>
+                                    Sends to server<br>
+                                    Receives & transforms ops from others
+                                </div>
+                            </div>
+                            <div class="arrow-down">↕ WebSocket ↕</div>
+                            <div class="node" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                <div class="node-title">Central Server (OT Engine)</div>
+                                <div class="node-desc">
+                                    Maintains operation history<br>
+                                    Broadcasts to all clients<br>
+                                    Ensures total ordering
+                                </div>
+                            </div>
+                            <div class="arrow-down">↕ WebSocket ↕</div>
+                            <div class="node replica-node">
+                                <div class="node-title">Client 2 (Browser)</div>
+                                <div class="node-desc">
+                                    Generates ops locally<br>
+                                    Sends to server<br>
+                                    Receives & transforms ops from others
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>🎯 OT vs CRDT:</strong>
+                        <ul>
+                            <li><strong>OT:</strong> Requires central server for operation ordering. Better for text (preserves intention). Used by Google Docs, Office 365.</li>
+                            <li><strong>CRDT:</strong> Fully decentralized, no server needed. Better for simple data types. Used by Figma, Apple Notes, Atom Teletype.</li>
+                            <li><strong>Hybrid:</strong> Some systems use both - CRDT for structure, OT for text content.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 4: Anti-Entropy -->
+            <div id="anti-entropy" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">🗣️</span>Anti-Entropy Protocols</h2>
+                    
+                    <p>Anti-entropy (also called gossip protocols) ensures replicas eventually synchronize by periodically exchanging state information with random peers. It's highly resilient to failures and network partitions.</p>
+                    
+                    <h3>Gossip Protocol Visualization</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Information Spreads Like Gossip</h4>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <h4>Round 1: Node A has update</h4>
+                                <p>Node A → tells random peer B</p>
+                                <p><strong>Updated nodes:</strong> A, B (2/10)</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Round 2: Two nodes gossip</h4>
+                                <p>A → tells C | B → tells D</p>
+                                <p><strong>Updated nodes:</strong> A, B, C, D (4/10)</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Round 3: Exponential spread</h4>
+                                <p>A→E | B→F | C→G | D→H</p>
+                                <p><strong>Updated nodes:</strong> 8/10</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Round 4: Nearly complete</h4>
+                                <p>Remaining nodes get updated</p>
+                                <p><strong>Updated nodes:</strong> All (10/10) ✅</p>
+                            </div>
+                        </div>
+                        <p style="text-align: center; color: #4caf50; font-weight: bold; margin-top: 20px;">
+                            ✓ O(log N) rounds to reach all nodes!
+                        </p>
+                    </div>
+                    
+                    <h3>Three Gossip Styles</h3>
+                    
+                    <div class="grid-container">
+                        <div class="card">
+                            <div class="card-icon">📤</div>
+                            <div class="card-title">Push</div>
+                            <div class="card-desc">
+                                Node with update pushes to random peer<br>
+                                Fast initial spread<br>
+                                May miss stragglers
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">📥</div>
+                            <div class="card-title">Pull</div>
+                            <div class="card-desc">
+                                Node asks random peer for updates<br>
+                                Good for catching stragglers<br>
+                                Slower initial spread
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">🔄</div>
+                            <div class="card-title">Push-Pull</div>
+                            <div class="card-desc">
+                                Nodes exchange state bidirectionally<br>
+                                Best of both: fast + complete<br>
+                                Most commonly used
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Implementation: Gossip Protocol</h3>
+                    
+                    <div class="code-block">
+<span class="keyword">class</span> <span class="function">GossipNode</span> {
+    <span class="keyword">constructor</span>(nodeId, peers) {
+        <span class="keyword">this</span>.nodeId = nodeId;
+        <span class="keyword">this</span>.peers = peers;  <span class="comment">// List of other nodes</span>
+        <span class="keyword">this</span>.data = <span class="keyword">new</span> Map();  <span class="comment">// key → {value, version}</span>
+        <span class="keyword">this</span>.gossipInterval = <span class="number">1000</span>;  <span class="comment">// 1 second</span>
+    }
+    
+    <span class="function">start</span>() {
+        <span class="comment">// Periodically gossip with random peer</span>
+        setInterval(() => {
+            <span class="keyword">const</span> peer = <span class="keyword">this</span>.selectRandomPeer();
+            <span class="keyword">if</span> (peer) {
+                <span class="keyword">this</span>.gossip(peer);
+            }
+        }, <span class="keyword">this</span>.gossipInterval);
+    }
+    
+    <span class="function">selectRandomPeer</span>() {
+        <span class="keyword">if</span> (<span class="keyword">this</span>.peers.length === <span class="number">0</span>) <span class="keyword">return null</span>;
+        <span class="keyword">const</span> idx = Math.floor(Math.random() * <span class="keyword">this</span>.peers.length);
+        <span class="keyword">return this</span>.peers[idx];
+    }
+    
+    <span class="function">gossip</span>(peer) {
+        <span class="comment">// Push-Pull: Exchange state with peer</span>
+        
+        <span class="comment">// 1. Send our state to peer</span>
+        <span class="keyword">const</span> myState = <span class="keyword">this</span>.getState();
+        peer.receiveGossip(myState, <span class="keyword">this</span>);
+        
+        <span class="comment">// 2. Receive peer's state</span>
+        <span class="keyword">const</span> peerState = peer.getState();
+        <span class="keyword">this</span>.mergeState(peerState);
+    }
+    
+    <span class="function">getState</span>() {
+        <span class="comment">// Return current state as object</span>
+        <span class="keyword">const</span> state = {};
+        <span class="keyword">for</span> (<span class="keyword">let</span> [key, entry] <span class="keyword">of this</span>.data) {
+            state[key] = {
+                value: entry.value,
+                version: entry.version,
+                timestamp: entry.timestamp
+            };
+        }
+        <span class="keyword">return</span> state;
+    }
+    
+    <span class="function">receiveGossip</span>(state, sender) {
+        <span class="comment">// Merge received state</span>
+        <span class="keyword">this</span>.mergeState(state);
+        console.log(<span class="string">`${this.nodeId} received gossip from ${sender.nodeId}`</span>);
+    }
+    
+    <span class="function">mergeState</span>(otherState) {
+        <span class="comment">// Merge using Last-Write-Wins with version vectors</span>
+        <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> otherState) {
+            <span class="keyword">const</span> otherEntry = otherState[key];
+            <span class="keyword">const</span> ourEntry = <span class="keyword">this</span>.data.get(key);
+            
+            <span class="keyword">if</span> (!ourEntry) {
+                <span class="comment">// We don't have this key, accept it</span>
+                <span class="keyword">this</span>.data.set(key, otherEntry);
+            } <span class="keyword">else if</span> (otherEntry.version > ourEntry.version) {
+                <span class="comment">// Other version is newer, accept it</span>
+                <span class="keyword">this</span>.data.set(key, otherEntry);
+            } <span class="keyword">else if</span> (otherEntry.version === ourEntry.version &&
+                       otherEntry.timestamp > ourEntry.timestamp) {
+                <span class="comment">// Same version, use timestamp as tie-breaker</span>
+                <span class="keyword">this</span>.data.set(key, otherEntry);
+            }
+        }
+    }
+    
+    <span class="function">set</span>(key, value) {
+        <span class="comment">// Update local data</span>
+        <span class="keyword">const</span> entry = <span class="keyword">this</span>.data.get(key);
+        <span class="keyword">const</span> version = entry ? entry.version + <span class="number">1</span> : <span class="number">1</span>;
+        
+        <span class="keyword">this</span>.data.set(key, {
+            value: value,
+            version: version,
+            timestamp: Date.now()
+        });
+    }
+    
+    <span class="function">get</span>(key) {
+        <span class="keyword">const</span> entry = <span class="keyword">this</span>.data.get(key);
+        <span class="keyword">return</span> entry ? entry.value : <span class="keyword">undefined</span>;
+    }
+}
+
+<span class="comment">// Simulation</span>
+<span class="keyword">const</span> nodes = [];
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">10</span>; i++) {
+    nodes.push(<span class="keyword">new</span> GossipNode(<span class="string">`Node${i}`</span>, []));
+}
+
+<span class="comment">// Connect nodes (each knows about others)</span>
+nodes.forEach(node => {
+    node.peers = nodes.filter(n => n !== node);
+});
+
+<span class="comment">// Start gossiping</span>
+nodes.forEach(node => node.start());
+
+<span class="comment">// Node 0 gets an update</span>
+nodes[<span class="number">0</span>].set(<span class="string">'temperature'</span>, <span class="string">'72F'</span>);
+
+<span class="comment">// After a few rounds, all nodes will have the update!</span>
+setTimeout(() => {
+    nodes.forEach(node => {
+        console.log(<span class="string">`${node.nodeId}: ${node.get('temperature')}`</span>);
+    });
+}, <span class="number">5000</span>);
+                    </div>
+                    
+                    <h3>Membership & Failure Detection</h3>
+                    
+                    <div class="feature-box">
+                        <h4>SWIM Protocol (Scalable Weakly-consistent Infection-style Membership)</h4>
+                        <p>Used by Consul, Cassandra for detecting failed nodes:</p>
+                        <ul>
+                            <li><strong>Ping:</strong> Periodically ping random member</li>
+                            <li><strong>Ping-Req:</strong> If no response, ask others to ping</li>
+                            <li><strong>Suspect:</strong> If still no response, mark as suspect</li>
+                            <li><strong>Confirm:</strong> If suspect persists, mark as failed</li>
+                            <li><strong>Gossip:</strong> Spread membership changes</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>🎯 Gossip Protocol Characteristics:</strong>
+                        <ul>
+                            <li><strong>Scalability:</strong> O(log N) message complexity</li>
+                            <li><strong>Fault Tolerance:</strong> Works even if 50%+ nodes fail</li>
+                            <li><strong>Convergence Time:</strong> O(log N) rounds</li>
+                            <li><strong>Network Load:</strong> Constant per node regardless of cluster size</li>
+                            <li><strong>Use Cases:</strong> Cluster membership, failure detection, data propagation</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="highlight">
+                        <strong>💡 Real-World Usage:</strong>
+                        <ul>
+                            <li><strong>Cassandra:</strong> Uses gossip for cluster state and failure detection</li>
+                            <li><strong>Consul:</strong> SWIM-based membership</li>
+                            <li><strong>Amazon S3:</strong> Anti-entropy for replica synchronization</li>
+                            <li><strong>Bitcoin:</strong> Transaction and block propagation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 5: Read Repair & Hinted Handoff -->
+            <div id="repair" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">🔧</span>Read Repair & Hinted Handoff</h2>
+                    
+                    <p>Techniques used in distributed databases (especially Cassandra and DynamoDB) to repair inconsistencies reactively during reads and to handle temporary failures.</p>
+                    
+                    <h3>Read Repair</h3>
+                    
+                    <p>During a read operation, if replicas have different versions, the coordinator detects this and sends the latest version to outdated replicas.</p>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Read Repair Process</h4>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <h4>Step 1: Client reads with RF=3, R=2</h4>
+                                <p>Coordinator sends read request to 3 replicas</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Step 2: Replicas respond</h4>
+                                <p><strong>Replica A:</strong> value="v2", timestamp=102 ✅</p>
+                                <p><strong>Replica B:</strong> value="v2", timestamp=102 ✅</p>
+                                <p><strong>Replica C:</strong> value="v1", timestamp=100 ❌ (stale)</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Step 3: Return latest to client</h4>
+                                <p>Coordinator returns "v2" to client (2/3 agree)</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Step 4: Repair outdated replica</h4>
+                                <p>Coordinator sends "v2" to Replica C in background</p>
+                                <p style="color: #4caf50;">✓ All replicas now consistent!</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block">
+<span class="keyword">class</span> <span class="function">Replica</span> {
+    <span class="keyword">constructor</span>(id) {
+        <span class="keyword">this</span>.id = id;
+        <span class="keyword">this</span>.data = <span class="keyword">new</span> Map();  <span class="comment">// key → {value, timestamp}</span>
+    }
+    
+    <span class="function">write</span>(key, value, timestamp) {
+        <span class="keyword">const</span> current = <span class="keyword">this</span>.data.get(key);
+        <span class="keyword">if</span> (!current || timestamp > current.timestamp) {
+            <span class="keyword">this</span>.data.set(key, { value, timestamp });
+            <span class="keyword">return true</span>;
+        }
+        <span class="keyword">return false</span>;
+    }
+    
+    <span class="function">read</span>(key) {
+        <span class="keyword">return this</span>.data.get(key) || { value: <span class="keyword">null</span>, timestamp: <span class="number">0</span> };
+    }
+}
+
+<span class="keyword">class</span> <span class="function">Coordinator</span> {
+    <span class="keyword">constructor</span>(replicas) {
+        <span class="keyword">this</span>.replicas = replicas;
+    }
+    
+    <span class="keyword">async</span> <span class="function">read</span>(key, replicationFactor = <span class="number">3</span>, readQuorum = <span class="number">2</span>) {
+        <span class="comment">// 1. Read from replicationFactor replicas</span>
+        <span class="keyword">const</span> responses = [];
+        <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < replicationFactor; i++) {
+            <span class="keyword">const</span> response = <span class="keyword">this</span>.replicas[i].read(key);
+            responses.push({ replica: <span class="keyword">this</span>.replicas[i], data: response });
+        }
+        
+        <span class="comment">// 2. Wait for readQuorum responses</span>
+        <span class="keyword">const</span> quorum = responses.slice(<span class="number">0</span>, readQuorum);
+        
+        <span class="comment">// 3. Find latest version</span>
+        <span class="keyword">let</span> latest = quorum[<span class="number">0</span>].data;
+        <span class="keyword">for</span> (<span class="keyword">let</span> resp <span class="keyword">of</span> responses) {
+            <span class="keyword">if</span> (resp.data.timestamp > latest.timestamp) {
+                latest = resp.data;
+            }
+        }
+        
+        <span class="comment">// 4. READ REPAIR: Update stale replicas in background</span>
+        <span class="keyword">for</span> (<span class="keyword">let</span> resp <span class="keyword">of</span> responses) {
+            <span class="keyword">if</span> (resp.data.timestamp < latest.timestamp) {
+                console.log(<span class="string">`Read repair: Updating ${resp.replica.id}`</span>);
+                <span class="comment">// Async write to repair</span>
+                setTimeout(() => {
+                    resp.replica.write(key, latest.value, latest.timestamp);
+                }, <span class="number">0</span>);
+            }
+        }
+        
+        <span class="comment">// 5. Return latest value to client</span>
+        <span class="keyword">return</span> latest.value;
+    }
+    
+    <span class="keyword">async</span> <span class="function">write</span>(key, value, replicationFactor = <span class="number">3</span>, writeQuorum = <span class="number">2</span>) {
+        <span class="keyword">const</span> timestamp = Date.now();
+        <span class="keyword">let</span> successCount = <span class="number">0</span>;
+        
+        <span class="comment">// Write to replicationFactor replicas</span>
+        <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < replicationFactor; i++) {
+            <span class="keyword">const</span> success = <span class="keyword">this</span>.replicas[i].write(key, value, timestamp);
+            <span class="keyword">if</span> (success) successCount++;
+        }
+        
+        <span class="comment">// Return success if writeQuorum met</span>
+        <span class="keyword">return</span> successCount >= writeQuorum;
+    }
+}
+
+<span class="comment">// Demo</span>
+<span class="keyword">const</span> replicas = [
+    <span class="keyword">new</span> Replica(<span class="string">'A'</span>),
+    <span class="keyword">new</span> Replica(<span class="string">'B'</span>),
+    <span class="keyword">new</span> Replica(<span class="string">'C'</span>)
+];
+
+<span class="keyword">const</span> coordinator = <span class="keyword">new</span> Coordinator(replicas);
+
+<span class="comment">// Write to all replicas</span>
+<span class="keyword">await</span> coordinator.write(<span class="string">'user:123'</span>, <span class="string">'Alice'</span>);
+
+<span class="comment">// Simulate Replica C missing an update</span>
+replicas[<span class="number">0</span>].write(<span class="string">'user:123'</span>, <span class="string">'Alice Updated'</span>, Date.now());
+replicas[<span class="number">1</span>].write(<span class="string">'user:123'</span>, <span class="string">'Alice Updated'</span>, Date.now());
+<span class="comment">// Replica C still has "Alice"</span>
+
+<span class="comment">// Read triggers read repair</span>
+<span class="keyword">const</span> value = <span class="keyword">await</span> coordinator.read(<span class="string">'user:123'</span>);
+console.log(<span class="string">'Read value:'</span>, value);  <span class="comment">// "Alice Updated"</span>
+<span class="comment">// Read repair updates Replica C in background</span>
+                    </div>
+                    
+                    <h3>Hinted Handoff</h3>
+                    
+                    <p>When a replica is temporarily unavailable during a write, the coordinator stores a "hint" on another node. When the original replica comes back online, the hint is delivered.</p>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Hinted Handoff Process</h4>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <h4>Normal Write (All replicas available)</h4>
+                                <p>Write goes to: Replica A, B, C</p>
+                                <p style="color: #4caf50;">✓ All successful</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Replica C is Down!</h4>
+                                <p>Coordinator detects C is unreachable</p>
+                                <p>Write goes to: A ✅, B ✅, C ❌</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Store Hint on Replica D</h4>
+                                <p>Coordinator writes to backup node D</p>
+                                <p>Hint: "This write is meant for C"</p>
+                                <p style="color: #2196f3;">💡 Write still succeeds (W=2 met)</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Replica C Comes Back Online</h4>
+                                <p>D detects C is available</p>
+                                <p>D delivers hint to C</p>
+                                <p>D deletes hint</p>
+                                <p style="color: #4caf50;">✓ All replicas consistent!</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block">
+<span class="keyword">class</span> <span class="function">HintedHandoffCoordinator</span> {
+    <span class="keyword">constructor</span>(replicas) {
+        <span class="keyword">this</span>.replicas = replicas;
+        <span class="keyword">this</span>.hints = <span class="keyword">new</span> Map();  <span class="comment">// targetReplica → [{key, value, timestamp}]</span>
+    }
+    
+    <span class="function">isReplicaAvailable</span>(replica) {
+        <span class="comment">// Simulate checking if replica is reachable</span>
+        <span class="keyword">return</span> replica.available;
+    }
+    
+    <span class="keyword">async</span> <span class="function">write</span>(key, value, targetReplicas) {
+        <span class="keyword">const</span> timestamp = Date.now();
+        <span class="keyword">const</span> writes = [];
+        
+        <span class="keyword">for</span> (<span class="keyword">let</span> replica <span class="keyword">of</span> targetReplicas) {
+            <span class="keyword">if</span> (<span class="keyword">this</span>.isReplicaAvailable(replica)) {
+                <span class="comment">// Replica available, write directly</span>
+                replica.write(key, value, timestamp);
+                writes.push({ replica: replica.id, status: <span class="string">'direct'</span> });
+            } <span class="keyword">else</span> {
+                <span class="comment">// Replica down, store hint</span>
+                console.log(<span class="string">`Replica ${replica.id} down, storing hint`</span>);
+                
+                <span class="comment">// Find backup replica to store hint</span>
+                <span class="keyword">const</span> backupReplica = <span class="keyword">this</span>.findBackupReplica(targetReplicas);
+                
+                <span class="keyword">if</span> (backupReplica) {
+                    <span class="comment">// Store hint on backup</span>
+                    <span class="keyword">if</span> (!<span class="keyword">this</span>.hints.has(replica.id)) {
+                        <span class="keyword">this</span>.hints.set(replica.id, []);
+                    }
+                    <span class="keyword">this</span>.hints.get(replica.id).push({
+                        key: key,
+                        value: value,
+                        timestamp: timestamp,
+                        storedOn: backupReplica.id
+                    });
+                    
+                    writes.push({ replica: replica.id, status: <span class="string">'hinted'</span> });
+                }
+            }
+        }
+        
+        <span class="keyword">return</span> writes;
+    }
+    
+    <span class="function">findBackupReplica</span>(excludeReplicas) {
+        <span class="comment">// Find available replica not in target set</span>
+        <span class="keyword">for</span> (<span class="keyword">let</span> replica <span class="keyword">of this</span>.replicas) {
+            <span class="keyword">if</span> (!excludeReplicas.includes(replica) && 
+                <span class="keyword">this</span>.isReplicaAvailable(replica)) {
+                <span class="keyword">return</span> replica;
+            }
+        }
+        <span class="keyword">return null</span>;
+    }
+    
+    <span class="keyword">async</span> <span class="function">deliverHints</span>(targetReplica) {
+        <span class="comment">// Called periodically or when replica comes back</span>
+        <span class="keyword">if</span> (!<span class="keyword">this</span>.isReplicaAvailable(targetReplica)) {
+            <span class="keyword">return</span>;  <span class="comment">// Still down</span>
+        }
+        
+        <span class="keyword">const</span> hints = <span class="keyword">this</span>.hints.get(targetReplica.id);
+        <span class="keyword">if</span> (!hints || hints.length === <span class="number">0</span>) {
+            <span class="keyword">return</span>;  <span class="comment">// No hints</span>
+        }
+        
+        console.log(<span class="string">`Delivering ${hints.length} hints to ${targetReplica.id}`</span>);
+        
+        <span class="comment">// Deliver all hints</span>
+        <span class="keyword">for</span> (<span class="keyword">let</span> hint <span class="keyword">of</span> hints) {
+            targetReplica.write(hint.key, hint.value, hint.timestamp);
+        }
+        
+        <span class="comment">// Clear delivered hints</span>
+        <span class="keyword">this</span>.hints.delete(targetReplica.id);
+        console.log(<span class="string">`Hints delivered to ${targetReplica.id}`</span>);
+    }
+}
+
+<span class="comment">// Demo</span>
+<span class="keyword">const</span> replicaA = <span class="keyword">new</span> Replica(<span class="string">'A'</span>);
+<span class="keyword">const</span> replicaB = <span class="keyword">new</span> Replica(<span class="string">'B'</span>);
+<span class="keyword">const</span> replicaC = <span class="keyword">new</span> Replica(<span class="string">'C'</span>);
+<span class="keyword">const</span> replicaD = <span class="keyword">new</span> Replica(<span class="string">'D'</span>);
+
+replicaA.available = <span class="keyword">true</span>;
+replicaB.available = <span class="keyword">true</span>;
+replicaC.available = <span class="keyword">false</span>;  <span class="comment">// DOWN!</span>
+replicaD.available = <span class="keyword">true</span>;
+
+<span class="keyword">const</span> coordinator = <span class="keyword">new</span> HintedHandoffCoordinator([
+    replicaA, replicaB, replicaC, replicaD
+]);
+
+<span class="comment">// Write with C down</span>
+<span class="keyword">await</span> coordinator.write(<span class="string">'key1'</span>, <span class="string">'value1'</span>, [replicaA, replicaB, replicaC]);
+
+<span class="comment">// Later, C comes back online</span>
+replicaC.available = <span class="keyword">true</span>;
+<span class="keyword">await</span> coordinator.deliverHints(replicaC);
+                    </div>
+                    
+                    <h3>Comparison</h3>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Technique</th>
+                                <th>When Used</th>
+                                <th>Purpose</th>
+                                <th>Overhead</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Read Repair</strong></td>
+                                <td>During read operations</td>
+                                <td>Fix inconsistencies reactively</td>
+                                <td>Low (piggybacks on reads)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hinted Handoff</strong></td>
+                                <td>During writes (replica down)</td>
+                                <td>Ensure durability during failures</td>
+                                <td>Medium (extra storage for hints)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Anti-Entropy</strong></td>
+                                <td>Background periodic sync</td>
+                                <td>Catch all inconsistencies</td>
+                                <td>High (proactive, continuous)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="highlight">
+                        <strong>⚠️ Limitations:</strong>
+                        <ul>
+                            <li><strong>Read Repair:</strong> Only fixes data that's read. Cold data may stay inconsistent.</li>
+                            <li><strong>Hinted Handoff:</strong> Hints can be lost if backup node fails. Not a substitute for anti-entropy.</li>
+                            <li><strong>Best Practice:</strong> Use all three techniques together for comprehensive eventual consistency.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 6: Vector Clocks -->
+            <div id="vector-clocks" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">🕐</span>Vector Clocks in Practice</h2>
+                    
+                    <p>Vector clocks track causality in distributed systems. Each node maintains a vector of logical timestamps to determine if events are concurrent or causally related.</p>
+                    
+                    <h3>The Problem: Detecting Causality</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Three replicas updating same key</h4>
+                        <div class="demo-row">
+                            <div class="node replica-node">
+                                <div class="node-title">Replica A</div>
+                                <div class="node-desc">
+                                    value: "v1"<br>
+                                    timestamp: 100<br>
+                                    <strong>Conflict with B?</strong>
+                                </div>
+                            </div>
+                            <div class="node conflict-node">
+                                <div class="node-title">❓</div>
+                                <div class="node-desc">
+                                    Were these<br>
+                                    updates<br>
+                                    concurrent?
+                                </div>
+                            </div>
+                            <div class="node replica-node">
+                                <div class="node-title">Replica B</div>
+                                <div class="node-desc">
+                                    value: "v2"<br>
+                                    timestamp: 105<br>
+                                    <strong>Later time, but...</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <p style="text-align: center; margin-top: 20px; padding: 20px; background: #fff3cd; border-radius: 10px;">
+                            <strong>Problem:</strong> Wall-clock timestamps can't tell if B happened after A (causal) or concurrently (independent). Clock skew makes timestamps unreliable!
+                        </p>
+                    </div>
+                    
+                    <h3>Vector Clock Solution</h3>
+                    
+                    <p>Each node maintains a vector [A:x, B:y, C:z] where x, y, z are logical clocks representing knowledge of events at each node.</p>
+                    
+                    <div class="code-block">
+<span class="keyword">class</span> <span class="function">VectorClock</span> {
+    <span class="keyword">constructor</span>(nodeId, nodes) {
+        <span class="keyword">this</span>.nodeId = nodeId;
+        <span class="keyword">this</span>.clock = {};
+        nodes.forEach(node => {
+            <span class="keyword">this</span>.clock[node] = <span class="number">0</span>;
+        });
+    }
+    
+    <span class="function">increment</span>() {
+        <span class="comment">// Increment own counter</span>
+        <span class="keyword">this</span>.clock[<span class="keyword">this</span>.nodeId]++;
+    }
+    
+    <span class="function">update</span>(otherClock) {
+        <span class="comment">// Merge: take max of each element</span>
+        <span class="keyword">for</span> (<span class="keyword">let</span> node <span class="keyword">in</span> otherClock.clock) {
+            <span class="keyword">this</span>.clock[node] = Math.max(
+                <span class="keyword">this</span>.clock[node] || <span class="number">0</span>,
+                otherClock.clock[node]
+            );
+        }
+        <span class="comment">// Then increment own counter</span>
+        <span class="keyword">this</span>.increment();
+    }
+    
+    <span class="function">compare</span>(other) {
+        <span class="comment">/**
+         * Returns:
+         * 'before' if this < other (this causally precedes other)
+         * 'after' if this > other (other causally precedes this)
+         * 'concurrent' if concurrent (neither precedes)
+         * 'equal' if identical
+         */</span>
+        
+        <span class="keyword">let</span> thisGreater = <span class="keyword">false</span>;
+        <span class="keyword">let</span> otherGreater = <span class="keyword">false</span>;
+        
+        <span class="keyword">for</span> (<span class="keyword">let</span> node <span class="keyword">in this</span>.clock) {
+            <span class="keyword">const</span> thisVal = <span class="keyword">this</span>.clock[node] || <span class="number">0</span>;
+            <span class="keyword">const</span> otherVal = other.clock[node] || <span class="number">0</span>;
+            
+            <span class="keyword">if</span> (thisVal > otherVal) thisGreater = <span class="keyword">true</span>;
+            <span class="keyword">if</span> (otherVal > thisVal) otherGreater = <span class="keyword">true</span>;
+        }
+        
+        <span class="keyword">if</span> (!thisGreater && !otherGreater) <span class="keyword">return</span> <span class="string">'equal'</span>;
+        <span class="keyword">if</span> (thisGreater && !otherGreater) <span class="keyword">return</span> <span class="string">'after'</span>;
+        <span class="keyword">if</span> (!thisGreater && otherGreater) <span class="keyword">return</span> <span class="string">'before'</span>;
+        <span class="keyword">return</span> <span class="string">'concurrent'</span>;
+    }
+    
+    <span class="function">copy</span>() {
+        <span class="keyword">const</span> vc = <span class="keyword">new</span> VectorClock(<span class="keyword">this</span>.nodeId, Object.keys(<span class="keyword">this</span>.clock));
+        vc.clock = { ...<span class="keyword">this</span>.clock };
+        <span class="keyword">return</span> vc;
+    }
+    
+    <span class="function">toString</span>() {
+        <span class="keyword">return</span> JSON.stringify(<span class="keyword">this</span>.clock);
+    }
+}
+
+<span class="comment">// Example: Three replicas</span>
+<span class="keyword">const</span> nodes = [<span class="string">'A'</span>, <span class="string">'B'</span>, <span class="string">'C'</span>];
+<span class="keyword">const</span> vcA = <span class="keyword">new</span> VectorClock(<span class="string">'A'</span>, nodes);
+<span class="keyword">const</span> vcB = <span class="keyword">new</span> VectorClock(<span class="string">'B'</span>, nodes);
+<span class="keyword">const</span> vcC = <span class="keyword">new</span> VectorClock(<span class="string">'C'</span>, nodes);
+
+<span class="comment">// A performs local write</span>
+vcA.increment();
+console.log(<span class="string">'A:'</span>, vcA.toString());  <span class="comment">// {A:1, B:0, C:0}</span>
+
+<span class="comment">// A sends message to B</span>
+vcB.update(vcA);
+console.log(<span class="string">'B:'</span>, vcB.toString());  <span class="comment">// {A:1, B:1, C:0}</span>
+
+<span class="comment">// C performs independent write (concurrent with B)</span>
+vcC.increment();
+console.log(<span class="string">'C:'</span>, vcC.toString());  <span class="comment">// {A:0, B:0, C:1}</span>
+
+<span class="comment">// Check causality</span>
+console.log(<span class="string">'A vs B:'</span>, vcA.compare(vcB));  <span class="comment">// 'before' (A happened before B)</span>
+console.log(<span class="string">'B vs C:'</span>, vcB.compare(vcC));  <span class="comment">// 'concurrent' (no causal relation)</span>
+                    </div>
+                    
+                    <h3>Conflict Detection with Vector Clocks</h3>
+                    
+                    <div class="code-block">
+<span class="keyword">class</span> <span class="function">VersionedValue</span> {
+    <span class="keyword">constructor</span>(value, vectorClock) {
+        <span class="keyword">this</span>.value = value;
+        <span class="keyword">this</span>.vectorClock = vectorClock;
+    }
+}
+
+<span class="keyword">class</span> <span class="function">DistributedStore</span> {
+    <span class="keyword">constructor</span>(nodeId, allNodes) {
+        <span class="keyword">this</span>.nodeId = nodeId;
+        <span class="keyword">this</span>.data = <span class="keyword">new</span> Map();  <span class="comment">// key → VersionedValue[]</span>
+        <span class="keyword">this</span>.clock = <span class="keyword">new</span> VectorClock(nodeId, allNodes);
+    }
+    
+    <span class="function">put</span>(key, value) {
+        <span class="comment">// Increment clock for local write</span>
+        <span class="keyword">this</span>.clock.increment();
+        
+        <span class="comment">// Create versioned value</span>
+        <span class="keyword">const</span> versioned = <span class="keyword">new</span> VersionedValue(
+            value,
+            <span class="keyword">this</span>.clock.copy()
+        );
+        
+        <span class="comment">// Replace or add version</span>
+        <span class="keyword">this</span>.data.set(key, [versioned]);
+        
+        <span class="keyword">return</span> versioned;
+    }
+    
+    <span class="function">get</span>(key) {
+        <span class="keyword">const</span> versions = <span class="keyword">this</span>.data.get(key) || [];
+        
+        <span class="keyword">if</span> (versions.length === <span class="number">0</span>) <span class="keyword">return null</span>;
+        <span class="keyword">if</span> (versions.length === <span class="number">1</span>) <span class="keyword">return</span> versions[<span class="number">0</span>];
+        
+        <span class="comment">// Multiple versions = conflict!</span>
+        <span class="keyword">return</span> {
+            conflict: <span class="keyword">true</span>,
+            versions: versions
+        };
+    }
+    
+    <span class="function">merge</span>(key, otherVersions) {
+        <span class="comment">/**
+         * Reconcile conflicting versions
+         * Keep only versions that are not dominated by others
+         */</span>
+        
+        <span class="keyword">const</span> localVersions = <span class="keyword">this</span>.data.get(key) || [];
+        <span class="keyword">const</span> allVersions = [...localVersions, ...otherVersions];
+        
+        <span class="comment">// Remove dominated versions</span>
+        <span class="keyword">const</span> survivors = [];
+        
+        <span class="keyword">for</span> (<span class="keyword">let</span> v1 <span class="keyword">of</span> allVersions) {
+            <span class="keyword">let</span> isDominated = <span class="keyword">false</span>;
+            
+            <span class="keyword">for</span> (<span class="keyword">let</span> v2 <span class="keyword">of</span> allVersions) {
+                <span class="keyword">if</span> (v1 === v2) <span class="keyword">continue</span>;
+                
+                <span class="comment">// If v2 happened after v1, v1 is dominated</span>
+                <span class="keyword">if</span> (v1.vectorClock.compare(v2.vectorClock) === <span class="string">'before'</span>) {
+                    isDominated = <span class="keyword">true</span>;
+                    <span class="keyword">break</span>;
+                }
+            }
+            
+            <span class="keyword">if</span> (!isDominated) {
+                survivors.push(v1);
+            }
+        }
+        
+        <span class="keyword">this</span>.data.set(key, survivors);
+        <span class="keyword">return</span> survivors;
+    }
+    
+    <span class="function">resolve</span>(key, resolvedValue) {
+        <span class="comment">/**
+         * Application resolves conflict manually
+         * Create new version that supersedes all conflicting versions
+         */</span>
+        
+        <span class="keyword">const</span> versions = <span class="keyword">this</span>.data.get(key) || [];
+        
+        <span class="comment">// Merge all vector clocks</span>
+        <span class="keyword">const</span> mergedClock = <span class="keyword">new</span> VectorClock(<span class="keyword">this</span>.nodeId, 
+            Object.keys(<span class="keyword">this</span>.clock.clock));
+        
+        <span class="keyword">for</span> (<span class="keyword">let</span> v <span class="keyword">of</span> versions) {
+            mergedClock.update(v.vectorClock);
+        }
+        
+        <span class="comment">// Create resolved version</span>
+        <span class="keyword">const</span> resolved = <span class="keyword">new</span> VersionedValue(resolvedValue, mergedClock);
+        <span class="keyword">this</span>.data.set(key, [resolved]);
+        
+        <span class="keyword">return</span> resolved;
+    }
+}
+
+<span class="comment">// Example: Concurrent updates creating conflict</span>
+<span class="keyword">const</span> nodes = [<span class="string">'A'</span>, <span class="string">'B'</span>];
+<span class="keyword">const</span> storeA = <span class="keyword">new</span> DistributedStore(<span class="string">'A'</span>, nodes);
+<span class="keyword">const</span> storeB = <span class="keyword">new</span> DistributedStore(<span class="string">'B'</span>, nodes);
+
+<span class="comment">// Both start with same value</span>
+storeA.put(<span class="string">'cart'</span>, [<span class="string">'item1'</span>]);
+storeB.put(<span class="string">'cart'</span>, [<span class="string">'item1'</span>]);
+
+<span class="comment">// Network partition - concurrent updates!</span>
+<span class="keyword">const</span> versionA = storeA.put(<span class="string">'cart'</span>, [<span class="string">'item1'</span>, <span class="string">'item2'</span>]);  <span class="comment">// User adds item2</span>
+<span class="keyword">const</span> versionB = storeB.put(<span class="string">'cart'</span>, [<span class="string">'item1'</span>, <span class="string">'item3'</span>]);  <span class="comment">// User adds item3</span>
+
+<span class="comment">// Partition heals - merge versions</span>
+storeA.merge(<span class="string">'cart'</span>, [versionB]);
+
+<span class="keyword">const</span> result = storeA.get(<span class="string">'cart'</span>);
+<span class="keyword">if</span> (result.conflict) {
+    console.log(<span class="string">'Conflict detected!'</span>);
+    console.log(<span class="string">'Version 1:'</span>, result.versions[<span class="number">0</span>].value);  <span class="comment">// [item1, item2]</span>
+    console.log(<span class="string">'Version 2:'</span>, result.versions[<span class="number">1</span>].value);  <span class="comment">// [item1, item3]</span>
+    
+    <span class="comment">// Application resolves: keep both items!</span>
+    storeA.resolve(<span class="string">'cart'</span>, [<span class="string">'item1'</span>, <span class="string">'item2'</span>, <span class="string">'item3'</span>]);
+}
+                    </div>
+                    
+                    <h3>Limitations & Solutions</h3>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ Vector Clock Challenges:</strong>
+                        <ul>
+                            <li><strong>Size Growth:</strong> Vector clock grows with number of nodes (O(N))</li>
+                            <li><strong>Churn:</strong> Adding/removing nodes requires coordination</li>
+                            <li><strong>Client IDs:</strong> If each client is a node, vectors become huge</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h4>Solution 1: Dotted Version Vectors (DVV)</h4>
+                        <p>More efficient representation that tracks only active updates, not all nodes.</p>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h4>Solution 2: Server-side Clocks</h4>
+                        <p>Clients don't maintain clocks. Server maintains vector clock per key. Used by Riak.</p>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h4>Solution 3: Hybrid Logical Clocks</h4>
+                        <p>Combine physical and logical clocks. Smaller than vector clocks, preserves causality. Used by CockroachDB.</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>🎯 Real-World Usage:</strong>
+                        <ul>
+                            <li><strong>Amazon Dynamo:</strong> Original vector clock implementation for shopping carts</li>
+                            <li><strong>Riak:</strong> Uses vector clocks for conflict detection</li>
+                            <li><strong>Voldemort:</strong> LinkedIn's key-value store uses vector clocks</li>
+                            <li><strong>CockroachDB:</strong> Uses Hybrid Logical Clocks (HLC)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 7: Real-World Examples -->
+            <div id="real-world" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">🌍</span>Real-World Eventual Consistency</h2>
+                    
+                    <p>Let's explore how major tech companies implement eventual consistency in production systems.</p>
+                    
+                    <h3>1. Amazon DynamoDB</h3>
+                    
+                    <div class="feature-box">
+                        <h4>Architecture</h4>
+                        <ul>
+                            <li><strong>Replication:</strong> Multi-AZ with configurable consistency</li>
+                            <li><strong>Reads:</strong> Eventually consistent by default, strongly consistent optional</li>
+                            <li><strong>Writes:</strong> Always written to multiple replicas</li>
+                            <li><strong>Conflict Resolution:</strong> Last Write Wins (LWW) with timestamps</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="code-block">
+<span class="comment">// DynamoDB Consistency Levels</span>
+
+<span class="comment">// Eventually Consistent Read (default, faster, cheaper)</span>
+<span class="keyword">const</span> params = {
+    TableName: <span class="string">'Users'</span>,
+    Key: { userId: <span class="string">'123'</span> },
+    ConsistentRead: <span class="keyword">false</span>  <span class="comment">// Eventually consistent</span>
+};
+
+<span class="comment">// May return stale data, but 50% cheaper and lower latency</span>
+<span class="keyword">const</span> result = <span class="keyword">await</span> dynamodb.getItem(params);
+
+<span class="comment">// Strongly Consistent Read (when you need latest data)</span>
+<span class="keyword">const</span> strongParams = {
+    TableName: <span class="string">'BankAccounts'</span>,
+    Key: { accountId: <span class="string">'456'</span> },
+    ConsistentRead: <span class="keyword">true</span>  <span class="comment">// Strongly consistent</span>
+};
+
+<span class="keyword">const</span> strongResult = <span class="keyword">await</span> dynamodb.getItem(strongParams);
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>💡 DynamoDB Best Practices:</strong>
+                        <ul>
+                            <li>Use eventually consistent reads for non-critical data (90% of cases)</li>
+                            <li>Use strong consistency for financial data, inventory</li>
+                            <li>Eventually consistent reads have ~1 second propagation delay</li>
+                            <li>Configure read/write capacity units based on consistency needs</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>2. Cassandra</h3>
+                    
+                    <div class="feature-box">
+                        <h4>Tunable Consistency</h4>
+                        <p>Cassandra lets you configure consistency per operation:</p>
+                        <ul>
+                            <li><strong>ONE:</strong> Response from any single replica</li>
+                            <li><strong>QUORUM:</strong> Response from majority (⌈RF/2⌉ + 1)</li>
+                            <li><strong>ALL:</strong> Response from all replicas</li>
+                            <li><strong>LOCAL_QUORUM:</strong> Quorum in local datacenter</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="code-block">
+<span class="comment">// Cassandra Consistency Examples</span>
+
+<span class="comment">// High availability, eventual consistency</span>
+<span class="keyword">const</span> session = cassandra.connect();
+<span class="keyword">await</span> session.execute(
+    <span class="string">'INSERT INTO posts (id, content) VALUES (?, ?)'</span>,
+    [postId, content],
+    { consistency: cassandra.types.consistencies.ONE }
+);
+
+<span class="comment">// Stronger consistency for critical data</span>
+<span class="keyword">await</span> session.execute(
+    <span class="string">'UPDATE accounts SET balance = ? WHERE id = ?'</span>,
+    [newBalance, accountId],
+    { consistency: cassandra.types.consistencies.QUORUM }
+);
+
+<span class="comment">// Read with QUORUM to avoid stale data</span>
+<span class="keyword">const</span> result = <span class="keyword">await</span> session.execute(
+    <span class="string">'SELECT * FROM orders WHERE user_id = ?'</span>,
+    [userId],
+    { consistency: cassandra.types.consistencies.QUORUM }
+);
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h4>Repair Mechanisms</h4>
+                        <ul>
+                            <li><strong>Read Repair:</strong> Fixes inconsistencies during reads</li>
+                            <li><strong>Hinted Handoff:</strong> Temporary storage when replica down</li>
+                            <li><strong>Anti-Entropy Repair:</strong> Background Merkle tree comparison</li>
+                            <li><strong>Nodetool Repair:</strong> Manual/scheduled full repair</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>3. Google Docs (Operational Transformation)</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Real-time Collaboration Flow</h4>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <h4>User Types Locally</h4>
+                                <p>Changes appear instantly (optimistic UI)</p>
+                                <p>Operations buffered in memory</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Batched Send to Server</h4>
+                                <p>Every 200-500ms, send ops via WebSocket</p>
+                                <p>Includes operations and document version</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Server Transforms & Orders</h4>
+                                <p>Server maintains canonical operation history</p>
+                                <p>Transforms incoming ops against concurrent ops</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Broadcast to Other Clients</h4>
+                                <p>Other users receive transformed operations</p>
+                                <p>Apply operations to local document</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Acknowledgment</h4>
+                                <p>Original client gets confirmation</p>
+                                <p>Clear pending operations</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>4. Facebook News Feed</h3>
+                    
+                    <div class="feature-box">
+                        <h4>Eventual Consistency by Design</h4>
+                        <p>Facebook uses eventual consistency extensively for non-critical features:</p>
+                        <ul>
+                            <li><strong>Like Counts:</strong> Eventual consistency acceptable, updates within seconds</li>
+                            <li><strong>Comments:</strong> May appear in different orders temporarily</li>
+                            <li><strong>News Feed:</strong> Different users may see posts in different orders</li>
+                            <li><strong>TAO (Graph Database):</strong> Read-after-write consistency for critical paths</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>🎯 Facebook's Approach:</strong>
+                        <ul>
+                            <li><strong>Cache:</strong> Aggressive caching with TTL-based invalidation</li>
+                            <li><strong>Optimistic UI:</strong> Show updates immediately, fix later if needed</li>
+                            <li><strong>Reconciliation:</strong> Background jobs fix inconsistencies</li>
+                            <li><strong>User Expectations:</strong> Design around eventual consistency</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>5. DNS (Domain Name System)</h3>
+                    
+                    <div class="feature-box">
+                        <h4>Largest Eventually Consistent System</h4>
+                        <p>DNS is the poster child for eventual consistency at global scale:</p>
+                        <ul>
+                            <li><strong>TTL-based:</strong> Records cached for Time-To-Live period</li>
+                            <li><strong>Propagation:</strong> Changes take 24-48 hours to propagate globally</li>
+                            <li><strong>Hierarchical:</strong> Root → TLD → Authoritative → Recursive</li>
+                            <li><strong>Acceptable:</strong> Brief inconsistency is fine for DNS</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>6. Shopping Cart: Amazon's Dynamo</h3>
+                    
+                    <div class="feature-box">
+                        <h4>Business Logic Handles Conflicts</h4>
+                        <p>Amazon's original Dynamo paper described shopping cart conflict resolution:</p>
+                    </div>
+                    
+                    <div class="code-block">
+<span class="comment">// Simplified shopping cart with vector clocks</span>
+<span class="keyword">function</span> <span class="function">mergeShoppingCarts</span>(cart1, cart2) {
+    <span class="comment">/**
+     * Business rule: Union of items from both carts
+     * Never lose items - customer can always remove later
+     */</span>
+    
+    <span class="keyword">const</span> merged = <span class="keyword">new</span> Set();
+    
+    <span class="comment">// Add all items from both carts</span>
+    cart1.items.forEach(item => merged.add(item));
+    cart2.items.forEach(item => merged.add(item));
+    
+    <span class="comment">// Merge quantities</span>
+    <span class="keyword">const</span> quantities = {};
+    [cart1, cart2].forEach(cart => {
+        cart.items.forEach(item => {
+            quantities[item.id] = Math.max(
+                quantities[item.id] || <span class="number">0</span>,
+                item.quantity
+            );
+        });
+    });
+    
+    <span class="keyword">return</span> {
+        items: Array.from(merged),
+        quantities: quantities
+    };
+}
+
+<span class="comment">// Example: User adds items on phone and laptop simultaneously</span>
+<span class="keyword">const</span> mobileCart = {
+    items: [{ id: <span class="string">'book1'</span>, quantity: <span class="number">1</span> }],
+    vectorClock: { mobile: <span class="number">1</span>, laptop: <span class="number">0</span> }
+};
+
+<span class="keyword">const</span> laptopCart = {
+    items: [{ id: <span class="string">'book2'</span>, quantity: <span class="number">2</span> }],
+    vectorClock: { mobile: <span class="number">0</span>, laptop: <span class="number">1</span> }
+};
+
+<span class="comment">// Concurrent updates detected, merge automatically</span>
+<span class="keyword">const</span> mergedCart = mergeShoppingCarts(mobileCart, laptopCart);
+<span class="comment">// Result: { items: [book1, book2], quantities: {book1: 1, book2: 2} }</span>
+                    </div>
+                    
+                    <h3>When to Use Eventual Consistency</h3>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Use Case</th>
+                                <th>Consistency Model</th>
+                                <th>Why</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Social Media Likes</strong></td>
+                                <td>Eventual</td>
+                                <td>Approximate counts acceptable, high volume</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Shopping Cart</strong></td>
+                                <td>Eventual (with conflict resolution)</td>
+                                <td>User can review before checkout</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Product Catalog</strong></td>
+                                <td>Eventual</td>
+                                <td>Stale price for seconds is acceptable</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bank Transactions</strong></td>
+                                <td>Strong</td>
+                                <td>Must never show incorrect balance</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Seat Reservations</strong></td>
+                                <td>Strong</td>
+                                <td>Cannot double-book seats</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Inventory (High)</strong></td>
+                                <td>Eventual</td>
+                                <td>Can oversell by small amount, then cancel</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Inventory (Low)</strong></td>
+                                <td>Strong</td>
+                                <td>Last few items require exact count</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="highlight">
+                        <strong>🎯 Key Takeaways:</strong>
+                        <ul>
+                            <li><strong>Design for it:</strong> Build your application to handle eventual consistency from day one</li>
+                            <li><strong>User experience:</strong> Use optimistic UI to hide latency</li>
+                            <li><strong>Conflict resolution:</strong> Have a clear strategy (LWW, multi-value, CRDT, custom logic)</li>
+                            <li><strong>Monitoring:</strong> Track staleness, conflicts, and repair operations</li>
+                            <li><strong>Testing:</strong> Inject network partitions to test behavior</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

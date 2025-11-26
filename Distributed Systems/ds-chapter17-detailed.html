@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 17: Distributed Hash Tables</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .finger-table {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .routing-step {
+            background: white;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .protocol-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .protocol-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Chapter 17: Distributed Hash Tables (DHT)</h1>
+        
+        <div class="problem-box">
+            <h3>🤔 The P2P Challenge</h3>
+            <p style="font-size: 1.2em;"><strong>How do we build a completely decentralized system with no central server?</strong></p>
+            <p>Imagine a file-sharing network with millions of peers:</p>
+            <ul style="margin-top: 10px;">
+                <li>No central server to maintain</li>
+                <li>Peers constantly joining and leaving</li>
+                <li>Need to find which peer has a specific file</li>
+                <li>Must be efficient (can't ask every peer!)</li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>Solution:</strong> Distributed Hash Tables - a way to efficiently locate data in a decentralized network!</p>
+        </div>
+        
+        <h2>1️⃣ DHT Fundamentals</h2>
+        
+        <div class="definition">
+            <h4>What is a DHT?</h4>
+            <p>A <strong>Distributed Hash Table</strong> is a decentralized distributed system that provides a lookup service similar to a hash table.</p>
+            <p><strong>Key-Value Store:</strong> (key, value) pairs distributed across nodes</p>
+            <p><strong>Goal:</strong> Any node can efficiently retrieve the value for a given key</p>
+        </div>
+        
+        <div class="key-point">
+            <h4>DHT Properties:</h4>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>1. Decentralized:</strong> No central authority or single point of failure
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>2. Scalable:</strong> Handles millions of nodes efficiently
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>3. Fault-Tolerant:</strong> Continues working as nodes join/leave
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>4. Efficient Routing:</strong> Locate keys in O(log N) hops
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>💡 Simple DHT Analogy</h4>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Think of a library without a central catalog:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Each person (node) knows about a few other people</li>
+                    <li>Each person stores some books (data)</li>
+                    <li>To find a book: Ask your contacts, they forward to their contacts</li>
+                    <li>Eventually reach the person who has the book</li>
+                    <li>No librarian needed - fully distributed!</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>2️⃣ Chord Protocol</h2>
+        
+        <div class="definition">
+            <h4>The Classic DHT</h4>
+            <p><strong>Chord</strong> organizes nodes in a circular identifier space (ring). Developed at MIT in 2001.</p>
+            <p><strong>Key idea:</strong> Both nodes and keys are hashed to the same identifier space (0 to 2^m - 1)</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Chord Ring (m=3 bits, space 0-7)</h4>
+            
+            <svg width="500" height="500" style="display: block; margin: 30px auto;">
+                <!-- Ring -->
+                <circle cx="250" cy="250" r="180" fill="none" stroke="#667eea" stroke-width="4"/>
+                
+                <!-- Position markers -->
+                <text x="250" y="60" text-anchor="middle" font-weight="bold" fill="#999" font-size="14">0</text>
+                <text x="394" y="142" text-anchor="middle" font-weight="bold" fill="#999" font-size="14">1</text>
+                <text x="430" y="260" text-anchor="middle" font-weight="bold" fill="#999" font-size="14">2</text>
+                <text x="394" y="368" text-anchor="middle" font-weight="bold" fill="#999" font-size="14">3</text>
+                <text x="250" y="450" text-anchor="middle" font-weight="bold" fill="#999" font-size="14">4</text>
+                <text x="106" y="368" text-anchor="middle" font-weight="bold" fill="#999" font-size="14">5</text>
+                <text x="70" y="260" text-anchor="middle" font-weight="bold" fill="#999" font-size="14">6</text>
+                <text x="106" y="142" text-anchor="middle" font-weight="bold" fill="#999" font-size="14">7</text>
+                
+                <!-- Nodes -->
+                <circle cx="250" cy="70" r="30" fill="#4caf50"/>
+                <text x="250" y="78" text-anchor="middle" fill="white" font-weight="bold" font-size="16">N0</text>
+                
+                <circle cx="430" cy="250" r="30" fill="#4caf50"/>
+                <text x="430" y="258" text-anchor="middle" fill="white" font-weight="bold" font-size="16">N2</text>
+                
+                <circle cx="250" cy="430" r="30" fill="#4caf50"/>
+                <text x="250" y="438" text-anchor="middle" fill="white" font-weight="bold" font-size="16">N4</text>
+                
+                <circle cx="106" cy="132" r="30" fill="#4caf50"/>
+                <text x="106" y="140" text-anchor="middle" fill="white" font-weight="bold" font-size="16">N7</text>
+                
+                <!-- Keys -->
+                <circle cx="340" cy="100" r="15" fill="#ff9800"/>
+                <text x="340" y="105" text-anchor="middle" fill="white" font-weight="bold" font-size="12">K1</text>
+                
+                <circle cx="380" cy="200" r="15" fill="#ff9800"/>
+                <text x="380" y="205" text-anchor="middle" fill="white" font-weight="bold" font-size="12">K3</text>
+                
+                <circle cx="180" cy="380" r="15" fill="#ff9800"/>
+                <text x="180" y="385" text-anchor="middle" fill="white" font-weight="bold" font-size="12">K5</text>
+                
+                <!-- Successor pointers (examples) -->
+                <defs>
+                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <polygon points="0 0, 10 3, 0 6" fill="#2196f3"/>
+                    </marker>
+                </defs>
+                
+                <path d="M 275 75 Q 330 80 395 230" fill="none" stroke="#2196f3" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arrow)"/>
+                <text x="330" y="130" fill="#2196f3" font-weight="bold" font-size="12">successor</text>
+            </svg>
+            
+            <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <strong>Chord Rule:</strong> Key K is stored on the first node ≥ K (clockwise successor)
+                <ul style="margin-top: 10px;">
+                    <li>K1 (hash=1) → stored on N2 (first node ≥ 1)</li>
+                    <li>K3 (hash=3) → stored on N4 (first node ≥ 3)</li>
+                    <li>K5 (hash=5) → stored on N7 (first node ≥ 5)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>👆 Finger Tables (The Secret Sauce)</h3>
+        
+        <div class="key-point">
+            <h4>Efficient Routing with Finger Tables</h4>
+            <p>Each node maintains a <strong>finger table</strong> with m entries (where m = number of bits in hash).</p>
+            <p><strong>Entry i:</strong> Points to successor of (n + 2^i) mod 2^m</p>
+            <p><strong>Result:</strong> Each hop halves the distance! O(log N) lookup</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Finger Table for Node N0 (m=3)</h4>
+            
+            <div class="finger-table">
+                <table style="width: 100%;">
+                    <tr style="background: #667eea; color: white;">
+                        <th style="padding: 10px;">i</th>
+                        <th style="padding: 10px;">Start (N0 + 2^i)</th>
+                        <th style="padding: 10px;">Interval</th>
+                        <th style="padding: 10px;">Successor</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px;">0</td>
+                        <td style="padding: 10px;">0 + 2^0 = 1</td>
+                        <td style="padding: 10px;">[1, 2)</td>
+                        <td style="padding: 10px; background: #e8f5e9; font-weight: bold;">N2</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 10px;">1</td>
+                        <td style="padding: 10px;">0 + 2^1 = 2</td>
+                        <td style="padding: 10px;">[2, 4)</td>
+                        <td style="padding: 10px; background: #e8f5e9; font-weight: bold;">N2</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px;">2</td>
+                        <td style="padding: 10px;">0 + 2^2 = 4</td>
+                        <td style="padding: 10px;">[4, 0)</td>
+                        <td style="padding: 10px; background: #e8f5e9; font-weight: bold;">N4</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                <strong>Lookup Example:</strong> N0 looking for key K=6
+                <ol style="margin-top: 10px;">
+                    <li>N0 checks finger table: K6 in [4,0) → points to N4</li>
+                    <li>Forward to N4</li>
+                    <li>N4 checks: K6 in my range → N7 is successor of K6</li>
+                    <li>Forward to N7 - Found! ✓</li>
+                </ol>
+                <p style="margin-top: 15px;"><strong>Hops:</strong> 2 (log₂ 8 = 3 max for 8 nodes)</p>
+            </div>
+        </div>
+        
+        <pre><code>// Chord Implementation (Simplified)
+class ChordNode {
+    constructor(id, m = 8) {
+        this.id = id; // Node ID (0 to 2^m - 1)
+        this.m = m; // Bit space
+        this.fingerTable = new Array(m);
+        this.successor = null;
+        this.predecessor = null;
+        this.data = new Map(); // Stored key-value pairs
+    }
+    
+    // Find successor of given ID
+    findSuccessor(id) {
+        // If between me and my successor, return successor
+        if (this.inRange(id, this.id, this.successor.id)) {
+            return this.successor;
+        }
+        
+        // Otherwise, forward to closest preceding node
+        const closestNode = this.closestPrecedingNode(id);
+        if (closestNode === this) {
+            return this.successor;
+        }
+        
+        return closestNode.findSuccessor(id);
+    }
+    
+    closestPrecedingNode(id) {
+        // Check finger table from furthest to closest
+        for (let i = this.m - 1; i >= 0; i--) {
+            const finger = this.fingerTable[i];
+            if (finger && this.inRange(finger.id, this.id, id)) {
+                return finger;
+            }
+        }
+        return this;
+    }
+    
+    inRange(id, start, end) {
+        // Check if id is in (start, end] on circular space
+        if (start < end) {
+            return id > start && id <= end;
+        } else {
+            // Wraps around
+            return id > start || id <= end;
+        }
+    }
+    
+    // Store key-value pair
+    put(key, value) {
+        const keyId = this.hash(key);
+        const responsible = this.findSuccessor(keyId);
+        responsible.data.set(key, value);
+        console.log(`Stored ${key} on node ${responsible.id}`);
+    }
+    
+    // Retrieve value for key
+    get(key) {
+        const keyId = this.hash(key);
+        const responsible = this.findSuccessor(keyId);
+        return responsible.data.get(key);
+    }
+    
+    hash(key) {
+        // Simple hash (use SHA-1 in production)
+        let h = 0;
+        for (let i = 0; i < key.length; i++) {
+            h = ((h << 5) - h) + key.charCodeAt(i);
+        }
+        return Math.abs(h) % Math.pow(2, this.m);
+    }
+    
+    // Build finger table
+    initFingerTable(nodes) {
+        for (let i = 0; i < this.m; i++) {
+            const start = (this.id + Math.pow(2, i)) % Math.pow(2, this.m);
+            
+            // Find successor of start
+            this.fingerTable[i] = this.findSuccessorFromNodes(start, nodes);
+        }
+    }
+    
+    findSuccessorFromNodes(id, nodes) {
+        // Find first node >= id
+        const sorted = nodes.sort((a, b) => a.id - b.id);
+        for (const node of sorted) {
+            if (node.id >= id) return node;
+        }
+        return sorted[0]; // Wrap around
+    }
+}
+
+// Usage
+const n0 = new ChordNode(0, 3);
+const n2 = new ChordNode(2, 3);
+const n4 = new ChordNode(4, 3);
+const n7 = new ChordNode(7, 3);
+
+// Set successors
+n0.successor = n2;
+n2.successor = n4;
+n4.successor = n7;
+n7.successor = n0;
+
+// Store data
+n0.put("file1.txt", "content1");
+n0.put("file2.txt", "content2");
+
+// Retrieve
+const content = n4.get("file1.txt");</code></pre>
+        
+        <div class="key-point">
+            <h4>✅ Chord Advantages:</h4>
+            <ul>
+                <li><strong>Simple design:</strong> Just a ring with finger tables</li>
+                <li><strong>Proven correct:</strong> Guarantees O(log N) lookup</li>
+                <li><strong>Load balanced:</strong> Keys distributed uniformly</li>
+                <li><strong>Fault tolerant:</strong> Can handle node failures</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Chord Limitations:</h4>
+            <ul>
+                <li><strong>Churn sensitivity:</strong> Frequent joins/leaves require table updates</li>
+                <li><strong>No proximity awareness:</strong> Next hop might be geographically far</li>
+                <li><strong>Simple routing:</strong> Always goes clockwise (suboptimal sometimes)</li>
+            </ul>
+        </div>
+        
+        <h2>3️⃣ Kademlia</h2>
+        
+        <div class="definition">
+            <h4>XOR-Based Distance Metric</h4>
+            <p><strong>Kademlia</strong> uses XOR as a distance metric between node IDs.</p>
+            <p><strong>Key innovation:</strong> XOR distance is symmetric and forms a proper metric space</p>
+            <p><strong>Used by:</strong> BitTorrent DHT, IPFS, Ethereum</p>
+        </div>
+        
+        <div class="key-point">
+            <h4>XOR Distance Magic</h4>
+            <p><strong>Distance between IDs:</strong> d(a, b) = a ⊕ b (XOR)</p>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; font-family: monospace;">
+                <strong>Example (4-bit IDs):</strong><br>
+                Node A = 1010 (binary) = 10 (decimal)<br>
+                Node B = 1101 (binary) = 13 (decimal)<br>
+                Distance = 1010 ⊕ 1101 = 0111 = 7<br><br>
+                
+                Node A = 1010<br>
+                Node C = 1011<br>
+                Distance = 1010 ⊕ 1011 = 0001 = 1<br><br>
+                
+                <strong>C is "closer" to A than B!</strong>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <strong>Why XOR is brilliant:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Symmetric: d(a,b) = d(b,a)</li>
+                    <li>d(a,a) = 0 (distance to self is 0)</li>
+                    <li>Triangle inequality holds</li>
+                    <li>Unidirectional: for any point, all others are in one direction</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>🗂️ K-Buckets</h3>
+        
+        <div class="key-point">
+            <h4>Routing Table Structure</h4>
+            <p>Each node maintains <strong>k-buckets</strong> for different distance ranges.</p>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>For m-bit ID space:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>m buckets (one for each bit position)</li>
+                    <li>Bucket i: nodes with distance in [2^i, 2^(i+1))</li>
+                    <li>Each bucket: up to k nodes (k=20 typically)</li>
+                    <li>Closer buckets more populated</li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0; border: 2px solid #667eea;">
+                <strong>Example K-buckets for Node 1010:</strong>
+                <div style="margin: 15px 0; font-family: monospace; font-size: 0.9em;">
+                    Bucket 0 (distance 1): [1011] (differs in bit 0)<br>
+                    Bucket 1 (distance 2-3): [1000, 1001] (differs in bit 1)<br>
+                    Bucket 2 (distance 4-7): [1110, 1111] (differs in bit 2)<br>
+                    Bucket 3 (distance 8-15): [0010, 0110] (differs in bit 3)
+                </div>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>🔍 Kademlia Lookup</h4>
+            
+            <div class="routing-step">
+                <strong>Node N1 looking for key K with ID 1101</strong>
+            </div>
+            
+            <div class="routing-step">
+                <strong>Step 1:</strong> Calculate distance: 0001 ⊕ 1101 = 1100 = 12<br>
+                Look in bucket for distance 8-15 (bucket 3)
+            </div>
+            
+            <div class="routing-step">
+                <strong>Step 2:</strong> Query α closest nodes from that bucket (α=3)<br>
+                Send parallel queries to 3 nodes
+            </div>
+            
+            <div class="routing-step">
+                <strong>Step 3:</strong> Nodes respond with their k closest to target<br>
+                Get back more nodes closer to target
+            </div>
+            
+            <div class="routing-step">
+                <strong>Step 4:</strong> Query new closer nodes<br>
+                Iteratively get closer to target
+            </div>
+            
+            <div class="routing-step" style="border-left-color: #4caf50;">
+                <strong>Step 5:</strong> Eventually reach node responsible for K<br>
+                Found in O(log N) hops! ✓
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>✅ Kademlia Advantages:</h4>
+            <ul>
+                <li><strong>Parallel lookups:</strong> Query multiple nodes simultaneously (faster!)</li>
+                <li><strong>Flexible routing:</strong> XOR metric allows multiple paths</li>
+                <li><strong>Proximity awareness:</strong> Can choose closer nodes</li>
+                <li><strong>Caching:</strong> Learn about nodes during lookups</li>
+                <li><strong>Resilient:</strong> Very tolerant to node failures</li>
+            </ul>
+        </div>
+        
+        <h2>4️⃣ Pastry</h2>
+        
+        <div class="definition">
+            <h4>Prefix-Based Routing</h4>
+            <p><strong>Pastry</strong> routes messages to nodes based on prefix matching in base-2^b (typically b=4, so base-16).</p>
+            <p><strong>Key idea:</strong> Each hop matches one more digit of target ID</p>
+        </div>
+        
+        <div class="example">
+            <h4>📝 Pastry Routing Example</h4>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>128-bit IDs represented in base-16 (hexadecimal)</strong>
+                
+                <div style="margin: 20px 0;">
+                    <strong>Node IDs:</strong>
+                    <div style="margin: 10px 0; font-family: monospace;">
+                        Node A: 1<span style="background: #4caf50; color: white; padding: 2px 5px;">0</span>A4B7C2...<br>
+                        Node B: 1<span style="background: #4caf50; color: white; padding: 2px 5px;">0</span>3F9A1E...<br>
+                        Target: 1<span style="background: #4caf50; color: white; padding: 2px 5px;">0</span><span style="background: #2196f3; color: white; padding: 2px 5px;">7</span>8D2C5...
+                    </div>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <strong>Routing from Node A to Target:</strong>
+                    <ol style="margin-top: 10px;">
+                        <li>Prefix match: "10" (2 digits matched)</li>
+                        <li>Next digit in target: 7</li>
+                        <li>Node A's routing table: row 2, column 7 → Node C</li>
+                        <li>Forward to Node C (matches "107...")</li>
+                        <li>Repeat until exact match or numerically closest</li>
+                    </ol>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 5px;">
+                    <strong>Properties:</strong> Each hop matches one more digit. O(log N) hops!
+                </div>
+            </div>
+        </div>
+        
+        <h2>5️⃣ CAN (Content Addressable Network)</h2>
+        
+        <div class="definition">
+            <h4>Multi-Dimensional Coordinate Space</h4>
+            <p><strong>CAN</strong> uses a d-dimensional Cartesian coordinate space (typically 2D).</p>
+            <p><strong>Key idea:</strong> Each node owns a zone in the coordinate space</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>CAN 2D Space (Simplified)</h4>
+            
+            <svg width="400" height="400" style="display: block; margin: 20px auto;">
+                <!-- Grid -->
+                <rect x="50" y="50" width="300" height="300" fill="none" stroke="#ccc" stroke-width="2"/>
+                
+                <!-- Zones -->
+                <rect x="50" y="50" width="150" height="150" fill="#4caf50" opacity="0.3" stroke="#4caf50" stroke-width="2"/>
+                <text x="125" y="130" text-anchor="middle" font-weight="bold" fill="#2e7d32">Zone A</text>
+                <text x="125" y="150" text-anchor="middle" fill="#2e7d32" font-size="12">Node N1</text>
+                
+                <rect x="200" y="50" width="150" height="150" fill="#2196f3" opacity="0.3" stroke="#2196f3" stroke-width="2"/>
+                <text x="275" y="130" text-anchor="middle" font-weight="bold" fill="#1565c0">Zone B</text>
+                <text x="275" y="150" text-anchor="middle" fill="#1565c0" font-size="12">Node N2</text>
+                
+                <rect x="50" y="200" width="150" height="150" fill="#ff9800" opacity="0.3" stroke="#ff9800" stroke-width="2"/>
+                <text x="125" y="280" text-anchor="middle" font-weight="bold" fill="#e65100">Zone C</text>
+                <text x="125" y="300" text-anchor="middle" fill="#e65100" font-size="12">Node N3</text>
+                
+                <rect x="200" y="200" width="150" height="150" fill="#9c27b0" opacity="0.3" stroke="#9c27b0" stroke-width="2"/>
+                <text x="275" y="280" text-anchor="middle" font-weight="bold" fill="#6a1b9a">Zone D</text>
+                <text x="275" y="300" text-anchor="middle" fill="#6a1b9a" font-size="12">Node N4</text>
+                
+                <!-- Axes -->
+                <text x="200" y="380" text-anchor="middle" font-weight="bold">X (0 to 1)</text>
+                <text x="30" y="200" text-anchor="middle" font-weight="bold" transform="rotate(-90, 30, 200)">Y (0 to 1)</text>
+                
+                <!-- Sample key -->
+                <circle cx="280" cy="120" r="8" fill="#f44336"/>
+                <text x="280" y="105" text-anchor="middle" font-weight="bold" fill="#f44336" font-size="12">Key K</text>
+                <text x="280" y="145" text-anchor="middle" fill="#f44336" font-size="11">(0.7, 0.2)</text>
+            </svg>
+            
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                <strong>Routing:</strong> Key K at (0.7, 0.2) is in Zone B → stored on Node N2
+            </div>
+            
+            <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <strong>Routing to Key:</strong>
+                <ol style="margin-top: 10px;">
+                    <li>Current node computes distance to target</li>
+                    <li>Forward to neighbor closer to target</li>
+                    <li>Each hop reduces distance</li>
+                    <li>Reach destination in O(d × n^(1/d)) hops where d=dimensions</li>
+                </ol>
+            </div>
+        </div>
+        
+        <h2>6️⃣ Applications in P2P Systems</h2>
+        
+        <div class="example">
+            <h4>📁 BitTorrent DHT (Kademlia-based)</h4>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Problem:</strong> Find peers who have a specific file (no central tracker)
+                
+                <div style="margin: 20px 0;">
+                    <strong>Solution with DHT:</strong>
+                    <ol style="margin-top: 10px;">
+                        <li>File identified by info_hash (SHA-1 of torrent metadata)</li>
+                        <li>Hash → 160-bit ID in DHT keyspace</li>
+                        <li>Peers storing file announce themselves to DHT</li>
+                        <li>Searching peers query DHT for info_hash</li>
+                        <li>DHT returns list of peers with that file</li>
+                    </ol>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                    <strong>Benefits:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>No central tracker needed (truly decentralized)</li>
+                        <li>Censorship resistant</li>
+                        <li>Scales to millions of peers</li>
+                        <li>Self-healing (nodes come and go)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>🌐 IPFS (InterPlanetary File System)</h4>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Uses Kademlia DHT for content routing</strong>
+                
+                <div style="margin: 20px 0;">
+                    <strong>How it works:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Files addressed by content hash (CID)</li>
+                        <li>DHT maps: CID → peers who have the content</li>
+                        <li>Request file by CID, DHT finds providers</li>
+                        <li>Download from any peer with content</li>
+                        <li>Your node can also provide (caching)</li>
+                    </ul>
+                </div>
+                
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 5px;">
+                    <strong>Vision:</strong> Permanent, decentralized web. Content never disappears!
+                </div>
+            </div>
+        </div>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: DHT Demos</h3>
+            <p>Explore DHT protocols and routing:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demoChordLookup()">Chord Lookup</button>
+                <button class="demo-button" onclick="demoKademliaXOR()">Kademlia XOR Distance</button>
+                <button class="demo-button" onclick="demoNodeJoin()">Node Join Process</button>
+                <button class="demo-button" onclick="demoBitTorrent()">BitTorrent DHT</button>
+            </div>
+            <div id="dhtDemo" class="demo-output">Click a button to see DHT protocols in action...</div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Protocol</th>
+                <th>Topology</th>
+                <th>Routing</th>
+                <th>Lookup</th>
+                <th>Used By</th>
+            </tr>
+            <tr>
+                <td><strong>Chord</strong></td>
+                <td>Ring</td>
+                <td>Finger tables</td>
+                <td>O(log N)</td>
+                <td>Research, academic</td>
+            </tr>
+            <tr>
+                <td><strong>Kademlia</strong></td>
+                <td>Binary tree</td>
+                <td>XOR distance</td>
+                <td>O(log N)</td>
+                <td>BitTorrent, IPFS, Ethereum</td>
+            </tr>
+            <tr>
+                <td><strong>Pastry</strong></td>
+                <td>Prefix tree</td>
+                <td>Prefix matching</td>
+                <td>O(log N)</td>
+                <td>PAST, Scribe</td>
+            </tr>
+            <tr>
+                <td><strong>CAN</strong></td>
+                <td>d-dimensional grid</td>
+                <td>Coordinate routing</td>
+                <td>O(d × N^(1/d))</td>
+                <td>Research</td>
+            </tr>
+        </table>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 17</h3>
+            <ul style="line-height: 2;">
+                <li><strong>DHT fundamentals</strong> - decentralized key-value store across P2P network</li>
+                <li><strong>Chord protocol</strong> - ring topology, finger tables, O(log N) routing</li>
+                <li><strong>Kademlia</strong> - XOR distance metric, parallel lookups, most practical</li>
+                <li><strong>Pastry</strong> - prefix-based routing, proximity awareness</li>
+                <li><strong>CAN</strong> - multi-dimensional coordinate space</li>
+                <li><strong>All achieve O(log N)</strong> - efficient routing in decentralized network</li>
+                <li><strong>BitTorrent uses DHT</strong> - find peers without central tracker</li>
+                <li><strong>IPFS uses Kademlia</strong> - content-addressed permanent storage</li>
+                <li><strong>Self-organizing</strong> - nodes join/leave, system adapts automatically</li>
+                <li><strong>No single point of failure</strong> - truly distributed</li>
+                <li><strong>Trade-off</strong> - complexity for decentralization</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>What problem do DHTs solve that traditional hash tables don't?</li>
+                <li>How does Chord's finger table enable O(log N) lookup?</li>
+                <li>Why is XOR a good distance metric in Kademlia?</li>
+                <li>Compare Chord vs Kademlia - which is more practical and why?</li>
+                <li>How does a new node join a Chord ring?</li>
+                <li>What happens in Kademlia when a node fails?</li>
+                <li>Explain how BitTorrent uses DHT to find peers.</li>
+                <li>Why is Kademlia more resilient to churn than Chord?</li>
+                <li>Design a P2P application: Which DHT protocol would you choose?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function demoChordLookup() {
+            const output = document.getElementById('dhtDemo');
+            output.textContent = '=== CHORD LOOKUP ===\n\n';
+            
+            output.textContent += 'Network: 8 nodes (N0, N2, N4, N7), m=3 bits\n';
+            output.textContent += 'Ring space: 0 to 7\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Query: Node N0 looking for key K=6\n\n';
+            
+            await sleep(500);
+            output.textContent += 'N0 Finger Table:\n';
+            output.textContent += '  finger[0]: N0 + 2^0 = 1 → N2\n';
+            output.textContent += '  finger[1]: N0 + 2^1 = 2 → N2\n';
+            output.textContent += '  finger[2]: N0 + 2^2 = 4 → N4\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 1: N0 checks finger table\n';
+            await sleep(300);
+            output.textContent += '  K=6 is in range [4, 0)\n';
+            output.textContent += '  finger[2] points to N4\n';
+            output.textContent += '  → Forward to N4\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 2: N4 checks\n';
+            await sleep(300);
+            output.textContent += '  K=6 is between N4 and successor N7\n';
+            output.textContent += '  → Forward to N7\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 3: N7 checks\n';
+            await sleep(300);
+            output.textContent += '  K=6 is in my range (N4, N7]\n';
+            output.textContent += '  → I am responsible for K=6! ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Result: Found in 2 hops!\n';
+            output.textContent += 'Maximum hops: O(log 8) = 3\n\n';
+            
+            output.textContent += 'Key insight:\n';
+            output.textContent += '  • Finger tables let us skip over many nodes\n';
+            output.textContent += '  • Each hop roughly halves remaining distance\n';
+            output.textContent += '  • Logarithmic scalability!';
+        }
+        
+        async function demoKademliaXOR() {
+            const output = document.getElementById('dhtDemo');
+            output.textContent = '=== KADEMLIA XOR DISTANCE ===\n\n';
+            
+            output.textContent += 'Node IDs (4-bit for simplicity):\n';
+            output.textContent += '  My Node: 0101 (decimal 5)\n';
+            output.textContent += '  Node A:  0111 (decimal 7)\n';
+            output.textContent += '  Node B:  1101 (decimal 13)\n';
+            output.textContent += '  Node C:  0100 (decimal 4)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Calculate XOR distances from My Node (0101):\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Distance to Node A (0111):\n';
+            output.textContent += '  0101 ⊕ 0111 = 0010 = 2\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Distance to Node B (1101):\n';
+            output.textContent += '  0101 ⊕ 1101 = 1000 = 8\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Distance to Node C (0100):\n';
+            output.textContent += '  0101 ⊕ 0100 = 0001 = 1\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Sorted by distance:\n';
+            output.textContent += '  1. Node C (distance 1) - CLOSEST\n';
+            output.textContent += '  2. Node A (distance 2)\n';
+            output.textContent += '  3. Node B (distance 8) - FARTHEST\n\n';
+            
+            await sleep(500);
+            output.textContent += 'K-bucket organization:\n';
+            output.textContent += '  Bucket 0 (distance 1):     [Node C]\n';
+            output.textContent += '  Bucket 1 (distance 2-3):   [Node A]\n';
+            output.textContent += '  Bucket 2 (distance 4-7):   []\n';
+            output.textContent += '  Bucket 3 (distance 8-15):  [Node B]\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Lookup for key 1100 (decimal 12):\n';
+            await sleep(300);
+            output.textContent += '  Distance: 0101 ⊕ 1100 = 1001 = 9\n';
+            output.textContent += '  → Look in bucket 3 (distance 8-15)\n';
+            output.textContent += '  → Query Node B (closest in that bucket)\n';
+            output.textContent += '  → Node B is closer, continues lookup\n\n';
+            
+            output.textContent += 'XOR properties:\n';
+            output.textContent += '  • Symmetric: d(a,b) = d(b,a)\n';
+            output.textContent += '  • Unidirectional: all nodes in one "direction"\n';
+            output.textContent += '  • Efficient parallel queries possible';
+        }
+        
+        async function demoNodeJoin() {
+            const output = document.getElementById('dhtDemo');
+            output.textContent = '=== NODE JOIN PROCESS (Chord) ===\n\n';
+            
+            output.textContent += 'Existing ring: N0, N2, N4, N7\n';
+            output.textContent += 'New node: N6 wants to join\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 1: Bootstrap\n';
+            await sleep(300);
+            output.textContent += '  N6 knows at least one existing node (N0)\n';
+            output.textContent += '  N6 → N0: "Help me join"\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 2: Find successor\n';
+            await sleep(300);
+            output.textContent += '  N0: Lookup successor of 6\n';
+            output.textContent += '  N0 → N4 → N7\n';
+            output.textContent += '  Result: N7 is successor of N6\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 3: Update pointers\n';
+            await sleep(300);
+            output.textContent += '  N6.successor = N7\n';
+            output.textContent += '  N6.predecessor = N4\n';
+            output.textContent += '  N4.successor = N6 (was N7)\n';
+            output.textContent += '  N7.predecessor = N6 (was N4)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 4: Transfer keys\n';
+            await sleep(300);
+            output.textContent += '  N7 transfers keys in range (N4, N6] to N6\n';
+            output.textContent += '  Keys 5, 6 move from N7 to N6\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 5: Update finger tables\n';
+            await sleep(300);
+            output.textContent += '  All nodes update their finger tables\n';
+            output.textContent += '  (Some fingers now point to N6)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 6: Stabilization\n';
+            output.textContent += '  Nodes periodically verify successors\n';
+            output.textContent += '  Fix any inconsistencies\n\n';
+            
+            output.textContent += 'Result: N6 integrated into ring! ✓\n';
+            output.textContent += 'New ring: N0, N2, N4, N6, N7\n\n';
+            
+            output.textContent += 'Join cost: O(log² N) messages';
+        }
+        
+        async function demoBitTorrent() {
+            const output = document.getElementById('dhtDemo');
+            output.textContent = '=== BITTORRENT DHT (Mainline DHT) ===\n\n';
+            
+            output.textContent += 'User wants to download: Ubuntu ISO\n';
+            output.textContent += 'Info Hash: 8a3d...f92c (160-bit SHA-1)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 1: Query DHT for peers\n';
+            await sleep(300);
+            output.textContent += '  Client: "Who has 8a3d...f92c?"\n';
+            output.textContent += '  DHT: Kademlia lookup for info_hash\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 2: Iterative lookup\n';
+            await sleep(300);
+            output.textContent += '  Query closest known node\n';
+            await sleep(300);
+            output.textContent += '  Node returns 8 closer nodes\n';
+            await sleep(300);
+            output.textContent += '  Query those nodes...\n';
+            await sleep(300);
+            output.textContent += '  Repeat until found nodes storing info_hash\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 3: Get peer list\n';
+            await sleep(300);
+            output.textContent += '  DHT returns:\n';
+            output.textContent += '    - Peer 1: 192.168.1.5:6881\n';
+            output.textContent += '    - Peer 2: 10.0.0.23:6882\n';
+            output.textContent += '    - Peer 3: 172.16.0.8:6883\n';
+            output.textContent += '    ... (up to 50 peers)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 4: Connect to peers\n';
+            await sleep(300);
+            output.textContent += '  Client connects to all peers\n';
+            output.textContent += '  Download pieces from multiple sources\n';
+            output.textContent += '  Parallel downloads (FAST!) ⚡\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 5: Announce presence\n';
+            output.textContent += '  Client stores in DHT:\n';
+            output.textContent += '    info_hash → [my IP:port]\n';
+            output.textContent += '  Now other peers can find me!\n\n';
+            
+            output.textContent += 'Benefits of DHT:\n';
+            output.textContent += '  ✓ No central tracker needed\n';
+            output.textContent += '  ✓ Censorship resistant\n';
+            output.textContent += '  ✓ Scales to millions of peers\n';
+            output.textContent += '  ✓ Self-healing network';
+        }
+    </script>
+</body>
+</html>

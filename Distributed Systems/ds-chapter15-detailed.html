@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 15: Distributed Computing Frameworks</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+        }
+        
+        .phase-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .map-phase {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .reduce-phase {
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .shuffle-phase {
+            background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .ecosystem-component {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .ecosystem-component:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .stream-visual {
+            background: linear-gradient(to right, #e3f2fd, #bbdefb);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .batch-visual {
+            background: linear-gradient(to right, #f3e5f5, #e1bee7);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #9c27b0;
+        }
+        
+        .data-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .flow-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            margin: 0 10px;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline-event {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ Chapter 15: Distributed Computing Frameworks</h1>
+        
+        <div class="problem-box">
+            <h3>🤔 The Big Data Challenge</h3>
+            <p style="font-size: 1.2em;"><strong>How do we process petabytes of data efficiently?</strong></p>
+            <p>Single machine = hours/days. But we have:</p>
+            <ul style="margin-top: 10px;">
+                <li>Terabytes of log files to analyze</li>
+                <li>Billions of web pages to index</li>
+                <li>Millions of sensor readings per second</li>
+                <li>Real-time user activity streams</li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>Solution:</strong> Distributed computing frameworks that parallelize processing across thousands of machines!</p>
+        </div>
+        
+        <h2>1️⃣ MapReduce Programming Model</h2>
+        
+        <div class="definition">
+            <h4>The Revolutionary Idea</h4>
+            <p><strong>MapReduce</strong> is a programming model for processing large datasets in parallel across a distributed cluster.</p>
+            <p><strong>Invented by:</strong> Google (2004), inspired by functional programming</p>
+            <p><strong>Key insight:</strong> Most big data processing can be expressed as two simple functions: <span class="highlight">MAP</span> and <span class="highlight">REDUCE</span></p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>MapReduce Flow</h4>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <strong>INPUT DATA (in HDFS)</strong>
+                    <div style="margin: 15px 0;">
+                        <div style="background: white; padding: 10px; margin: 5px; border-radius: 5px;">File 1: "hello world"</div>
+                        <div style="background: white; padding: 10px; margin: 5px; border-radius: 5px;">File 2: "hello hadoop"</div>
+                        <div style="background: white; padding: 10px; margin: 5px; border-radius: 5px;">File 3: "world of data"</div>
+                    </div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin: 20px 0;">
+                    <div class="map-phase">MAP 1<br><small>File 1</small></div>
+                    <div class="map-phase">MAP 2<br><small>File 2</small></div>
+                    <div class="map-phase">MAP 3<br><small>File 3</small></div>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <strong>Map Output (key-value pairs):</strong>
+                    <div style="margin: 10px 0; font-family: monospace; font-size: 0.9em;">
+                        Map 1: (hello, 1), (world, 1)<br>
+                        Map 2: (hello, 1), (hadoop, 1)<br>
+                        Map 3: (world, 1), (of, 1), (data, 1)
+                    </div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="shuffle-phase">
+                    SHUFFLE & SORT<br>
+                    <small>Group by key</small>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <strong>Shuffled Groups:</strong>
+                    <div style="margin: 10px 0; font-family: monospace; font-size: 0.9em;">
+                        "data" → [1]<br>
+                        "hadoop" → [1]<br>
+                        "hello" → [1, 1]<br>
+                        "of" → [1]<br>
+                        "world" → [1, 1]
+                    </div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin: 20px 0;">
+                    <div class="reduce-phase">REDUCE 1<br><small>data, hadoop</small></div>
+                    <div class="reduce-phase">REDUCE 2<br><small>hello</small></div>
+                    <div class="reduce-phase">REDUCE 3<br><small>of, world</small></div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 8px;">
+                    <strong>FINAL OUTPUT:</strong>
+                    <div style="margin: 15px 0; font-family: monospace;">
+                        data: 1<br>
+                        hadoop: 1<br>
+                        hello: 2<br>
+                        of: 1<br>
+                        world: 2
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>📖 Classic Example: Word Count</h4>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Problem:</strong> Count word frequency in billions of documents
+                
+                <div style="margin: 20px 0;">
+                    <strong>Map Function:</strong>
+                    <pre style="margin: 10px 0;"><code>function map(document) {
+    // Input: one document
+    // Output: (word, 1) for each word
+    
+    const words = document.split(' ');
+    for (const word of words) {
+        emit(word, 1); // Emit key-value pair
+    }
+}
+
+// Example:
+// Input: "hello world hello"
+// Output: (hello, 1), (world, 1), (hello, 1)</code></pre>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <strong>Reduce Function:</strong>
+                    <pre style="margin: 10px 0;"><code>function reduce(word, counts) {
+    // Input: word and list of all its counts
+    // Output: (word, total_count)
+    
+    let sum = 0;
+    for (const count of counts) {
+        sum += count;
+    }
+    emit(word, sum);
+}
+
+// Example:
+// Input: ("hello", [1, 1, 1])
+// Output: ("hello", 3)</code></pre>
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>Why MapReduce is Powerful:</h4>
+            <ul>
+                <li><strong>Simple model:</strong> Programmer writes just 2 functions</li>
+                <li><strong>Automatic parallelization:</strong> Framework handles distribution</li>
+                <li><strong>Fault tolerance:</strong> Auto-restart failed tasks</li>
+                <li><strong>Data locality:</strong> Move computation to data (not data to computation)</li>
+                <li><strong>Scalability:</strong> Add more machines = faster processing</li>
+            </ul>
+        </div>
+        
+        <pre><code>// Complete MapReduce Word Count (Java/Hadoop)
+public class WordCount {
+    
+    // Mapper class
+    public static class TokenizerMapper 
+           extends Mapper<Object, Text, Text, IntWritable> {
+        
+        private final static IntWritable one = new IntWritable(1);
+        private Text word = new Text();
+        
+        public void map(Object key, Text value, Context context) 
+                throws IOException, InterruptedException {
+            
+            // Split line into words
+            StringTokenizer itr = new StringTokenizer(value.toString());
+            
+            while (itr.hasMoreTokens()) {
+                word.set(itr.nextToken());
+                context.write(word, one); // Emit (word, 1)
+            }
+        }
+    }
+    
+    // Reducer class
+    public static class IntSumReducer 
+           extends Reducer<Text, IntWritable, Text, IntWritable> {
+        
+        private IntWritable result = new IntWritable();
+        
+        public void reduce(Text key, Iterable<IntWritable> values,
+                          Context context) 
+                throws IOException, InterruptedException {
+            
+            // Sum all counts for this word
+            int sum = 0;
+            for (IntWritable val : values) {
+                sum += val.get();
+            }
+            
+            result.set(sum);
+            context.write(key, result); // Emit (word, total)
+        }
+    }
+    
+    // Main driver
+    public static void main(String[] args) throws Exception {
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf, "word count");
+        
+        job.setJarByClass(WordCount.class);
+        job.setMapperClass(TokenizerMapper.class);
+        job.setReducerClass(IntSumReducer.class);
+        
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
+        
+        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        
+        System.exit(job.waitForCompletion(true) ? 0 : 1);
+    }
+}</code></pre>
+        
+        <h2>2️⃣ Hadoop Ecosystem</h2>
+        
+        <div class="definition">
+            <h4>Complete Big Data Platform</h4>
+            <p><strong>Hadoop</strong> is more than just MapReduce - it's an entire ecosystem of tools for big data processing.</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Hadoop Ecosystem Components</h4>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0;">
+                <div class="ecosystem-component">
+                    <h4 style="color: #ff9800;">📁 HDFS</h4>
+                    <p><strong>Distributed File System</strong></p>
+                    <p>Stores data reliably across cluster</p>
+                    <div style="margin-top: 10px; color: #666; font-size: 0.9em;">
+                        Foundation - everything builds on this
+                    </div>
+                </div>
+                
+                <div class="ecosystem-component">
+                    <h4 style="color: #4caf50;">🗺️ MapReduce</h4>
+                    <p><strong>Processing Framework</strong></p>
+                    <p>Batch processing of large datasets</p>
+                    <div style="margin-top: 10px; color: #666; font-size: 0.9em;">
+                        Original Hadoop processing engine
+                    </div>
+                </div>
+                
+                <div class="ecosystem-component">
+                    <h4 style="color: #2196f3;">⚡ YARN</h4>
+                    <p><strong>Resource Manager</strong></p>
+                    <p>Schedules jobs, manages cluster resources</p>
+                    <div style="margin-top: 10px; color: #666; font-size: 0.9em;">
+                        Enables multiple frameworks on one cluster
+                    </div>
+                </div>
+                
+                <div class="ecosystem-component">
+                    <h4 style="color: #9c27b0;">🐝 Hive</h4>
+                    <p><strong>SQL on Hadoop</strong></p>
+                    <p>Query data using SQL, converts to MapReduce</p>
+                    <div style="margin-top: 10px; color: #666; font-size: 0.9em;">
+                        For data analysts familiar with SQL
+                    </div>
+                </div>
+                
+                <div class="ecosystem-component">
+                    <h4 style="color: #ff5722;">🐷 Pig</h4>
+                    <p><strong>Data Flow Language</strong></p>
+                    <p>Pig Latin scripting for ETL</p>
+                    <div style="margin-top: 10px; color: #666; font-size: 0.9em;">
+                        Easier than writing MapReduce
+                    </div>
+                </div>
+                
+                <div class="ecosystem-component">
+                    <h4 style="color: #00bcd4;">🐘 HBase</h4>
+                    <p><strong>NoSQL Database</strong></p>
+                    <p>Column-family store on HDFS</p>
+                    <div style="margin-top: 10px; color: #666; font-size: 0.9em;">
+                        Random access to big data
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h2>3️⃣ Apache Spark</h2>
+        
+        <div class="definition">
+            <h4>Next-Generation Processing</h4>
+            <p><strong>Apache Spark</strong> is a unified analytics engine for large-scale data processing, designed to be faster than MapReduce.</p>
+            <p><strong>Key innovation:</strong> In-memory computing with RDDs (Resilient Distributed Datasets)</p>
+            <p><strong>Speed:</strong> Up to 100x faster than MapReduce for iterative algorithms!</p>
+        </div>
+        
+        <div class="key-point">
+            <h4>Why Spark is Faster than MapReduce:</h4>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>MapReduce (slow):</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Write intermediate results to HDFS after each step</li>
+                    <li>Disk I/O is slow (100 MB/s)</li>
+                    <li>Iterative algorithms = many MapReduce jobs = lots of disk writes</li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Spark (fast):</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Keep intermediate results in memory (RAM)</li>
+                    <li>Memory is fast (10-100 GB/s)</li>
+                    <li>Chain operations together without disk I/O</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>💡 Spark Word Count Example</h4>
+            
+            <pre><code>// Spark Word Count (Python/PySpark)
+from pyspark import SparkContext
+
+sc = SparkContext("local", "Word Count")
+
+# Read text files
+text_file = sc.textFile("hdfs://data/input.txt")
+
+# MapReduce in 3 lines!
+counts = text_file.flatMap(lambda line: line.split(" ")) \
+                  .map(lambda word: (word, 1)) \
+                  .reduceByKey(lambda a, b: a + b)
+
+# Save results
+counts.saveAsTextFile("hdfs://data/output")
+
+# Or in Spark SQL (even simpler!)
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.appName("WordCount").getOrCreate()
+
+# Read as DataFrame
+df = spark.read.text("hdfs://data/input.txt")
+
+# SQL-like operations
+word_counts = df.selectExpr("explode(split(value, ' ')) as word") \
+                .groupBy("word") \
+                .count()
+
+word_counts.show()
+
+# Output:
+# +-------+-----+
+# |  word |count|
+# +-------+-----+
+# | hello |    2|
+# | world |    2|
+# |hadoop |    1|
+# +-------+-----+</code></pre>
+        </div>
+        
+        <div class="key-point">
+            <h4>Spark Key Features:</h4>
+            <ul>
+                <li><strong>RDDs:</strong> Immutable distributed collections with lineage tracking</li>
+                <li><strong>Lazy evaluation:</strong> Build execution plan, optimize, then execute</li>
+                <li><strong>Fault tolerance:</strong> Recompute lost partitions using lineage</li>
+                <li><strong>Multiple APIs:</strong> RDD, DataFrame, Dataset, SQL</li>
+                <li><strong>Unified:</strong> Batch, streaming, ML, graph processing in one framework</li>
+            </ul>
+        </div>
+        
+        <h2>4️⃣ Stream Processing</h2>
+        
+        <div class="definition">
+            <h4>Real-Time Data Processing</h4>
+            <p><strong>Stream processing</strong> handles continuous, unbounded data streams in real-time.</p>
+            <p><strong>Examples:</strong> Live sensor data, user clickstreams, social media feeds, financial tickers</p>
+        </div>
+        
+        <h3>📨 Apache Kafka</h3>
+        
+        <div class="key-point">
+            <h4>Distributed Streaming Platform</h4>
+            <p><strong>Kafka</strong> is a distributed event streaming platform - a high-throughput message queue on steroids!</p>
+            <p><strong>Used by:</strong> LinkedIn, Uber, Netflix, Airbnb (processes trillions of messages/day)</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Kafka Architecture</h4>
+            
+            <div style="margin: 30px 0;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                        <div class="flow-box" style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);">
+                            Producer 1<br>
+                            <small>Web Server</small>
+                        </div>
+                        <div class="flow-box" style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);">
+                            Producer 2<br>
+                            <small>Mobile App</small>
+                        </div>
+                        <div class="flow-box" style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);">
+                            Producer 3<br>
+                            <small>IoT Device</small>
+                        </div>
+                    </div>
+                    
+                    <div style="font-size: 1.5em; margin: 20px 0; color: #667eea;">
+                        ↓ Publish Events ↓
+                    </div>
+                    
+                    <div style="background: #667eea; color: white; padding: 20px; border-radius: 12px; margin: 20px 0;">
+                        <h4>KAFKA CLUSTER</h4>
+                        <div style="display: flex; justify-content: center; gap: 15px; margin: 15px 0; flex-wrap: wrap;">
+                            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 5px;">
+                                <strong>Topic: user-events</strong><br>
+                                Partition 0 | Partition 1 | Partition 2
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="font-size: 1.5em; margin: 20px 0; color: #667eea;">
+                        ↓ Subscribe & Consume ↓
+                    </div>
+                    
+                    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                        <div class="flow-box" style="background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);">
+                            Consumer 1<br>
+                            <small>Analytics</small>
+                        </div>
+                        <div class="flow-box" style="background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);">
+                            Consumer 2<br>
+                            <small>Fraud Detection</small>
+                        </div>
+                        <div class="flow-box" style="background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);">
+                            Consumer 3<br>
+                            <small>Recommendation</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>Kafka Core Concepts:</h4>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>Topic:</strong> Category of messages (like a table in database)
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>Partition:</strong> Topic split for parallelism (like sharding)
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>Producer:</strong> Publishes messages to topics
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>Consumer:</strong> Subscribes to topics, processes messages
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>Consumer Group:</strong> Multiple consumers work together, each gets subset of partitions
+            </div>
+        </div>
+        
+        <pre><code>// Kafka Producer Example (JavaScript)
+const kafka = require('kafka-node');
+const Producer = kafka.Producer;
+const client = new kafka.KafkaClient({kafkaHost: 'localhost:9092'});
+const producer = new Producer(client);
+
+// Send message
+const payloads = [{
+    topic: 'user-events',
+    messages: JSON.stringify({
+        userId: 1001,
+        action: 'login',
+        timestamp: Date.now()
+    })
+}];
+
+producer.send(payloads, (err, data) => {
+    console.log('Message sent:', data);
+});
+
+// Kafka Consumer Example
+const Consumer = kafka.Consumer;
+const consumer = new Consumer(
+    client,
+    [{topic: 'user-events', partition: 0}],
+    {autoCommit: true}
+);
+
+consumer.on('message', (message) => {
+    const event = JSON.parse(message.value);
+    console.log('Received:', event);
+    
+    // Process event in real-time
+    if (event.action === 'purchase') {
+        triggerRecommendation(event.userId);
+    }
+});</code></pre>
+        
+        <h3>🌊 Apache Flink</h3>
+        
+        <div class="key-point">
+            <h4>True Stream Processing</h4>
+            <p><strong>Flink</strong> is a stream-first processing framework with exactly-once semantics.</p>
+            <p><strong>Key difference:</strong> Native streaming (not micro-batching like Spark Streaming)</p>
+        </div>
+        
+        <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <strong>Flink Features:</strong>
+            <ul>
+                <li><strong>Event time processing:</strong> Handle out-of-order events correctly</li>
+                <li><strong>Stateful operations:</strong> Maintain state across events</li>
+                <li><strong>Exactly-once:</strong> Guarantees with checkpointing</li>
+                <li><strong>Low latency:</strong> Millisecond-level processing</li>
+                <li><strong>Windowing:</strong> Time-based and count-based windows</li>
+            </ul>
+        </div>
+        
+        <h2>5️⃣ Batch vs Stream Processing</h2>
+        
+        <div class="batch-visual">
+            <h4>🗂️ BATCH PROCESSING</h4>
+            <p><strong>Definition:</strong> Process large, bounded datasets in periodic jobs</p>
+            
+            <div style="margin: 20px 0;">
+                <strong>Characteristics:</strong>
+                <ul>
+                    <li>Data collected over time (hours/days)</li>
+                    <li>Processed in one big job</li>
+                    <li>High latency (minutes to hours)</li>
+                    <li>High throughput</li>
+                    <li>Complete dataset available</li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Examples:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Daily sales reports</li>
+                    <li>Monthly user analytics</li>
+                    <li>ETL jobs (Extract-Transform-Load)</li>
+                    <li>Training ML models</li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Tools:</strong> MapReduce, Spark (batch mode), Hive
+            </div>
+        </div>
+        
+        <div class="stream-visual">
+            <h4>🌊 STREAM PROCESSING</h4>
+            <p><strong>Definition:</strong> Process unbounded data streams continuously as events arrive</p>
+            
+            <div style="margin: 20px 0;">
+                <strong>Characteristics:</strong>
+                <ul>
+                    <li>Data arrives continuously (never-ending)</li>
+                    <li>Processed immediately</li>
+                    <li>Low latency (milliseconds to seconds)</li>
+                    <li>Moderate throughput per event</li>
+                    <li>Partial/windowed views of data</li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Examples:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Real-time fraud detection</li>
+                    <li>Live dashboards</li>
+                    <li>IoT sensor monitoring</li>
+                    <li>Real-time recommendations</li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Tools:</strong> Kafka Streams, Flink, Spark Streaming, Storm
+            </div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Aspect</th>
+                <th>Batch Processing</th>
+                <th>Stream Processing</th>
+            </tr>
+            <tr>
+                <td><strong>Data Type</strong></td>
+                <td>Bounded (finite dataset)</td>
+                <td>Unbounded (infinite stream)</td>
+            </tr>
+            <tr>
+                <td><strong>Latency</strong></td>
+                <td>High (minutes to hours)</td>
+                <td>Low (milliseconds to seconds)</td>
+            </tr>
+            <tr>
+                <td><strong>Processing</strong></td>
+                <td>Scheduled jobs (daily, hourly)</td>
+                <td>Continuous (event-driven)</td>
+            </tr>
+            <tr>
+                <td><strong>Use Case</strong></td>
+                <td>Historical analysis, reports</td>
+                <td>Real-time monitoring, alerts</td>
+            </tr>
+            <tr>
+                <td><strong>Complexity</strong></td>
+                <td>Simpler (complete data)</td>
+                <td>Complex (windowing, state)</td>
+            </tr>
+            <tr>
+                <td><strong>Examples</strong></td>
+                <td>MapReduce, Hive, Spark</td>
+                <td>Kafka, Flink, Storm</td>
+            </tr>
+        </table>
+        
+        <div class="example">
+            <h4>🏪 Real-World Example: E-commerce Analytics</h4>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <div style="background: #f3e5f5; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #9c27b0;">
+                    <strong>BATCH: Daily Sales Report</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Collect all transactions from previous day</li>
+                        <li>Run MapReduce at midnight</li>
+                        <li>Aggregate: total sales, top products, revenue by category</li>
+                        <li>Generate report by 2 AM</li>
+                        <li><strong>Result ready:</strong> Next morning ☀️</li>
+                    </ul>
+                </div>
+                
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #2196f3;">
+                    <strong>STREAM: Real-Time Fraud Detection</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Receive transaction as it happens</li>
+                        <li>Process immediately with Flink</li>
+                        <li>Check: unusual location, large amount, velocity</li>
+                        <li>Alert if suspicious</li>
+                        <li><strong>Response time:</strong> 100ms ⚡</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <h2>6️⃣ Data Flow Models</h2>
+        
+        <div class="definition">
+            <h4>How Data Moves Through System</h4>
+            <p>Data flow models describe how data is passed between processing stages.</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>MapReduce Data Flow</h4>
+            
+            <div class="timeline">
+                <div class="timeline-event" style="border-left-color: #4caf50;">
+                    <strong>Stage 1: MAP PHASE</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Read input splits from HDFS</li>
+                        <li>Run map() on each record</li>
+                        <li>Write output to local disk</li>
+                        <li>Runs on: 1000s of mappers in parallel</li>
+                    </ul>
+                </div>
+                
+                <div class="timeline-event" style="border-left-color: #ff9800;">
+                    <strong>Stage 2: SHUFFLE PHASE</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Group by key across all mappers</li>
+                        <li>Sort by key</li>
+                        <li>Transfer over network to reducers</li>
+                        <li>Most expensive phase! (network-intensive)</li>
+                    </ul>
+                </div>
+                
+                <div class="timeline-event" style="border-left-color: #2196f3;">
+                    <strong>Stage 3: REDUCE PHASE</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Read shuffled data</li>
+                        <li>Run reduce() on each key's values</li>
+                        <li>Write results to HDFS</li>
+                        <li>Runs on: Fewer reducers (user-specified)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Spark DAG (Directed Acyclic Graph) Flow</h4>
+            
+            <div style="margin: 20px 0;">
+                <div style="background: white; padding: 20px; border-radius: 8px;">
+                    <strong>Spark builds execution plan (DAG):</strong>
+                    
+                    <div style="margin: 20px 0; text-align: center;">
+                        <div class="data-flow">
+                            <div class="flow-box">Read HDFS</div>
+                            <div class="arrow">→</div>
+                            <div class="flow-box">map()</div>
+                            <div class="arrow">→</div>
+                            <div class="flow-box">filter()</div>
+                            <div class="arrow">→</div>
+                            <div class="flow-box">reduceByKey()</div>
+                            <div class="arrow">→</div>
+                            <div class="flow-box">Write Output</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                        <strong>Optimization:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li>Lazy evaluation: Build entire plan before executing</li>
+                            <li>Pipelining: Combine stages that don't need shuffle</li>
+                            <li>In-memory: Keep intermediate results in RAM</li>
+                            <li>Catalyst optimizer: Rewrite queries for efficiency</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: Framework Demos</h3>
+            <p>See distributed computing frameworks in action:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demoMapReduce()">MapReduce Execution</button>
+                <button class="demo-button" onclick="demoSpark()">Spark vs MapReduce</button>
+                <button class="demo-button" onclick="demoKafka()">Kafka Streaming</button>
+                <button class="demo-button" onclick="demoBatchVsStream()">Batch vs Stream</button>
+            </div>
+            <div id="frameworkDemo" class="demo-output">Click a button to see frameworks in action...</div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Framework</th>
+                <th>Model</th>
+                <th>Speed</th>
+                <th>Latency</th>
+                <th>Best For</th>
+            </tr>
+            <tr>
+                <td><strong>MapReduce</strong></td>
+                <td>Batch</td>
+                <td>Baseline (1x)</td>
+                <td>Minutes</td>
+                <td>Simple batch jobs</td>
+            </tr>
+            <tr>
+                <td><strong>Spark (batch)</strong></td>
+                <td>Batch</td>
+                <td>10-100x faster</td>
+                <td>Seconds</td>
+                <td>Iterative algorithms, ML</td>
+            </tr>
+            <tr>
+                <td><strong>Spark Streaming</strong></td>
+                <td>Micro-batch</td>
+                <td>Fast</td>
+                <td>~1 second</td>
+                <td>Near real-time</td>
+            </tr>
+            <tr>
+                <td><strong>Kafka Streams</strong></td>
+                <td>Stream</td>
+                <td>Very fast</td>
+                <td>Milliseconds</td>
+                <td>Event processing</td>
+            </tr>
+            <tr>
+                <td><strong>Flink</strong></td>
+                <td>Stream</td>
+                <td>Very fast</td>
+                <td>Milliseconds</td>
+                <td>Complex event processing</td>
+            </tr>
+        </table>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 15</h3>
+            <ul style="line-height: 2;">
+                <li><strong>MapReduce</strong> - revolutionary model: map() and reduce() on distributed data</li>
+                <li><strong>Data locality</strong> - move computation to data, not data to computation</li>
+                <li><strong>Hadoop ecosystem</strong> - complete platform (HDFS, YARN, Hive, HBase)</li>
+                <li><strong>Spark</strong> - 10-100x faster via in-memory computing</li>
+                <li><strong>RDDs</strong> - immutable distributed datasets with fault tolerance via lineage</li>
+                <li><strong>Kafka</strong> - distributed streaming platform, pub-sub at massive scale</li>
+                <li><strong>Flink</strong> - true stream processing with exactly-once semantics</li>
+                <li><strong>Batch</strong> - high throughput, high latency, bounded data</li>
+                <li><strong>Stream</strong> - low latency, continuous, unbounded data</li>
+                <li><strong>Lambda architecture</strong> - combine batch and stream for completeness + speed</li>
+                <li><strong>Trade-off</strong> - latency vs throughput vs complexity</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>Explain MapReduce with a real-world example (not word count).</li>
+                <li>Why does Spark process data faster than MapReduce?</li>
+                <li>What is the shuffle phase in MapReduce? Why is it expensive?</li>
+                <li>How does data locality improve MapReduce performance?</li>
+                <li>Compare Kafka vs traditional message queues - what makes Kafka scalable?</li>
+                <li>When would you choose batch processing over stream processing?</li>
+                <li>What is exactly-once semantics in stream processing? Why is it hard?</li>
+                <li>Explain the Lambda architecture - why combine batch and stream?</li>
+                <li>Design a system for: (a) daily reports, (b) fraud detection. Batch or stream?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function demoMapReduce() {
+            const output = document.getElementById('frameworkDemo');
+            output.textContent = '=== MAPREDUCE WORD COUNT EXECUTION ===\n\n';
+            
+            output.textContent += 'Input: 3 files in HDFS (1 TB total)\n';
+            output.textContent += 'Cluster: 100 nodes\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- MAP PHASE ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'JobTracker: Split input into 1000 chunks (1 GB each)\n';
+            output.textContent += 'JobTracker: Assign map tasks to nodes with data\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Mapper 1 (Node 5): Process chunk 1\n';
+            output.textContent += '  Read: "hello world hello hadoop"\n';
+            await sleep(300);
+            output.textContent += '  Emit: (hello, 1), (world, 1), (hello, 1), (hadoop, 1)\n';
+            output.textContent += '  Write to local disk ✓\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Mapper 2-1000: Processing in parallel...\n';
+            await sleep(500);
+            output.textContent += '  → All mappers complete in 5 minutes ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- SHUFFLE & SORT PHASE ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Framework: Grouping by key across all mappers...\n';
+            await sleep(500);
+            output.textContent += '  "hello" → [1, 1, 1, 1, ...] (from many mappers)\n';
+            output.textContent += '  "world" → [1, 1, 1, ...]\n';
+            output.textContent += '  "hadoop" → [1, 1, ...]\n\n';
+            
+            output.textContent += 'Network transfer: 500 GB across nodes\n';
+            await sleep(500);
+            output.textContent += '  → Shuffle complete in 3 minutes ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- REDUCE PHASE ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Reducer 1: Process keys starting with "a-h"\n';
+            output.textContent += '  Input: ("hello", [1, 1, 1, 1, ...])\n';
+            await sleep(300);
+            output.textContent += '  Sum: 1 + 1 + 1 + ... = 42,156\n';
+            output.textContent += '  Emit: ("hello", 42156)\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Reducers 2-10: Processing other keys...\n';
+            await sleep(500);
+            output.textContent += '  → All reducers complete in 2 minutes ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Results written to HDFS\n\n';
+            
+            output.textContent += 'TOTAL TIME: 10 minutes for 1 TB!\n';
+            output.textContent += 'Single machine would take: ~10 hours\n';
+            output.textContent += '60x speedup with parallelization! ⚡';
+        }
+        
+        async function demoSpark() {
+            const output = document.getElementById('frameworkDemo');
+            output.textContent = '=== SPARK vs MAPREDUCE ===\n\n';
+            
+            output.textContent += 'Task: Iterate 10 times over same dataset\n';
+            output.textContent += 'Example: Machine learning model training\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- MAPREDUCE APPROACH ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Iteration 1:\n';
+            output.textContent += '  Read from HDFS → Process → Write to HDFS\n';
+            await sleep(300);
+            output.textContent += '  Time: 2 minutes\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Iteration 2:\n';
+            output.textContent += '  Read from HDFS → Process → Write to HDFS\n';
+            output.textContent += '  Time: 2 minutes\n\n';
+            
+            output.textContent += '... (8 more iterations)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Total MapReduce time: 20 minutes\n';
+            output.textContent += '  → 10 disk reads + 10 disk writes\n';
+            output.textContent += '  → Disk I/O is slow! ⏱️\n\n';
+            
+            await sleep(1000);
+            output.textContent += '--- SPARK APPROACH ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Load data into memory (RDD):\n';
+            output.textContent += '  Read from HDFS → Cache in RAM\n';
+            await sleep(300);
+            output.textContent += '  Time: 30 seconds\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Iteration 1-10:\n';
+            output.textContent += '  Process from RAM (no disk I/O!)\n';
+            await sleep(300);
+            output.textContent += '  Time per iteration: 5 seconds\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Total Spark time: 1.2 minutes\n';
+            output.textContent += '  → 1 disk read, rest in memory\n';
+            output.textContent += '  → Memory is 100x faster than disk! ⚡\n\n';
+            
+            await sleep(500);
+            output.textContent += 'RESULT:\n';
+            output.textContent += '  MapReduce: 20 minutes\n';
+            output.textContent += '  Spark: 1.2 minutes\n';
+            output.textContent += '  Speedup: 16.7x! 🚀\n\n';
+            
+            output.textContent += 'Why Spark wins:\n';
+            output.textContent += '  • In-memory caching\n';
+            output.textContent += '  • Avoid disk I/O between iterations\n';
+            output.textContent += '  • Perfect for iterative algorithms';
+        }
+        
+        async function demoKafka() {
+            const output = document.getElementById('frameworkDemo');
+            output.textContent = '=== KAFKA STREAMING ===\n\n';
+            
+            output.textContent += 'Scenario: Real-time user activity tracking\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Setup:\n';
+            output.textContent += '  Topic: "user-clicks"\n';
+            output.textContent += '  Partitions: 10\n';
+            output.textContent += '  Replication: 3\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- PRODUCERS (Writing Events) ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'T=0ms: User Alice clicks "Buy Now"\n';
+            output.textContent += '  → Producer sends to Kafka\n';
+            await sleep(200);
+            output.textContent += '  → Kafka: Written to partition 3 ✓\n\n';
+            
+            await sleep(300);
+            output.textContent += 'T=50ms: User Bob views product page\n';
+            output.textContent += '  → Producer sends to Kafka\n';
+            await sleep(200);
+            output.textContent += '  → Kafka: Written to partition 7 ✓\n\n';
+            
+            await sleep(300);
+            output.textContent += 'T=100ms: User Charlie adds to cart\n';
+            output.textContent += '  → Producer sends to Kafka\n';
+            await sleep(200);
+            output.textContent += '  → Kafka: Written to partition 2 ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- CONSUMERS (Processing Events) ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Consumer Group: "analytics"\n';
+            output.textContent += '  Consumer 1: Reading partitions 0-4\n';
+            output.textContent += '  Consumer 2: Reading partitions 5-9\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Consumer 1 receives Alice\'s click:\n';
+            output.textContent += '  → Process: Update click count\n';
+            output.textContent += '  → Latency: 5ms from event! ⚡\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Throughput: 1 million events/second\n';
+            output.textContent += 'Retention: 7 days (events stored on disk)\n';
+            output.textContent += 'Replayable: Can re-process from any offset!\n\n';
+            
+            output.textContent += 'Kafka features:\n';
+            output.textContent += '  • Distributed: Partitions across brokers\n';
+            output.textContent += '  • Durable: Persisted to disk\n';
+            output.textContent += '  • Scalable: Add partitions/brokers\n';
+            output.textContent += '  • Fast: Sequential disk writes';
+        }
+        
+        async function demoBatchVsStream() {
+            const output = document.getElementById('frameworkDemo');
+            output.textContent = '=== BATCH vs STREAM: Same Problem, Different Approaches ===\n\n';
+            
+            output.textContent += 'Problem: Calculate average purchase amount\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- BATCH PROCESSING (Daily Job) ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Day 1 - 23:59: Collect all purchases from day\n';
+            await sleep(300);
+            output.textContent += 'Day 2 - 00:00: Start MapReduce job\n';
+            await sleep(500);
+            output.textContent += '  → Map: Extract (user, amount) pairs\n';
+            await sleep(300);
+            output.textContent += '  → Reduce: Calculate average per user\n';
+            await sleep(500);
+            output.textContent += '  → Job completes at 00:30\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Results available: 30 minutes after midnight\n';
+            output.textContent += 'Data freshness: Up to 24 hours old ⏰\n';
+            output.textContent += 'Resource usage: High for 30 min, idle rest of day\n\n';
+            
+            await sleep(1000);
+            output.textContent += '--- STREAM PROCESSING (Continuous) ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'T=0: Purchase event arrives\n';
+            await sleep(200);
+            output.textContent += '  → Flink: Update running average\n';
+            await sleep(200);
+            output.textContent += '  → Result available: 100ms later ⚡\n\n';
+            
+            await sleep(300);
+            output.textContent += 'T=1s: Another purchase\n';
+            await sleep(200);
+            output.textContent += '  → Flink: Update average immediately\n';
+            await sleep(200);
+            output.textContent += '  → Always up-to-date! ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Results available: Real-time (100ms latency)\n';
+            output.textContent += 'Data freshness: Current! ⚡\n';
+            output.textContent += 'Resource usage: Steady, continuous\n\n';
+            
+            await sleep(500);
+            output.textContent += 'COMPARISON:\n\n';
+            
+            output.textContent += 'Batch:\n';
+            output.textContent += '  ✓ High throughput\n';
+            output.textContent += '  ✓ Simple to reason about\n';
+            output.textContent += '  ✓ Complete data for accuracy\n';
+            output.textContent += '  ✗ High latency (hours)\n\n';
+            
+            output.textContent += 'Stream:\n';
+            output.textContent += '  ✓ Low latency (milliseconds)\n';
+            output.textContent += '  ✓ Always current\n';
+            output.textContent += '  ✗ More complex (state, windowing)\n';
+            output.textContent += '  ✗ Approximate results (windows)';
+        }
+    </script>
+</body>
+</html>

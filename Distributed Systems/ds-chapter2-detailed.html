@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 2: Network Fundamentals</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .analogy {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-left: 5px solid #9c27b0;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .osi-layer {
+            background: white;
+            border: 2px solid #667eea;
+            padding: 15px;
+            margin: 5px 0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .osi-layer:hover {
+            transform: translateX(10px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .layer-number {
+            background: #667eea;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-right: 20px;
+        }
+        
+        .layer-info {
+            flex: 1;
+        }
+        
+        .layer-name {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        
+        .layer-desc {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .protocol-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .protocol-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+        
+        .protocol-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .protocol-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+            text-align: center;
+        }
+        
+        .packet-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .packet {
+            background: #667eea;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin: 10px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .arrow {
+            font-size: 2em;
+            color: #764ba2;
+            margin: 0 10px;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .latency-visual {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .latency-bar {
+            background: #e0e0e0;
+            height: 30px;
+            border-radius: 15px;
+            margin: 10px;
+            position: relative;
+            overflow: hidden;
+            min-width: 250px;
+        }
+        
+        .latency-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50 0%, #8bc34a 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+        
+        .network-node {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Chapter 2: Network Fundamentals</h1>
+        
+        <div class="definition">
+            <h3>Why Networks Matter in Distributed Systems</h3>
+            <p>In distributed systems, <strong>everything communicates over a network</strong>. Understanding networks is crucial because:</p>
+            <ul>
+                <li>Networks are <strong>unreliable</strong> - messages can be lost or delayed</li>
+                <li>Network speed determines system performance</li>
+                <li>Different protocols suit different use cases</li>
+                <li>Network failures are the #1 cause of distributed system problems</li>
+            </ul>
+        </div>
+        
+        <h2>1️⃣ Network Models (OSI & TCP/IP)</h2>
+        
+        <div class="analogy">
+            <h3>🏢 Analogy: Sending a Package</h3>
+            <p>Think of sending a physical package through postal service:</p>
+            <ul>
+                <li><strong>You write a letter</strong> (Application layer - your data)</li>
+                <li><strong>Put it in envelope with address</strong> (Transport layer - adds port info)</li>
+                <li><strong>Postal service routes it</strong> (Network layer - finds path with IP)</li>
+                <li><strong>Truck carries it</strong> (Data Link layer - local delivery)</li>
+                <li><strong>Roads/infrastructure</strong> (Physical layer - cables/wifi)</li>
+            </ul>
+            <p>Each layer has a specific job, and they work together to deliver your message!</p>
+        </div>
+        
+        <h3>📊 OSI Model (7 Layers)</h3>
+        <p>The <strong>OSI (Open Systems Interconnection) model</strong> is a conceptual framework with 7 layers:</p>
+        
+        <div class="visual-diagram">
+            <div class="osi-layer">
+                <div class="layer-number">7</div>
+                <div class="layer-info">
+                    <div class="layer-name">Application Layer</div>
+                    <div class="layer-desc">HTTP, FTP, SMTP, DNS - User-facing protocols</div>
+                </div>
+            </div>
+            
+            <div class="osi-layer">
+                <div class="layer-number">6</div>
+                <div class="layer-info">
+                    <div class="layer-name">Presentation Layer</div>
+                    <div class="layer-desc">Data encoding, encryption, compression (SSL/TLS)</div>
+                </div>
+            </div>
+            
+            <div class="osi-layer">
+                <div class="layer-number">5</div>
+                <div class="layer-info">
+                    <div class="layer-name">Session Layer</div>
+                    <div class="layer-desc">Maintains connections, session management</div>
+                </div>
+            </div>
+            
+            <div class="osi-layer">
+                <div class="layer-number">4</div>
+                <div class="layer-info">
+                    <div class="layer-name">Transport Layer</div>
+                    <div class="layer-desc">TCP, UDP - Reliable delivery, port numbers</div>
+                </div>
+            </div>
+            
+            <div class="osi-layer">
+                <div class="layer-number">3</div>
+                <div class="layer-info">
+                    <div class="layer-name">Network Layer</div>
+                    <div class="layer-desc">IP - Routing, addressing across networks</div>
+                </div>
+            </div>
+            
+            <div class="osi-layer">
+                <div class="layer-number">2</div>
+                <div class="layer-info">
+                    <div class="layer-name">Data Link Layer</div>
+                    <div class="layer-desc">Ethernet, WiFi - Local network communication</div>
+                </div>
+            </div>
+            
+            <div class="osi-layer">
+                <div class="layer-number">1</div>
+                <div class="layer-info">
+                    <div class="layer-name">Physical Layer</div>
+                    <div class="layer-desc">Cables, fiber optics, radio waves - Physical transmission</div>
+                </div>
+            </div>
+        </div>
+        
+        <h3>🔄 TCP/IP Model (4 Layers - What We Actually Use)</h3>
+        <p>The <strong>TCP/IP model</strong> is simpler and what the Internet actually uses:</p>
+        
+        <div class="visual-diagram">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start;">
+                <div>
+                    <h4 style="color: #667eea; margin-bottom: 15px;">TCP/IP Model</h4>
+                    <div class="osi-layer">
+                        <div class="layer-number">4</div>
+                        <div class="layer-info">
+                            <div class="layer-name">Application</div>
+                            <div class="layer-desc">HTTP, DNS, SSH, FTP</div>
+                        </div>
+                    </div>
+                    <div class="osi-layer">
+                        <div class="layer-number">3</div>
+                        <div class="layer-info">
+                            <div class="layer-name">Transport</div>
+                            <div class="layer-desc">TCP, UDP</div>
+                        </div>
+                    </div>
+                    <div class="osi-layer">
+                        <div class="layer-number">2</div>
+                        <div class="layer-info">
+                            <div class="layer-name">Internet</div>
+                            <div class="layer-desc">IP, ICMP</div>
+                        </div>
+                    </div>
+                    <div class="osi-layer">
+                        <div class="layer-number">1</div>
+                        <div class="layer-info">
+                            <div class="layer-name">Link</div>
+                            <div class="layer-desc">Ethernet, WiFi</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="color: #764ba2; margin-bottom: 15px;">Maps to OSI Layers</h4>
+                    <div style="padding: 15px; background: #f0f0f0; border-radius: 8px; margin-bottom: 10px;">
+                        <strong>Application</strong><br>
+                        = OSI 7, 6, 5
+                    </div>
+                    <div style="padding: 15px; background: #f0f0f0; border-radius: 8px; margin-bottom: 10px;">
+                        <strong>Transport</strong><br>
+                        = OSI 4
+                    </div>
+                    <div style="padding: 15px; background: #f0f0f0; border-radius: 8px; margin-bottom: 10px;">
+                        <strong>Internet</strong><br>
+                        = OSI 3
+                    </div>
+                    <div style="padding: 15px; background: #f0f0f0; border-radius: 8px;">
+                        <strong>Link</strong><br>
+                        = OSI 2, 1
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h3>📧 Example: Sending an Email</h3>
+            <div class="packet-flow">
+                <div class="packet">Your Email<br>(Application)</div>
+                <div class="arrow">→</div>
+                <div class="packet">Add TCP Header<br>(Transport)</div>
+                <div class="arrow">→</div>
+                <div class="packet">Add IP Address<br>(Internet)</div>
+                <div class="arrow">→</div>
+                <div class="packet">Add MAC Address<br>(Link)</div>
+                <div class="arrow">→</div>
+                <div class="packet">Physical Bits<br>(Wire/WiFi)</div>
+            </div>
+            <p><strong>Each layer adds information:</strong></p>
+            <ul>
+                <li>Application: "Send to john@example.com"</li>
+                <li>Transport: "Use port 587 (SMTP)"</li>
+                <li>Internet: "Route to IP 93.184.216.34"</li>
+                <li>Link: "Send to MAC address on local network"</li>
+            </ul>
+        </div>
+        
+        <h2>2️⃣ Communication Protocols</h2>
+        
+        <h3>🔌 TCP (Transmission Control Protocol)</h3>
+        
+        <div class="protocol-card">
+            <div class="protocol-header">
+                <div class="protocol-icon">TCP</div>
+                <div>
+                    <h4>The Reliable Protocol</h4>
+                    <p style="margin: 0; color: #666;">Guaranteed delivery, ordered, connection-based</p>
+                </div>
+            </div>
+            
+            <div class="key-point">
+                <h4>Key Characteristics:</h4>
+                <ul>
+                    <li><strong>Reliable:</strong> Guarantees delivery or tells you it failed</li>
+                    <li><strong>Ordered:</strong> Data arrives in the same order it was sent</li>
+                    <li><strong>Connection-oriented:</strong> Establishes connection before sending data</li>
+                    <li><strong>Error checking:</strong> Detects corrupted data</li>
+                    <li><strong>Flow control:</strong> Prevents overwhelming the receiver</li>
+                    <li><strong>Congestion control:</strong> Adapts to network conditions</li>
+                </ul>
+            </div>
+            
+            <h4>How TCP Works: The Three-Way Handshake</h4>
+            <div class="visual-diagram">
+                <div class="packet-flow">
+                    <div class="network-node">Client</div>
+                    <div style="text-align: center; margin: 0 20px;">
+                        <div>1. SYN →</div>
+                        <div>← 2. SYN-ACK</div>
+                        <div>3. ACK →</div>
+                        <div style="margin-top: 10px; color: #4caf50; font-weight: bold;">Connected! ✓</div>
+                    </div>
+                    <div class="network-node">Server</div>
+                </div>
+            </div>
+            
+            <h4>Use Cases:</h4>
+            <ul>
+                <li>Web browsing (HTTP/HTTPS)</li>
+                <li>Email (SMTP, IMAP)</li>
+                <li>File transfer (FTP, SFTP)</li>
+                <li>Database connections</li>
+                <li>Any situation where data must arrive correctly</li>
+            </ul>
+        </div>
+        
+        <h3>⚡ UDP (User Datagram Protocol)</h3>
+        
+        <div class="protocol-card">
+            <div class="protocol-header">
+                <div class="protocol-icon" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);">UDP</div>
+                <div>
+                    <h4>The Fast Protocol</h4>
+                    <p style="margin: 0; color: #666;">Fire and forget, connectionless, low latency</p>
+                </div>
+            </div>
+            
+            <div class="key-point">
+                <h4>Key Characteristics:</h4>
+                <ul>
+                    <li><strong>Unreliable:</strong> No guarantee of delivery</li>
+                    <li><strong>No ordering:</strong> Packets can arrive in any order</li>
+                    <li><strong>Connectionless:</strong> No handshake, just send</li>
+                    <li><strong>Lightweight:</strong> Minimal overhead</li>
+                    <li><strong>Fast:</strong> Lower latency than TCP</li>
+                    <li><strong>No congestion control:</strong> Sends as fast as possible</li>
+                </ul>
+            </div>
+            
+            <h4>Use Cases:</h4>
+            <ul>
+                <li>Video streaming (YouTube, Netflix)</li>
+                <li>Online gaming (real-time multiplayer)</li>
+                <li>Voice/Video calls (Zoom, Skype)</li>
+                <li>DNS queries</li>
+                <li>IoT sensors sending periodic data</li>
+                <li>Live broadcasts where slight data loss is acceptable</li>
+            </ul>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Feature</th>
+                <th>TCP</th>
+                <th>UDP</th>
+            </tr>
+            <tr>
+                <td><strong>Reliability</strong></td>
+                <td>✅ Guaranteed delivery</td>
+                <td>❌ Best effort, may lose packets</td>
+            </tr>
+            <tr>
+                <td><strong>Speed</strong></td>
+                <td>⚠️ Slower (overhead)</td>
+                <td>✅ Faster (minimal overhead)</td>
+            </tr>
+            <tr>
+                <td><strong>Order</strong></td>
+                <td>✅ Maintains order</td>
+                <td>❌ No order guarantee</td>
+            </tr>
+            <tr>
+                <td><strong>Connection</strong></td>
+                <td>Connection-oriented (handshake)</td>
+                <td>Connectionless</td>
+            </tr>
+            <tr>
+                <td><strong>Use When</strong></td>
+                <td>Data accuracy is critical</td>
+                <td>Speed matters more than accuracy</td>
+            </tr>
+            <tr>
+                <td><strong>Header Size</strong></td>
+                <td>20-60 bytes</td>
+                <td>8 bytes</td>
+            </tr>
+            <tr>
+                <td><strong>Examples</strong></td>
+                <td>Web, Email, File Transfer</td>
+                <td>Streaming, Gaming, DNS</td>
+            </tr>
+        </table>
+        
+        <div class="example">
+            <h3>🎮 Real Example: Online Gaming</h3>
+            <p><strong>Why games use UDP:</strong></p>
+            <ul>
+                <li>Player position updates happen 60 times per second</li>
+                <li>If one update is lost, the next one arrives in 16ms anyway</li>
+                <li>TCP would wait to retransmit lost packets, causing lag</li>
+                <li>In gaming, old data is worthless - better to get fresh data fast</li>
+            </ul>
+            <p><strong>Why some game data uses TCP:</strong></p>
+            <ul>
+                <li>Chat messages must arrive perfectly</li>
+                <li>Inventory/purchase transactions need reliability</li>
+                <li>Game state synchronization at start of match</li>
+            </ul>
+            <p><strong>Result:</strong> Most games use BOTH - UDP for real-time gameplay, TCP for critical data</p>
+        </div>
+        
+        <h3>🌐 HTTP (HyperText Transfer Protocol)</h3>
+        
+        <div class="protocol-card">
+            <div class="protocol-header">
+                <div class="protocol-icon" style="background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);">HTTP</div>
+                <div>
+                    <h4>The Web Protocol</h4>
+                    <p style="margin: 0; color: #666;">Request-response, stateless, runs on top of TCP</p>
+                </div>
+            </div>
+            
+            <div class="key-point">
+                <h4>HTTP Basics:</h4>
+                <ul>
+                    <li><strong>Client-Server:</strong> Client requests, server responds</li>
+                    <li><strong>Stateless:</strong> Each request is independent</li>
+                    <li><strong>Text-based:</strong> Human-readable format</li>
+                    <li><strong>Methods:</strong> GET, POST, PUT, DELETE, PATCH</li>
+                    <li><strong>Status Codes:</strong> 200 OK, 404 Not Found, 500 Server Error</li>
+                </ul>
+            </div>
+        </div>
+        
+        <pre><code>// HTTP Request Example
+GET /api/users/123 HTTP/1.1
+Host: api.example.com
+User-Agent: Mozilla/5.0
+Accept: application/json
+Authorization: Bearer token123
+
+// HTTP Response Example
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 85
+
+{
+  "id": 123,
+  "name": "John Doe",
+  "email": "john@example.com"
+}</code></pre>
+        
+        <h4>HTTP Evolution:</h4>
+        <ul>
+            <li><strong>HTTP/1.1:</strong> One request at a time per connection (slow!)</li>
+            <li><strong>HTTP/2:</strong> Multiplexing (multiple requests on one connection), binary protocol, header compression</li>
+            <li><strong>HTTP/3:</strong> Uses QUIC over UDP instead of TCP for better performance</li>
+        </ul>
+        
+        <h3>⚙️ gRPC (Google Remote Procedure Call)</h3>
+        
+        <div class="protocol-card">
+            <div class="protocol-header">
+                <div class="protocol-icon" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">gRPC</div>
+                <div>
+                    <h4>Modern RPC Framework</h4>
+                    <p style="margin: 0; color: #666;">Binary, fast, supports streaming, microservices-friendly</p>
+                </div>
+            </div>
+            
+            <div class="key-point">
+                <h4>gRPC Advantages:</h4>
+                <ul>
+                    <li><strong>Protocol Buffers:</strong> Binary format (smaller & faster than JSON)</li>
+                    <li><strong>HTTP/2 based:</strong> Multiplexing, bidirectional streaming</li>
+                    <li><strong>Strongly typed:</strong> Define API contracts with .proto files</li>
+                    <li><strong>Code generation:</strong> Auto-generate client & server code</li>
+                    <li><strong>4 types of calls:</strong> Unary, Server streaming, Client streaming, Bidirectional streaming</li>
+                </ul>
+            </div>
+        </div>
+        
+        <pre><code>// gRPC Service Definition (.proto file)
+service UserService {
+  rpc GetUser (UserRequest) returns (UserResponse);
+  rpc ListUsers (Empty) returns (stream UserResponse);
+}
+
+message UserRequest {
+  int32 id = 1;
+}
+
+message UserResponse {
+  int32 id = 1;
+  string name = 2;
+  string email = 3;
+}</code></pre>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Feature</th>
+                <th>HTTP/REST</th>
+                <th>gRPC</th>
+            </tr>
+            <tr>
+                <td><strong>Format</strong></td>
+                <td>JSON (text)</td>
+                <td>Protocol Buffers (binary)</td>
+            </tr>
+            <tr>
+                <td><strong>Speed</strong></td>
+                <td>Slower (text parsing)</td>
+                <td>Faster (binary, smaller)</td>
+            </tr>
+            <tr>
+                <td><strong>Browser Support</strong></td>
+                <td>✅ Native</td>
+                <td>⚠️ Needs proxy</td>
+            </tr>
+            <tr>
+                <td><strong>Streaming</strong></td>
+                <td>Limited (chunked transfer)</td>
+                <td>✅ Full bidirectional</td>
+            </tr>
+            <tr>
+                <td><strong>Use Case</strong></td>
+                <td>Public APIs, web apps</td>
+                <td>Microservices, internal APIs</td>
+            </tr>
+        </table>
+        
+        <h2>3️⃣ Network Latency and Bandwidth</h2>
+        
+        <div class="definition">
+            <h3>Understanding Performance Metrics</h3>
+            <p><strong>Latency:</strong> Time for data to travel from source to destination (measured in milliseconds)</p>
+            <p><strong>Bandwidth:</strong> Amount of data that can be transmitted per unit time (measured in Mbps/Gbps)</p>
+        </div>
+        
+        <div class="analogy">
+            <h3>🚗 Analogy: Highway Traffic</h3>
+            <ul>
+                <li><strong>Latency = Distance to destination</strong>
+                    <ul>
+                        <li>No matter how fast you drive, LA to NY takes time</li>
+                        <li>Speed of light limit (~300,000 km/s)</li>
+                        <li>Can't reduce latency below physical limits</li>
+                    </ul>
+                </li>
+                <li><strong>Bandwidth = Number of lanes</strong>
+                    <ul>
+                        <li>More lanes = more cars can travel simultaneously</li>
+                        <li>Doesn't make individual cars faster</li>
+                        <li>Can increase bandwidth by adding capacity</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        
+        <h3>⏱️ Typical Latencies</h3>
+        <div class="visual-diagram">
+            <div style="text-align: left; max-width: 800px; margin: 0 auto;">
+                <div style="margin: 15px 0;">
+                    <strong>L1 Cache:</strong> 0.5 ns
+                    <div class="latency-bar">
+                        <div class="latency-fill" style="width: 1%;">0.5 ns</div>
+                    </div>
+                </div>
+                <div style="margin: 15px 0;">
+                    <strong>L2 Cache:</strong> 7 ns
+                    <div class="latency-bar">
+                        <div class="latency-fill" style="width: 3%;">7 ns</div>
+                    </div>
+                </div>
+                <div style="margin: 15px 0;">
+                    <strong>RAM:</strong> 100 ns
+                    <div class="latency-bar">
+                        <div class="latency-fill" style="width: 10%;">100 ns</div>
+                    </div>
+                </div>
+                <div style="margin: 15px 0;">
+                    <strong>SSD:</strong> 150 μs = 150,000 ns
+                    <div class="latency-bar">
+                        <div class="latency-fill" style="width: 30%;">150 μs</div>
+                    </div>
+                </div>
+                <div style="margin: 15px 0;">
+                    <strong>Same datacenter network:</strong> 0.5 ms = 500,000 ns
+                    <div class="latency-bar">
+                        <div class="latency-fill" style="width: 50%;">0.5 ms</div>
+                    </div>
+                </div>
+                <div style="margin: 15px 0;">
+                    <strong>Cross-country (US):</strong> 60 ms
+                    <div class="latency-bar">
+                        <div class="latency-fill" style="width: 75%;">60 ms</div>
+                    </div>
+                </div>
+                <div style="margin: 15px 0;">
+                    <strong>Intercontinental:</strong> 150 ms
+                    <div class="latency-bar">
+                        <div class="latency-fill" style="width: 100%; background: linear-gradient(90deg, #f44336 0%, #e91e63 100%);">150 ms</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h3>💡 Key Insights:</h3>
+            <ul>
+                <li><strong>Network is SLOW:</strong> Network call to same datacenter = reading from disk 3 times!</li>
+                <li><strong>Cannot eliminate latency:</strong> Physics limitation (speed of light)</li>
+                <li><strong>Can reduce round trips:</strong> Batch requests, use caching, CDNs</li>
+                <li><strong>Latency compounds:</strong> Multiple network calls add up quickly</li>
+            </ul>
+        </div>
+        
+        <div class="example">
+            <h3>📊 Example: Why Amazon Uses CDN</h3>
+            <p><strong>Scenario:</strong> User in Tokyo accessing website hosted in Virginia, USA</p>
+            <ul>
+                <li><strong>Without CDN:</strong> 150ms latency per request</li>
+                <li>Page needs 50 resources (images, CSS, JS)</li>
+                <li>Total: 50 × 150ms = 7.5 seconds (SLOW!)</li>
+            </ul>
+            <ul>
+                <li><strong>With CDN:</strong> Resources cached in Tokyo</li>
+                <li>Latency reduced to 10ms</li>
+                <li>Total: 50 × 10ms = 0.5 seconds (FAST!)</li>
+            </ul>
+            <p><strong>Result:</strong> 15x faster by reducing latency!</p>
+        </div>
+        
+        <h3>📶 Bandwidth vs Latency</h3>
+        <table class="comparison-table">
+            <tr>
+                <th>Scenario</th>
+                <th>Bottleneck</th>
+                <th>Solution</th>
+            </tr>
+            <tr>
+                <td>Sending 1 byte</td>
+                <td>Latency</td>
+                <td>Move closer, can't do much else</td>
+            </tr>
+            <tr>
+                <td>Sending 1 GB</td>
+                <td>Bandwidth</td>
+                <td>Upgrade connection, use compression</td>
+            </tr>
+            <tr>
+                <td>Database query</td>
+                <td>Latency</td>
+                <td>Reduce round trips, connection pooling</td>
+            </tr>
+            <tr>
+                <td>Video streaming</td>
+                <td>Bandwidth</td>
+                <td>Adaptive bitrate, compression</td>
+            </tr>
+            <tr>
+                <td>Real-time gaming</td>
+                <td>Latency</td>
+                <td>Regional servers, prediction algorithms</td>
+            </tr>
+        </table>
+        
+        <h2>4️⃣ Remote Procedure Calls (RPC)</h2>
+        
+        <div class="definition">
+            <h3>What is RPC?</h3>
+            <p><strong>Remote Procedure Call (RPC)</strong> lets you call a function on a remote computer as if it were local.</p>
+            <p>Goal: Make distributed computing look like local computing!</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>RPC Flow</h4>
+            <div class="packet-flow">
+                <div class="packet">Client calls<br>function(x)</div>
+                <div class="arrow">→</div>
+                <div class="packet">Stub marshals<br>parameters</div>
+                <div class="arrow">→</div>
+                <div class="packet">Network<br>transmission</div>
+                <div class="arrow">→</div>
+                <div class="packet">Server<br>unmarshals</div>
+                <div class="arrow">→</div>
+                <div class="packet">Execute<br>function</div>
+                <div class="arrow">→</div>
+                <div class="packet">Return result</div>
+            </div>
+        </div>
+        
+        <pre><code>// Without RPC - manual network code
+const socket = new Socket();
+socket.connect('server.com', 8080);
+socket.write(JSON.stringify({method: 'getUser', id: 123}));
+const response = socket.read();
+const user = JSON.parse(response);
+
+// With RPC - looks like local call!
+const user = await client.getUser(123);
+// All the network complexity is hidden!</code></pre>
+        
+        <h3>How RPC Works:</h3>
+        <ol>
+            <li><strong>Client Stub:</strong> Takes function call, serializes parameters</li>
+            <li><strong>Marshal:</strong> Convert data to format suitable for transmission</li>
+            <li><strong>Network Layer:</strong> Send request over network</li>
+            <li><strong>Server Stub:</strong> Receive request, deserialize parameters</li>
+            <li><strong>Unmarshal:</strong> Convert back to native data types</li>
+            <li><strong>Execute:</strong> Call actual function on server</li>
+            <li><strong>Return:</strong> Send result back (reverse process)</li>
+        </ol>
+        
+        <div class="example">
+            <h3>🔧 RPC Example: gRPC in Action</h3>
+            <pre><code>// Server side (Python)
+class UserService(user_pb2_grpc.UserServiceServicer):
+    def GetUser(self, request, context):
+        user = database.get_user(request.id)
+        return user_pb2.UserResponse(
+            id=user.id,
+            name=user.name,
+            email=user.email
+        )
+
+// Client side (JavaScript)
+const client = new UserServiceClient('localhost:50051');
+const response = await client.getUser({id: 123});
+console.log(response.name); // "John Doe"</code></pre>
+            <p><strong>Benefits:</strong> Client doesn't know server is in different language or location!</p>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ RPC Challenges</h3>
+            <ul>
+                <li><strong>Not truly local:</strong> Network can fail, introduce latency</li>
+                <li><strong>Partial failure:</strong> What if request sent but response lost?</li>
+                <li><strong>Idempotency:</strong> Safe to retry? (Payment processing: NO!)</li>
+                <li><strong>Semantics:</strong> Call-by-value vs call-by-reference differences</li>
+                <li><strong>Performance:</strong> Much slower than local calls</li>
+            </ul>
+        </div>
+        
+        <h2>5️⃣ Message Passing vs Shared Memory</h2>
+        
+        <div class="definition">
+            <h3>Two Ways Processes Communicate</h3>
+            <p><strong>Shared Memory:</strong> Processes access common memory space</p>
+            <p><strong>Message Passing:</strong> Processes send messages to each other</p>
+        </div>
+        
+        <div class="grid-2">
+            <div class="protocol-card">
+                <h3>💾 Shared Memory</h3>
+                <div class="visual-diagram">
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <div class="network-node" style="background: #4caf50;">P1</div>
+                        <div style="margin: 0 20px;">
+                            <div style="font-size: 2em;">⇅</div>
+                        </div>
+                        <div class="network-node" style="background: #ff9800; width: 100px; height: 100px; line-height: 100px;">Shared<br>Memory</div>
+                        <div style="margin: 0 20px;">
+                            <div style="font-size: 2em;">⇅</div>
+                        </div>
+                        <div class="network-node" style="background: #4caf50;">P2</div>
+                    </div>
+                </div>
+                <h4>Characteristics:</h4>
+                <ul>
+                    <li>✅ Very fast (memory access)</li>
+                    <li>✅ Low overhead</li>
+                    <li>❌ Complex synchronization (locks, semaphores)</li>
+                    <li>❌ Only works on same machine</li>
+                    <li>❌ Race conditions possible</li>
+                </ul>
+                <h4>Use Case:</h4>
+                <p>Threads in same process, multi-core programming</p>
+            </div>
+            
+            <div class="protocol-card">
+                <h3>📨 Message Passing</h3>
+                <div class="visual-diagram">
+                    <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap;">
+                        <div class="network-node" style="background: #2196f3;">P1</div>
+                        <div style="margin: 0 20px;">
+                            <div>send(msg) →</div>
+                            <div>← receive(msg)</div>
+                        </div>
+                        <div class="network-node" style="background: #2196f3;">P2</div>
+                    </div>
+                </div>
+                <h4>Characteristics:</h4>
+                <ul>
+                    <li>✅ Works across network</li>
+                    <li>✅ Explicit communication</li>
+                    <li>✅ Easier to reason about</li>
+                    <li>❌ Slower (network overhead)</li>
+                    <li>❌ More complex error handling</li>
+                </ul>
+                <h4>Use Case:</h4>
+                <p>Distributed systems, microservices, actors</p>
+            </div>
+        </div>
+        
+        <pre><code>// Shared Memory Example (threads in same process)
+let counter = 0; // Shared variable
+
+function thread1() {
+    for(let i = 0; i < 1000; i++) {
+        counter++; // Both threads access same memory
+    }
+}
+
+function thread2() {
+    for(let i = 0; i < 1000; i++) {
+        counter++; // PROBLEM: Race condition!
+    }
+}
+
+// Message Passing Example (distributed)
+// Process 1
+const message = {type: 'INCREMENT', value: 5};
+await channel.send('process2', message);
+
+// Process 2
+channel.on('message', (msg) => {
+    if(msg.type === 'INCREMENT') {
+        counter += msg.value; // Safe: only one process modifies
+    }
+});</code></pre>
+        
+        <div class="key-point">
+            <h3>🎯 When to Use Each?</h3>
+            <ul>
+                <li><strong>Use Shared Memory:</strong> Single machine, threads, need max performance, can handle synchronization complexity</li>
+                <li><strong>Use Message Passing:</strong> Distributed system, across network, want safety and clarity, can tolerate overhead</li>
+            </ul>
+            <p><strong>In Distributed Systems:</strong> We're forced to use message passing because processes are on different machines!</p>
+        </div>
+        
+        <h2>6️⃣ Synchronous vs Asynchronous Communication</h2>
+        
+        <div class="definition">
+            <h3>Communication Patterns</h3>
+            <p><strong>Synchronous:</strong> Caller waits for response before continuing</p>
+            <p><strong>Asynchronous:</strong> Caller continues immediately, gets response later</p>
+        </div>
+        
+        <div class="analogy">
+            <h3>☎️ Analogy: Phone vs Email</h3>
+            <ul>
+                <li><strong>Synchronous = Phone Call</strong>
+                    <ul>
+                        <li>You call someone, wait for them to answer</li>
+                        <li>Both parties engaged in real-time conversation</li>
+                        <li>You can't do other things while waiting</li>
+                        <li>Immediate response</li>
+                    </ul>
+                </li>
+                <li><strong>Asynchronous = Email</strong>
+                    <ul>
+                        <li>You send email, continue with other work</li>
+                        <li>Recipient reads and replies when convenient</li>
+                        <li>You can do other things while waiting</li>
+                        <li>Delayed response</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        
+        <h3>🔄 Synchronous Communication</h3>
+        <div class="visual-diagram">
+            <h4>Blocking Call Pattern</h4>
+            <div style="text-align: left; max-width: 600px; margin: 20px auto;">
+                <div style="background: #2196f3; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                    1. Client: Call function() →
+                </div>
+                <div style="background: #9e9e9e; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                    2. Client: ⏳ WAITING... (blocked)
+                </div>
+                <div style="background: #ff9800; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                    3. Server: Processing...
+                </div>
+                <div style="background: #9e9e9e; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                    4. Client: ⏳ Still waiting...
+                </div>
+                <div style="background: #4caf50; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                    5. Server: ← Returns result
+                </div>
+                <div style="background: #2196f3; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                    6. Client: Continue execution
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Synchronous Example
+console.log('Before call');
+const result = getUser(123); // BLOCKS here until response
+console.log('After call:', result);
+
+// Output:
+// Before call
+// ... (waits) ...
+// After call: {id: 123, name: "John"}</code></pre>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li>Simple to understand and code</li>
+                <li>Easy to debug (linear flow)</li>
+                <li>Natural error handling</li>
+            </ul>
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li>Inefficient (wasted CPU time waiting)</li>
+                <li>Poor scalability (threads blocked)</li>
+                <li>One slow service slows everything</li>
+            </ul>
+        </div>
+        
+        <h3>⚡ Asynchronous Communication</h3>
+        <div class="visual-diagram">
+            <h4>Non-Blocking Call Pattern</h4>
+            <div style="text-align: left; max-width: 600px; margin: 20px auto;">
+                <div style="background: #2196f3; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                    1. Client: Call function() →
+                </div>
+                <div style="background: #4caf50; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                    2. Client: Continue working... ✅
+                </div>
+                <div style="background: #ff9800; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                    3. Server: Processing...
+                </div>
+                <div style="background: #4caf50; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                    4. Client: Still doing other things ✅
+                </div>
+                <div style="background: #9c27b0; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                    5. Server: ← Callback with result
+                </div>
+                <div style="background: #2196f3; color: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                    6. Client: Process result
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Asynchronous Example (Callbacks)
+console.log('Before call');
+getUser(123, (result) => {
+    console.log('Got result:', result);
+});
+console.log('After call'); // Executes immediately!
+
+// Output:
+// Before call
+// After call  ← executes immediately!
+// ... (later) ...
+// Got result: {id: 123, name: "John"}
+
+// Modern Async/Await
+console.log('Before call');
+getUserAsync(123).then(result => {
+    console.log('Got result:', result);
+});
+console.log('After call');
+
+// Or with async/await
+async function main() {
+    console.log('Before call');
+    const result = await getUserAsync(123);
+    console.log('Got result:', result);
+}
+</code></pre>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li>Better resource utilization</li>
+                <li>Higher throughput</li>
+                <li>Can handle multiple operations concurrently</li>
+                <li>Resilient to slow operations</li>
+            </ul>
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li>More complex to code</li>
+                <li>Harder to debug</li>
+                <li>Callback hell / complex control flow</li>
+                <li>Error handling more difficult</li>
+            </ul>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Aspect</th>
+                <th>Synchronous</th>
+                <th>Asynchronous</th>
+            </tr>
+            <tr>
+                <td><strong>Execution</strong></td>
+                <td>Blocks until complete</td>
+                <td>Returns immediately</td>
+            </tr>
+            <tr>
+                <td><strong>Complexity</strong></td>
+                <td>Simple, linear code</td>
+                <td>Complex, callback/promise based</td>
+            </tr>
+            <tr>
+                <td><strong>Performance</strong></td>
+                <td>Poor (threads wait)</td>
+                <td>Excellent (threads free)</td>
+            </tr>
+            <tr>
+                <td><strong>Use Case</strong></td>
+                <td>Simple apps, quick operations</td>
+                <td>High-performance systems, I/O heavy</td>
+            </tr>
+            <tr>
+                <td><strong>Examples</strong></td>
+                <td>Traditional RPC, REST APIs</td>
+                <td>Message queues, Event-driven, Node.js</td>
+            </tr>
+        </table>
+        
+        <div class="example">
+            <h3>🏪 Real Example: E-commerce Checkout</h3>
+            
+            <h4>Synchronous Approach:</h4>
+            <pre><code>function checkout(order) {
+    const inventory = checkInventory(order);     // Wait 500ms
+    const payment = processPayment(order);       // Wait 2000ms
+    const shipping = scheduleShipping(order);    // Wait 800ms
+    const email = sendConfirmation(order);       // Wait 300ms
+    return {inventory, payment, shipping, email};
+}
+// Total time: 500 + 2000 + 800 + 300 = 3600ms</code></pre>
+            
+            <h4>Asynchronous Approach:</h4>
+            <pre><code>async function checkout(order) {
+    // Start all operations simultaneously!
+    const [inventory, payment, shipping, email] = await Promise.all([
+        checkInventory(order),     // 500ms
+        processPayment(order),     // 2000ms
+        scheduleShipping(order),   // 800ms
+        sendConfirmation(order)    // 300ms
+    ]);
+    return {inventory, payment, shipping, email};
+}
+// Total time: max(500, 2000, 800, 300) = 2000ms
+// 1.8x faster!</code></pre>
+        </div>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive Demo: Sync vs Async</h3>
+            <p>Click the buttons to see the difference:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="runSyncDemo()">Run Synchronous</button>
+                <button class="demo-button" onclick="runAsyncDemo()">Run Asynchronous</button>
+            </div>
+            <div id="demoOutput" class="demo-output">Click a button to see the demo...</div>
+        </div>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 2</h3>
+            <ul style="line-height: 2;">
+                <li><strong>Network Models:</strong> OSI (7 layers) is conceptual, TCP/IP (4 layers) is what we use</li>
+                <li><strong>TCP vs UDP:</strong> TCP = reliable but slow, UDP = fast but unreliable</li>
+                <li><strong>Latency is unavoidable:</strong> Physics limits (speed of light), design around it</li>
+                <li><strong>RPC hides complexity:</strong> Makes remote calls look local, but they're not!</li>
+                <li><strong>Message Passing:</strong> Required for distributed systems, safer than shared memory</li>
+                <li><strong>Async is faster:</strong> Don't wait for responses, do other work instead</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>When would you choose UDP over TCP? Give 3 real examples.</li>
+                <li>Why can't we eliminate network latency?</li>
+                <li>What happens if an RPC call fails halfway through?</li>
+                <li>Compare sync vs async: which is better for a web server handling 10,000 requests?</li>
+                <li>How does HTTP/2 improve on HTTP/1.1?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function runSyncDemo() {
+            const output = document.getElementById('demoOutput');
+            output.textContent = 'Starting synchronous operations...\n';
+            
+            const start = Date.now();
+            
+            output.textContent += 'Task 1: Fetching user... ';
+            await sleep(1000);
+            output.textContent += '✓ (1000ms)\n';
+            
+            output.textContent += 'Task 2: Fetching orders... ';
+            await sleep(1500);
+            output.textContent += '✓ (1500ms)\n';
+            
+            output.textContent += 'Task 3: Processing payment... ';
+            await sleep(800);
+            output.textContent += '✓ (800ms)\n';
+            
+            const elapsed = Date.now() - start;
+            output.textContent += `\nTotal time: ${elapsed}ms (sequential execution)`;
+        }
+        
+        async function runAsyncDemo() {
+            const output = document.getElementById('demoOutput');
+            output.textContent = 'Starting asynchronous operations...\n';
+            output.textContent += 'Task 1: Fetching user... (started)\n';
+            output.textContent += 'Task 2: Fetching orders... (started)\n';
+            output.textContent += 'Task 3: Processing payment... (started)\n';
+            output.textContent += 'All tasks running in parallel!\n\n';
+            
+            const start = Date.now();
+            
+            await Promise.all([
+                sleep(1000).then(() => output.textContent += 'Task 1: Complete ✓\n'),
+                sleep(1500).then(() => output.textContent += 'Task 2: Complete ✓\n'),
+                sleep(800).then(() => output.textContent += 'Task 3: Complete ✓\n')
+            ]);
+            
+            const elapsed = Date.now() - start;
+            output.textContent += `\nTotal time: ${elapsed}ms (parallel execution - much faster!)`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Functions - Chapter 3</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            margin: 25px 0 15px 0;
+            font-size: 1.5em;
+        }
+        
+        .section h4 {
+            color: #666;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+        
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow-x: auto;
+            position: relative;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+        
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .number { color: #d19a66; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+        
+        .visual-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f1f3f5;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .note strong {
+            color: #856404;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .warning strong {
+            color: #721c24;
+        }
+        
+        .tip {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .tip strong {
+            color: #0c5460;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .success strong {
+            color: #155724;
+        }
+        
+        .interactive-demo {
+            background: white;
+            border: 2px solid #764ba2;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .interactive-demo button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        
+        .interactive-demo button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .interactive-demo input {
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            margin: 5px;
+        }
+        
+        .output {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+        
+        .memory-diagram {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .memory-slot {
+            flex: 1;
+            min-width: 150px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .memory-slot .label {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .memory-slot .value {
+            background: #f1f3f5;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        
+        .scope-diagram {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .scope-level {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .scope-level h4 {
+            color: #1976d2;
+            margin: 0 0 10px 0;
+        }
+        
+        .nested-scope {
+            background: #fff3cd;
+            border: 2px dashed #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 20px;
+        }
+        
+        .syntax-pattern {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+        }
+        
+        .flow-box {
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 200px;
+        }
+        
+        .flow-call {
+            background: #d4edda;
+            border: 2px solid #28a745;
+        }
+        
+        .flow-execute {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+        }
+        
+        .flow-return {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+        }
+        
+        .arrow-down {
+            font-size: 24px;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ Chapter 3: Functions</h1>
+            <p>Master the Building Blocks of JavaScript</p>
+        </header>
+        
+        <div class="content">
+            <!-- Section 1: What are Functions -->
+            <div class="section" id="intro">
+                <h2>🎯 1. Understanding Functions</h2>
+                
+                <p><strong>Functions</strong> are reusable blocks of code that perform specific tasks. They are the fundamental building blocks of JavaScript programs.</p>
+                
+                <h3>Why Functions?</h3>
+                <ul>
+                    <li><strong>Reusability:</strong> Write once, use multiple times</li>
+                    <li><strong>Organization:</strong> Break complex problems into smaller pieces</li>
+                    <li><strong>Abstraction:</strong> Hide implementation details</li>
+                    <li><strong>Maintainability:</strong> Easier to debug and update</li>
+                    <li><strong>Modularity:</strong> Create independent, interchangeable modules</li>
+                </ul>
+                
+                <div class="visual-box">
+                    <h4>Function Anatomy</h4>
+                    <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">functionName</span>(parameter1, parameter2) {
+    <span class="comment">// Function body - code to execute</span>
+    <span class="keyword">return</span> result;  <span class="comment">// Optional return value</span>
+}
+
+<span class="comment">// Function call/invocation</span>
+<span class="keyword">let</span> output = <span class="function">functionName</span>(argument1, argument2);</code>
+                    </div>
+                    
+                    <p><strong>Components:</strong></p>
+                    <ul>
+                        <li><strong>function keyword:</strong> Declares a function</li>
+                        <li><strong>Function name:</strong> Identifier to call the function</li>
+                        <li><strong>Parameters:</strong> Variables listed in function definition</li>
+                        <li><strong>Arguments:</strong> Actual values passed when calling</li>
+                        <li><strong>Function body:</strong> Code inside curly braces</li>
+                        <li><strong>Return statement:</strong> Sends value back to caller</li>
+                    </ul>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 Key Concept:</strong> Functions are <strong>first-class citizens</strong> in JavaScript - they can be assigned to variables, passed as arguments, and returned from other functions.
+                </div>
+            </div>
+
+            <!-- Section 2: Function Declarations vs Expressions -->
+            <div class="section" id="declarations-expressions">
+                <h2>📝 2. Function Declarations vs Expressions</h2>
+                
+                <h3>2.1 Function Declaration</h3>
+                <p>Traditional way to define a function with the <code>function</code> keyword.</p>
+                
+                <div class="code-block">
+<code><span class="comment">// Function Declaration</span>
+<span class="keyword">function</span> <span class="function">greet</span>(name) {
+    <span class="keyword">return</span> <span class="string">`Hello, ${name}!`</span>;
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">greet</span>(<span class="string">"Alice"</span>));  <span class="comment">// "Hello, Alice!"</span>
+
+<span class="comment">// Can be called before declaration (hoisting)</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">sayHi</span>());  <span class="comment">// Works! "Hi!"</span>
+
+<span class="keyword">function</span> <span class="function">sayHi</span>() {
+    <span class="keyword">return</span> <span class="string">"Hi!"</span>;
+}</code>
+                </div>
+                
+                <h3>2.2 Function Expression</h3>
+                <p>Function stored in a variable. Can be anonymous or named.</p>
+                
+                <div class="code-block">
+<code><span class="comment">// Anonymous Function Expression</span>
+<span class="keyword">const</span> greet = <span class="keyword">function</span>(name) {
+    <span class="keyword">return</span> <span class="string">`Hello, ${name}!`</span>;
+};
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">greet</span>(<span class="string">"Bob"</span>));  <span class="comment">// "Hello, Bob!"</span>
+
+<span class="comment">// Named Function Expression (useful for recursion and debugging)</span>
+<span class="keyword">const</span> factorial = <span class="keyword">function</span> <span class="function">fact</span>(n) {
+    <span class="keyword">if</span> (n <= <span class="number">1</span>) <span class="keyword">return</span> <span class="number">1</span>;
+    <span class="keyword">return</span> n * <span class="function">fact</span>(n - <span class="number">1</span>);  <span class="comment">// Can use 'fact' internally</span>
+};
+
+<span class="comment">// Cannot be called before declaration</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">sayBye</span>());  <span class="comment">// ❌ Error: Cannot access before initialization</span>
+
+<span class="keyword">const</span> sayBye = <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="string">"Bye!"</span>;
+};</code>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Function Declaration</th>
+                            <th>Function Expression</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Syntax</strong></td>
+                            <td><code>function name() {}</code></td>
+                            <td><code>const name = function() {}</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hoisting</strong></td>
+                            <td>✅ Fully hoisted (can call before declaration)</td>
+                            <td>❌ Not hoisted (ReferenceError if called early)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Name Required</strong></td>
+                            <td>✅ Yes</td>
+                            <td>❌ No (can be anonymous)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Case</strong></td>
+                            <td>Global/module-level functions</td>
+                            <td>Callbacks, conditional definitions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best Practice</strong></td>
+                            <td>Traditional approach</td>
+                            <td>Modern approach with const</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="warning">
+                    <strong>⚠️ Hoisting Gotcha:</strong> Function declarations are fully hoisted (both name and body), but function expressions only hoist the variable name, not the function body!
+                </div>
+                
+                <div class="code-block">
+<code><span class="comment">// What actually happens with hoisting:</span>
+
+<span class="comment">// Function Declaration</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">add</span>(<span class="number">2</span>, <span class="number">3</span>));  <span class="comment">// ✅ Works: 5</span>
+
+<span class="keyword">function</span> <span class="function">add</span>(a, b) {
+    <span class="keyword">return</span> a + b;
+}
+
+<span class="comment">// Function Expression</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">multiply</span>(<span class="number">2</span>, <span class="number">3</span>));  <span class="comment">// ❌ Error!</span>
+
+<span class="keyword">const</span> multiply = <span class="keyword">function</span>(a, b) {
+    <span class="keyword">return</span> a * b;
+};</code>
+                </div>
+                
+                <div class="note">
+                    <strong>💡 Modern Best Practice:</strong> Use function expressions with <code>const</code> to avoid hoisting issues and make code more predictable.
+                </div>
+            </div>
+
+            <!-- Section 3: Arrow Functions -->
+            <div class="section" id="arrow-functions">
+                <h2>🏹 3. Arrow Functions (ES6)</h2>
+                
+                <p>Arrow functions provide a shorter syntax and have important differences in behavior, especially with <code>this</code> binding.</p>
+                
+                <h3>3.1 Basic Syntax</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Traditional function</span>
+<span class="keyword">const</span> add = <span class="keyword">function</span>(a, b) {
+    <span class="keyword">return</span> a + b;
+};
+
+<span class="comment">// Arrow function - full syntax</span>
+<span class="keyword">const</span> add = (a, b) => {
+    <span class="keyword">return</span> a + b;
+};
+
+<span class="comment">// Arrow function - implicit return (one expression)</span>
+<span class="keyword">const</span> add = (a, b) => a + b;
+
+<span class="comment">// Single parameter - parentheses optional</span>
+<span class="keyword">const</span> square = x => x * x;
+
+<span class="comment">// No parameters - parentheses required</span>
+<span class="keyword">const</span> greet = () => <span class="string">"Hello!"</span>;
+
+<span class="comment">// Returning objects - wrap in parentheses</span>
+<span class="keyword">const</span> makePerson = (name, age) => ({ name: name, age: age });
+<span class="comment">// or with shorthand</span>
+<span class="keyword">const</span> makePerson = (name, age) => ({ name, age });</code>
+                </div>
+                
+                <h3>3.2 Arrow Function Evolution</h3>
+                
+                <div class="visual-box">
+                    <h4>From Verbose to Concise</h4>
+                    <div class="code-block">
+<code><span class="comment">// Step 1: Traditional function expression</span>
+<span class="keyword">const</span> double = <span class="keyword">function</span>(x) {
+    <span class="keyword">return</span> x * <span class="number">2</span>;
+};
+
+<span class="comment">// Step 2: Replace 'function' with arrow</span>
+<span class="keyword">const</span> double = (x) => {
+    <span class="keyword">return</span> x * <span class="number">2</span>;
+};
+
+<span class="comment">// Step 3: Remove parentheses (single parameter)</span>
+<span class="keyword">const</span> double = x => {
+    <span class="keyword">return</span> x * <span class="number">2</span>;
+};
+
+<span class="comment">// Step 4: Implicit return (single expression)</span>
+<span class="keyword">const</span> double = x => x * <span class="number">2</span>;
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">double</span>(<span class="number">5</span>));  <span class="comment">// 10</span></code>
+                    </div>
+                </div>
+                
+                <h3>3.3 Key Differences from Regular Functions</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// 1. No 'this' binding (inherits from parent scope)</span>
+<span class="keyword">const</span> person = {
+    name: <span class="string">"Alice"</span>,
+    
+    <span class="comment">// Regular function - has its own 'this'</span>
+    greetRegular: <span class="keyword">function</span>() {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Hi, I'm ${this.name}`</span>);
+    },
+    
+    <span class="comment">// Arrow function - inherits 'this' from person object's context</span>
+    greetArrow: () => {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Hi, I'm ${this.name}`</span>);  <span class="comment">// 'this' is undefined or global</span>
+    }
+};
+
+person.<span class="function">greetRegular</span>();  <span class="comment">// "Hi, I'm Alice" ✅</span>
+person.<span class="function">greetArrow</span>();    <span class="comment">// "Hi, I'm undefined" ❌</span>
+
+<span class="comment">// 2. No 'arguments' object</span>
+<span class="keyword">function</span> <span class="function">regularFunc</span>() {
+    <span class="function">console</span>.<span class="function">log</span>(arguments);  <span class="comment">// ✅ Works</span>
+}
+
+<span class="keyword">const</span> arrowFunc = () => {
+    <span class="function">console</span>.<span class="function">log</span>(arguments);  <span class="comment">// ❌ ReferenceError</span>
+};
+
+<span class="comment">// 3. Cannot be used as constructors</span>
+<span class="keyword">function</span> <span class="function">Person</span>(name) {
+    <span class="keyword">this</span>.name = name;
+}
+<span class="keyword">const</span> p1 = <span class="keyword">new</span> <span class="function">Person</span>(<span class="string">"Alice"</span>);  <span class="comment">// ✅ Works</span>
+
+<span class="keyword">const</span> PersonArrow = (name) => {
+    <span class="keyword">this</span>.name = name;
+};
+<span class="keyword">const</span> p2 = <span class="keyword">new</span> <span class="function">PersonArrow</span>(<span class="string">"Bob"</span>);  <span class="comment">// ❌ TypeError: not a constructor</span></code>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Regular Function</th>
+                            <th>Arrow Function</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Syntax</strong></td>
+                            <td>Verbose</td>
+                            <td>Concise</td>
+                        </tr>
+                        <tr>
+                            <td><strong>this binding</strong></td>
+                            <td>Has own this</td>
+                            <td>Inherits this from parent</td>
+                        </tr>
+                        <tr>
+                            <td><strong>arguments object</strong></td>
+                            <td>✅ Available</td>
+                            <td>❌ Not available</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Constructor</strong></td>
+                            <td>✅ Can use 'new'</td>
+                            <td>❌ Cannot use 'new'</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best for</strong></td>
+                            <td>Methods, constructors</td>
+                            <td>Callbacks, functional programming</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="tip">
+                    <strong>💡 When to use Arrow Functions:</strong>
+                    <ul>
+                        <li>Array methods (map, filter, reduce)</li>
+                        <li>Callbacks and event handlers (when you don't need this)</li>
+                        <li>Short, simple functions</li>
+                        <li>When you want to preserve parent scope's this</li>
+                    </ul>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ When NOT to use Arrow Functions:</strong>
+                    <ul>
+                        <li>Object methods (will lose this binding)</li>
+                        <li>Constructors</li>
+                        <li>When you need arguments object</li>
+                        <li>When you need dynamic this</li>
+                    </ul>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Arrow Function Converter</h4>
+                    <button onclick="showArrowConversion()">Show Conversions</button>
+                    <div class="output" id="arrowOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 4: Parameters and Arguments -->
+            <div class="section" id="parameters">
+                <h2>📥 4. Parameters and Arguments</h2>
+                
+                <h3>4.1 Understanding the Difference</h3>
+                
+                <div class="visual-box">
+                    <div class="code-block">
+<code><span class="comment">// Parameters: variables in function definition</span>
+<span class="keyword">function</span> <span class="function">greet</span>(name, greeting) {  <span class="comment">// 'name' and 'greeting' are parameters</span>
+    <span class="keyword">return</span> <span class="string">`${greeting}, ${name}!`</span>;
+}
+
+<span class="comment">// Arguments: actual values passed when calling</span>
+<span class="function">greet</span>(<span class="string">"Alice"</span>, <span class="string">"Hello"</span>);  <span class="comment">// 'Alice' and 'Hello' are arguments</span></code>
+                    </div>
+                    
+                    <div class="memory-diagram">
+                        <div class="memory-slot">
+                            <div class="label">Parameter</div>
+                            <div class="value">name</div>
+                        </div>
+                        <div class="memory-slot">
+                            <div class="label">→ Receives →</div>
+                            <div class="value">Maps to</div>
+                        </div>
+                        <div class="memory-slot">
+                            <div class="label">Argument</div>
+                            <div class="value">"Alice"</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>4.2 Multiple Parameters</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Multiple parameters</span>
+<span class="keyword">function</span> <span class="function">calculateArea</span>(width, height) {
+    <span class="keyword">return</span> width * height;
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">calculateArea</span>(<span class="number">5</span>, <span class="number">10</span>));  <span class="comment">// 50</span>
+
+<span class="comment">// What happens with mismatched arguments?</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">calculateArea</span>(<span class="number">5</span>));        <span class="comment">// NaN (5 * undefined)</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">calculateArea</span>(<span class="number">5</span>, <span class="number">10</span>, <span class="number">20</span>)); <span class="comment">// 50 (extra argument ignored)</span></code>
+                </div>
+                
+                <h3>4.3 Default Parameters (ES6)</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Without default parameters</span>
+<span class="keyword">function</span> <span class="function">greet</span>(name, greeting) {
+    greeting = greeting || <span class="string">"Hello"</span>;  <span class="comment">// Old way (has bugs!)</span>
+    <span class="keyword">return</span> <span class="string">`${greeting}, ${name}!`</span>;
+}
+
+<span class="comment">// With default parameters (ES6)</span>
+<span class="keyword">function</span> <span class="function">greet</span>(name, greeting = <span class="string">"Hello"</span>) {
+    <span class="keyword">return</span> <span class="string">`${greeting}, ${name}!`</span>;
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">greet</span>(<span class="string">"Alice"</span>));           <span class="comment">// "Hello, Alice!"</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">greet</span>(<span class="string">"Alice"</span>, <span class="string">"Hi"</span>));      <span class="comment">// "Hi, Alice!"</span>
+
+<span class="comment">// Default parameters can use previous parameters</span>
+<span class="keyword">function</span> <span class="function">createUser</span>(name, age = <span class="number">18</span>, status = age >= <span class="number">18</span> ? <span class="string">"adult"</span> : <span class="string">"minor"</span>) {
+    <span class="keyword">return</span> { name, age, status };
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">createUser</span>(<span class="string">"Bob"</span>, <span class="number">25</span>));     <span class="comment">// {name: "Bob", age: 25, status: "adult"}</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">createUser</span>(<span class="string">"Charlie"</span>));    <span class="comment">// {name: "Charlie", age: 18, status: "adult"}</span>
+
+<span class="comment">// Default can be function call</span>
+<span class="keyword">function</span> <span class="function">getDefaultName</span>() {
+    <span class="keyword">return</span> <span class="string">"Guest"</span>;
+}
+
+<span class="keyword">function</span> <span class="function">welcome</span>(name = <span class="function">getDefaultName</span>()) {
+    <span class="keyword">return</span> <span class="string">`Welcome, ${name}!`</span>;
+}</code>
+                </div>
+                
+                <div class="note">
+                    <strong>💡 Default Parameters:</strong> Only triggered when argument is <code>undefined</code>. Passing <code>null</code> won't use the default!
+                </div>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">test</span>(value = <span class="string">"default"</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(value);
+}
+
+<span class="function">test</span>();            <span class="comment">// "default"</span>
+<span class="function">test</span>(<span class="keyword">undefined</span>);   <span class="comment">// "default"</span>
+<span class="function">test</span>(<span class="keyword">null</span>);        <span class="comment">// null (not default!)</span>
+<span class="function">test</span>(<span class="number">0</span>);           <span class="comment">// 0 (not default!)</span>
+<span class="function">test</span>(<span class="string">""</span>);          <span class="comment">// "" (not default!)</span></code>
+                </div>
+                
+                <h3>4.4 Rest Parameters (...)</h3>
+                <p>Collect remaining arguments into an array.</p>
+                
+                <div class="code-block">
+<code><span class="comment">// Rest parameter must be last</span>
+<span class="keyword">function</span> <span class="function">sum</span>(...numbers) {
+    <span class="keyword">return</span> numbers.<span class="function">reduce</span>((total, num) => total + num, <span class="number">0</span>);
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">sum</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>));           <span class="comment">// 6</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">sum</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>));      <span class="comment">// 15</span>
+
+<span class="comment">// Combining regular and rest parameters</span>
+<span class="keyword">function</span> <span class="function">introduce</span>(greeting, ...names) {
+    <span class="keyword">return</span> <span class="string">`${greeting} ${names.join(", ")}!`</span>;
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">introduce</span>(<span class="string">"Hello"</span>, <span class="string">"Alice"</span>, <span class="string">"Bob"</span>, <span class="string">"Charlie"</span>));
+<span class="comment">// "Hello Alice, Bob, Charlie!"</span>
+
+<span class="comment">// Real-world example: Logger function</span>
+<span class="keyword">function</span> <span class="function">log</span>(level, ...messages) {
+    <span class="keyword">const</span> timestamp = <span class="keyword">new</span> <span class="function">Date</span>().<span class="function">toISOString</span>();
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`[${timestamp}] [${level}]`</span>, ...messages);
+}
+
+<span class="function">log</span>(<span class="string">"INFO"</span>, <span class="string">"User logged in"</span>, <span class="string">"ID: 123"</span>);</code>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Rest Parameter Rules:</strong>
+                    <ul>
+                        <li>Must be the last parameter</li>
+                        <li>Only one rest parameter allowed</li>
+                        <li>Creates a real array (unlike arguments object)</li>
+                    </ul>
+                </div>
+                
+                <h3>4.5 Spread Operator (...)</h3>
+                <p>Expands an array into individual arguments (opposite of rest).</p>
+                
+                <div class="code-block">
+<code><span class="comment">// Spread operator in function calls</span>
+<span class="keyword">function</span> <span class="function">add</span>(a, b, c) {
+    <span class="keyword">return</span> a + b + c;
+}
+
+<span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">add</span>(...numbers));  <span class="comment">// 6 (spreads array into arguments)</span>
+
+<span class="comment">// Finding max/min</span>
+<span class="keyword">const</span> scores = [<span class="number">85</span>, <span class="number">92</span>, <span class="number">78</span>, <span class="number">95</span>, <span class="number">88</span>];
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">Math</span>.<span class="function">max</span>(...scores));  <span class="comment">// 95</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">Math</span>.<span class="function">min</span>(...scores));  <span class="comment">// 78</span>
+
+<span class="comment">// Combining arrays</span>
+<span class="keyword">const</span> arr1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
+<span class="keyword">const</span> arr2 = [<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>];
+<span class="keyword">const</span> combined = [...arr1, ...arr2];  <span class="comment">// [1, 2, 3, 4, 5, 6]</span>
+
+<span class="comment">// Copying arrays</span>
+<span class="keyword">const</span> original = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
+<span class="keyword">const</span> copy = [...original];  <span class="comment">// Shallow copy</span></code>
+                </div>
+                
+                <div class="visual-box">
+                    <h4>Rest vs Spread - Visual Comparison</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <h4 style="text-align: center; color: #667eea;">Rest (...)</h4>
+                            <p style="text-align: center;"><strong>Collects → Array</strong></p>
+                            <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">f</span>(...args) {
+  <span class="comment">// args is array</span>
+}
+<span class="function">f</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>);</code>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 style="text-align: center; color: #764ba2;">Spread (...)</h4>
+                            <p style="text-align: center;"><strong>Expands → Individual</strong></p>
+                            <div class="code-block">
+<code><span class="keyword">const</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
+<span class="keyword">function</span> <span class="function">f</span>(a, b, c) {}
+<span class="function">f</span>(...arr);</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Rest/Spread Calculator</h4>
+                    <input type="text" id="numbersInput" placeholder="Enter numbers: 1,2,3,4,5">
+                    <button onclick="demoRestSpread()">Calculate Sum</button>
+                    <div class="output" id="restSpreadOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 5: Return Values -->
+            <div class="section" id="return">
+                <h2>↩️ 5. Return Values</h2>
+                
+                <h3>5.1 Basic Return</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Function with return</span>
+<span class="keyword">function</span> <span class="function">add</span>(a, b) {
+    <span class="keyword">return</span> a + b;  <span class="comment">// Returns result to caller</span>
+}
+
+<span class="keyword">const</span> result = <span class="function">add</span>(<span class="number">5</span>, <span class="number">3</span>);
+<span class="function">console</span>.<span class="function">log</span>(result);  <span class="comment">// 8</span>
+
+<span class="comment">// Function without return (returns undefined)</span>
+<span class="keyword">function</span> <span class="function">greet</span>(name) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Hello, ${name}!`</span>);
+    <span class="comment">// No return statement</span>
+}
+
+<span class="keyword">const</span> value = <span class="function">greet</span>(<span class="string">"Alice"</span>);
+<span class="function">console</span>.<span class="function">log</span>(value);  <span class="comment">// undefined</span></code>
+                </div>
+                
+                <div class="flow-diagram">
+                    <div class="flow-box flow-call">Function Called: add(5, 3)</div>
+                    <div class="arrow-down">↓</div>
+                    <div class="flow-box flow-execute">Execute: 5 + 3</div>
+                    <div class="arrow-down">↓</div>
+                    <div class="flow-box flow-return">Return: 8</div>
+                    <div class="arrow-down">↓</div>
+                    <div class="flow-box flow-call">Caller Receives: 8</div>
+                </div>
+                
+                <h3>5.2 Early Return</h3>
+                <p>Exit function before reaching the end - useful for validation.</p>
+                
+                <div class="code-block">
+<code><span class="comment">// Validation with early return</span>
+<span class="keyword">function</span> <span class="function">divide</span>(a, b) {
+    <span class="keyword">if</span> (b === <span class="number">0</span>) {
+        <span class="keyword">return</span> <span class="string">"Cannot divide by zero"</span>;  <span class="comment">// Early exit</span>
+    }
+    <span class="keyword">return</span> a / b;
+}
+
+<span class="comment">// Guard clauses pattern</span>
+<span class="keyword">function</span> <span class="function">processUser</span>(user) {
+    <span class="keyword">if</span> (!user) <span class="keyword">return</span> <span class="string">"No user provided"</span>;
+    <span class="keyword">if</span> (!user.name) <span class="keyword">return</span> <span class="string">"User has no name"</span>;
+    <span class="keyword">if</span> (!user.email) <span class="keyword">return</span> <span class="string">"User has no email"</span>;
+    
+    <span class="comment">// Main logic only runs if all checks pass</span>
+    <span class="keyword">return</span> <span class="string">`Processing ${user.name}`</span>;
+}</code>
+                </div>
+                
+                <h3>5.3 Returning Multiple Values</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Return array</span>
+<span class="keyword">function</span> <span class="function">getCoordinates</span>() {
+    <span class="keyword">return</span> [<span class="number">10</span>, <span class="number">20</span>];
+}
+
+<span class="keyword">const</span> [x, y] = <span class="function">getCoordinates</span>();  <span class="comment">// Destructuring</span>
+<span class="function">console</span>.<span class="function">log</span>(x, y);  <span class="comment">// 10 20</span>
+
+<span class="comment">// Return object (more readable)</span>
+<span class="keyword">function</span> <span class="function">getUserInfo</span>() {
+    <span class="keyword">return</span> {
+        name: <span class="string">"Alice"</span>,
+        age: <span class="number">25</span>,
+        email: <span class="string">"alice@example.com"</span>
+    };
+}
+
+<span class="keyword">const</span> { name, age } = <span class="function">getUserInfo</span>();  <span class="comment">// Destructuring</span>
+<span class="function">console</span>.<span class="function">log</span>(name, age);  <span class="comment">// Alice 25</span></code>
+                </div>
+                
+                <h3>5.4 Return in Different Contexts</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Return terminates function immediately</span>
+<span class="keyword">function</span> <span class="function">example</span>() {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Before return"</span>);
+    <span class="keyword">return</span> <span class="string">"value"</span>;
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"After return"</span>);  <span class="comment">// Never executes!</span>
+}
+
+<span class="comment">// Multiple returns (different conditions)</span>
+<span class="keyword">function</span> <span class="function">getGrade</span>(score) {
+    <span class="keyword">if</span> (score >= <span class="number">90</span>) <span class="keyword">return</span> <span class="string">"A"</span>;
+    <span class="keyword">if</span> (score >= <span class="number">80</span>) <span class="keyword">return</span> <span class="string">"B"</span>;
+    <span class="keyword">if</span> (score >= <span class="number">70</span>) <span class="keyword">return</span> <span class="string">"C"</span>;
+    <span class="keyword">if</span> (score >= <span class="number">60</span>) <span class="keyword">return</span> <span class="string">"D"</span>;
+    <span class="keyword">return</span> <span class="string">"F"</span>;
+}
+
+<span class="comment">// Arrow function implicit return</span>
+<span class="keyword">const</span> double = x => x * <span class="number">2</span>;  <span class="comment">// Implicit return</span>
+<span class="keyword">const</span> quadruple = x => {   <span class="comment">// Explicit return needed</span>
+    <span class="keyword">const</span> doubled = x * <span class="number">2</span>;
+    <span class="keyword">return</span> doubled * <span class="number">2</span>;
+};</code>
+                </div>
+                
+                <div class="note">
+                    <strong>💡 Best Practice:</strong> Keep functions focused - each should do one thing well and return meaningful values. Avoid side effects when possible.
+                </div>
+            </div>
+
+            <!-- Section 6: Scope -->
+            <div class="section" id="scope">
+                <h2>🎯 6. Function Scope and Lexical Scope</h2>
+                
+                <h3>6.1 Function Scope</h3>
+                <p>Variables declared inside a function are only accessible within that function.</p>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">myFunction</span>() {
+    <span class="keyword">const</span> localVar = <span class="string">"I'm local"</span>;
+    <span class="function">console</span>.<span class="function">log</span>(localVar);  <span class="comment">// ✅ Works</span>
+}
+
+<span class="function">myFunction</span>();
+<span class="function">console</span>.<span class="function">log</span>(localVar);  <span class="comment">// ❌ ReferenceError: localVar is not defined</span>
+
+<span class="comment">// Global vs Local scope</span>
+<span class="keyword">const</span> globalVar = <span class="string">"I'm global"</span>;
+
+<span class="keyword">function</span> <span class="function">test</span>() {
+    <span class="keyword">const</span> localVar = <span class="string">"I'm local"</span>;
+    
+    <span class="function">console</span>.<span class="function">log</span>(globalVar);  <span class="comment">// ✅ Can access global</span>
+    <span class="function">console</span>.<span class="function">log</span>(localVar);   <span class="comment">// ✅ Can access local</span>
+}
+
+<span class="function">test</span>();
+<span class="function">console</span>.<span class="function">log</span>(globalVar);  <span class="comment">// ✅ Can access global</span>
+<span class="function">console</span>.<span class="function">log</span>(localVar);   <span class="comment">// ❌ Cannot access local</span></code>
+                </div>
+                
+                <div class="scope-diagram">
+                    <h4>Scope Hierarchy</h4>
+                    <div class="scope-level">
+                        <h4>Global Scope</h4>
+                        <p>Variables: globalVar, test()</p>
+                        <div class="nested-scope">
+                            <h4>Function Scope (test)</h4>
+                            <p>Variables: localVar</p>
+                            <p>Can access: localVar, globalVar ✅</p>
+                        </div>
+                        <p>Can access: globalVar ✅, localVar ❌</p>
+                    </div>
+                </div>
+                
+                <h3>6.2 Lexical Scope (Static Scope)</h3>
+                <p>Functions can access variables from their outer (parent) scope.</p>
+                
+                <div class="code-block">
+<code><span class="keyword">const</span> globalVar = <span class="string">"global"</span>;
+
+<span class="keyword">function</span> <span class="function">outer</span>() {
+    <span class="keyword">const</span> outerVar = <span class="string">"outer"</span>;
+    
+    <span class="keyword">function</span> <span class="function">inner</span>() {
+        <span class="keyword">const</span> innerVar = <span class="string">"inner"</span>;
+        
+        <span class="comment">// Can access all parent scopes!</span>
+        <span class="function">console</span>.<span class="function">log</span>(innerVar);   <span class="comment">// ✅ "inner"</span>
+        <span class="function">console</span>.<span class="function">log</span>(outerVar);   <span class="comment">// ✅ "outer"</span>
+        <span class="function">console</span>.<span class="function">log</span>(globalVar);  <span class="comment">// ✅ "global"</span>
+    }
+    
+    <span class="function">inner</span>();
+    <span class="function">console</span>.<span class="function">log</span>(innerVar);  <span class="comment">// ❌ Error: innerVar not defined</span>
+}
+
+<span class="function">outer</span>();</code>
+                </div>
+                
+                <div class="scope-diagram">
+                    <h4>Lexical Scope Chain</h4>
+                    <div class="scope-level">
+                        <h4>🌍 Global Scope</h4>
+                        <p>Variables: globalVar</p>
+                        <div class="nested-scope">
+                            <h4>📦 Outer Function Scope</h4>
+                            <p>Variables: outerVar</p>
+                            <p>Can access: outerVar, globalVar</p>
+                            <div class="nested-scope">
+                                <h4>📦 Inner Function Scope</h4>
+                                <p>Variables: innerVar</p>
+                                <p>Can access: innerVar, outerVar, globalVar</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>6.3 Variable Shadowing</h3>
+                <p>Inner scope variable with same name "shadows" outer scope variable.</p>
+                
+                <div class="code-block">
+<code><span class="keyword">const</span> x = <span class="number">10</span>;
+
+<span class="keyword">function</span> <span class="function">outer</span>() {
+    <span class="keyword">const</span> x = <span class="number">20</span>;  <span class="comment">// Shadows global x</span>
+    
+    <span class="keyword">function</span> <span class="function">inner</span>() {
+        <span class="keyword">const</span> x = <span class="number">30</span>;  <span class="comment">// Shadows outer x</span>
+        <span class="function">console</span>.<span class="function">log</span>(x);  <span class="comment">// 30 (innermost x)</span>
+    }
+    
+    <span class="function">inner</span>();
+    <span class="function">console</span>.<span class="function">log</span>(x);  <span class="comment">// 20 (outer x)</span>
+}
+
+<span class="function">outer</span>();
+<span class="function">console</span>.<span class="function">log</span>(x);  <span class="comment">// 10 (global x)</span></code>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Avoid Shadowing:</strong> While legal, shadowing can make code confusing. Use different variable names when possible.
+                </div>
+                
+                <h3>6.4 Scope Interview Questions</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Classic Interview Question: What gets logged?</span>
+<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i < <span class="number">3</span>; i++) {
+    <span class="function">setTimeout</span>(() => <span class="function">console</span>.<span class="function">log</span>(i), <span class="number">1000</span>);
+}
+<span class="comment">// Output: 3, 3, 3 (var is function-scoped!)</span>
+
+<span class="comment">// Fix with let (block-scoped)</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">3</span>; i++) {
+    <span class="function">setTimeout</span>(() => <span class="function">console</span>.<span class="function">log</span>(i), <span class="number">1000</span>);
+}
+<span class="comment">// Output: 0, 1, 2 (each iteration has its own i)</span>
+
+<span class="comment">// Fix with closure (old way)</span>
+<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i < <span class="number">3</span>; i++) {
+    (<span class="keyword">function</span>(j) {
+        <span class="function">setTimeout</span>(() => <span class="function">console</span>.<span class="function">log</span>(j), <span class="number">1000</span>);
+    })(i);
+}
+<span class="comment">// Output: 0, 1, 2</span></code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Scope Tester</h4>
+                    <button onclick="testScope()">Test Scope</button>
+                    <div class="output" id="scopeOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 7: Summary -->
+            <div class="section" id="summary">
+                <h2>📝 Chapter Summary & Interview Questions</h2>
+                
+                <h3>Key Takeaways:</h3>
+                <ol>
+                    <li><strong>Functions are first-class citizens</strong> - can be assigned, passed, and returned</li>
+                    <li><strong>Declaration vs Expression:</strong> Declarations are hoisted, expressions are not</li>
+                    <li><strong>Arrow Functions:</strong> Shorter syntax, lexical this, no arguments, can't be constructors</li>
+                    <li><strong>Parameters vs Arguments:</strong> Parameters are variables, arguments are values</li>
+                    <li><strong>Default Parameters:</strong> Use <code>=</code> to set defaults (ES6)</li>
+                    <li><strong>Rest/Spread:</strong> Rest collects (...args), Spread expands (...array)</li>
+                    <li><strong>Scope:</strong> Functions create scope; inner functions access outer scope (lexical)</li>
+                    <li><strong>Return:</strong> Functions return <code>undefined</code> if no return statement</li>
+                </ol>
+                
+                <h3>Common Interview Questions:</h3>
+                <div class="visual-box">
+                    <ol>
+                        <li><strong>Q:</strong> What's the difference between function declaration and expression?<br>
+                            <strong>A:</strong> Declarations are hoisted (can call before definition); expressions are not. Declarations must have a name; expressions can be anonymous.</li>
+                        
+                        <li><strong>Q:</strong> When should you use arrow functions?<br>
+                            <strong>A:</strong> For callbacks, array methods, and when you want to preserve parent scope's <code>this</code>. Avoid for object methods and constructors.</li>
+                        
+                        <li><strong>Q:</strong> What's the difference between rest and spread operators?<br>
+                            <strong>A:</strong> Rest collects multiple arguments into an array (in parameters). Spread expands an array into individual elements (in function calls/arrays).</li>
+                        
+                        <li><strong>Q:</strong> Explain lexical scope.<br>
+                            <strong>A:</strong> Functions can access variables from their parent scope where they were defined, creating a scope chain. Inner functions can access outer variables.</li>
+                        
+                        <li><strong>Q:</strong> Why does this code print 3, 3, 3?<br>
+                            <code>for (var i = 0; i < 3; i++) setTimeout(() => console.log(i), 1000);</code><br>
+                            <strong>A:</strong> <code>var</code> is function-scoped, so all timeouts reference the same <code>i</code>. Use <code>let</code> for block scope.</li>
+                        
+                        <li><strong>Q:</strong> What does a function return if there's no return statement?<br>
+                            <strong>A:</strong> <code>undefined</code></li>
+                    </ol>
+                </div>
+                
+                <div class="success">
+                    <strong>💪 Practice Exercises:</strong>
+                    <ol>
+                        <li>Write a function that takes any number of arguments and returns their sum</li>
+                        <li>Convert this to arrow function: <code>function double(x) { return x * 2; }</code></li>
+                        <li>Create a function with default parameters for a user profile</li>
+                        <li>Demonstrate lexical scope with nested functions</li>
+                        <li>Fix the var/let scope issue in a loop with callbacks</li>
+                        <li>Write a function that returns multiple values using destructuring</li>
+                    </ol>
+                </div>
+                
+                <div class="tip">
+                    <strong>🎯 Next Steps:</strong> You've mastered functions! Next chapter will cover closures, which build on this knowledge. Make sure you understand scope thoroughly before moving on!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showArrowConversion() {
+            const output = document.getElementById('arrowOutput');
+            let result = '=== Arrow Function Conversions ===\n\n';
+            
+            result += '1. BASIC FUNCTION\n';
+            result += 'Traditional:\n';
+            result += 'const add = function(a, b) { return a + b; };\n\n';
+            result += 'Arrow:\n';
+            result += 'const add = (a, b) => a + b;\n\n';
+            
+            result += '2. SINGLE PARAMETER\n';
+            result += 'Traditional:\n';
+            result += 'const square = function(x) { return x * x; };\n\n';
+            result += 'Arrow:\n';
+            result += 'const square = x => x * x;\n\n';
+            
+            result += '3. NO PARAMETERS\n';
+            result += 'Traditional:\n';
+            result += 'const greet = function() { return "Hello"; };\n\n';
+            result += 'Arrow:\n';
+            result += 'const greet = () => "Hello";\n\n';
+            
+            result += '4. MULTIPLE STATEMENTS\n';
+            result += 'Traditional:\n';
+            result += 'const process = function(x) {\n';
+            result += '  const doubled = x * 2;\n';
+            result += '  return doubled + 10;\n';
+            result += '};\n\n';
+            result += 'Arrow:\n';
+            result += 'const process = x => {\n';
+            result += '  const doubled = x * 2;\n';
+            result += '  return doubled + 10;\n';
+            result += '};\n';
+            
+            output.textContent = result;
+        }
+        
+        function demoRestSpread() {
+            const input = document.getElementById('numbersInput').value;
+            const output = document.getElementById('restSpreadOutput');
+            
+            try {
+                const numbers = input.split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
+                
+                if (numbers.length === 0) {
+                    output.textContent = 'Please enter valid numbers!';
+                    return;
+                }
+                
+                // Demonstrate rest parameter
+                function sum(...nums) {
+                    return nums.reduce((total, n) => total + n, 0);
+                }
+                
+                // Demonstrate spread operator
+                function multiply(a, b, c) {
+                    return a * b * c;
+                }
+                
+                let result = '=== Rest Parameter Demo ===\n';
+                result += `Input: [${numbers.join(', ')}]\n\n`;
+                result += `function sum(...nums) {\n`;
+                result += `  return nums.reduce((t, n) => t + n, 0);\n`;
+                result += `}\n\n`;
+                result += `sum(${numbers.join(', ')}) = ${sum(...numbers)}\n\n`;
+                
+                if (numbers.length >= 3) {
+                    result += '=== Spread Operator Demo ===\n';
+                    result += `function multiply(a, b, c) {\n`;
+                    result += `  return a * b * c;\n`;
+                    result += `}\n\n`;
+                    const first3 = numbers.slice(0, 3);
+                    result += `multiply(...[${first3.join(', ')}]) = ${multiply(...first3)}\n`;
+                }
+                
+                output.textContent = result;
+            } catch (error) {
+                output.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        function testScope() {
+            const output = document.getElementById('scopeOutput');
+            let result = '=== Scope Test Results ===\n\n';
+            
+            // Test 1: Function scope
+            result += '1. Function Scope:\n';
+            function test1() {
+                const local = "I'm local";
+                return local;
+            }
+            result += `Inside function: "${test1()}"\n`;
+            result += `Outside function: Cannot access (ReferenceError)\n\n`;
+            
+            // Test 2: Lexical scope
+            result += '2. Lexical Scope:\n';
+            const global = "global";
+            function outer() {
+                const outerVar = "outer";
+                function inner() {
+                    const innerVar = "inner";
+                    return `${innerVar}, ${outerVar}, ${global}`;
+                }
+                return inner();
+            }
+            result += `Nested access: "${outer()}"\n\n`;
+            
+            // Test 3: Shadowing
+            result += '3. Variable Shadowing:\n';
+            const x = 10;
+            function shadow() {
+                const x = 20;
+                function innerShadow() {
+                    const x = 30;
+                    return x;
+                }
+                return `Inner: ${innerShadow()}, Outer: ${x}`;
+            }
+            result += `${shadow()}, Global: ${x}\n\n`;
+            
+            // Test 4: var vs let in loops
+            result += '4. var vs let in loops:\n';
+            result += 'var creates single binding: all iterations share same variable\n';
+            result += 'let creates new binding: each iteration has own variable\n';
+            
+            output.textContent = result;
+        }
+    </script>
+</body>
+</html>

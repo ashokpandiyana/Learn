@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 2: Typography & Text - Interactive Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Courier+Prime&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .section-title {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .demo-box {
+            border: 2px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f9f9f9;
+            transition: transform 0.2s;
+        }
+        
+        .demo-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .demo-label {
+            font-size: 0.9rem;
+            color: #764ba2;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .demo-text {
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Font Family Examples */
+        .font-serif { font-family: 'Playfair Display', Georgia, serif; }
+        .font-sans { font-family: 'Roboto', Arial, sans-serif; }
+        .font-mono { font-family: 'Courier Prime', 'Courier New', monospace; }
+        .font-system { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        
+        /* Font Size Examples */
+        .size-small { font-size: 12px; }
+        .size-medium { font-size: 16px; }
+        .size-large { font-size: 24px; }
+        .size-xlarge { font-size: 32px; }
+        .size-rem { font-size: 1.5rem; }
+        .size-em { font-size: 1.5em; }
+        .size-vw { font-size: 3vw; }
+        
+        /* Font Weight Examples */
+        .weight-300 { font-weight: 300; }
+        .weight-400 { font-weight: 400; }
+        .weight-700 { font-weight: 700; }
+        
+        /* Text Alignment */
+        .align-left { text-align: left; }
+        .align-center { text-align: center; }
+        .align-right { text-align: right; }
+        .align-justify { text-align: justify; }
+        
+        /* Text Decoration */
+        .decor-none { text-decoration: none; color: #667eea; }
+        .decor-underline { text-decoration: underline; }
+        .decor-overline { text-decoration: overline; }
+        .decor-line-through { text-decoration: line-through; }
+        .decor-wavy { text-decoration: underline wavy #e74c3c; }
+        .decor-custom { 
+            text-decoration: underline;
+            text-decoration-color: rgba(102, 126, 234, 0.5);
+            text-decoration-thickness: 3px;
+            text-underline-offset: 4px;
+        }
+        
+        /* Text Transform */
+        .transform-uppercase { text-transform: uppercase; letter-spacing: 0.05em; }
+        .transform-lowercase { text-transform: lowercase; }
+        .transform-capitalize { text-transform: capitalize; }
+        
+        /* Letter Spacing */
+        .spacing-tight { letter-spacing: -0.02em; }
+        .spacing-normal { letter-spacing: normal; }
+        .spacing-wide { letter-spacing: 0.1em; }
+        .spacing-wider { letter-spacing: 0.2em; }
+        
+        /* Line Height */
+        .line-tight { line-height: 1; }
+        .line-normal { line-height: 1.5; }
+        .line-loose { line-height: 2; }
+        
+        /* White Space */
+        .ws-normal { white-space: normal; }
+        .ws-nowrap { white-space: nowrap; overflow: hidden; }
+        .ws-pre { white-space: pre; }
+        .ws-pre-wrap { white-space: pre-wrap; }
+        
+        /* Text Shadow */
+        .shadow-simple { text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .shadow-glow { 
+            color: #fff;
+            text-shadow: 0 0 10px #667eea, 0 0 20px #667eea, 0 0 30px #667eea;
+        }
+        .shadow-3d {
+            color: #667eea;
+            text-shadow: 
+                1px 1px 0 #555,
+                2px 2px 0 #555,
+                3px 3px 0 #555,
+                4px 4px 0 #555;
+        }
+        .shadow-emboss {
+            color: #ccc;
+            text-shadow: 1px 1px 0 #fff, -1px -1px 0 #666;
+        }
+        
+        /* Text Truncation */
+        .truncate-single {
+            width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .truncate-multi {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.5;
+        }
+        
+        /* Interactive Controls */
+        .interactive-demo {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .control-group label {
+            font-weight: bold;
+            color: #764ba2;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .control-group select,
+        .control-group input[type="range"] {
+            padding: 8px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        
+        .control-group input[type="range"] {
+            cursor: pointer;
+        }
+        
+        .preview-box {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            min-height: 150px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        #interactive-text {
+            transition: all 0.3s ease;
+        }
+        
+        .value-display {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 2px;
+        }
+        
+        .code-snippet {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+        
+        .property { color: #56b6c2; }
+        .value { color: #98c379; }
+        .comment { color: #5c6370; }
+        
+        .comparison-box {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .comparison-item {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .comparison-item h4 {
+            color: #764ba2;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-box {
+                flex-direction: column;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Chapter 2: Typography & Text - Interactive Demonstrations</h1>
+        
+        <!-- Font Families -->
+        <div class="section">
+            <h2 class="section-title">1. Font Families</h2>
+            <div class="demo-grid">
+                <div class="demo-box">
+                    <span class="demo-label">Serif (Playfair Display)</span>
+                    <div class="demo-text font-serif">
+                        The quick brown fox jumps over the lazy dog
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">Sans-Serif (Roboto)</span>
+                    <div class="demo-text font-sans">
+                        The quick brown fox jumps over the lazy dog
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">Monospace (Courier Prime)</span>
+                    <div class="demo-text font-mono">
+                        The quick brown fox jumps
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">System Font Stack</span>
+                    <div class="demo-text font-system">
+                        The quick brown fox jumps over the lazy dog
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Font Sizes -->
+        <div class="section">
+            <h2 class="section-title">2. Font Sizes</h2>
+            <div class="demo-grid">
+                <div class="demo-box">
+                    <span class="demo-label">12px (Small)</span>
+                    <div class="demo-text size-small">
+                        Sample Text 12px
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">16px (Medium)</span>
+                    <div class="demo-text size-medium">
+                        Sample Text 16px
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">24px (Large)</span>
+                    <div class="demo-text size-large">
+                        Sample Text 24px
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">1.5rem</span>
+                    <div class="demo-text size-rem">
+                        Sample Text 1.5rem
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">3vw (Viewport)</span>
+                    <div class="demo-text size-vw">
+                        Resize browser!
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Font Weights -->
+        <div class="section">
+            <h2 class="section-title">3. Font Weights</h2>
+            <div class="demo-grid">
+                <div class="demo-box">
+                    <span class="demo-label">300 (Light)</span>
+                    <div class="demo-text weight-300 font-sans">
+                        The quick brown fox jumps over the lazy dog
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">400 (Normal)</span>
+                    <div class="demo-text weight-400 font-sans">
+                        The quick brown fox jumps over the lazy dog
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">700 (Bold)</span>
+                    <div class="demo-text weight-700 font-sans">
+                        The quick brown fox jumps over the lazy dog
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Text Alignment -->
+        <div class="section">
+            <h2 class="section-title">4. Text Alignment</h2>
+            <div class="demo-grid">
+                <div class="demo-box">
+                    <span class="demo-label">Left (Default)</span>
+                    <div class="demo-text align-left">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">Center</span>
+                    <div class="demo-text align-center">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">Right</span>
+                    <div class="demo-text align-right">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">Justify</span>
+                    <div class="demo-text align-justify">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Text Decoration -->
+        <div class="section">
+            <h2 class="section-title">5. Text Decoration</h2>
+            <div class="demo-grid">
+                <div class="demo-box">
+                    <span class="demo-label">None (Link)</span>
+                    <div class="demo-text decor-none">
+                        This is a link with no underline
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">Underline</span>
+                    <div class="demo-text decor-underline">
+                        This text is underlined
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">Overline</span>
+                    <div class="demo-text decor-overline">
+                        This text has an overline
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">Line-through</span>
+                    <div class="demo-text decor-line-through">
+                        This text is crossed out
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">Wavy Red</span>
+                    <div class="demo-text decor-wavy">
+                        This has a wavy underline
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">Custom Underline</span>
+                    <div class="demo-text decor-custom">
+                        Custom color & thickness
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Text Transform -->
+        <div class="section">
+            <h2 class="section-title">6. Text Transform</h2>
+            <div class="demo-grid">
+                <div class="demo-box">
+                    <span class="demo-label">Uppercase</span>
+                    <div class="demo-text transform-uppercase">
+                        This text is uppercase
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">Lowercase</span>
+                    <div class="demo-text transform-lowercase">
+                        THIS TEXT IS LOWERCASE
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">Capitalize</span>
+                    <div class="demo-text transform-capitalize">
+                        this text is capitalized
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Letter Spacing -->
+        <div class="section">
+            <h2 class="section-title">7. Letter Spacing</h2>
+            <div class="demo-grid">
+                <div class="demo-box">
+                    <span class="demo-label">Tight (-0.02em)</span>
+                    <div class="demo-text spacing-tight">
+                        The quick brown fox
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">Normal</span>
+                    <div class="demo-text spacing-normal">
+                        The quick brown fox
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">Wide (0.1em)</span>
+                    <div class="demo-text spacing-wide">
+                        The quick brown fox
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">Wider (0.2em)</span>
+                    <div class="demo-text spacing-wider">
+                        The quick brown fox
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Line Height Comparison -->
+        <div class="section">
+            <h2 class="section-title">8. Line Height</h2>
+            <div class="comparison-box">
+                <div class="comparison-item">
+                    <h4>line-height: 1</h4>
+                    <p class="line-tight">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    </p>
+                </div>
+                <div class="comparison-item">
+                    <h4>line-height: 1.5 ✓</h4>
+                    <p class="line-normal">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    </p>
+                </div>
+                <div class="comparison-item">
+                    <h4>line-height: 2</h4>
+                    <p class="line-loose">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- White Space -->
+        <div class="section">
+            <h2 class="section-title">9. White Space Behavior</h2>
+            <div class="demo-grid">
+                <div class="demo-box">
+                    <span class="demo-label">normal (default)</span>
+                    <div class="demo-text ws-normal">
+                        Multiple    spaces
+                        and line breaks
+                        are collapsed
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">nowrap</span>
+                    <div class="demo-text ws-nowrap">
+                        This text will not wrap even if the container is very narrow
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">pre</span>
+                    <div class="demo-text ws-pre">Preserves    spaces
+and line breaks</div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">pre-wrap</span>
+                    <div class="demo-text ws-pre-wrap">Preserves    spaces
+but wraps text</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Text Shadow Effects -->
+        <div class="section">
+            <h2 class="section-title">10. Text Shadow Effects</h2>
+            <div class="demo-grid">
+                <div class="demo-box">
+                    <span class="demo-label">Simple Shadow</span>
+                    <div class="demo-text shadow-simple" style="font-size: 24px; font-weight: bold;">
+                        Shadow Text
+                    </div>
+                </div>
+                <div class="demo-box" style="background: #282c34;">
+                    <span class="demo-label" style="color: white;">Glow Effect</span>
+                    <div class="demo-text shadow-glow" style="background: #282c34; font-size: 24px; font-weight: bold;">
+                        Glowing Text
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">3D Effect</span>
+                    <div class="demo-text shadow-3d" style="font-size: 32px; font-weight: bold;">
+                        3D TEXT
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <span class="demo-label">Embossed</span>
+                    <div class="demo-text shadow-emboss" style="font-size: 28px; font-weight: bold; background: #ddd;">
+                        EMBOSS
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Text Truncation -->
+        <div class="section">
+            <h2 class="section-title">11. Text Truncation</h2>
+            <div class="comparison-box">
+                <div class="comparison-item">
+                    <h4>Single Line Ellipsis</h4>
+                    <div class="truncate-single">
+                        This is a very long text that will be truncated with an ellipsis at the end
+                    </div>
+                    <div class="code-snippet" style="font-size: 0.75rem; margin-top: 10px;">
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+                    </div>
+                </div>
+                <div class="comparison-item">
+                    <h4>Multi-Line Ellipsis (2 lines)</h4>
+                    <div class="truncate-multi">
+                        This is a longer text that will be truncated after two lines with an ellipsis. The text continues but won't be visible after the second line.
+                    </div>
+                    <div class="code-snippet" style="font-size: 0.75rem; margin-top: 10px;">
+display: -webkit-box;
+-webkit-line-clamp: 2;
+-webkit-box-orient: vertical;
+overflow: hidden;
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Interactive Typography Playground -->
+        <div class="section">
+            <h2 class="section-title">12. 🎮 Interactive Typography Playground</h2>
+            <div class="interactive-demo">
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="font-family">Font Family</label>
+                        <select id="font-family">
+                            <option value="'Roboto', sans-serif">Roboto (Sans-Serif)</option>
+                            <option value="'Playfair Display', serif">Playfair Display (Serif)</option>
+                            <option value="'Courier Prime', monospace">Courier Prime (Mono)</option>
+                            <option value="-apple-system, sans-serif">System Font</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="font-size">Font Size: <span id="fs-value">24px</span></label>
+                        <input type="range" id="font-size" min="12" max="72" value="24">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="font-weight">Font Weight</label>
+                        <select id="font-weight">
+                            <option value="300">Light (300)</option>
+                            <option value="400" selected>Normal (400)</option>
+                            <option value="700">Bold (700)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="line-height">Line Height: <span id="lh-value">1.5</span></label>
+                        <input type="range" id="line-height" min="1" max="3" step="0.1" value="1.5">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="letter-spacing">Letter Spacing: <span id="ls-value">0em</span></label>
+                        <input type="range" id="letter-spacing" min="-0.1" max="0.3" step="0.01" value="0">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="text-align">Text Align</label>
+                        <select id="text-align">
+                            <option value="left">Left</option>
+                            <option value="center">Center</option>
+                            <option value="right">Right</option>
+                            <option value="justify">Justify</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="text-transform">Text Transform</label>
+                        <select id="text-transform">
+                            <option value="none">None</option>
+                            <option value="uppercase">Uppercase</option>
+                            <option value="lowercase">Lowercase</option>
+                            <option value="capitalize">Capitalize</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="text-decoration">Text Decoration</label>
+                        <select id="text-decoration">
+                            <option value="none">None</option>
+                            <option value="underline">Underline</option>
+                            <option value="overline">Overline</option>
+                            <option value="line-through">Line-through</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="preview-box">
+                    <p id="interactive-text">
+                        The quick brown fox jumps over the lazy dog. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    </p>
+                </div>
+                
+                <div class="code-snippet" id="generated-css">
+                    /* Your CSS will appear here */
+                </div>
+            </div>
+        </div>
+        
+        <!-- Key Takeaways -->
+        <div class="section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h2 class="section-title" style="color: white; border-bottom-color: white;">🎯 Key Takeaways</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Line Height:</strong> Use unitless values (1.5) for scalability
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Font Display:</strong> Always use font-display: swap for web fonts
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Text Truncation:</strong> Single line needs 3 properties; multi-line uses -webkit-line-clamp
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Letter Spacing:</strong> Add space to uppercase text (0.05-0.1em)
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Responsive Typography:</strong> Use clamp() for fluid scaling
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Interactive Playground
+        const interactiveText = document.getElementById('interactive-text');
+        const generatedCSS = document.getElementById('generated-css');
+        
+        const controls = {
+            fontFamily: document.getElementById('font-family'),
+            fontSize: document.getElementById('font-size'),
+            fontWeight: document.getElementById('font-weight'),
+            lineHeight: document.getElementById('line-height'),
+            letterSpacing: document.getElementById('letter-spacing'),
+            textAlign: document.getElementById('text-align'),
+            textTransform: document.getElementById('text-transform'),
+            textDecoration: document.getElementById('text-decoration')
+        };
+        
+        const valueDisplays = {
+            fontSize: document.getElementById('fs-value'),
+            lineHeight: document.getElementById('lh-value'),
+            letterSpacing: document.getElementById('ls-value')
+        };
+        
+        function updateStyles() {
+            const styles = {
+                fontFamily: controls.fontFamily.value,
+                fontSize: controls.fontSize.value + 'px',
+                fontWeight: controls.fontWeight.value,
+                lineHeight: controls.lineHeight.value,
+                letterSpacing: controls.letterSpacing.value + 'em',
+                textAlign: controls.textAlign.value,
+                textTransform: controls.textTransform.value,
+                textDecoration: controls.textDecoration.value
+            };
+            
+            // Apply styles
+            Object.assign(interactiveText.style, styles);
+            
+            // Update value displays
+            valueDisplays.fontSize.textContent = styles.fontSize;
+            valueDisplays.lineHeight.textContent = styles.lineHeight;
+            valueDisplays.letterSpacing.textContent = styles.letterSpacing;
+            
+            // Generate CSS code
+            generatedCSS.innerHTML = `.text {
+    <span class="property">font-family</span>: <span class="value">${styles.fontFamily}</span>;
+    <span class="property">font-size</span>: <span class="value">${styles.fontSize}</span>;
+    <span class="property">font-weight</span>: <span class="value">${styles.fontWeight}</span>;
+    <span class="property">line-height</span>: <span class="value">${styles.lineHeight}</span>;
+    <span class="property">letter-spacing</span>: <span class="value">${styles.letterSpacing}</span>;
+    <span class="property">text-align</span>: <span class="value">${styles.textAlign}</span>;
+    <span class="property">text-transform</span>: <span class="value">${styles.textTransform}</span>;
+    <span class="property">text-decoration</span>: <span class="value">${styles.textDecoration}</span>;
+}`;
+        }
+        
+        // Add event listeners
+        Object.values(controls).forEach(control => {
+            control.addEventListener('input', updateStyles);
+            control.addEventListener('change', updateStyles);
+        });
+        
+        // Initial update
+        updateStyles();
+    </script>
+</body>
+</html>

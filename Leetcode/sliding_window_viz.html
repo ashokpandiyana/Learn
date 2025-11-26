@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sliding Window Visualizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .pattern-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .pattern-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            text-align: center;
+        }
+        
+        .pattern-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .pattern-card.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+        
+        .pattern-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .pattern-desc {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        input[type="number"] {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .visualization {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .array-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .array-element {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            position: relative;
+            transition: all 0.4s ease;
+        }
+        
+        .array-element.in-window {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            border-color: #00d2ff;
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 210, 255, 0.4);
+        }
+        
+        .array-element.left-pointer {
+            border-color: #10b981;
+            border-width: 4px;
+            background: #d1fae5;
+        }
+        
+        .array-element.right-pointer {
+            border-color: #ef4444;
+            border-width: 4px;
+            background: #fee2e2;
+        }
+        
+        .element-index {
+            position: absolute;
+            top: -25px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .pointer-label {
+            position: absolute;
+            bottom: -25px;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 6px;
+            color: white;
+        }
+        
+        .pointer-label.left {
+            background: #10b981;
+        }
+        
+        .pointer-label.right {
+            background: #ef4444;
+        }
+        
+        .window-info {
+            text-align: center;
+            font-size: 1.2em;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .window-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .detail-item {
+            background: #f0f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .detail-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .code-display {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            line-height: 1.6;
+        }
+        
+        .code-comment {
+            color: #6ee7b7;
+        }
+        
+        .code-keyword {
+            color: #fb923c;
+        }
+        
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .speed-label {
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        input[type="range"] {
+            width: 150px;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .legend-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: 3px solid;
+        }
+        
+        .legend-box.window {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            border-color: #00d2ff;
+        }
+        
+        .legend-box.left {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .legend-box.right {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Sliding Window Visualizer</h1>
+        <p class="subtitle">Watch different window patterns in action with live updates!</p>
+        
+        <div class="pattern-selector">
+            <div class="pattern-card active" onclick="selectPattern('fixed')">
+                <div class="pattern-title">Fixed Size</div>
+                <div class="pattern-desc">K = 3</div>
+            </div>
+            <div class="pattern-card" onclick="selectPattern('atMostK')">
+                <div class="pattern-title">At Most K</div>
+                <div class="pattern-desc">≤ K distinct</div>
+            </div>
+            <div class="pattern-card" onclick="selectPattern('atLeastK')">
+                <div class="pattern-title">At Least K</div>
+                <div class="pattern-desc">Sum ≥ Target</div>
+            </div>
+            <div class="pattern-card" onclick="selectPattern('noRepeat')">
+                <div class="pattern-title">No Repeat</div>
+                <div class="pattern-desc">All unique</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button onclick="reset()">🔄 Reset</button>
+            <button onclick="step()" id="stepBtn">▶️ Step</button>
+            <button onclick="toggleAutoPlay()" id="playBtn">⏯️ Auto Play</button>
+            <button onclick="randomArray()">🎲 Random</button>
+            
+            <div class="speed-control">
+                <span class="speed-label">Speed:</span>
+                <input type="range" id="speedSlider" min="200" max="2000" value="1000" step="100" oninput="updateSpeed()">
+                <span id="speedValue">1.0x</span>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Steps</div>
+                <div class="stat-value" id="stepCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Window Size</div>
+                <div class="stat-value" id="windowSize">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Best Result</div>
+                <div class="stat-value" id="bestResult">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Comparisons</div>
+                <div class="stat-value" id="comparisons">0</div>
+            </div>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box window"></div>
+                <span>In Window</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box left"></div>
+                <span>Left Pointer</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box right"></div>
+                <span>Right Pointer</span>
+            </div>
+        </div>
+        
+        <div class="visualization">
+            <div class="array-container" id="arrayContainer"></div>
+            
+            <div class="window-info" id="windowInfo">
+                <div><strong>Click a pattern above to start!</strong></div>
+                <div class="window-details" id="windowDetails"></div>
+            </div>
+        </div>
+        
+        <div class="code-display" id="codeDisplay"></div>
+    </div>
+
+    <script>
+        let arr = [4, 2, 1, 7, 8, 1, 2, 8, 1, 0];
+        let left = 0;
+        let right = 0;
+        let pattern = 'fixed';
+        let stepCount = 0;
+        let comparisons = 0;
+        let bestResult = 0;
+        let windowSum = 0;
+        let windowSet = new Set();
+        let autoPlayInterval = null;
+        let speed = 1000;
+        
+        const K = 3;
+        const TARGET = 15;
+        
+        const patterns = {
+            fixed: {
+                name: 'Fixed Window (Max Sum)',
+                description: 'Find maximum sum of any K consecutive elements',
+                k: K,
+                code: `def max_sum_window(arr, k):
+    window_sum = sum(arr[:k])  <span class="code-comment"># First window</span>
+    max_sum = window_sum
+    
+    <span class="code-keyword">for</span> i <span class="code-keyword">in</span> range(k, len(arr)):
+        window_sum = window_sum - arr[i-k] + arr[i]
+        max_sum = max(max_sum, window_sum)
+    
+    <span class="code-keyword">return</span> max_sum  <span class="code-comment"># O(n) time!</span>`
+            },
+            atMostK: {
+                name: 'At Most K Distinct',
+                description: 'Find longest substring with at most K distinct elements',
+                k: 2,
+                code: `def longest_k_distinct(arr, k):
+    left = 0
+    window = {}
+    max_len = 0
+    
+    <span class="code-keyword">for</span> right <span class="code-keyword">in</span> range(len(arr)):
+        window[arr[right]] = window.get(arr[right], 0) + 1
+        
+        <span class="code-keyword">while</span> len(window) > k:  <span class="code-comment"># Shrink</span>
+            window[arr[left]] -= 1
+            <span class="code-keyword">if</span> window[arr[left]] == 0:
+                <span class="code-keyword">del</span> window[arr[left]]
+            left += 1
+        
+        max_len = max(max_len, right - left + 1)
+    
+    <span class="code-keyword">return</span> max_len`
+            },
+            atLeastK: {
+                name: 'At Least K (Min Window)',
+                description: 'Find minimum length subarray with sum ≥ target',
+                target: TARGET,
+                code: `def min_window_sum(arr, target):
+    left = 0
+    current_sum = 0
+    min_len = float('inf')
+    
+    <span class="code-keyword">for</span> right <span class="code-keyword">in</span> range(len(arr)):
+        current_sum += arr[right]
+        
+        <span class="code-keyword">while</span> current_sum >= target:  <span class="code-comment"># Valid!</span>
+            min_len = min(min_len, right - left + 1)
+            current_sum -= arr[left]
+            left += 1
+    
+    <span class="code-keyword">return</span> min_len <span class="code-keyword">if</span> min_len != inf <span class="code-keyword">else</span> 0`
+            },
+            noRepeat: {
+                name: 'Longest Without Repeating',
+                description: 'Find longest substring with all unique characters',
+                code: `def longest_unique(s):
+    left = 0
+    seen = set()
+    max_len = 0
+    
+    <span class="code-keyword">for</span> right <span class="code-keyword">in</span> range(len(s)):
+        <span class="code-keyword">while</span> s[right] <span class="code-keyword">in</span> seen:  <span class="code-comment"># Duplicate!</span>
+            seen.remove(s[left])
+            left += 1
+        
+        seen.add(s[right])
+        max_len = max(max_len, right - left + 1)
+    
+    <span class="code-keyword">return</span> max_len`
+            }
+        };
+        
+        function selectPattern(p) {
+            pattern = p;
+            document.querySelectorAll('.pattern-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            event.target.closest('.pattern-card').classList.add('active');
+            reset();
+        }
+        
+        function reset() {
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+                document.getElementById('playBtn').textContent = '⏯️ Auto Play';
+            }
+            
+            left = 0;
+            right = pattern === 'fixed' ? K - 1 : 0;
+            stepCount = 0;
+            comparisons = 0;
+            bestResult = 0;
+            windowSum = 0;
+            windowSet = new Set();
+            
+            if (pattern === 'fixed') {
+                windowSum = arr.slice(0, K).reduce((a, b) => a + b, 0);
+                bestResult = windowSum;
+            }
+            
+            updateDisplay();
+        }
+        
+        function step() {
+            if (pattern === 'fixed') {
+                stepFixed();
+            } else if (pattern === 'atMostK') {
+                stepAtMostK();
+            } else if (pattern === 'atLeastK') {
+                stepAtLeastK();
+            } else if (pattern === 'noRepeat') {
+                stepNoRepeat();
+            }
+            
+            stepCount++;
+            updateDisplay();
+        }
+        
+        function stepFixed() {
+            if (right >= arr.length - 1) {
+                left = 0;
+                right = K - 1;
+                windowSum = arr.slice(0, K).reduce((a, b) => a + b, 0);
+                bestResult = windowSum;
+                return;
+            }
+            
+            comparisons++;
+            right++;
+            left++;
+            windowSum = windowSum - arr[left - 1] + arr[right];
+            bestResult = Math.max(bestResult, windowSum);
+        }
+        
+        function stepAtMostK() {
+            if (right >= arr.length) {
+                reset();
+                return;
+            }
+            
+            windowSet = new Set();
+            for (let i = left; i <= right; i++) {
+                windowSet.add(arr[i]);
+            }
+            
+            if (windowSet.size <= 2) {
+                bestResult = Math.max(bestResult, right - left + 1);
+                right++;
+            } else {
+                left++;
+            }
+            
+            comparisons++;
+        }
+        
+        function stepAtLeastK() {
+            if (right >= arr.length && left >= arr.length) {
+                reset();
+                return;
+            }
+            
+            windowSum = arr.slice(left, right + 1).reduce((a, b) => a + b, 0);
+            comparisons++;
+            
+            if (windowSum >= TARGET) {
+                let currentLen = right - left + 1;
+                if (bestResult === 0 || currentLen < bestResult) {
+                    bestResult = currentLen;
+                }
+                left++;
+            } else {
+                if (right < arr.length - 1) {
+                    right++;
+                } else {
+                    left++;
+                }
+            }
+        }
+        
+        function stepNoRepeat() {
+            if (right >= arr.length) {
+                reset();
+                return;
+            }
+            
+            windowSet = new Set();
+            for (let i = left; i <= right; i++) {
+                windowSet.add(arr[i]);
+            }
+            
+            comparisons++;
+            
+            if (windowSet.size === right - left + 1) {
+                bestResult = Math.max(bestResult, right - left + 1);
+                right++;
+            } else {
+                left++;
+            }
+        }
+        
+        function updateDisplay() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+            
+            arr.forEach((val, idx) => {
+                const el = document.createElement('div');
+                el.className = 'array-element';
+                
+                const indexLabel = document.createElement('div');
+                indexLabel.className = 'element-index';
+                indexLabel.textContent = idx;
+                el.appendChild(indexLabel);
+                
+                const valueDiv = document.createElement('div');
+                valueDiv.textContent = val;
+                el.appendChild(valueDiv);
+                
+                if (idx >= left && idx <= right) {
+                    el.classList.add('in-window');
+                }
+                
+                if (idx === left) {
+                    el.classList.add('left-pointer');
+                    const label = document.createElement('div');
+                    label.className = 'pointer-label left';
+                    label.textContent = 'L';
+                    el.appendChild(label);
+                }
+                
+                if (idx === right) {
+                    el.classList.add('right-pointer');
+                    const label = document.createElement('div');
+                    label.className = 'pointer-label right';
+                    label.textContent = 'R';
+                    el.appendChild(label);
+                }
+                
+                container.appendChild(el);
+            });
+            
+            // Update stats
+            document.getElementById('stepCount').textContent = stepCount;
+            document.getElementById('windowSize').textContent = Math.max(0, right - left + 1);
+            document.getElementById('bestResult').textContent = bestResult;
+            document.getElementById('comparisons').textContent = comparisons;
+            
+            // Update window info
+            updateWindowInfo();
+            
+            // Update code
+            document.getElementById('codeDisplay').innerHTML = patterns[pattern].code;
+        }
+        
+        function updateWindowInfo() {
+            const p = patterns[pattern];
+            const windowElements = arr.slice(left, right + 1);
+            
+            let details = '';
+            
+            if (pattern === 'fixed') {
+                details = `
+                    <div class="detail-item">
+                        <div class="detail-label">Window Elements</div>
+                        <div class="detail-value">[${windowElements.join(', ')}]</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Current Sum</div>
+                        <div class="detail-value">${windowElements.reduce((a, b) => a + b, 0)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Max Sum So Far</div>
+                        <div class="detail-value">${bestResult}</div>
+                    </div>
+                `;
+            } else if (pattern === 'atMostK') {
+                const distinct = new Set(windowElements);
+                details = `
+                    <div class="detail-item">
+                        <div class="detail-label">Window</div>
+                        <div class="detail-value">[${windowElements.join(', ')}]</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Distinct Elements</div>
+                        <div class="detail-value">${distinct.size} / ${2}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Max Length</div>
+                        <div class="detail-value">${bestResult}</div>
+                    </div>
+                `;
+            } else if (pattern === 'atLeastK') {
+                const sum = windowElements.reduce((a, b) => a + b, 0);
+                details = `
+                    <div class="detail-item">
+                        <div class="detail-label">Window</div>
+                        <div class="detail-value">[${windowElements.join(', ')}]</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Current Sum</div>
+                        <div class="detail-value">${sum} ${sum >= TARGET ? '✓' : '✗'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Target</div>
+                        <div class="detail-value">≥ ${TARGET}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Min Length</div>
+                        <div class="detail-value">${bestResult || 'N/A'}</div>
+                    </div>
+                `;
+            } else if (pattern === 'noRepeat') {
+                const distinct = new Set(windowElements);
+                const hasRepeat = distinct.size !== windowElements.length;
+                details = `
+                    <div class="detail-item">
+                        <div class="detail-label">Window</div>
+                        <div class="detail-value">[${windowElements.join(', ')}]</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">All Unique?</div>
+                        <div class="detail-value">${hasRepeat ? '✗' : '✓'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Max Length</div>
+                        <div class="detail-value">${bestResult}</div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('windowInfo').innerHTML = `
+                <div><strong>${p.name}</strong>: ${p.description}</div>
+            `;
+            document.getElementById('windowDetails').innerHTML = details;
+        }
+        
+        function toggleAutoPlay() {
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+                document.getElementById('playBtn').textContent = '⏯️ Auto Play';
+            } else {
+                autoPlayInterval = setInterval(step, speed);
+                document.getElementById('playBtn').textContent = '⏸️ Pause';
+            }
+        }
+        
+        function updateSpeed() {
+            const slider = document.getElementById('speedSlider');
+            speed = parseInt(slider.value);
+            const speedMultiplier = (2000 - speed + 200) / 1000;
+            document.getElementById('speedValue').textContent = speedMultiplier.toFixed(1) + 'x';
+            
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = setInterval(step, speed);
+            }
+        }
+        
+        function randomArray() {
+            arr = Array.from({length: 10}, () => Math.floor(Math.random() * 10));
+            reset();
+        }
+        
+        // Initialize
+        reset();
+    </script>
+</body>
+</html>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 1: CSS Fundamentals - Interactive Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .section-title {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .demo-box {
+            border: 2px solid #ddd;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        
+        .demo-title {
+            font-weight: bold;
+            color: #764ba2;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        /* Specificity Demo */
+        .specificity-demo p {
+            color: black;
+        }
+        
+        .specificity-demo .text {
+            color: blue;
+        }
+        
+        .specificity-demo #unique-para {
+            color: red;
+        }
+        
+        .specificity-demo p.text {
+            color: green;
+        }
+        
+        .code-display {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        
+        .code-display .selector { color: #e06c75; }
+        .code-display .property { color: #56b6c2; }
+        .code-display .value { color: #98c379; }
+        .code-display .comment { color: #5c6370; font-style: italic; }
+        
+        /* Box Model Demo */
+        .box-model-container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .box-model-demo {
+            text-align: center;
+        }
+        
+        .box-wrapper {
+            display: inline-block;
+            padding: 40px;
+            background: repeating-linear-gradient(
+                45deg,
+                #ff6b6b,
+                #ff6b6b 10px,
+                #ff8787 10px,
+                #ff8787 20px
+            );
+            margin: 20px;
+            position: relative;
+        }
+        
+        .box-border {
+            border: 10px solid #4ecdc4;
+            background: repeating-linear-gradient(
+                45deg,
+                #95e1d3,
+                #95e1d3 10px,
+                #a8e6cf 10px,
+                #a8e6cf 20px
+            );
+            padding: 30px;
+        }
+        
+        .box-content {
+            background: #ffd93d;
+            width: 150px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .box-label {
+            position: absolute;
+            font-size: 0.85rem;
+            font-weight: bold;
+            background: rgba(255,255,255,0.9);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .margin-label { top: 5px; left: 50%; transform: translateX(-50%); color: #c0392b; }
+        .border-label { top: 45px; left: 5px; color: #16a085; }
+        .padding-label { top: 85px; left: 15px; color: #27ae60; }
+        .content-label { top: 125px; left: 50%; transform: translateX(-50%); color: #f39c12; }
+        
+        /* Box-sizing Demo */
+        .box-sizing-demo {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .content-box-example {
+            box-sizing: content-box;
+            width: 200px;
+            padding: 20px;
+            border: 5px solid #e74c3c;
+            background: #ecf0f1;
+            margin: 20px;
+        }
+        
+        .border-box-example {
+            box-sizing: border-box;
+            width: 200px;
+            padding: 20px;
+            border: 5px solid #3498db;
+            background: #ecf0f1;
+            margin: 20px;
+        }
+        
+        .measurement {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        /* Units Demo */
+        .units-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .unit-example {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .unit-example h3 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .px-box { width: 200px; height: 100px; }
+        .percent-box { width: 50%; height: 100px; }
+        .em-box { font-size: 16px; padding: 1em; }
+        .rem-box { padding: 1rem; }
+        .vw-box { width: 30vw; height: 100px; }
+        .vh-box { width: 200px; height: 20vh; }
+        
+        /* Cascade Demo */
+        .cascade-test {
+            padding: 20px;
+            background: #fff3cd;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .cascade-test p {
+            font-size: 16px;
+            color: #856404;
+        }
+        
+        /* Interactive specificity calculator */
+        .specificity-calc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .specificity-result {
+            background: #28a745;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #764ba2;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .example-text {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .box-model-container {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Chapter 1: CSS Fundamentals - Interactive Demonstrations</h1>
+        
+        <!-- Specificity Demo -->
+        <div class="section">
+            <h2 class="section-title">1. Specificity Hierarchy</h2>
+            <div class="demo-box">
+                <div class="demo-title">Live Example: Multiple Rules on Same Element</div>
+                <div class="specificity-demo">
+                    <p>This paragraph is black (type selector: 0,0,0,1)</p>
+                    <p class="text">This paragraph is blue (class selector: 0,0,1,0) ✓ Wins over type</p>
+                    <p class="text" id="unique-para">This paragraph is red (ID selector: 0,1,0,0) ✓ Wins over class</p>
+                    <p class="text">This paragraph is green (element + class: 0,0,1,1) ✓ Wins over class alone</p>
+                </div>
+                <div class="code-display">
+<span class="comment">/* Applied styles (in order of specificity): */</span>
+<span class="selector">p</span> { <span class="property">color</span>: <span class="value">black</span>; }              <span class="comment">/* 0,0,0,1 */</span>
+<span class="selector">.text</span> { <span class="property">color</span>: <span class="value">blue</span>; }           <span class="comment">/* 0,0,1,0 - Wins */</span>
+<span class="selector">#unique-para</span> { <span class="property">color</span>: <span class="value">red</span>; }    <span class="comment">/* 0,1,0,0 - Wins */</span>
+<span class="selector">p.text</span> { <span class="property">color</span>: <span class="value">green</span>; }        <span class="comment">/* 0,0,1,1 - Wins */</span>
+                </div>
+            </div>
+            
+            <div class="specificity-calc">
+                <div class="demo-title">🧮 Specificity Calculator</div>
+                <p>Enter a CSS selector (e.g., <code>div#header .nav a.active</code>):</p>
+                <input type="text" id="selector-input" placeholder="div.container #main p.text">
+                <button onclick="calculateSpecificity()">Calculate Specificity</button>
+                <div id="specificity-output"></div>
+            </div>
+        </div>
+        
+        <!-- Box Model Demo -->
+        <div class="section">
+            <h2 class="section-title">2. The Box Model</h2>
+            <div class="demo-box">
+                <div class="demo-title">Visual Box Model Breakdown</div>
+                <div class="box-model-container">
+                    <div class="box-model-demo">
+                        <div class="box-wrapper">
+                            <span class="box-label margin-label">MARGIN (40px)</span>
+                            <div class="box-border">
+                                <span class="box-label border-label">BORDER (10px)</span>
+                                <span class="box-label padding-label">PADDING (30px)</span>
+                                <div class="box-content">
+                                    <span class="box-label content-label">CONTENT<br>150×100px</span>
+                                    CONTENT
+                                </div>
+                            </div>
+                        </div>
+                        <p class="example-text">
+                            <strong>Calculation:</strong><br>
+                            Total Width = 150 (content) + 60 (padding) + 20 (border) + 80 (margin) = <strong>310px</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Box-Sizing Demo -->
+        <div class="section">
+            <h2 class="section-title">3. box-sizing: content-box vs border-box</h2>
+            <div class="demo-box">
+                <div class="demo-title">Same CSS, Different Results!</div>
+                <p style="text-align: center; margin-bottom: 20px;">Both have <span class="highlight">width: 200px</span>, <span class="highlight">padding: 20px</span>, <span class="highlight">border: 5px</span></p>
+                <div class="box-sizing-demo">
+                    <div>
+                        <div class="content-box-example">
+                            <strong>content-box</strong> (default)
+                        </div>
+                        <div class="measurement">
+                            Total Width: <strong>250px</strong><br>
+                            (200 + 40 + 10)
+                        </div>
+                    </div>
+                    <div>
+                        <div class="border-box-example">
+                            <strong>border-box</strong> (recommended)
+                        </div>
+                        <div class="measurement">
+                            Total Width: <strong>200px</strong><br>
+                            (padding & border included)
+                        </div>
+                    </div>
+                </div>
+                <div class="code-display" style="margin-top: 20px;">
+<span class="comment">/* Production Best Practice: */</span>
+<span class="selector">*, *::before, *::after</span> {
+    <span class="property">box-sizing</span>: <span class="value">border-box</span>; <span class="comment">/* Always use this! */</span>
+}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Units Demo -->
+        <div class="section">
+            <h2 class="section-title">4. CSS Units Comparison</h2>
+            <div class="demo-box">
+                <div class="demo-title">Resize your browser to see responsive units change!</div>
+                <div class="units-demo">
+                    <div class="unit-example px-box">
+                        <h3>px (pixels)</h3>
+                        <p>width: 200px</p>
+                        <p class="example-text">Fixed size, doesn't change</p>
+                    </div>
+                    <div class="unit-example percent-box">
+                        <h3>% (percent)</h3>
+                        <p>width: 50%</p>
+                        <p class="example-text">Relative to parent</p>
+                    </div>
+                    <div class="unit-example em-box">
+                        <h3>em</h3>
+                        <p style="font-size: 16px;">padding: 1em</p>
+                        <p class="example-text">Relative to font-size (16px)</p>
+                    </div>
+                    <div class="unit-example rem-box">
+                        <h3>rem</h3>
+                        <p>padding: 1rem</p>
+                        <p class="example-text">Relative to root font-size</p>
+                    </div>
+                    <div class="unit-example vw-box">
+                        <h3>vw (viewport width)</h3>
+                        <p>width: 30vw</p>
+                        <p class="example-text">30% of viewport width</p>
+                    </div>
+                    <div class="unit-example vh-box">
+                        <h3>vh (viewport height)</h3>
+                        <p>height: 20vh</p>
+                        <p class="example-text">20% of viewport height</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cascade Demo -->
+        <div class="section">
+            <h2 class="section-title">5. The Cascade in Action</h2>
+            <div class="demo-box">
+                <div class="demo-title">Order Matters (When Specificity is Equal)</div>
+                <div class="code-display">
+<span class="selector">.cascade-test p</span> {
+    <span class="property">color</span>: <span class="value">blue</span>;
+}
+
+<span class="selector">.cascade-test p</span> {
+    <span class="property">color</span>: <span class="value">red</span>;
+}
+
+<span class="selector">.cascade-test p</span> {
+    <span class="property">color</span>: <span class="value">#856404</span>; <span class="comment">/* This wins - it comes LAST */</span>
+}
+                </div>
+                <div class="cascade-test">
+                    <p>This text is styled by the LAST rule in the CSS (same specificity)</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Key Takeaways -->
+        <div class="section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h2 class="section-title" style="color: white; border-bottom-color: white;">🎯 Key Takeaways</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Specificity:</strong> ID (0,1,0,0) > Class (0,0,1,0) > Element (0,0,0,1)
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Box Model:</strong> Always use box-sizing: border-box for predictable sizing
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Units:</strong> Use rem for consistency, em for component-relative sizing
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Cascade:</strong> Origin → Specificity → Order (remember this sequence!)
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        function calculateSpecificity() {
+            const input = document.getElementById('selector-input').value.trim();
+            const output = document.getElementById('specificity-output');
+            
+            if (!input) {
+                output.innerHTML = '<div class="specificity-result" style="background: #dc3545;">Please enter a selector!</div>';
+                return;
+            }
+            
+            // Simple specificity calculator
+            let ids = 0;
+            let classes = 0;
+            let elements = 0;
+            
+            // Count IDs (#)
+            ids = (input.match(/#[a-zA-Z][\w-]*/g) || []).length;
+            
+            // Count classes (.), attributes ([]), pseudo-classes (:)
+            classes = (input.match(/\.[a-zA-Z][\w-]*/g) || []).length;
+            classes += (input.match(/\[[^\]]+\]/g) || []).length;
+            classes += (input.match(/:[a-zA-Z][\w-]*/g) || []).filter(m => 
+                !m.match(/^:(before|after|first-letter|first-line)$/)
+            ).length;
+            
+            // Count elements and pseudo-elements
+            const elementPattern = /\b(div|span|p|a|h[1-6]|ul|ol|li|section|article|header|footer|nav|main|aside|button|input|form|label|img|table|tr|td|th|body|html)\b/g;
+            elements = (input.match(elementPattern) || []).length;
+            elements += (input.match(/::(before|after|first-letter|first-line|placeholder|marker)/g) || []).length;
+            
+            const specificity = `0,${ids},${classes},${elements}`;
+            
+            output.innerHTML = `
+                <div class="specificity-result">
+                    Specificity: <strong>${specificity}</strong>
+                </div>
+                <div style="margin-top: 15px; text-align: center; color: #6c757d;">
+                    <p><strong>Breakdown:</strong></p>
+                    <p>IDs: ${ids} | Classes/Attributes/Pseudo-classes: ${classes} | Elements/Pseudo-elements: ${elements}</p>
+                </div>
+            `;
+        }
+        
+        // Allow Enter key to calculate
+        document.getElementById('selector-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculateSpecificity();
+            }
+        });
+    </script>
+</body>
+</html>

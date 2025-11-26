@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two Pointers Visualizer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .pattern-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .pattern-btn {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .pattern-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .array-container {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .array-element {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .array-element.left {
+            border-color: #10b981;
+            background: #d1fae5;
+            transform: scale(1.1);
+        }
+        .array-element.right {
+            border-color: #ef4444;
+            background: #fee2e2;
+            transform: scale(1.1);
+        }
+        .array-element.window {
+            border-color: #3b82f6;
+            background: #dbeafe;
+        }
+        .pointer-label {
+            position: absolute;
+            top: -25px;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .pointer-label.left {
+            background: #10b981;
+            color: white;
+        }
+        .pointer-label.right {
+            background: #ef4444;
+            color: white;
+        }
+        .info-box {
+            background: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .code-display {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+        .highlight {
+            background: #fbbf24;
+            color: #000;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        input[type="number"] {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Two Pointers Visual Simulator</h1>
+        <p class="subtitle">Watch different pointer patterns in action!</p>
+        
+        <div class="pattern-selector">
+            <button class="pattern-btn active" onclick="setPattern('opposite')">Opposite Direction</button>
+            <button class="pattern-btn" onclick="setPattern('same')">Same Direction</button>
+            <button class="pattern-btn" onclick="setPattern('window')">Sliding Window</button>
+            <button class="pattern-btn" onclick="setPattern('partition')">Partition</button>
+        </div>
+
+        <div class="controls">
+            <button onclick="initialize()">🔄 Reset</button>
+            <button onclick="step()" id="stepBtn">▶️ Next Step</button>
+            <button onclick="autoPlay()" id="playBtn">⏯️ Auto Play</button>
+            <input type="number" id="arraySize" value="8" min="5" max="15" placeholder="Array size">
+            <button onclick="generateRandom()">🎲 Random Array</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div>Steps Taken</div>
+                <div class="stat-value" id="stepCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div>Comparisons</div>
+                <div class="stat-value" id="compCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div>Time Complexity</div>
+                <div class="stat-value" id="complexity">O(n)</div>
+            </div>
+        </div>
+
+        <div class="array-container" id="arrayContainer"></div>
+
+        <div class="info-box" id="infoBox">
+            <strong>Pattern: Opposite Direction</strong><br>
+            Two pointers start at opposite ends and move toward each other.
+        </div>
+
+        <div class="code-display" id="codeDisplay"></div>
+    </div>
+
+    <script>
+        let arr = [2, 7, 11, 15, 20, 25, 30, 35];
+        let left = 0;
+        let right = arr.length - 1;
+        let stepCount = 0;
+        let compCount = 0;
+        let currentPattern = 'opposite';
+        let autoPlayInterval = null;
+        let target = 26;
+
+        const patterns = {
+            opposite: {
+                name: 'Opposite Direction (Two Sum)',
+                info: 'Finding two numbers that sum to target. Pointers move from opposite ends.',
+                complexity: 'O(n)',
+                code: `while (left < right) {
+    sum = arr[left] + arr[right];
+    if (sum == target) return true;
+    else if (sum < target) left++;
+    else right--;
+}`
+            },
+            same: {
+                name: 'Same Direction (Remove Duplicates)',
+                info: 'Slow pointer for placement, fast pointer for exploration.',
+                complexity: 'O(n)',
+                code: `slow = 0;
+for (fast = 1; fast < n; fast++) {
+    if (arr[fast] != arr[slow]) {
+        slow++;
+        arr[slow] = arr[fast];
+    }
+}`
+            },
+            window: {
+                name: 'Sliding Window (Max Sum)',
+                info: 'Fixed window slides across array, maintaining window sum.',
+                complexity: 'O(n)',
+                code: `windowSum = sum(arr[0:k]);
+for (i = k; i < n; i++) {
+    windowSum = windowSum 
+                - arr[i-k] 
+                + arr[i];
+    maxSum = max(maxSum, windowSum);
+}`
+            },
+            partition: {
+                name: 'Partition (Dutch Flag)',
+                info: 'Partitioning array into regions based on pivot.',
+                complexity: 'O(n)',
+                code: `while (i <= right) {
+    if (arr[i] < pivot) {
+        swap(arr[i], arr[left]);
+        left++; i++;
+    } else if (arr[i] > pivot) {
+        swap(arr[i], arr[right]);
+        right--;
+    } else i++;
+}`
+            }
+        };
+
+        function setPattern(pattern) {
+            currentPattern = pattern;
+            document.querySelectorAll('.pattern-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            if (pattern === 'opposite') {
+                arr = [2, 7, 11, 15, 20, 25, 30, 35];
+            } else if (pattern === 'same') {
+                arr = [1, 1, 2, 2, 3, 3, 4, 5];
+            } else if (pattern === 'window') {
+                arr = [1, 4, 2, 10, 23, 3, 1, 0];
+            } else if (pattern === 'partition') {
+                arr = [3, 1, 4, 1, 5, 9, 2, 6];
+            }
+            
+            initialize();
+        }
+
+        function initialize() {
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+                document.getElementById('playBtn').textContent = '⏯️ Auto Play';
+            }
+            
+            left = 0;
+            right = arr.length - 1;
+            stepCount = 0;
+            compCount = 0;
+            
+            updateDisplay();
+        }
+
+        function step() {
+            if (currentPattern === 'opposite') {
+                stepOpposite();
+            } else if (currentPattern === 'same') {
+                stepSame();
+            } else if (currentPattern === 'window') {
+                stepWindow();
+            } else if (currentPattern === 'partition') {
+                stepPartition();
+            }
+            
+            stepCount++;
+            updateDisplay();
+        }
+
+        function stepOpposite() {
+            if (left >= right) {
+                left = 0;
+                right = arr.length - 1;
+                return;
+            }
+            
+            compCount++;
+            let sum = arr[left] + arr[right];
+            
+            if (sum === target) {
+                alert(`Found! ${arr[left]} + ${arr[right]} = ${target}`);
+                left = 0;
+                right = arr.length - 1;
+            } else if (sum < target) {
+                left++;
+            } else {
+                right--;
+            }
+        }
+
+        function stepSame() {
+            if (right >= arr.length) {
+                left = 0;
+                right = 1;
+                return;
+            }
+            
+            compCount++;
+            if (arr[right] !== arr[left]) {
+                left++;
+            }
+            right++;
+        }
+
+        function stepWindow() {
+            const windowSize = 3;
+            if (right >= arr.length) {
+                left = 0;
+                right = windowSize - 1;
+                return;
+            }
+            
+            left++;
+            right++;
+        }
+
+        function stepPartition() {
+            if (left > right) {
+                left = 0;
+                right = arr.length - 1;
+                return;
+            }
+            
+            const pivot = arr[0];
+            compCount++;
+            
+            if (arr[left] <= pivot) {
+                left++;
+            } else {
+                right--;
+            }
+        }
+
+        function updateDisplay() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+            
+            arr.forEach((val, idx) => {
+                const el = document.createElement('div');
+                el.className = 'array-element';
+                el.textContent = val;
+                
+                if (currentPattern === 'opposite' || currentPattern === 'partition') {
+                    if (idx === left) {
+                        el.classList.add('left');
+                        const label = document.createElement('div');
+                        label.className = 'pointer-label left';
+                        label.textContent = 'L';
+                        el.appendChild(label);
+                    }
+                    if (idx === right) {
+                        el.classList.add('right');
+                        const label = document.createElement('div');
+                        label.className = 'pointer-label right';
+                        label.textContent = 'R';
+                        el.appendChild(label);
+                    }
+                } else if (currentPattern === 'same') {
+                    if (idx === left) {
+                        el.classList.add('left');
+                        const label = document.createElement('div');
+                        label.className = 'pointer-label left';
+                        label.textContent = 'S';
+                        el.appendChild(label);
+                    }
+                    if (idx === right) {
+                        el.classList.add('right');
+                        const label = document.createElement('div');
+                        label.className = 'pointer-label right';
+                        label.textContent = 'F';
+                        el.appendChild(label);
+                    }
+                } else if (currentPattern === 'window') {
+                    if (idx >= left && idx <= right) {
+                        el.classList.add('window');
+                    }
+                }
+                
+                container.appendChild(el);
+            });
+            
+            document.getElementById('stepCount').textContent = stepCount;
+            document.getElementById('compCount').textContent = compCount;
+            document.getElementById('complexity').textContent = patterns[currentPattern].complexity;
+            
+            const pattern = patterns[currentPattern];
+            document.getElementById('infoBox').innerHTML = `
+                <strong>${pattern.name}</strong><br>
+                ${pattern.info}
+            `;
+            
+            document.getElementById('codeDisplay').textContent = pattern.code;
+        }
+
+        function autoPlay() {
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+                document.getElementById('playBtn').textContent = '⏯️ Auto Play';
+            } else {
+                autoPlayInterval = setInterval(step, 1000);
+                document.getElementById('playBtn').textContent = '⏸️ Pause';
+            }
+        }
+
+        function generateRandom() {
+            const size = parseInt(document.getElementById('arraySize').value) || 8;
+            arr = Array.from({length: size}, () => Math.floor(Math.random() * 50) + 1);
+            arr.sort((a, b) => a - b);
+            initialize();
+        }
+
+        // Initialize on load
+        initialize();
+    </script>
+</body>
+</html>

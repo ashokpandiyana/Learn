@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 19: Security in Distributed Systems</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+        }
+        
+        .security-layer {
+            background: white;
+            border: 2px solid #9c27b0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-step {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            top: 25px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 3px solid white;
+        }
+        
+        .key-icon {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        
+        .lock-icon {
+            display: inline-block;
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .attack-box {
+            background: linear-gradient(135deg, #f44336 0%, #e57373 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .defense-box {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .blockchain-block {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            min-width: 200px;
+        }
+        
+        .block-hash {
+            background: #667eea;
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.85em;
+            margin: 5px 0;
+        }
+        
+        .pki-hierarchy {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Chapter 19: Security in Distributed Systems</h1>
+        
+        <div class="problem-box">
+            <h3>⚠️ The Security Challenge</h3>
+            <p style="font-size: 1.2em;"><strong>Distributed systems have a MUCH larger attack surface!</strong></p>
+            <p>Security threats multiply in distributed environments:</p>
+            <ul style="margin-top: 10px;">
+                <li>Communication over network (can be intercepted)</li>
+                <li>Multiple machines (more points to compromise)</li>
+                <li>No physical security (cloud, remote servers)</li>
+                <li>Byzantine actors (some nodes may be malicious!)</li>
+                <li>Data stored across many locations</li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>Critical:</strong> Security must be designed in from the start, not bolted on later!</p>
+        </div>
+        
+        <h2>1️⃣ Authentication and Authorization</h2>
+        
+        <div class="definition">
+            <h4>The Two-Step Security Foundation</h4>
+            <p><strong>Authentication:</strong> Verify WHO you are (identity)</p>
+            <p><strong>Authorization:</strong> Verify WHAT you can do (permissions)</p>
+            <p><strong>Remember:</strong> Authentication first, then authorization!</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Authentication vs Authorization</h4>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 30px 0;">
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; border: 2px solid #2196f3;">
+                    <h4 style="color: #1976d2; text-align: center;">🆔 Authentication</h4>
+                    <div style="margin: 20px 0;">
+                        <strong>Question:</strong> "Who are you?"<br><br>
+                        <strong>Methods:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li>Password</li>
+                            <li>API key / Token</li>
+                            <li>Certificate (mutual TLS)</li>
+                            <li>Biometric</li>
+                            <li>Multi-factor (MFA)</li>
+                        </ul>
+                    </div>
+                    <div style="background: white; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                        <strong>Example:</strong> Login with username + password → proves you're Alice
+                    </div>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; border: 2px solid #4caf50;">
+                    <h4 style="color: #2e7d32; text-align: center;">✅ Authorization</h4>
+                    <div style="margin: 20px 0;">
+                        <strong>Question:</strong> "What can you do?"<br><br>
+                        <strong>Methods:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li>ACL (Access Control Lists)</li>
+                            <li>RBAC (Role-Based)</li>
+                            <li>ABAC (Attribute-Based)</li>
+                            <li>OAuth scopes</li>
+                            <li>Policy engines</li>
+                        </ul>
+                    </div>
+                    <div style="background: white; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                        <strong>Example:</strong> Alice can READ but not DELETE files
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>🔑 JWT (JSON Web Token) - Modern Authentication</h4>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>How JWT Works:</strong>
+                
+                <ol style="margin-top: 15px;">
+                    <li><strong>Login:</strong> User sends credentials to auth service</li>
+                    <li><strong>Issue Token:</strong> Server creates signed JWT with user info</li>
+                    <li><strong>Return Token:</strong> Client stores JWT (local storage, cookie)</li>
+                    <li><strong>Use Token:</strong> Client includes JWT in every request (Authorization header)</li>
+                    <li><strong>Verify:</strong> Services verify JWT signature (stateless!)</li>
+                </ol>
+            </div>
+            
+            <pre style="margin-top: 20px;"><code>// JWT Example (Node.js)
+const jwt = require('jsonwebtoken');
+const SECRET_KEY = 'your-secret-key';
+
+// 1. Create JWT on login
+function login(username, password) {
+    // Verify credentials (check database)
+    if (isValidCredentials(username, password)) {
+        // Create token
+        const token = jwt.sign(
+            {
+                userId: 1001,
+                username: 'alice',
+                role: 'admin',
+                exp: Math.floor(Date.now() / 1000) + 3600 // 1 hour
+            },
+            SECRET_KEY
+        );
+        
+        return { token };
+    }
+    throw new Error('Invalid credentials');
+}
+
+// 2. Verify JWT on each request
+function authenticate(req, res, next) {
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+        return res.status(401).json({ error: 'No token' });
+    }
+    
+    try {
+        const decoded = jwt.verify(token, SECRET_KEY);
+        req.user = decoded; // Attach user info to request
+        next();
+    } catch (error) {
+        return res.status(401).json({ error: 'Invalid token' });
+    }
+}
+
+// 3. Check authorization
+function authorize(allowedRoles) {
+    return (req, res, next) => {
+        if (!allowedRoles.includes(req.user.role)) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+        next();
+    };
+}
+
+// Usage
+app.post('/login', (req, res) => {
+    const { token } = login(req.body.username, req.body.password);
+    res.json({ token });
+});
+
+// Protected route (authentication + authorization)
+app.delete('/users/:id', 
+    authenticate,           // First: verify identity
+    authorize(['admin']),   // Then: check permissions
+    (req, res) => {
+        // Delete user
+    }
+);</code></pre>
+        </div>
+        
+        <h2>2️⃣ Public Key Infrastructure (PKI)</h2>
+        
+        <div class="definition">
+            <h4>Trust in a Trustless World</h4>
+            <p><strong>PKI</strong> is a framework for managing digital certificates and public-key encryption.</p>
+            <p><strong>Goal:</strong> Verify identities and establish trust without prior relationship</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>PKI Hierarchy</h4>
+            
+            <div class="pki-hierarchy">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%); color: white; padding: 20px; border-radius: 8px; max-width: 300px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                        <strong>Root CA</strong><br>
+                        <small>Ultimate trust anchor<br>(VeriSign, DigiCert)</small>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin: 20px 0; font-size: 1.5em; color: #667eea;">
+                    ↓ Signs ↓
+                </div>
+                
+                <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <div style="background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%); color: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                        <strong>Intermediate CA 1</strong>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%); color: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                        <strong>Intermediate CA 2</strong>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin: 20px 0; font-size: 1.5em; color: #667eea;">
+                    ↓ Signs ↓
+                </div>
+                
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                    <div style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                        google.com
+                    </div>
+                    <div style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                        amazon.com
+                    </div>
+                    <div style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                        github.com
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin-top: 30px;">
+                <strong>Certificate Chain Verification:</strong>
+                <ol style="margin-top: 10px;">
+                    <li>Browser connects to google.com</li>
+                    <li>Server sends certificate signed by Intermediate CA</li>
+                    <li>Browser verifies: Intermediate CA cert signed by Root CA</li>
+                    <li>Browser trusts Root CA (pre-installed in OS)</li>
+                    <li>Chain verified: Root → Intermediate → google.com ✓</li>
+                </ol>
+            </div>
+        </div>
+        
+        <h2>3️⃣ Secure Communication (TLS/SSL)</h2>
+        
+        <div class="definition">
+            <h4>HTTPS = HTTP + TLS</h4>
+            <p><strong>TLS (Transport Layer Security)</strong> encrypts communication between client and server.</p>
+            <p><strong>Goals:</strong> Confidentiality (encryption), Integrity (tampering detection), Authentication (verify identity)</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>TLS Handshake (Simplified)</h4>
+            
+            <div class="timeline-step">
+                <strong>Step 1: Client Hello</strong>
+                <p>Client → Server: "I support TLS 1.3, cipher suites: AES-256, ChaCha20"</p>
+            </div>
+            
+            <div class="timeline-step">
+                <strong>Step 2: Server Hello</strong>
+                <p>Server → Client: "Let's use TLS 1.3 with AES-256"</p>
+                <p>Server sends: Certificate (with public key)</p>
+            </div>
+            
+            <div class="timeline-step">
+                <strong>Step 3: Certificate Verification</strong>
+                <p>Client verifies certificate chain using PKI</p>
+                <p>Checks: Valid signature, not expired, matches domain</p>
+            </div>
+            
+            <div class="timeline-step">
+                <strong>Step 4: Key Exchange</strong>
+                <p>Client generates session key (symmetric)</p>
+                <p>Encrypts with server's public key</p>
+                <p>Sends encrypted session key to server</p>
+            </div>
+            
+            <div class="timeline-step">
+                <strong>Step 5: Server Decrypts</strong>
+                <p>Server uses private key to decrypt session key</p>
+                <p>Both now have shared secret!</p>
+            </div>
+            
+            <div class="timeline-step" style="border-left-color: #4caf50;">
+                <strong>Step 6: Encrypted Communication</strong>
+                <p>All future messages encrypted with session key (fast symmetric crypto)</p>
+                <p>🔒 Secure channel established! ✓</p>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>Why Hybrid Encryption?</h4>
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Asymmetric (Public Key Crypto):</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Use for: Key exchange, digital signatures</li>
+                    <li>Pros: No shared secret needed</li>
+                    <li>Cons: Very slow (100-1000x slower than symmetric)</li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Symmetric (Shared Key):</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Use for: Bulk data encryption</li>
+                    <li>Pros: Very fast</li>
+                    <li>Cons: Both parties need same key</li>
+                </ul>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <strong>TLS Solution:</strong> Use asymmetric to exchange symmetric key, then use symmetric for data!
+            </div>
+        </div>
+        
+        <h2>4️⃣ Access Control in Distributed Systems</h2>
+        
+        <h3>👥 Role-Based Access Control (RBAC)</h3>
+        
+        <div class="key-point">
+            <h4>Assign Permissions to Roles, Not Users</h4>
+            <p><strong>Pattern:</strong> Users → Roles → Permissions</p>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <strong>Example: Hospital System</strong>
+                
+                <div style="margin: 20px 0;">
+                    <strong>Roles:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li><strong>Doctor:</strong> READ patient records, WRITE prescriptions, UPDATE diagnoses</li>
+                        <li><strong>Nurse:</strong> READ patient records, UPDATE vitals</li>
+                        <li><strong>Admin:</strong> CREATE users, DELETE users, VIEW audit logs</li>
+                        <li><strong>Patient:</strong> READ own records only</li>
+                    </ul>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <strong>User Assignment:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Dr. Smith → Doctor role</li>
+                        <li>Nurse Jane → Nurse role</li>
+                        <li>Alice (patient) → Patient role</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// RBAC Implementation
+class RBACSystem {
+    constructor() {
+        this.roles = new Map(); // role -> Set of permissions
+        this.userRoles = new Map(); // user -> Set of roles
+    }
+    
+    // Define role with permissions
+    createRole(roleName, permissions) {
+        this.roles.set(roleName, new Set(permissions));
+    }
+    
+    // Assign role to user
+    assignRole(userId, roleName) {
+        if (!this.userRoles.has(userId)) {
+            this.userRoles.set(userId, new Set());
+        }
+        this.userRoles.get(userId).add(roleName);
+    }
+    
+    // Check if user has permission
+    hasPermission(userId, permission) {
+        const userRoles = this.userRoles.get(userId);
+        if (!userRoles) return false;
+        
+        // Check if any of user's roles has this permission
+        for (const roleName of userRoles) {
+            const rolePermissions = this.roles.get(roleName);
+            if (rolePermissions && rolePermissions.has(permission)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    // Middleware for Express
+    requirePermission(permission) {
+        return (req, res, next) => {
+            const userId = req.user.id; // From JWT
+            
+            if (this.hasPermission(userId, permission)) {
+                next();
+            } else {
+                res.status(403).json({ 
+                    error: 'Forbidden',
+                    required: permission 
+                });
+            }
+        };
+    }
+}
+
+// Setup
+const rbac = new RBACSystem();
+
+// Define roles
+rbac.createRole('admin', ['users:create', 'users:delete', 'users:read']);
+rbac.createRole('user', ['users:read', 'posts:create', 'posts:read']);
+rbac.createRole('guest', ['posts:read']);
+
+// Assign roles
+rbac.assignRole('user-123', 'admin');
+rbac.assignRole('user-456', 'user');
+
+// Check permissions
+console.log(rbac.hasPermission('user-123', 'users:delete')); // true
+console.log(rbac.hasPermission('user-456', 'users:delete')); // false
+
+// Use in routes
+app.delete('/users/:id',
+    authenticate,
+    rbac.requirePermission('users:delete'),
+    (req, res) => {
+        // Delete user
+    }
+);</code></pre>
+        
+        <h2>5️⃣ Byzantine Fault Tolerance Security</h2>
+        
+        <div class="definition">
+            <h4>Dealing with Malicious Actors</h4>
+            <p>Recall from <strong>Chapter 3</strong>: Byzantine failures = arbitrary/malicious behavior</p>
+            <p><strong>Security aspect:</strong> Some nodes may actively try to compromise the system!</p>
+        </div>
+        
+        <div class="warning">
+            <h4>🎭 Byzantine Attack Scenarios</h4>
+            
+            <div class="attack-box">
+                <strong>Attack 1: Lying to Different Nodes</strong>
+                <p>Malicious node tells Node A: "Value is 5"</p>
+                <p>Same node tells Node B: "Value is 10"</p>
+                <p>Creates confusion and inconsistency!</p>
+            </div>
+            
+            <div class="attack-box">
+                <strong>Attack 2: Selective Participation</strong>
+                <p>Participate in some protocols but not others</p>
+                <p>Disrupt consensus while appearing partially honest</p>
+            </div>
+            
+            <div class="attack-box">
+                <strong>Attack 3: Data Corruption</strong>
+                <p>Return corrupted data to clients</p>
+                <p>Clients can't tell if data is legitimate</p>
+            </div>
+        </div>
+        
+        <div class="defense-box">
+            <h4>🛡️ BFT Defenses (from Chapter 10)</h4>
+            <ul style="margin-top: 10px;">
+                <li><strong>3f+1 Redundancy:</strong> Need supermajority to outvote Byzantine nodes</li>
+                <li><strong>Cryptographic Signatures:</strong> All messages signed (can't forge)</li>
+                <li><strong>Majority Voting:</strong> Trust the majority consensus</li>
+                <li><strong>Message Authentication:</strong> Verify sender identity</li>
+                <li><strong>Quorum Certificates:</strong> Collect 2f+1 signatures before accepting</li>
+            </ul>
+        </div>
+        
+        <h2>6️⃣ Blockchain Basics</h2>
+        
+        <div class="definition">
+            <h4>Distributed Ledger with Cryptographic Trust</h4>
+            <p><strong>Blockchain:</strong> Distributed, immutable ledger secured by cryptography and consensus.</p>
+            <p><strong>Key innovation:</strong> Trust without central authority (combines DHT + BFT + Consensus + Cryptography)</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Blockchain Structure</h4>
+            
+            <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; margin: 30px 0;">
+                <div class="blockchain-block">
+                    <strong>Block 0 (Genesis)</strong>
+                    <div class="block-hash">Prev: 0000...0000</div>
+                    <div style="margin: 10px 0; font-family: monospace; font-size: 0.85em;">
+                        Transactions:<br>
+                        - Create 50 BTC
+                    </div>
+                    <div class="block-hash">Hash: a3f2...8b1c</div>
+                </div>
+                
+                <div style="font-size: 2em; margin: 0 10px; color: #667eea;">→</div>
+                
+                <div class="blockchain-block">
+                    <strong>Block 1</strong>
+                    <div class="block-hash">Prev: a3f2...8b1c</div>
+                    <div style="margin: 10px 0; font-family: monospace; font-size: 0.85em;">
+                        Transactions:<br>
+                        - Alice → Bob: 2 BTC
+                    </div>
+                    <div class="block-hash">Hash: 7c4d...9e2a</div>
+                </div>
+                
+                <div style="font-size: 2em; margin: 0 10px; color: #667eea;">→</div>
+                
+                <div class="blockchain-block">
+                    <strong>Block 2</strong>
+                    <div class="block-hash">Prev: 7c4d...9e2a</div>
+                    <div style="margin: 10px 0; font-family: monospace; font-size: 0.85em;">
+                        Transactions:<br>
+                        - Bob → Charlie: 1 BTC
+                    </div>
+                    <div class="block-hash">Hash: 2f8a...5d3b</div>
+                </div>
+            </div>
+            
+            <div style="background: #fff3e0; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <strong>🔗 Chain Property:</strong> Each block contains hash of previous block
+                <p style="margin-top: 10px;">Change block 1 → Hash changes → Block 2's "prev" doesn't match → Chain broken! ✗</p>
+                <p><strong>Result:</strong> Immutability! Can't change history without detection.</p>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>Core Blockchain Concepts:</h4>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>1. Distributed Ledger</strong>
+                <p>Every node has complete copy of blockchain (redundancy from Chapter 7!)</p>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>2. Consensus Mechanism</strong>
+                <p>Nodes agree on next block (Proof-of-Work, Proof-of-Stake - from Chapter 10!)</p>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>3. Cryptographic Hashing</strong>
+                <p>Blocks linked by hashes, creating immutable chain</p>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>4. Digital Signatures</strong>
+                <p>Transactions signed with private key (from PKI!)</p>
+            </div>
+        </div>
+        
+        <pre><code>// Simple Blockchain Implementation
+const crypto = require('crypto');
+
+class Block {
+    constructor(index, transactions, previousHash) {
+        this.index = index;
+        this.timestamp = Date.now();
+        this.transactions = transactions;
+        this.previousHash = previousHash;
+        this.nonce = 0; // For proof-of-work
+        this.hash = this.calculateHash();
+    }
+    
+    calculateHash() {
+        const data = this.index + this.timestamp + 
+                     JSON.stringify(this.transactions) +
+                     this.previousHash + this.nonce;
+        
+        return crypto.createHash('sha256').update(data).digest('hex');
+    }
+    
+    // Proof-of-Work: Find hash starting with zeros
+    mineBlock(difficulty) {
+        const target = '0'.repeat(difficulty);
+        
+        while (!this.hash.startsWith(target)) {
+            this.nonce++;
+            this.hash = this.calculateHash();
+        }
+        
+        console.log(`Block mined: ${this.hash}`);
+    }
+}
+
+class Blockchain {
+    constructor() {
+        this.chain = [this.createGenesisBlock()];
+        this.difficulty = 4; // Number of leading zeros required
+        this.pendingTransactions = [];
+    }
+    
+    createGenesisBlock() {
+        return new Block(0, [], '0');
+    }
+    
+    getLatestBlock() {
+        return this.chain[this.chain.length - 1];
+    }
+    
+    addBlock(transactions) {
+        const newBlock = new Block(
+            this.chain.length,
+            transactions,
+            this.getLatestBlock().hash
+        );
+        
+        // Mine block (proof-of-work)
+        newBlock.mineBlock(this.difficulty);
+        
+        this.chain.push(newBlock);
+    }
+    
+    // Verify entire chain integrity
+    isChainValid() {
+        for (let i = 1; i < this.chain.length; i++) {
+            const currentBlock = this.chain[i];
+            const previousBlock = this.chain[i - 1];
+            
+            // Check hash is correct
+            if (currentBlock.hash !== currentBlock.calculateHash()) {
+                console.log('Block hash invalid!');
+                return false;
+            }
+            
+            // Check link to previous block
+            if (currentBlock.previousHash !== previousBlock.hash) {
+                console.log('Chain broken!');
+                return false;
+            }
+        }
+        
+        return true;
+    }
+}
+
+// Usage
+const blockchain = new Blockchain();
+
+// Add blocks
+blockchain.addBlock([
+    { from: 'Alice', to: 'Bob', amount: 10 }
+]);
+
+blockchain.addBlock([
+    { from: 'Bob', to: 'Charlie', amount: 5 }
+]);
+
+// Verify
+console.log('Chain valid?', blockchain.isChainValid()); // true
+
+// Try to tamper
+blockchain.chain[1].transactions = [
+    { from: 'Alice', to: 'Bob', amount: 1000 } // Change amount!
+];
+
+console.log('Chain valid?', blockchain.isChainValid()); // false!</code></pre>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: Security Demos</h3>
+            <p>Explore security concepts:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demoTLSHandshake()">TLS Handshake</button>
+                <button class="demo-button" onclick="demoRBAC()">RBAC Authorization</button>
+                <button class="demo-button" onclick="demoBlockchain()">Blockchain Immutability</button>
+                <button class="demo-button" onclick="demoByzantine()">Byzantine Attack</button>
+            </div>
+            <div id="securityDemo" class="demo-output">Click a button to see security mechanisms...</div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Security Mechanism</th>
+                <th>Purpose</th>
+                <th>Example</th>
+            </tr>
+            <tr>
+                <td><strong>Authentication</strong></td>
+                <td>Verify identity</td>
+                <td>JWT, OAuth, mTLS</td>
+            </tr>
+            <tr>
+                <td><strong>Authorization</strong></td>
+                <td>Control access</td>
+                <td>RBAC, ACL, OAuth scopes</td>
+            </tr>
+            <tr>
+                <td><strong>Encryption</strong></td>
+                <td>Protect data confidentiality</td>
+                <td>TLS, AES, RSA</td>
+            </tr>
+            <tr>
+                <td><strong>Digital Signatures</strong></td>
+                <td>Verify integrity, non-repudiation</td>
+                <td>RSA, ECDSA</td>
+            </tr>
+            <tr>
+                <td><strong>PKI</strong></td>
+                <td>Trust establishment</td>
+                <td>SSL certificates, CA hierarchy</td>
+            </tr>
+            <tr>
+                <td><strong>BFT Consensus</strong></td>
+                <td>Byzantine fault tolerance</td>
+                <td>PBFT, Blockchain consensus</td>
+            </tr>
+        </table>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 19</h3>
+            <ul style="line-height: 2;">
+                <li><strong>Authentication</strong> - verify WHO (passwords, tokens, certificates)</li>
+                <li><strong>Authorization</strong> - verify WHAT you can do (RBAC, ACL)</li>
+                <li><strong>PKI</strong> - trust hierarchy with root CAs and certificate chains</li>
+                <li><strong>TLS/SSL</strong> - secure communication via encryption (HTTPS)</li>
+                <li><strong>Hybrid encryption</strong> - asymmetric for key exchange, symmetric for data</li>
+                <li><strong>RBAC</strong> - assign permissions to roles, not individual users</li>
+                <li><strong>Byzantine tolerance</strong> - 3f+1 nodes, cryptographic signatures, majority voting</li>
+                <li><strong>Blockchain</strong> - distributed ledger, immutability via hash chains</li>
+                <li><strong>Consensus + Crypto</strong> - blockchain combines multiple security techniques</li>
+                <li><strong>Security is hard</strong> - defense in depth, multiple layers required</li>
+                <li><strong>Trade-off</strong> - security vs performance vs usability</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>What's the difference between authentication and authorization?</li>
+                <li>How does PKI establish trust without prior relationship?</li>
+                <li>Explain the TLS handshake - why hybrid encryption?</li>
+                <li>Compare RBAC vs ACL - when to use each?</li>
+                <li>Why do we need 3f+1 nodes for Byzantine fault tolerance?</li>
+                <li>How does blockchain achieve immutability?</li>
+                <li>What is proof-of-work and why is it needed?</li>
+                <li>Design secure microservices: Which mechanisms would you use?</li>
+                <li>How does JWT enable stateless authentication?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function demoTLSHandshake() {
+            const output = document.getElementById('securityDemo');
+            output.textContent = '=== TLS HANDSHAKE ===\n\n';
+            
+            output.textContent += 'Client: Browser connecting to https://example.com\n';
+            output.textContent += 'Server: example.com web server\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 1: Client Hello\n';
+            await sleep(300);
+            output.textContent += '  Client → Server:\n';
+            output.textContent += '    "I support TLS 1.3"\n';
+            output.textContent += '    "Ciphers: AES-256, ChaCha20"\n';
+            output.textContent += '    "Random nonce: 8a3f..."\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 2: Server Hello\n';
+            await sleep(300);
+            output.textContent += '  Server → Client:\n';
+            output.textContent += '    "Let\'s use TLS 1.3 + AES-256"\n';
+            output.textContent += '    "My certificate: [X.509 certificate]"\n';
+            output.textContent += '    "Random nonce: 2b9c..."\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 3: Certificate Verification\n';
+            await sleep(300);
+            output.textContent += '  Client verifies:\n';
+            output.textContent += '    ✓ Certificate signed by trusted CA\n';
+            output.textContent += '    ✓ Domain matches (example.com)\n';
+            output.textContent += '    ✓ Not expired\n';
+            output.textContent += '    ✓ Not revoked\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 4: Key Exchange\n';
+            await sleep(300);
+            output.textContent += '  Client generates session key (256-bit)\n';
+            output.textContent += '  Client encrypts with server\'s public key (from cert)\n';
+            output.textContent += '  Client → Server: [Encrypted session key]\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 5: Server Decrypts\n';
+            await sleep(300);
+            output.textContent += '  Server uses private key to decrypt\n';
+            output.textContent += '  Server now has session key! ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Step 6: Finish Messages\n';
+            await sleep(300);
+            output.textContent += '  Both send "Finished" (encrypted with session key)\n';
+            output.textContent += '  Handshake verified ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '🔒 SECURE CHANNEL ESTABLISHED!\n\n';
+            
+            output.textContent += 'All future traffic:\n';
+            output.textContent += '  → Encrypted with AES-256 (session key)\n';
+            output.textContent += '  → Fast symmetric encryption\n';
+            output.textContent += '  → Eavesdropper sees gibberish\n\n';
+            
+            output.textContent += 'Security properties achieved:\n';
+            output.textContent += '  ✓ Confidentiality (encrypted)\n';
+            output.textContent += '  ✓ Integrity (HMAC)\n';
+            output.textContent += '  ✓ Authentication (certificate)';
+        }
+        
+        async function demoRBAC() {
+            const output = document.getElementById('securityDemo');
+            output.textContent = '=== ROLE-BASED ACCESS CONTROL ===\n\n';
+            
+            output.textContent += 'System: Document management\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Roles defined:\n';
+            output.textContent += '  Admin: [CREATE, READ, UPDATE, DELETE]\n';
+            output.textContent += '  Editor: [READ, UPDATE]\n';
+            output.textContent += '  Viewer: [READ]\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Users assigned:\n';
+            output.textContent += '  Alice → Admin\n';
+            output.textContent += '  Bob → Editor\n';
+            output.textContent += '  Charlie → Viewer\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- REQUEST 1 ---\n';
+            await sleep(300);
+            output.textContent += 'Alice: DELETE document "report.pdf"\n';
+            await sleep(300);
+            output.textContent += '  Check: Alice has role Admin\n';
+            output.textContent += '  Check: Admin has DELETE permission\n';
+            output.textContent += '  Result: ALLOWED ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- REQUEST 2 ---\n';
+            await sleep(300);
+            output.textContent += 'Bob: UPDATE document "report.pdf"\n';
+            await sleep(300);
+            output.textContent += '  Check: Bob has role Editor\n';
+            output.textContent += '  Check: Editor has UPDATE permission\n';
+            output.textContent += '  Result: ALLOWED ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- REQUEST 3 ---\n';
+            await sleep(300);
+            output.textContent += 'Charlie: DELETE document "report.pdf"\n';
+            await sleep(300);
+            output.textContent += '  Check: Charlie has role Viewer\n';
+            output.textContent += '  Check: Viewer has DELETE permission? NO\n';
+            output.textContent += '  Result: DENIED ❌\n';
+            output.textContent += '  HTTP 403 Forbidden\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Benefits of RBAC:\n';
+            output.textContent += '  • Easy to manage (assign roles, not permissions)\n';
+            output.textContent += '  • Scalable (add users easily)\n';
+            output.textContent += '  • Audit-friendly (clear role assignments)\n';
+            output.textContent += '  • Principle of least privilege';
+        }
+        
+        async function demoBlockchain() {
+            const output = document.getElementById('securityDemo');
+            output.textContent = '=== BLOCKCHAIN IMMUTABILITY ===\n\n';
+            
+            output.textContent += 'Initial blockchain:\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Block 0 (Genesis):\n';
+            output.textContent += '  Transactions: [Create 50 BTC]\n';
+            output.textContent += '  Hash: a3f2...8b1c\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Block 1:\n';
+            output.textContent += '  Previous: a3f2...8b1c\n';
+            output.textContent += '  Transactions: [Alice → Bob: 10 BTC]\n';
+            output.textContent += '  Hash: 7c4d...9e2a\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Block 2:\n';
+            output.textContent += '  Previous: 7c4d...9e2a\n';
+            output.textContent += '  Transactions: [Bob → Charlie: 5 BTC]\n';
+            output.textContent += '  Hash: 2f8a...5d3b\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Verification: Chain valid ✓\n\n';
+            
+            await sleep(1000);
+            output.textContent += '👹 ATTACKER tries to change history!\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Attacker modifies Block 1:\n';
+            output.textContent += '  Changes: Alice → Bob: 10 BTC\n';
+            output.textContent += '       To: Alice → Bob: 1000 BTC\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Recalculate Block 1 hash:\n';
+            await sleep(300);
+            output.textContent += '  New hash: 9a1f...3c7d (changed!)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Verification:\n';
+            await sleep(300);
+            output.textContent += '  Check Block 2:\n';
+            output.textContent += '    Previous hash: 7c4d...9e2a\n';
+            output.textContent += '    Block 1 hash: 9a1f...3c7d\n';
+            output.textContent += '    MISMATCH! ❌\n\n';
+            
+            await sleep(500);
+            output.textContent += '  Chain validation: FAILED ❌\n';
+            output.textContent += '  Tampering detected!\n\n';
+            
+            await sleep(500);
+            output.textContent += 'To successfully tamper:\n';
+            output.textContent += '  1. Change Block 1\n';
+            output.textContent += '  2. Recalculate Block 1 hash\n';
+            output.textContent += '  3. Update Block 2\'s previous hash\n';
+            output.textContent += '  4. Recalculate Block 2 hash\n';
+            output.textContent += '  ... (must redo ALL subsequent blocks!)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'With Proof-of-Work:\n';
+            output.textContent += '  Each block takes 10 minutes to mine\n';
+            output.textContent += '  1000 blocks = ~7 days of computation!\n';
+            output.textContent += '  Attacker can\'t keep up with new blocks\n\n';
+            
+            output.textContent += 'Result: Immutability through cryptography! 🔒';
+        }
+        
+        async function demoByzantine() {
+            const output = document.getElementById('securityDemo');
+            output.textContent = '=== BYZANTINE ATTACK & DEFENSE ===\n\n';
+            
+            output.textContent += 'Network: 4 nodes (need 3f+1 for f=1 Byzantine)\n';
+            output.textContent += 'Nodes: N1, N2, N3 (honest), N4 (Byzantine)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Transaction: Transfer 100 tokens\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- ATTACK: Byzantine node lies ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'N1 broadcasts: "Transfer 100 tokens"\n';
+            output.textContent += '  Signs with digital signature ✍️\n\n';
+            
+            await sleep(500);
+            output.textContent += 'N4 (Byzantine) intercepts and lies:\n';
+            await sleep(300);
+            output.textContent += '  Tells N2: "N1 said transfer 100" ✓\n';
+            output.textContent += '  Tells N3: "N1 said transfer 500" 😈\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- DEFENSE: Cryptographic Signatures ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'N2 receives message:\n';
+            output.textContent += '  Check: Signature valid for "100 tokens"? ✓\n';
+            output.textContent += '  Accept: 100 tokens\n\n';
+            
+            await sleep(300);
+            output.textContent += 'N3 receives message:\n';
+            output.textContent += '  Check: Signature valid for "500 tokens"? ❌\n';
+            output.textContent += '  INVALID! N1 never signed this value!\n';
+            output.textContent += '  Reject Byzantine node\'s message\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- CONSENSUS ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'All honest nodes vote:\n';
+            output.textContent += '  N1: "100 tokens" (signed) ✓\n';
+            output.textContent += '  N2: "100 tokens" (verified sig) ✓\n';
+            output.textContent += '  N3: "100 tokens" (verified sig) ✓\n';
+            output.textContent += '  N4: "500 tokens" (invalid sig) ❌\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Majority (3/4): "100 tokens"\n';
+            output.textContent += 'Byzantine node outvoted! ✓\n\n';
+            
+            output.textContent += 'Security mechanisms that helped:\n';
+            output.textContent += '  ✓ Digital signatures (can\'t forge)\n';
+            output.textContent += '  ✓ Majority voting (3 > 1)\n';
+            output.textContent += '  ✓ Cryptographic verification\n';
+            output.textContent += '  ✓ 3f+1 redundancy';
+        }
+    </script>
+</body>
+</html>

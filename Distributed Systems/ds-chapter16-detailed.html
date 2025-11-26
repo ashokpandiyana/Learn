@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 16: Scalability and Performance</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+        }
+        
+        .scaling-visual {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .server-box {
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .server-box:hover {
+            transform: scale(1.05);
+        }
+        
+        .big-server {
+            background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);
+            font-size: 1.3em;
+            padding: 40px;
+        }
+        
+        .lb-box {
+            background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            margin: 20px auto;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .cache-layer {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .cache-layer:hover {
+            transform: translateX(10px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+        
+        .latency-badge {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .metric-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .metric-icon {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .cdn-map {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #2196f3;
+        }
+        
+        .edge-server {
+            display: inline-block;
+            background: #4caf50;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 10px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .origin-server {
+            display: inline-block;
+            background: #f44336;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin: 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .strategy-card {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📈 Chapter 16: Scalability and Performance</h1>
+        
+        <div class="problem-box">
+            <h3>🚀 The Growth Challenge</h3>
+            <p style="font-size: 1.2em;"><strong>Your app is successful! Now what?</strong></p>
+            <p>You launched with 100 users. Now you have 1 million. Your single server can't handle the load!</p>
+            <ul style="margin-top: 10px;">
+                <li>Response time: 50ms → 5 seconds (100x slower!)</li>
+                <li>Server CPU: 95% constantly</li>
+                <li>Database connections: maxed out</li>
+                <li>Users complaining about slowness</li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>Question:</strong> How do you scale to handle growth while maintaining performance?</p>
+        </div>
+        
+        <h2>1️⃣ Horizontal vs Vertical Scaling</h2>
+        
+        <div class="scaling-visual">
+            <div>
+                <h3 style="text-align: center; color: #9c27b0;">⬆️ Vertical Scaling (Scale Up)</h3>
+                
+                <div class="visual-diagram">
+                    <div style="text-align: center; margin: 30px 0;">
+                        <div class="server-box" style="padding: 20px;">
+                            Small Server<br>
+                            4 CPU, 8 GB RAM<br>
+                            1000 users
+                        </div>
+                        
+                        <div style="font-size: 2em; margin: 20px 0; color: #9c27b0;">↓ Upgrade ↓</div>
+                        
+                        <div class="server-box big-server">
+                            BIGGER Server<br>
+                            32 CPU, 128 GB RAM<br>
+                            10,000 users
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="key-point">
+                    <h4>✅ Advantages:</h4>
+                    <ul>
+                        <li>Simple (no code changes)</li>
+                        <li>No distributed complexity</li>
+                        <li>Consistent (single machine)</li>
+                    </ul>
+                </div>
+                
+                <div class="warning">
+                    <h4>❌ Limitations:</h4>
+                    <ul>
+                        <li><strong>Hardware limits:</strong> Can't scale forever</li>
+                        <li><strong>Expensive:</strong> Non-linear cost ($$$)</li>
+                        <li><strong>Downtime:</strong> Must migrate</li>
+                        <li><strong>Single point of failure</strong></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div>
+                <h3 style="text-align: center; color: #2196f3;">➡️ Horizontal Scaling (Scale Out)</h3>
+                
+                <div class="visual-diagram">
+                    <div style="text-align: center; margin: 30px 0;">
+                        <div class="server-box">
+                            Server 1<br>
+                            1000 users
+                        </div>
+                        
+                        <div style="font-size: 2em; margin: 20px 0; color: #2196f3;">↓ Add More ↓</div>
+                        
+                        <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                            <div class="server-box" style="padding: 15px;">Server 1</div>
+                            <div class="server-box" style="padding: 15px;">Server 2</div>
+                            <div class="server-box" style="padding: 15px;">Server 3</div>
+                            <div class="server-box" style="padding: 15px;">Server 4</div>
+                        </div>
+                        <div style="margin-top: 10px; color: #2196f3; font-weight: bold;">
+                            4 servers = 4000 users
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="key-point">
+                    <h4>✅ Advantages:</h4>
+                    <ul>
+                        <li><strong>No limits:</strong> Add servers infinitely</li>
+                        <li><strong>Cost-effective:</strong> Use commodity hardware</li>
+                        <li><strong>Fault tolerance:</strong> Redundancy built-in</li>
+                        <li><strong>Elastic:</strong> Scale up/down as needed</li>
+                    </ul>
+                </div>
+                
+                <div class="warning">
+                    <h4>❌ Challenges:</h4>
+                    <ul>
+                        <li>Distributed complexity</li>
+                        <li>Data partitioning needed</li>
+                        <li>Network overhead</li>
+                        <li>Consistency challenges</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>💰 Cost Comparison</h4>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>Capacity</th>
+                    <th>Vertical Scaling</th>
+                    <th>Horizontal Scaling</th>
+                </tr>
+                <tr>
+                    <td>1000 users</td>
+                    <td>1 × $200/mo = $200</td>
+                    <td>1 × $200/mo = $200</td>
+                </tr>
+                <tr>
+                    <td>10,000 users</td>
+                    <td>1 × $2,000/mo = $2,000</td>
+                    <td>10 × $200/mo = $2,000</td>
+                </tr>
+                <tr>
+                    <td>100,000 users</td>
+                    <td>1 × $20,000/mo = $20,000</td>
+                    <td>100 × $200/mo = $20,000</td>
+                </tr>
+                <tr>
+                    <td>1,000,000 users</td>
+                    <td>❌ Not possible (hardware limits)</td>
+                    <td>1000 × $200/mo = $200,000 ✓</td>
+                </tr>
+            </table>
+            
+            <p style="margin-top: 15px;"><strong>Reality:</strong> Most systems use BOTH - scale up to reasonable size, then scale out!</p>
+        </div>
+        
+        <h2>2️⃣ Load Balancing Strategies</h2>
+        
+        <div class="definition">
+            <h4>What is Load Balancing?</h4>
+            <p><strong>Load balancer</strong> distributes incoming requests across multiple servers to:</p>
+            <ul style="margin-top: 10px;">
+                <li>Prevent any one server from being overwhelmed</li>
+                <li>Maximize throughput and minimize response time</li>
+                <li>Provide redundancy (failover if server dies)</li>
+            </ul>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Load Balancer Architecture</h4>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; flex-wrap: wrap;">
+                    <div class="server-box client">Client 1</div>
+                    <div class="server-box client">Client 2</div>
+                    <div class="server-box client">Client 3</div>
+                    <div class="server-box client">Client 4</div>
+                </div>
+                
+                <div style="font-size: 1.5em; color: #667eea; margin: 20px 0;">
+                    ↓ All requests ↓
+                </div>
+                
+                <div class="lb-box">
+                    ⚖️ LOAD BALANCER
+                </div>
+                
+                <div style="font-size: 1.5em; color: #667eea; margin: 20px 0;">
+                    ↓ Distributes ↓
+                </div>
+                
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                    <div class="server-box">Server 1<br>25% load</div>
+                    <div class="server-box">Server 2<br>25% load</div>
+                    <div class="server-box">Server 3<br>25% load</div>
+                    <div class="server-box">Server 4<br>25% load</div>
+                </div>
+            </div>
+        </div>
+        
+        <h3>⚖️ Load Balancing Algorithms</h3>
+        
+        <div class="strategy-card">
+            <h4>1. Round Robin</h4>
+            <p><strong>Strategy:</strong> Distribute requests in circular order (1 → 2 → 3 → 1 → 2 → ...)</p>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <strong>✅ Pros:</strong> Simple, fair distribution, stateless
+            </div>
+            <div style="background: #ffebee; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <strong>❌ Cons:</strong> Doesn't consider server load or capacity
+            </div>
+        </div>
+        
+        <div class="strategy-card">
+            <h4>2. Least Connections</h4>
+            <p><strong>Strategy:</strong> Send request to server with fewest active connections</p>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <strong>✅ Pros:</strong> Adapts to server load, handles long-running requests
+            </div>
+            <div style="background: #ffebee; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <strong>❌ Cons:</strong> Must track connections, more complex
+            </div>
+        </div>
+        
+        <div class="strategy-card">
+            <h4>3. Weighted Round Robin</h4>
+            <p><strong>Strategy:</strong> Assign weights to servers based on capacity (powerful servers get more requests)</p>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <strong>Example:</strong> Server 1 (8 CPU) weight=2, Server 2 (4 CPU) weight=1 → S1 gets 2x traffic
+            </div>
+        </div>
+        
+        <div class="strategy-card">
+            <h4>4. IP Hash</h4>
+            <p><strong>Strategy:</strong> Hash client IP to determine server (same client always goes to same server)</p>
+            
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <strong>✅ Pros:</strong> Session affinity (sticky sessions), useful for caching
+            </div>
+            <div style="background: #ffebee; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <strong>❌ Cons:</strong> Uneven distribution if some IPs more active
+            </div>
+        </div>
+        
+        <pre><code>// Load Balancer Implementation
+class LoadBalancer {
+    constructor(servers, strategy = 'round-robin') {
+        this.servers = servers;
+        this.strategy = strategy;
+        this.currentIndex = 0;
+        this.connections = new Map(); // server -> count
+        
+        // Initialize connection counts
+        servers.forEach(s => this.connections.set(s, 0));
+    }
+    
+    getNextServer(clientIp = null) {
+        switch(this.strategy) {
+            case 'round-robin':
+                return this.roundRobin();
+            case 'least-connections':
+                return this.leastConnections();
+            case 'ip-hash':
+                return this.ipHash(clientIp);
+            default:
+                return this.roundRobin();
+        }
+    }
+    
+    roundRobin() {
+        const server = this.servers[this.currentIndex];
+        this.currentIndex = (this.currentIndex + 1) % this.servers.length;
+        return server;
+    }
+    
+    leastConnections() {
+        let minConnections = Infinity;
+        let selectedServer = null;
+        
+        for (const server of this.servers) {
+            const count = this.connections.get(server);
+            if (count < minConnections) {
+                minConnections = count;
+                selectedServer = server;
+            }
+        }
+        
+        return selectedServer;
+    }
+    
+    ipHash(clientIp) {
+        if (!clientIp) return this.roundRobin();
+        
+        // Simple hash function
+        let hash = 0;
+        for (let i = 0; i < clientIp.length; i++) {
+            hash = ((hash << 5) - hash) + clientIp.charCodeAt(i);
+        }
+        
+        const index = Math.abs(hash) % this.servers.length;
+        return this.servers[index];
+    }
+    
+    handleRequest(clientIp) {
+        const server = this.getNextServer(clientIp);
+        
+        // Track connection
+        this.connections.set(server, this.connections.get(server) + 1);
+        
+        console.log(`Request from ${clientIp} → ${server}`);
+        
+        // Simulate request completion
+        setTimeout(() => {
+            this.connections.set(server, this.connections.get(server) - 1);
+        }, 1000);
+        
+        return server;
+    }
+}
+
+// Usage
+const lb = new LoadBalancer(
+    ['Server1', 'Server2', 'Server3'],
+    'round-robin'
+);
+
+lb.handleRequest('192.168.1.1'); // → Server1
+lb.handleRequest('192.168.1.2'); // → Server2
+lb.handleRequest('192.168.1.3'); // → Server3
+lb.handleRequest('192.168.1.1'); // → Server1 (round robin)</code></pre>
+        
+        <h2>3️⃣ Consistent Hashing (Deep Dive)</h2>
+        
+        <div class="definition">
+            <h4>The Scaling Problem</h4>
+            <p>Simple hash: <code>server = hash(key) % N</code></p>
+            <p><strong>Problem:</strong> Add/remove server → N changes → EVERYTHING rehashes → Cache invalidation disaster!</p>
+            <p><strong>Solution:</strong> Consistent hashing - only K/N keys move when adding server</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Consistent Hashing Ring</h4>
+            
+            <svg width="500" height="500" style="display: block; margin: 30px auto;">
+                <!-- Ring -->
+                <circle cx="250" cy="250" r="180" fill="none" stroke="#667eea" stroke-width="4"/>
+                
+                <!-- Hash space labels -->
+                <text x="250" y="60" text-anchor="middle" font-weight="bold" fill="#666">0°</text>
+                <text x="440" y="260" text-anchor="middle" font-weight="bold" fill="#666">90°</text>
+                <text x="250" y="450" text-anchor="middle" font-weight="bold" fill="#666">180°</text>
+                <text x="60" y="260" text-anchor="middle" font-weight="bold" fill="#666">270°</text>
+                
+                <!-- Server nodes (larger) -->
+                <circle cx="250" cy="70" r="25" fill="#4caf50"/>
+                <text x="250" y="78" text-anchor="middle" fill="white" font-weight="bold">S1</text>
+                
+                <circle cx="430" cy="250" r="25" fill="#4caf50"/>
+                <text x="430" y="258" text-anchor="middle" fill="white" font-weight="bold">S2</text>
+                
+                <circle cx="250" cy="430" r="25" fill="#4caf50"/>
+                <text x="250" y="438" text-anchor="middle" fill="white" font-weight="bold">S3</text>
+                
+                <circle cx="70" cy="250" r="25" fill="#4caf50"/>
+                <text x="70" y="258" text-anchor="middle" fill="white" font-weight="bold">S4</text>
+                
+                <!-- Keys (smaller) -->
+                <circle cx="300" cy="100" r="12" fill="#ff9800"/>
+                <text x="320" y="95" fill="#ff9800" font-weight="bold" font-size="13">K1</text>
+                
+                <circle cx="380" cy="180" r="12" fill="#ff9800"/>
+                <text x="400" y="175" fill="#ff9800" font-weight="bold" font-size="13">K2</text>
+                
+                <circle cx="350" cy="320" r="12" fill="#ff9800"/>
+                <text x="370" y="330" fill="#ff9800" font-weight="bold" font-size="13">K3</text>
+                
+                <circle cx="150" cy="350" r="12" fill="#ff9800"/>
+                <text x="130" y="370" fill="#ff9800" font-weight="bold" font-size="13">K4</text>
+                
+                <!-- Arrows showing assignment -->
+                <path d="M 310 105 Q 350 110 420 240" fill="none" stroke="#2196f3" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arrowBlue)"/>
+                
+                <defs>
+                    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <polygon points="0 0, 10 3, 0 6" fill="#2196f3"/>
+                    </marker>
+                </defs>
+            </svg>
+            
+            <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <strong>Key Assignment Rule:</strong> Each key goes to first server clockwise on ring
+                <ul style="margin-top: 10px;">
+                    <li>K1 → S2 (first server clockwise)</li>
+                    <li>K2 → S2</li>
+                    <li>K3 → S3</li>
+                    <li>K4 → S3</li>
+                </ul>
+            </div>
+            
+            <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <strong>Add Server S5 at 45°:</strong> Only keys between S1 and S5 move!<br>
+                <strong>Remove Server S3:</strong> Only keys assigned to S3 move to S4!<br>
+                <br>
+                <strong>Result:</strong> Minimal disruption! Only ~1/N keys affected, not all keys! ✓
+            </div>
+        </div>
+        
+        <h2>4️⃣ Caching Strategies</h2>
+        
+        <div class="definition">
+            <h4>The Performance Multiplier</h4>
+            <p><strong>Caching</strong> = Store frequently accessed data in faster storage closer to the client.</p>
+            <p><strong>80/20 Rule:</strong> 80% of requests access 20% of data. Cache that 20%!</p>
+        </div>
+        
+        <h3>🏠 Local Caching</h3>
+        
+        <div class="cache-layer">
+            <h4>Application-Level Cache (In-Process)</h4>
+            <p><strong>Location:</strong> Same process as application</p>
+            <div class="latency-badge">Latency: ~1μs</div>
+            
+            <div style="margin: 15px 0;">
+                <strong>Example:</strong> In-memory dictionary/map
+                <pre style="margin: 10px 0;"><code>// Simple in-memory cache
+class LocalCache {
+    constructor(maxSize = 1000) {
+        this.cache = new Map();
+        this.maxSize = maxSize;
+    }
+    
+    get(key) {
+        return this.cache.get(key);
+    }
+    
+    set(key, value) {
+        // LRU eviction if full
+        if (this.cache.size >= this.maxSize) {
+            const firstKey = this.cache.keys().next().value;
+            this.cache.delete(firstKey);
+        }
+        this.cache.set(key, value);
+    }
+}
+
+const cache = new LocalCache();
+cache.set('user:1001', {name: 'Alice', age: 30});
+const user = cache.get('user:1001'); // ~1μs ⚡</code></pre>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 10px; border-radius: 5px;">
+                <strong>✅ Pros:</strong> Extremely fast, no network
+            </div>
+            <div style="background: #ffebee; padding: 10px; border-radius: 5px; margin-top: 5px;">
+                <strong>❌ Cons:</strong> Limited to one server, not shared
+            </div>
+        </div>
+        
+        <h3>🌐 Distributed Caching</h3>
+        
+        <div class="cache-layer">
+            <h4>Shared Cache (Redis/Memcached)</h4>
+            <p><strong>Location:</strong> Separate cache servers</p>
+            <div class="latency-badge" style="background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);">Latency: ~1ms</div>
+            
+            <div style="margin: 15px 0;">
+                <strong>Example:</strong> Redis cluster
+                <pre style="margin: 10px 0;"><code>// Distributed cache with Redis
+const redis = require('redis');
+const client = redis.createClient({
+    host: 'cache.example.com',
+    port: 6379
+});
+
+// Set with expiration
+await client.setex('session:abc123', 3600, JSON.stringify({
+    userId: 1001,
+    cart: ['item1', 'item2']
+}));
+
+// Get
+const session = JSON.parse(await client.get('session:abc123'));
+
+// Delete
+await client.del('session:abc123');</code></pre>
+            </div>
+            
+            <div style="background: #e8f5e9; padding: 10px; border-radius: 5px;">
+                <strong>✅ Pros:</strong> Shared across servers, large capacity
+            </div>
+            <div style="background: #ffebee; padding: 10px; border-radius: 5px; margin-top: 5px;">
+                <strong>❌ Cons:</strong> Network latency, cache can be SPOF
+            </div>
+        </div>
+        
+        <h3>🌍 CDN (Content Delivery Network)</h3>
+        
+        <div class="cache-layer">
+            <h4>Global Edge Caching</h4>
+            <p><strong>Location:</strong> Edge servers worldwide (close to users)</p>
+            <div class="latency-badge" style="background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);">Latency: 10-50ms</div>
+            
+            <div class="cdn-map">
+                <h4 style="text-align: center; margin-bottom: 20px;">CDN Global Distribution</h4>
+                
+                <div style="text-align: center; margin: 20px 0;">
+                    <div style="margin-bottom: 30px;">
+                        <div class="origin-server">
+                            🏢 ORIGIN SERVER<br>
+                            (US East)
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 30px 0;">
+                        <div style="font-weight: bold; margin-bottom: 15px;">↓ Content cached to edge servers worldwide ↓</div>
+                        
+                        <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                            <div class="edge-server">🌍 London</div>
+                            <div class="edge-server">🌏 Tokyo</div>
+                            <div class="edge-server">🌎 São Paulo</div>
+                            <div class="edge-server">🌏 Mumbai</div>
+                            <div class="edge-server">🌍 Frankfurt</div>
+                            <div class="edge-server">🌏 Singapore</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                    <strong>How it works:</strong>
+                    <ol style="margin-top: 10px;">
+                        <li>User in India requests image.jpg</li>
+                        <li>DNS routes to nearest edge (Mumbai)</li>
+                        <li>Mumbai edge checks cache:
+                            <ul>
+                                <li>HIT: Return immediately (10ms) ✓</li>
+                                <li>MISS: Fetch from origin (200ms), cache it, return</li>
+                            </ul>
+                        </li>
+                        <li>Next user in India: Cache hit! (10ms) ⚡</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <h3>💾 Cache Eviction Policies</h3>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Policy</th>
+                <th>Strategy</th>
+                <th>Best For</th>
+            </tr>
+            <tr>
+                <td><strong>LRU (Least Recently Used)</strong></td>
+                <td>Evict item not accessed for longest time</td>
+                <td>General purpose (most common)</td>
+            </tr>
+            <tr>
+                <td><strong>LFU (Least Frequently Used)</strong></td>
+                <td>Evict item with fewest accesses</td>
+                <td>Long-term popular items</td>
+            </tr>
+            <tr>
+                <td><strong>FIFO (First In First Out)</strong></td>
+                <td>Evict oldest item</td>
+                <td>Simple, no tracking needed</td>
+            </tr>
+            <tr>
+                <td><strong>TTL (Time To Live)</strong></td>
+                <td>Auto-expire after fixed time</td>
+                <td>Session data, temporary data</td>
+            </tr>
+        </table>
+        
+        <h2>5️⃣ Performance Metrics and Monitoring</h2>
+        
+        <div class="definition">
+            <h4>You Can't Improve What You Don't Measure</h4>
+            <p><strong>Performance monitoring</strong> tracks system behavior to identify bottlenecks and ensure SLAs are met.</p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 30px 0;">
+            <div class="metric-card">
+                <div class="metric-icon">⏱️</div>
+                <h4>Latency</h4>
+                <p><strong>Definition:</strong> Time to complete a single request</p>
+                <div style="margin: 15px 0;">
+                    <strong>Metrics:</strong>
+                    <ul>
+                        <li>p50 (median): 50% of requests</li>
+                        <li>p95: 95% of requests</li>
+                        <li>p99: 99% of requests</li>
+                        <li>p99.9: 99.9% of requests</li>
+                    </ul>
+                </div>
+                <div style="background: #e8f5e9; padding: 10px; border-radius: 5px;">
+                    <strong>Target:</strong> API &lt; 100ms, DB query &lt; 50ms
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon">📊</div>
+                <h4>Throughput</h4>
+                <p><strong>Definition:</strong> Number of requests processed per unit time</p>
+                <div style="margin: 15px 0;">
+                    <strong>Metrics:</strong>
+                    <ul>
+                        <li>Requests per second (RPS)</li>
+                        <li>Queries per second (QPS)</li>
+                        <li>Transactions per second (TPS)</li>
+                        <li>Megabytes per second (MB/s)</li>
+                    </ul>
+                </div>
+                <div style="background: #e8f5e9; padding: 10px; border-radius: 5px;">
+                    <strong>Target:</strong> 10,000 RPS, 100 MB/s
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon">✅</div>
+                <h4>Availability</h4>
+                <p><strong>Definition:</strong> Percentage of time system is operational</p>
+                <div style="margin: 15px 0;">
+                    <strong>Nines:</strong>
+                    <ul>
+                        <li>99% = 3.65 days downtime/year</li>
+                        <li>99.9% = 8.76 hours/year</li>
+                        <li>99.99% = 52.6 minutes/year</li>
+                        <li>99.999% = 5.26 minutes/year</li>
+                    </ul>
+                </div>
+                <div style="background: #e8f5e9; padding: 10px; border-radius: 5px;">
+                    <strong>Target:</strong> 99.9% (three nines) typical
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon">❌</div>
+                <h4>Error Rate</h4>
+                <p><strong>Definition:</strong> Percentage of failed requests</p>
+                <div style="margin: 15px 0;">
+                    <strong>Types:</strong>
+                    <ul>
+                        <li>4xx errors (client errors)</li>
+                        <li>5xx errors (server errors)</li>
+                        <li>Timeouts</li>
+                        <li>Exceptions</li>
+                    </ul>
+                </div>
+                <div style="background: #e8f5e9; padding: 10px; border-radius: 5px;">
+                    <strong>Target:</strong> &lt; 0.1% error rate
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon">💻</div>
+                <h4>Resource Utilization</h4>
+                <p><strong>Definition:</strong> How much of system capacity is used</p>
+                <div style="margin: 15px 0;">
+                    <strong>Metrics:</strong>
+                    <ul>
+                        <li>CPU usage (%)</li>
+                        <li>Memory usage (%)</li>
+                        <li>Disk I/O (IOPS, MB/s)</li>
+                        <li>Network bandwidth</li>
+                    </ul>
+                </div>
+                <div style="background: #fff3e0; padding: 10px; border-radius: 5px;">
+                    <strong>Target:</strong> 50-70% (room for spikes)
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon">🎯</div>
+                <h4>Saturation</h4>
+                <p><strong>Definition:</strong> How close to maximum capacity</p>
+                <div style="margin: 15px 0;">
+                    <strong>Indicators:</strong>
+                    <ul>
+                        <li>Queue length</li>
+                        <li>Thread pool usage</li>
+                        <li>Connection pool exhaustion</li>
+                        <li>Disk queue depth</li>
+                    </ul>
+                </div>
+                <div style="background: #ffebee; padding: 10px; border-radius: 5px;">
+                    <strong>Alert:</strong> Saturation → Add capacity!
+                </div>
+            </div>
+        </div>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: Scalability Demos</h3>
+            <p>Experience different scalability techniques:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demoLoadBalancing()">Load Balancing</button>
+                <button class="demo-button" onclick="demoConsistentHash()">Consistent Hashing</button>
+                <button class="demo-button" onclick="demoCacheHierarchy()">Cache Hierarchy</button>
+                <button class="demo-button" onclick="demoPerformance()">Performance Metrics</button>
+            </div>
+            <div id="scaleDemo" class="demo-output">Click a button to explore scalability concepts...</div>
+        </div>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 16</h3>
+            <ul style="line-height: 2;">
+                <li><strong>Vertical scaling</strong> - bigger machine, simple but limited</li>
+                <li><strong>Horizontal scaling</strong> - more machines, complex but unlimited</li>
+                <li><strong>Load balancing</strong> - distribute requests across servers</li>
+                <li><strong>Round robin</strong> - simple, fair, stateless</li>
+                <li><strong>Least connections</strong> - adapts to load dynamically</li>
+                <li><strong>Consistent hashing</strong> - minimal rehashing when scaling (K/N keys move)</li>
+                <li><strong>Caching hierarchy</strong> - local → distributed → CDN</li>
+                <li><strong>CDN</strong> - global edge caching for static content</li>
+                <li><strong>Performance metrics</strong> - latency, throughput, availability, errors</li>
+                <li><strong>Monitor everything</strong> - can't improve what you don't measure</li>
+                <li><strong>Trade-off</strong> - complexity vs performance vs cost</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>When would you choose vertical scaling over horizontal scaling?</li>
+                <li>Compare round robin vs least connections load balancing.</li>
+                <li>Why is consistent hashing better than simple modulo hashing?</li>
+                <li>Explain the cache hierarchy: local → distributed → CDN.</li>
+                <li>How does a CDN reduce latency for global users?</li>
+                <li>What's the difference between p50 and p99 latency? Why measure both?</li>
+                <li>Why target 50-70% resource utilization instead of 90%+?</li>
+                <li>Design caching strategy for: (a) user sessions, (b) product images.</li>
+                <li>Calculate: If p99 latency is 500ms and p50 is 50ms, what does this tell you?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function demoLoadBalancing() {
+            const output = document.getElementById('scaleDemo');
+            output.textContent = '=== LOAD BALANCING STRATEGIES ===\n\n';
+            
+            output.textContent += 'Servers: S1, S2, S3\n';
+            output.textContent += 'Incoming requests: R1, R2, R3, R4, R5, R6\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- ROUND ROBIN ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'R1 → S1 (index 0)\n';
+            await sleep(300);
+            output.textContent += 'R2 → S2 (index 1)\n';
+            await sleep(300);
+            output.textContent += 'R3 → S3 (index 2)\n';
+            await sleep(300);
+            output.textContent += 'R4 → S1 (index 0, wrapped around)\n';
+            await sleep(300);
+            output.textContent += 'R5 → S2 (index 1)\n';
+            await sleep(300);
+            output.textContent += 'R6 → S3 (index 2)\n\n';
+            
+            output.textContent += 'Result: Even distribution (2 requests each) ✓\n\n';
+            
+            await sleep(1000);
+            output.textContent += '--- LEAST CONNECTIONS ---\n\n';
+            
+            output.textContent += 'Initial connections: S1=0, S2=0, S3=0\n\n';
+            
+            await sleep(300);
+            output.textContent += 'R1 → S1 (least: 0 connections)\n';
+            output.textContent += '  Connections: S1=1, S2=0, S3=0\n';
+            await sleep(300);
+            output.textContent += 'R2 → S2 (least: 0 connections)\n';
+            output.textContent += '  Connections: S1=1, S2=1, S3=0\n';
+            await sleep(300);
+            output.textContent += 'R3 → S3 (least: 0 connections)\n';
+            output.textContent += '  Connections: S1=1, S2=1, S3=1\n\n';
+            
+            await sleep(300);
+            output.textContent += 'R1 completes on S1\n';
+            output.textContent += '  Connections: S1=0, S2=1, S3=1\n\n';
+            
+            await sleep(300);
+            output.textContent += 'R4 → S1 (least: 0 connections)\n';
+            output.textContent += '  Adapts to server load! ✓\n\n';
+            
+            output.textContent += 'Least connections better for:\n';
+            output.textContent += '  • Variable request durations\n';
+            output.textContent += '  • Long-polling, WebSockets\n';
+            output.textContent += '  • Uneven server capacity';
+        }
+        
+        async function demoConsistentHash() {
+            const output = document.getElementById('scaleDemo');
+            output.textContent = '=== CONSISTENT HASHING ===\n\n';
+            
+            output.textContent += 'Initial: 4 servers (S1, S2, S3, S4)\n';
+            output.textContent += 'Keys: K1, K2, K3, K4, K5, K6, K7, K8\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Key assignments:\n';
+            await sleep(300);
+            output.textContent += '  K1, K2 → S1\n';
+            output.textContent += '  K3, K4 → S2\n';
+            output.textContent += '  K5, K6 → S3\n';
+            output.textContent += '  K7, K8 → S4\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Cache hit rate: 80% (working great!) ✓\n\n';
+            
+            await sleep(1000);
+            output.textContent += '--- ADD SERVER S5 ---\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Simple hash (hash % N):\n';
+            output.textContent += '  N changes: 4 → 5\n';
+            output.textContent += '  ALL keys rehash! ❌\n';
+            await sleep(300);
+            output.textContent += '  K1: S1 → S2 (moved)\n';
+            output.textContent += '  K2: S1 → S3 (moved)\n';
+            output.textContent += '  K3: S2 → S4 (moved)\n';
+            output.textContent += '  ... (all 8 keys move!)\n\n';
+            
+            output.textContent += '  Cache hit rate: 0% (everything invalidated!) 💥\n';
+            output.textContent += '  Database: Overwhelmed with cache misses\n\n';
+            
+            await sleep(1000);
+            output.textContent += 'Consistent hashing:\n';
+            output.textContent += '  S5 placed on ring between S3 and S4\n';
+            await sleep(300);
+            output.textContent += '  Only keys between S3 and S5 move!\n';
+            output.textContent += '  K7 → S5 (moved, 1/8 keys = 12.5%)\n';
+            output.textContent += '  K1-K6, K8 stay put! ✓\n\n';
+            
+            output.textContent += '  Cache hit rate: 87.5% (only K7 invalidated) ✓\n';
+            output.textContent += '  Database: Barely notices\n\n';
+            
+            output.textContent += 'Consistent hashing saves the day!\n';
+            output.textContent += 'Only ~1/N keys move instead of ALL keys.';
+        }
+        
+        async function demoCacheHierarchy() {
+            const output = document.getElementById('scaleDemo');
+            output.textContent = '=== CACHE HIERARCHY ===\n\n';
+            
+            output.textContent += 'User in Mumbai requests: logo.png\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Level 1: Browser Cache\n';
+            await sleep(300);
+            output.textContent += '  Check: Not found ❌\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Level 2: Application Cache (Redis)\n';
+            await sleep(300);
+            output.textContent += '  Location: Mumbai datacenter\n';
+            output.textContent += '  Check: Not found ❌\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Level 3: CDN Edge Server\n';
+            await sleep(300);
+            output.textContent += '  Location: Mumbai edge\n';
+            output.textContent += '  Check: Not found ❌\n';
+            output.textContent += '  → Fetching from origin...\n\n';
+            
+            await sleep(800);
+            output.textContent += 'Level 4: Origin Server (S3)\n';
+            await sleep(300);
+            output.textContent += '  Location: US-East\n';
+            output.textContent += '  Latency: 200ms\n';
+            output.textContent += '  Retrieved: logo.png ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Caching on return path:\n';
+            await sleep(300);
+            output.textContent += '  → CDN caches logo.png (TTL: 1 hour)\n';
+            await sleep(300);
+            output.textContent += '  → Redis caches metadata\n';
+            await sleep(300);
+            output.textContent += '  → Browser caches (1 day)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'First request: 200ms (cache miss cascade)\n\n';
+            
+            await sleep(1000);
+            output.textContent += 'Next user in Mumbai requests logo.png:\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Level 3: CDN Edge Server\n';
+            await sleep(300);
+            output.textContent += '  Check: FOUND in cache! ✓\n';
+            output.textContent += '  Latency: 10ms\n';
+            output.textContent += '  Return immediately ⚡\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Subsequent request: 10ms (20x faster!) ⚡\n\n';
+            
+            output.textContent += 'Cache hierarchy impact:\n';
+            output.textContent += '  • Reduced origin load: 1 request vs 1000s\n';
+            output.textContent += '  • Lower latency: 10ms vs 200ms\n';
+            output.textContent += '  • Better UX: Faster page loads\n';
+            output.textContent += '  • Cost savings: Less bandwidth';
+        }
+        
+        async function demoPerformance() {
+            const output = document.getElementById('scaleDemo');
+            output.textContent = '=== PERFORMANCE METRICS ANALYSIS ===\n\n';
+            
+            output.textContent += 'System: E-commerce API\n';
+            output.textContent += 'Measurement period: Last hour\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- LATENCY PERCENTILES ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'p50 (median): 45ms\n';
+            output.textContent += '  → Half of requests complete in 45ms ✓\n\n';
+            
+            await sleep(300);
+            output.textContent += 'p95: 120ms\n';
+            output.textContent += '  → 95% of requests under 120ms ✓\n\n';
+            
+            await sleep(300);
+            output.textContent += 'p99: 800ms\n';
+            output.textContent += '  → 1% of requests very slow! ⚠️\n\n';
+            
+            await sleep(300);
+            output.textContent += 'p99.9: 2500ms\n';
+            output.textContent += '  → Tail latency is terrible! ❌\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Analysis:\n';
+            output.textContent += '  Most requests fast (p50 good)\n';
+            output.textContent += '  But 1% have bad experience (p99 high)\n';
+            output.textContent += '  Tail latency investigation needed!\n\n';
+            
+            await sleep(1000);
+            output.textContent += '--- THROUGHPUT ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Requests: 3,600,000 in last hour\n';
+            output.textContent += 'Average RPS: 1,000 requests/second\n';
+            output.textContent += 'Peak RPS: 2,500 (during sale)\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- AVAILABILITY ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Uptime: 59 minutes 54 seconds\n';
+            output.textContent += 'Downtime: 6 seconds\n';
+            output.textContent += 'Availability: 99.97% ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- ERROR RATE ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'Total requests: 3,600,000\n';
+            output.textContent += 'Errors (5xx): 360\n';
+            output.textContent += 'Error rate: 0.01% ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- RESOURCE UTILIZATION ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'CPU: 65% average, 85% peak\n';
+            output.textContent += 'Memory: 72% average\n';
+            output.textContent += 'Network: 40% of capacity\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Recommendations:\n';
+            output.textContent += '  ⚠️ Investigate p99 tail latency\n';
+            output.textContent += '  ✓ CPU headroom adequate for spikes\n';
+            output.textContent += '  ✓ Error rate acceptable\n';
+            output.textContent += '  ✓ Overall: System healthy but optimize tail';
+        }
+    </script>
+</body>
+</html>

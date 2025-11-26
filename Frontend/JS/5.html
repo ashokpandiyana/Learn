@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Strings - Chapter 5</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            margin: 25px 0 15px 0;
+            font-size: 1.5em;
+        }
+        
+        .section h4 {
+            color: #666;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+        
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow-x: auto;
+            position: relative;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+        
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .number { color: #d19a66; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+        .property { color: #e06c75; }
+        
+        .visual-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f1f3f5;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .note strong {
+            color: #856404;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .warning strong {
+            color: #721c24;
+        }
+        
+        .tip {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .tip strong {
+            color: #0c5460;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .success strong {
+            color: #155724;
+        }
+        
+        .interactive-demo {
+            background: white;
+            border: 2px solid #764ba2;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .interactive-demo button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        
+        .interactive-demo button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .interactive-demo input,
+        .interactive-demo textarea {
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            margin: 5px;
+            width: calc(100% - 10px);
+            font-family: monospace;
+        }
+        
+        .output {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+        
+        .string-visual {
+            display: flex;
+            gap: 2px;
+            margin: 20px 0;
+            overflow-x: auto;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .char-box {
+            min-width: 40px;
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        
+        .char-index {
+            font-size: 10px;
+            opacity: 0.8;
+            display: block;
+        }
+        
+        .char-value {
+            font-size: 16px;
+            display: block;
+        }
+        
+        .method-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .method-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .method-signature {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        .syntax-pattern {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .regex-box {
+            background: #fff9e6;
+            border: 2px solid #ffb347;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .regex-pattern {
+            background: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-weight: bold;
+            color: #d35400;
+            margin: 10px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 Chapter 5: Strings and Template Literals</h1>
+            <p>Master Text Manipulation in JavaScript</p>
+        </header>
+        
+        <div class="content">
+            <!-- Section 1: String Basics -->
+            <div class="section" id="basics">
+                <h2>🔤 1. String Basics</h2>
+                
+                <p><strong>Strings</strong> are sequences of characters used to represent text. In JavaScript, strings are immutable primitives.</p>
+                
+                <h3>1.1 Creating Strings</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Single quotes</span>
+<span class="keyword">const</span> str1 = <span class="string">'Hello World'</span>;
+
+<span class="comment">// Double quotes</span>
+<span class="keyword">const</span> str2 = <span class="string">"Hello World"</span>;
+
+<span class="comment">// Template literals (backticks) - ES6</span>
+<span class="keyword">const</span> str3 = <span class="string">`Hello World`</span>;
+
+<span class="comment">// Escaping quotes</span>
+<span class="keyword">const</span> quote1 = <span class="string">'He said, "Hello"'</span>;
+<span class="keyword">const</span> quote2 = <span class="string">"It's a beautiful day"</span>;
+<span class="keyword">const</span> quote3 = <span class="string">'It\'s a beautiful day'</span>;  <span class="comment">// Escape with backslash</span>
+
+<span class="comment">// Using String constructor (not recommended)</span>
+<span class="keyword">const</span> str4 = <span class="keyword">new</span> <span class="function">String</span>(<span class="string">"Hello"</span>);  <span class="comment">// Creates String object, not primitive</span></code>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Important:</strong> Use string literals (quotes/backticks), not <code>new String()</code>. The constructor creates an object, not a primitive, which can cause unexpected behavior with <code>===</code> comparison.
+                </div>
+                
+                <h3>1.2 String Immutability</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Strings are IMMUTABLE - cannot be changed</span>
+<span class="keyword">let</span> str = <span class="string">"Hello"</span>;
+str[<span class="number">0</span>] = <span class="string">"J"</span>;  <span class="comment">// ❌ Doesn't work (no error in non-strict mode)</span>
+<span class="function">console</span>.<span class="function">log</span>(str);  <span class="comment">// "Hello" (unchanged)</span>
+
+<span class="comment">// To "change" a string, create a new one</span>
+str = <span class="string">"J"</span> + str.<span class="function">slice</span>(<span class="number">1</span>);  <span class="comment">// "Jello"</span>
+<span class="function">console</span>.<span class="function">log</span>(str);  <span class="comment">// "Jello"</span></code>
+                </div>
+                
+                <h3>1.3 String Length and Indexing</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">const</span> text = <span class="string">"JavaScript"</span>;
+
+<span class="comment">// Length property</span>
+<span class="function">console</span>.<span class="function">log</span>(text.length);  <span class="comment">// 10</span>
+
+<span class="comment">// Accessing characters (0-indexed)</span>
+<span class="function">console</span>.<span class="function">log</span>(text[<span class="number">0</span>]);      <span class="comment">// "J"</span>
+<span class="function">console</span>.<span class="function">log</span>(text[<span class="number">4</span>]);      <span class="comment">// "S"</span>
+<span class="function">console</span>.<span class="function">log</span>(text[<span class="number">100</span>]);    <span class="comment">// undefined (out of bounds)</span>
+
+<span class="comment">// charAt() method (older way)</span>
+<span class="function">console</span>.<span class="function">log</span>(text.<span class="function">charAt</span>(<span class="number">0</span>));  <span class="comment">// "J"</span>
+<span class="function">console</span>.<span class="function">log</span>(text.<span class="function">charAt</span>(<span class="number">100</span>));  <span class="comment">// "" (empty string, not undefined)</span>
+
+<span class="comment">// Last character</span>
+<span class="function">console</span>.<span class="function">log</span>(text[text.length - <span class="number">1</span>]);  <span class="comment">// "t"</span></code>
+                </div>
+                
+                <div class="visual-box">
+                    <h4>String Index Visualization</h4>
+                    <p><strong>String:</strong> "JavaScript"</p>
+                    <div class="string-visual">
+                        <div class="char-box">
+                            <span class="char-index">0</span>
+                            <span class="char-value">J</span>
+                        </div>
+                        <div class="char-box">
+                            <span class="char-index">1</span>
+                            <span class="char-value">a</span>
+                        </div>
+                        <div class="char-box">
+                            <span class="char-index">2</span>
+                            <span class="char-value">v</span>
+                        </div>
+                        <div class="char-box">
+                            <span class="char-index">3</span>
+                            <span class="char-value">a</span>
+                        </div>
+                        <div class="char-box">
+                            <span class="char-index">4</span>
+                            <span class="char-value">S</span>
+                        </div>
+                        <div class="char-box">
+                            <span class="char-index">5</span>
+                            <span class="char-value">c</span>
+                        </div>
+                        <div class="char-box">
+                            <span class="char-index">6</span>
+                            <span class="char-value">r</span>
+                        </div>
+                        <div class="char-box">
+                            <span class="char-index">7</span>
+                            <span class="char-value">i</span>
+                        </div>
+                        <div class="char-box">
+                            <span class="char-index">8</span>
+                            <span class="char-value">p</span>
+                        </div>
+                        <div class="char-box">
+                            <span class="char-index">9</span>
+                            <span class="char-value">t</span>
+                        </div>
+                    </div>
+                    <p><strong>Length:</strong> 10 | <strong>Last Index:</strong> 9</p>
+                </div>
+                
+                <h3>1.4 Escape Sequences</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Common escape sequences</span>
+<span class="keyword">const</span> newLine = <span class="string">"Line 1\nLine 2"</span>;        <span class="comment">// \n = newline</span>
+<span class="keyword">const</span> tab = <span class="string">"Column1\tColumn2"</span>;         <span class="comment">// \t = tab</span>
+<span class="keyword">const</span> backslash = <span class="string">"C:\\Users\\Name"</span>;      <span class="comment">// \\ = backslash</span>
+<span class="keyword">const</span> quote = <span class="string">"She said \"Hi\""</span>;         <span class="comment">// \" = double quote</span>
+<span class="keyword">const</span> apostrophe = <span class="string">'It\'s working'</span>;      <span class="comment">// \' = single quote</span>
+
+<span class="comment">// Unicode characters</span>
+<span class="keyword">const</span> unicode = <span class="string">"\u00A9"</span>;  <span class="comment">// © (copyright symbol)</span>
+<span class="keyword">const</span> emoji = <span class="string">"\u{1F600}"</span>;  <span class="comment">// 😀 (requires ES6)</span></code>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Escape Sequence</th>
+                            <th>Description</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>\n</code></td>
+                            <td>New line</td>
+                            <td><code>"Line1\nLine2"</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>\t</code></td>
+                            <td>Tab</td>
+                            <td><code>"Name:\tJohn"</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>\\</code></td>
+                            <td>Backslash</td>
+                            <td><code>"C:\\folder"</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>\'</code></td>
+                            <td>Single quote</td>
+                            <td><code>'It\'s'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>\"</code></td>
+                            <td>Double quote</td>
+                            <td><code>"Say \"Hi\""</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>\r</code></td>
+                            <td>Carriage return</td>
+                            <td><code>"Text\rNew"</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Section 2: String Methods -->
+            <div class="section" id="methods">
+                <h2>🔧 2. String Methods</h2>
+                
+                <h3>2.1 Case Conversion</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">const</span> text = <span class="string">"Hello World"</span>;
+
+<span class="comment">// Convert to uppercase</span>
+<span class="function">console</span>.<span class="function">log</span>(text.<span class="function">toUpperCase</span>());  <span class="comment">// "HELLO WORLD"</span>
+
+<span class="comment">// Convert to lowercase</span>
+<span class="function">console</span>.<span class="function">log</span>(text.<span class="function">toLowerCase</span>());  <span class="comment">// "hello world"</span>
+
+<span class="comment">// Original unchanged (strings are immutable)</span>
+<span class="function">console</span>.<span class="function">log</span>(text);  <span class="comment">// "Hello World"</span>
+
+<span class="comment">// Practical use: Case-insensitive comparison</span>
+<span class="keyword">const</span> input = <span class="string">"HELLO"</span>;
+<span class="keyword">const</span> stored = <span class="string">"hello"</span>;
+<span class="function">console</span>.<span class="function">log</span>(input.<span class="function">toLowerCase</span>() === stored);  <span class="comment">// true</span></code>
+                </div>
+                
+                <h3>2.2 Extracting Substrings - slice, substring, substr</h3>
+                
+                <div class="warning">
+                    <strong>⚠️ Interview Favorite:</strong> These three methods are commonly confused. Know the differences!
+                </div>
+                
+                <div class="method-card">
+                    <h4>slice(start, end)</h4>
+                    <p>Extracts section from start to end (exclusive). Supports negative indices.</p>
+                    <div class="method-signature">slice(startIndex, endIndex)</div>
+                    <div class="code-block">
+<code><span class="keyword">const</span> str = <span class="string">"JavaScript"</span>;
+
+<span class="comment">// Basic slice</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">slice</span>(<span class="number">0</span>, <span class="number">4</span>));   <span class="comment">// "Java"</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">slice</span>(<span class="number">4</span>, <span class="number">10</span>));  <span class="comment">// "Script"</span>
+
+<span class="comment">// Omit end (goes to end of string)</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">slice</span>(<span class="number">4</span>));      <span class="comment">// "Script"</span>
+
+<span class="comment">// Negative indices (count from end)</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">slice</span>(-<span class="number">6</span>));     <span class="comment">// "Script" (last 6 chars)</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">slice</span>(<span class="number">0</span>, -<span class="number">6</span>));  <span class="comment">// "Java" (exclude last 6)</span></code>
+                    </div>
+                </div>
+                
+                <div class="method-card">
+                    <h4>substring(start, end)</h4>
+                    <p>Similar to slice but doesn't support negative indices. Swaps arguments if start > end.</p>
+                    <div class="method-signature">substring(startIndex, endIndex)</div>
+                    <div class="code-block">
+<code><span class="keyword">const</span> str = <span class="string">"JavaScript"</span>;
+
+<span class="comment">// Basic substring</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">substring</span>(<span class="number">0</span>, <span class="number">4</span>));  <span class="comment">// "Java"</span>
+
+<span class="comment">// Swaps if start > end</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">substring</span>(<span class="number">4</span>, <span class="number">0</span>));  <span class="comment">// "Java" (same as 0, 4)</span>
+
+<span class="comment">// Negative treated as 0</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">substring</span>(-<span class="number">3</span>));    <span class="comment">// "JavaScript" (starts at 0)</span></code>
+                    </div>
+                </div>
+                
+                <div class="method-card">
+                    <h4>substr(start, length) - DEPRECATED ⚠️</h4>
+                    <p>Extracts characters from start, for given length. Avoid using - use slice instead!</p>
+                    <div class="method-signature">substr(startIndex, length)</div>
+                    <div class="code-block">
+<code><span class="keyword">const</span> str = <span class="string">"JavaScript"</span>;
+
+<span class="comment">// substr uses LENGTH, not end index</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">substr</span>(<span class="number">0</span>, <span class="number">4</span>));  <span class="comment">// "Java" (start at 0, take 4 chars)</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">substr</span>(<span class="number">4</span>, <span class="number">6</span>));  <span class="comment">// "Script" (start at 4, take 6 chars)</span>
+
+<span class="comment">// ⚠️ DEPRECATED - use slice() instead!</span></code>
+                    </div>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Parameters</th>
+                            <th>Negative Indices</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>slice</strong></td>
+                            <td>(start, end)</td>
+                            <td>✅ Supported</td>
+                            <td>✅ Recommended</td>
+                        </tr>
+                        <tr>
+                            <td><strong>substring</strong></td>
+                            <td>(start, end)</td>
+                            <td>❌ Treats as 0</td>
+                            <td>✅ OK to use</td>
+                        </tr>
+                        <tr>
+                            <td><strong>substr</strong></td>
+                            <td>(start, length)</td>
+                            <td>✅ For start only</td>
+                            <td>❌ Deprecated</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>2.3 Searching and Matching</h3>
+                
+                <div class="grid-2">
+                    <div class="method-card">
+                        <h4>indexOf()</h4>
+                        <p>Returns first index of substring, or -1 if not found.</p>
+                        <div class="code-block">
+<code><span class="keyword">const</span> str = <span class="string">"Hello World"</span>;
+
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">indexOf</span>(<span class="string">"o"</span>));     <span class="comment">// 4</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">indexOf</span>(<span class="string">"World"</span>)); <span class="comment">// 6</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">indexOf</span>(<span class="string">"xyz"</span>));   <span class="comment">// -1</span>
+
+<span class="comment">// Start search from index</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">indexOf</span>(<span class="string">"o"</span>, <span class="number">5</span>)); <span class="comment">// 7 (2nd "o")</span></code>
+                        </div>
+                    </div>
+                    
+                    <div class="method-card">
+                        <h4>lastIndexOf()</h4>
+                        <p>Returns last index of substring, searching backwards.</p>
+                        <div class="code-block">
+<code><span class="keyword">const</span> str = <span class="string">"Hello World"</span>;
+
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">lastIndexOf</span>(<span class="string">"o"</span>)); <span class="comment">// 7</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">lastIndexOf</span>(<span class="string">"l"</span>)); <span class="comment">// 9</span>
+
+<span class="comment">// Search backwards from index</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">lastIndexOf</span>(<span class="string">"o"</span>, <span class="number">5</span>)); <span class="comment">// 4</span></code>
+                        </div>
+                    </div>
+                    
+                    <div class="method-card">
+                        <h4>includes()</h4>
+                        <p>Returns true/false if string contains substring. (ES6)</p>
+                        <div class="code-block">
+<code><span class="keyword">const</span> str = <span class="string">"Hello World"</span>;
+
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">includes</span>(<span class="string">"World"</span>)); <span class="comment">// true</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">includes</span>(<span class="string">"xyz"</span>));   <span class="comment">// false</span>
+
+<span class="comment">// Case sensitive</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">includes</span>(<span class="string">"world"</span>)); <span class="comment">// false</span></code>
+                        </div>
+                    </div>
+                    
+                    <div class="method-card">
+                        <h4>startsWith() / endsWith()</h4>
+                        <p>Check if string starts/ends with substring. (ES6)</p>
+                        <div class="code-block">
+<code><span class="keyword">const</span> str = <span class="string">"JavaScript"</span>;
+
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">startsWith</span>(<span class="string">"Java"</span>));   <span class="comment">// true</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">startsWith</span>(<span class="string">"Script"</span>)); <span class="comment">// false</span>
+
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">endsWith</span>(<span class="string">"Script"</span>)); <span class="comment">// true</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">endsWith</span>(<span class="string">"Java"</span>));   <span class="comment">// false</span></code>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>2.4 Trimming and Padding</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// trim() - removes whitespace from both ends</span>
+<span class="keyword">const</span> str = <span class="string">"   Hello World   "</span>;
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">trim</span>());       <span class="comment">// "Hello World"</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">trimStart</span>());  <span class="comment">// "Hello World   " (ES2019)</span>
+<span class="function">console</span>.<span class="function">log</span>(str.<span class="function">trimEnd</span>());    <span class="comment">// "   Hello World" (ES2019)</span>
+
+<span class="comment">// padStart() / padEnd() - pad to specific length (ES2017)</span>
+<span class="keyword">const</span> num = <span class="string">"5"</span>;
+<span class="function">console</span>.<span class="function">log</span>(num.<span class="function">padStart</span>(<span class="number">3</span>, <span class="string">"0"</span>));  <span class="comment">// "005"</span>
+<span class="function">console</span>.<span class="function">log</span>(num.<span class="function">padEnd</span>(<span class="number">3</span>, <span class="string">"0"</span>));    <span class="comment">// "500"</span>
+
+<span class="comment">// Credit card masking</span>
+<span class="keyword">const</span> last4 = <span class="string">"1234"</span>;
+<span class="keyword">const</span> masked = last4.<span class="function">padStart</span>(<span class="number">16</span>, <span class="string">"*"</span>);
+<span class="function">console</span>.<span class="function">log</span>(masked);  <span class="comment">// "************1234"</span></code>
+                </div>
+                
+                <h3>2.5 Replacing and Repeating</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// replace() - replaces FIRST occurrence</span>
+<span class="keyword">const</span> text = <span class="string">"Hello World, Hello Everyone"</span>;
+<span class="function">console</span>.<span class="function">log</span>(text.<span class="function">replace</span>(<span class="string">"Hello"</span>, <span class="string">"Hi"</span>));
+<span class="comment">// "Hi World, Hello Everyone" (only first)</span>
+
+<span class="comment">// replaceAll() - replaces ALL occurrences (ES2021)</span>
+<span class="function">console</span>.<span class="function">log</span>(text.<span class="function">replaceAll</span>(<span class="string">"Hello"</span>, <span class="string">"Hi"</span>));
+<span class="comment">// "Hi World, Hi Everyone"</span>
+
+<span class="comment">// Replace with regex (global flag)</span>
+<span class="function">console</span>.<span class="function">log</span>(text.<span class="function">replace</span>(<span class="string">/Hello/g</span>, <span class="string">"Hi"</span>));
+<span class="comment">// "Hi World, Hi Everyone"</span>
+
+<span class="comment">// repeat() - repeat string n times</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"Ha"</span>.<span class="function">repeat</span>(<span class="number">3</span>));  <span class="comment">// "HaHaHa"</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"*"</span>.<span class="function">repeat</span>(<span class="number">10</span>));  <span class="comment">// "**********"</span></code>
+                </div>
+                
+                <h3>2.6 Splitting and Joining</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// split() - converts string to array</span>
+<span class="keyword">const</span> csv = <span class="string">"apple,banana,orange"</span>;
+<span class="keyword">const</span> fruits = csv.<span class="function">split</span>(<span class="string">","</span>);
+<span class="function">console</span>.<span class="function">log</span>(fruits);  <span class="comment">// ["apple", "banana", "orange"]</span>
+
+<span class="comment">// Split into characters</span>
+<span class="keyword">const</span> word = <span class="string">"hello"</span>;
+<span class="function">console</span>.<span class="function">log</span>(word.<span class="function">split</span>(<span class="string">""</span>));  <span class="comment">// ["h", "e", "l", "l", "o"]</span>
+
+<span class="comment">// Split with limit</span>
+<span class="keyword">const</span> text = <span class="string">"one,two,three,four"</span>;
+<span class="function">console</span>.<span class="function">log</span>(text.<span class="function">split</span>(<span class="string">","</span>, <span class="number">2</span>));  <span class="comment">// ["one", "two"]</span>
+
+<span class="comment">// join() - converts array to string (opposite of split)</span>
+<span class="keyword">const</span> arr = [<span class="string">"Hello"</span>, <span class="string">"World"</span>];
+<span class="function">console</span>.<span class="function">log</span>(arr.<span class="function">join</span>(<span class="string">" "</span>));   <span class="comment">// "Hello World"</span>
+<span class="function">console</span>.<span class="function">log</span>(arr.<span class="function">join</span>(<span class="string">"-"</span>));   <span class="comment">// "Hello-World"</span>
+<span class="function">console</span>.<span class="function">log</span>(arr.<span class="function">join</span>(<span class="string">""</span>));    <span class="comment">// "HelloWorld"</span></code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 String Methods Playground</h4>
+                    <input type="text" id="stringInput" placeholder="Enter text: Hello World" value="Hello World">
+                    <br>
+                    <button onclick="demoCase()">toUpperCase</button>
+                    <button onclick="demoSlice()">slice(0, 5)</button>
+                    <button onclick="demoSplit()">split(' ')</button>
+                    <button onclick="demoReverse()">Reverse</button>
+                    <div class="output" id="stringMethodOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 3: Template Literals -->
+            <div class="section" id="template-literals">
+                <h2>✨ 3. Template Literals (ES6)</h2>
+                
+                <p><strong>Template literals</strong> (backticks) provide powerful string features: interpolation, multi-line strings, and tagged templates.</p>
+                
+                <h3>3.1 String Interpolation</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Old way - string concatenation</span>
+<span class="keyword">const</span> name = <span class="string">"Alice"</span>;
+<span class="keyword">const</span> age = <span class="number">25</span>;
+<span class="keyword">const</span> oldWay = <span class="string">"Hello, my name is "</span> + name + <span class="string">" and I am "</span> + age + <span class="string">" years old."</span>;
+
+<span class="comment">// New way - template literals</span>
+<span class="keyword">const</span> newWay = <span class="string">`Hello, my name is ${name} and I am ${age} years old.`</span>;
+
+<span class="comment">// Expressions inside ${}</span>
+<span class="keyword">const</span> a = <span class="number">5</span>, b = <span class="number">10</span>;
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">`${a} + ${b} = ${a + b}`</span>);  <span class="comment">// "5 + 10 = 15"</span>
+
+<span class="comment">// Function calls</span>
+<span class="keyword">function</span> <span class="function">getGreeting</span>() {
+    <span class="keyword">return</span> <span class="string">"Hello"</span>;
+}
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">`${getGreeting()}, ${name}!`</span>);  <span class="comment">// "Hello, Alice!"</span>
+
+<span class="comment">// Any expression works</span>
+<span class="keyword">const</span> items = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">`Items: ${items.length}`</span>);  <span class="comment">// "Items: 3"</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">`First: ${items[0]}`</span>);      <span class="comment">// "First: 1"</span></code>
+                </div>
+                
+                <h3>3.2 Multi-line Strings</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Old way - escape sequences</span>
+<span class="keyword">const</span> oldMultiline = <span class="string">"Line 1\nLine 2\nLine 3"</span>;
+
+<span class="comment">// New way - template literals preserve line breaks</span>
+<span class="keyword">const</span> newMultiline = <span class="string">`Line 1
+Line 2
+Line 3`</span>;
+
+<span class="comment">// HTML templates</span>
+<span class="keyword">const</span> html = <span class="string">`
+  &lt;div class="card"&gt;
+    &lt;h2&gt;${name}&lt;/h2&gt;
+    &lt;p&gt;Age: ${age}&lt;/p&gt;
+  &lt;/div&gt;
+`</span>;
+
+<span class="comment">// SQL queries</span>
+<span class="keyword">const</span> query = <span class="string">`
+  SELECT name, email
+  FROM users
+  WHERE age &gt; ${age}
+  ORDER BY name
+`</span>;</code>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 Use Cases:</strong>
+                    <ul>
+                        <li>HTML/CSS/SQL templates</li>
+                        <li>Multi-line messages</li>
+                        <li>Complex string formatting</li>
+                        <li>Dynamic content generation</li>
+                    </ul>
+                </div>
+                
+                <h3>3.3 Tagged Templates (Advanced)</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Tagged template - function processes template literal</span>
+<span class="keyword">function</span> <span class="function">highlight</span>(strings, ...values) {
+    <span class="keyword">let</span> result = <span class="string">""</span>;
+    strings.<span class="function">forEach</span>((str, i) => {
+        result += str;
+        <span class="keyword">if</span> (i < values.length) {
+            result += <span class="string">`&lt;strong&gt;${values[i]}&lt;/strong&gt;`</span>;
+        }
+    });
+    <span class="keyword">return</span> result;
+}
+
+<span class="keyword">const</span> name = <span class="string">"Alice"</span>;
+<span class="keyword">const</span> age = <span class="number">25</span>;
+<span class="keyword">const</span> result = <span class="function">highlight</span><span class="string">`Name: ${name}, Age: ${age}`</span>;
+<span class="function">console</span>.<span class="function">log</span>(result);
+<span class="comment">// "Name: &lt;strong&gt;Alice&lt;/strong&gt;, Age: &lt;strong&gt;25&lt;/strong&gt;"</span>
+
+<span class="comment">// Practical example: SQL query sanitization</span>
+<span class="keyword">function</span> <span class="function">sql</span>(strings, ...values) {
+    <span class="keyword">return</span> {
+        text: strings.<span class="function">join</span>(<span class="string">"?"</span>),
+        values: values
+    };
+}
+
+<span class="keyword">const</span> userId = <span class="number">123</span>;
+<span class="keyword">const</span> query = <span class="function">sql</span><span class="string">`SELECT * FROM users WHERE id = ${userId}`</span>;
+<span class="comment">// { text: "SELECT * FROM users WHERE id = ?", values: [123] }</span></code>
+                </div>
+                
+                <div class="note">
+                    <strong>💡 Tagged Templates:</strong> Advanced feature used by libraries like styled-components, GraphQL, and i18n for processing template literals.
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Template Literal Builder</h4>
+                    <input type="text" id="nameInput" placeholder="Name" value="Alice">
+                    <input type="number" id="ageInput" placeholder="Age" value="25">
+                    <button onclick="generateTemplate()">Generate Template</button>
+                    <div class="output" id="templateOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 4: Regular Expressions -->
+            <div class="section" id="regex">
+                <h2>🔍 4. Regular Expressions Basics</h2>
+                
+                <p><strong>Regular expressions</strong> (regex) are patterns used to match character combinations in strings.</p>
+                
+                <h3>4.1 Creating Regex</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Literal notation (preferred)</span>
+<span class="keyword">const</span> regex1 = <span class="string">/pattern/</span>;
+
+<span class="comment">// Constructor notation (dynamic patterns)</span>
+<span class="keyword">const</span> regex2 = <span class="keyword">new</span> <span class="function">RegExp</span>(<span class="string">"pattern"</span>);
+
+<span class="comment">// With flags</span>
+<span class="keyword">const</span> caseInsensitive = <span class="string">/hello/i</span>;  <span class="comment">// i = case insensitive</span>
+<span class="keyword">const</span> global = <span class="string">/hello/g</span>;           <span class="comment">// g = global (all matches)</span>
+<span class="keyword">const</span> multiline = <span class="string">/hello/m</span>;        <span class="comment">// m = multiline</span>
+<span class="keyword">const</span> combined = <span class="string">/hello/gi</span>;        <span class="comment">// gi = global + case insensitive</span></code>
+                </div>
+                
+                <h3>4.2 Basic Patterns</h3>
+                
+                <div class="regex-box">
+                    <h4>Common Regex Patterns</h4>
+                    
+                    <div class="regex-pattern">. (dot)</div>
+                    <p>Matches any single character except newline</p>
+                    
+                    <div class="regex-pattern">\d</div>
+                    <p>Matches any digit (0-9)</p>
+                    
+                    <div class="regex-pattern">\w</div>
+                    <p>Matches any word character (a-z, A-Z, 0-9, _)</p>
+                    
+                    <div class="regex-pattern">\s</div>
+                    <p>Matches any whitespace character</p>
+                    
+                    <div class="regex-pattern">^</div>
+                    <p>Matches start of string</p>
+                    
+                    <div class="regex-pattern">$</div>
+                    <p>Matches end of string</p>
+                    
+                    <div class="regex-pattern">*</div>
+                    <p>Matches 0 or more times</p>
+                    
+                    <div class="regex-pattern">+</div>
+                    <p>Matches 1 or more times</p>
+                    
+                    <div class="regex-pattern">?</div>
+                    <p>Matches 0 or 1 time</p>
+                    
+                    <div class="regex-pattern">{n}</div>
+                    <p>Matches exactly n times</p>
+                    
+                    <div class="regex-pattern">[abc]</div>
+                    <p>Matches any character in brackets</p>
+                    
+                    <div class="regex-pattern">[^abc]</div>
+                    <p>Matches any character NOT in brackets</p>
+                </div>
+                
+                <h3>4.3 String Methods with Regex</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// test() - returns true/false</span>
+<span class="keyword">const</span> emailRegex = <span class="string">/\w+@\w+\.\w+/</span>;
+<span class="function">console</span>.<span class="function">log</span>(emailRegex.<span class="function">test</span>(<span class="string">"user@example.com"</span>));  <span class="comment">// true</span>
+<span class="function">console</span>.<span class="function">log</span>(emailRegex.<span class="function">test</span>(<span class="string">"invalid"</span>));          <span class="comment">// false</span>
+
+<span class="comment">// match() - returns array of matches</span>
+<span class="keyword">const</span> text = <span class="string">"Call me at 555-1234 or 555-5678"</span>;
+<span class="keyword">const</span> phoneRegex = <span class="string">/\d{3}-\d{4}/g</span>;
+<span class="function">console</span>.<span class="function">log</span>(text.<span class="function">match</span>(phoneRegex));
+<span class="comment">// ["555-1234", "555-5678"]</span>
+
+<span class="comment">// replace() with regex</span>
+<span class="keyword">const</span> masked = text.<span class="function">replace</span>(<span class="string">/\d/g</span>, <span class="string">"*"</span>);
+<span class="function">console</span>.<span class="function">log</span>(masked);
+<span class="comment">// "Call me at ***-**** or ***-****"</span>
+
+<span class="comment">// search() - returns index of match</span>
+<span class="function">console</span>.<span class="function">log</span>(text.<span class="function">search</span>(<span class="string">/\d{3}/</span>));  <span class="comment">// 11 (first digit position)</span>
+
+<span class="comment">// split() with regex</span>
+<span class="keyword">const</span> words = <span class="string">"hello,world;foo:bar"</span>.<span class="function">split</span>(<span class="string">/[,;:]/</span>);
+<span class="function">console</span>.<span class="function">log</span>(words);  <span class="comment">// ["hello", "world", "foo", "bar"]</span></code>
+                </div>
+                
+                <h3>4.4 Common Regex Examples</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Email validation (basic)</span>
+<span class="keyword">const</span> emailRegex = <span class="string">/^[^\s@]+@[^\s@]+\.[^\s@]+$/</span>;
+
+<span class="comment">// Phone number (US format)</span>
+<span class="keyword">const</span> phoneRegex = <span class="string">/^\d{3}-\d{3}-\d{4}$/</span>;
+
+<span class="comment">// URL validation</span>
+<span class="keyword">const</span> urlRegex = <span class="string">/^https?:\/\/.+/</span>;
+
+<span class="comment">// Extract numbers from string</span>
+<span class="keyword">const</span> str = <span class="string">"Price: $123.45"</span>;
+<span class="keyword">const</span> numbers = str.<span class="function">match</span>(<span class="string">/\d+\.?\d*/g</span>);
+<span class="function">console</span>.<span class="function">log</span>(numbers);  <span class="comment">// ["123.45"]</span>
+
+<span class="comment">// Remove HTML tags</span>
+<span class="keyword">const</span> html = <span class="string">"&lt;p&gt;Hello &lt;strong&gt;World&lt;/strong&gt;&lt;/p&gt;"</span>;
+<span class="keyword">const</span> plain = html.<span class="function">replace</span>(<span class="string">/&lt;[^&gt;]+&gt;/g</span>, <span class="string">""</span>);
+<span class="function">console</span>.<span class="function">log</span>(plain);  <span class="comment">// "Hello World"</span>
+
+<span class="comment">// Validate password (min 8 chars, 1 uppercase, 1 number)</span>
+<span class="keyword">const</span> passwordRegex = <span class="string">/^(?=.*[A-Z])(?=.*\d).{8,}$/</span>;</code>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Regex Complexity:</strong> Regular expressions can be powerful but complex. Test thoroughly and consider readability. For complex validations, sometimes simple string methods are clearer.
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Regex Tester</h4>
+                    <input type="text" id="regexPattern" placeholder="Regex pattern: \d+" value="\d+">
+                    <input type="text" id="regexTest" placeholder="Test string: Hello 123" value="Hello 123">
+                    <button onclick="testRegex()">Test Regex</button>
+                    <div class="output" id="regexOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 5: Common Patterns -->
+            <div class="section" id="patterns">
+                <h2>🎨 5. Common String Patterns</h2>
+                
+                <h3>5.1 Capitalize First Letter</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">capitalize</span>(str) {
+    <span class="keyword">return</span> str.<span class="function">charAt</span>(<span class="number">0</span>).<span class="function">toUpperCase</span>() + str.<span class="function">slice</span>(<span class="number">1</span>);
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">capitalize</span>(<span class="string">"hello"</span>));  <span class="comment">// "Hello"</span>
+
+<span class="comment">// Title Case (capitalize each word)</span>
+<span class="keyword">function</span> <span class="function">titleCase</span>(str) {
+    <span class="keyword">return</span> str.<span class="function">split</span>(<span class="string">" "</span>)
+              .<span class="function">map</span>(word => <span class="function">capitalize</span>(word))
+              .<span class="function">join</span>(<span class="string">" "</span>);
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">titleCase</span>(<span class="string">"hello world"</span>));  <span class="comment">// "Hello World"</span></code>
+                </div>
+                
+                <h3>5.2 Reverse a String</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">reverseString</span>(str) {
+    <span class="keyword">return</span> str.<span class="function">split</span>(<span class="string">""</span>).<span class="function">reverse</span>().<span class="function">join</span>(<span class="string">""</span>);
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">reverseString</span>(<span class="string">"hello"</span>));  <span class="comment">// "olleh"</span>
+
+<span class="comment">// Or using spread operator</span>
+<span class="keyword">function</span> <span class="function">reverseString2</span>(str) {
+    <span class="keyword">return</span> [...str].<span class="function">reverse</span>().<span class="function">join</span>(<span class="string">""</span>);
+}</code>
+                </div>
+                
+                <h3>5.3 Check Palindrome</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">isPalindrome</span>(str) {
+    <span class="keyword">const</span> cleaned = str.<span class="function">toLowerCase</span>().<span class="function">replace</span>(<span class="string">/[^a-z0-9]/g</span>, <span class="string">""</span>);
+    <span class="keyword">const</span> reversed = cleaned.<span class="function">split</span>(<span class="string">""</span>).<span class="function">reverse</span>().<span class="function">join</span>(<span class="string">""</span>);
+    <span class="keyword">return</span> cleaned === reversed;
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">isPalindrome</span>(<span class="string">"racecar"</span>));           <span class="comment">// true</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">isPalindrome</span>(<span class="string">"A man, a plan, a canal: Panama"</span>));  <span class="comment">// true</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">isPalindrome</span>(<span class="string">"hello"</span>));             <span class="comment">// false</span></code>
+                </div>
+                
+                <h3>5.4 Count Vowels</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">countVowels</span>(str) {
+    <span class="keyword">const</span> matches = str.<span class="function">match</span>(<span class="string">/[aeiou]/gi</span>);
+    <span class="keyword">return</span> matches ? matches.length : <span class="number">0</span>;
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">countVowels</span>(<span class="string">"hello world"</span>));  <span class="comment">// 3</span>
+
+<span class="comment">// Alternative without regex</span>
+<span class="keyword">function</span> <span class="function">countVowels2</span>(str) {
+    <span class="keyword">const</span> vowels = <span class="string">"aeiouAEIOU"</span>;
+    <span class="keyword">return</span> [...str].<span class="function">filter</span>(char => vowels.<span class="function">includes</span>(char)).length;
+}</code>
+                </div>
+                
+                <h3>5.5 Truncate String</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">truncate</span>(str, maxLength) {
+    <span class="keyword">if</span> (str.length <= maxLength) <span class="keyword">return</span> str;
+    <span class="keyword">return</span> str.<span class="function">slice</span>(<span class="number">0</span>, maxLength) + <span class="string">"..."</span>;
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">truncate</span>(<span class="string">"Hello World"</span>, <span class="number">5</span>));  <span class="comment">// "Hello..."</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">truncate</span>(<span class="string">"Hi"</span>, <span class="number">10</span>));          <span class="comment">// "Hi"</span></code>
+                </div>
+                
+                <h3>5.6 Slugify (URL-friendly strings)</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">slugify</span>(str) {
+    <span class="keyword">return</span> str
+        .<span class="function">toLowerCase</span>()
+        .<span class="function">trim</span>()
+        .<span class="function">replace</span>(<span class="string">/[^\w\s-]/g</span>, <span class="string">""</span>)  <span class="comment">// Remove special chars</span>
+        .<span class="function">replace</span>(<span class="string">/[\s_-]+/g</span>, <span class="string">"-"</span>)   <span class="comment">// Replace spaces with -</span>
+        .<span class="function">replace</span>(<span class="string">/^-+|-+$/g</span>, <span class="string">""</span>);   <span class="comment">// Remove leading/trailing -</span>
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">slugify</span>(<span class="string">"Hello World!"</span>));        <span class="comment">// "hello-world"</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">slugify</span>(<span class="string">"  My Blog Post  "</span>));   <span class="comment">// "my-blog-post"</span></code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 String Patterns Demo</h4>
+                    <textarea id="patternInput" placeholder="Enter text..." rows="3">Hello World</textarea>
+                    <br>
+                    <button onclick="demoCapitalize()">Capitalize</button>
+                    <button onclick="demoReverseFull()">Reverse</button>
+                    <button onclick="demoPalindrome()">Palindrome?</button>
+                    <button onclick="demoVowels()">Count Vowels</button>
+                    <div class="output" id="patternOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 6: Summary -->
+            <div class="section" id="summary">
+                <h2>📝 Chapter Summary & Interview Questions</h2>
+                
+                <h3>Key Takeaways:</h3>
+                <ol>
+                    <li><strong>Strings are immutable</strong> - methods return new strings</li>
+                    <li><strong>slice()</strong> is most versatile (supports negative indices)</li>
+                    <li><strong>Use template literals</strong> for interpolation and multi-line</li>
+                    <li><strong>indexOf() returns -1</strong> if not found</li>
+                    <li><strong>includes()</strong> is modern, more readable than indexOf</li>
+                    <li><strong>split/join</strong> convert between strings and arrays</li>
+                    <li><strong>Regex is powerful</strong> but test thoroughly</li>
+                    <li><strong>Case sensitive</strong> by default (use toLowerCase for comparison)</li>
+                </ol>
+                
+                <h3>Common Interview Questions:</h3>
+                <div class="visual-box">
+                    <ol>
+                        <li><strong>Q:</strong> How do you reverse a string?<br>
+                            <strong>A:</strong> <code>str.split("").reverse().join("")</code> or <code>[...str].reverse().join("")</code></li>
+                        
+                        <li><strong>Q:</strong> Difference between slice, substring, and substr?<br>
+                            <strong>A:</strong> slice supports negative indices, substring swaps args if start>end, substr is deprecated.</li>
+                        
+                        <li><strong>Q:</strong> How to check if string contains substring?<br>
+                            <strong>A:</strong> Use <code>includes()</code> (modern) or <code>indexOf() !== -1</code> (older).</li>
+                        
+                        <li><strong>Q:</strong> How to make case-insensitive comparison?<br>
+                            <strong>A:</strong> <code>str1.toLowerCase() === str2.toLowerCase()</code></li>
+                        
+                        <li><strong>Q:</strong> What's a template literal?<br>
+                            <strong>A:</strong> Backtick strings with ${} interpolation, multi-line support, and tagged templates.</li>
+                        
+                        <li><strong>Q:</strong> How to remove whitespace?<br>
+                            <strong>A:</strong> <code>trim()</code> (both ends), <code>trimStart()</code>, <code>trimEnd()</code></li>
+                        
+                        <li><strong>Q:</strong> Write a function to check if string is palindrome.<br>
+                            <strong>A:</strong> See section 5.3 above.</li>
+                    </ol>
+                </div>
+                
+                <div class="success">
+                    <strong>💪 Practice Exercises:</strong>
+                    <ol>
+                        <li>Write function to count character occurrences in string</li>
+                        <li>Implement string compression (aaabbc → a3b2c1)</li>
+                        <li>Find longest word in sentence</li>
+                        <li>Validate email using regex</li>
+                        <li>Convert snake_case to camelCase</li>
+                        <li>Remove duplicate characters from string</li>
+                        <li>Check if two strings are anagrams</li>
+                        <li>Implement a simple Caesar cipher</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getStringInput() {
+            return document.getElementById('stringInput').value;
+        }
+        
+        function demoCase() {
+            const str = getStringInput();
+            const output = document.getElementById('stringMethodOutput');
+            
+            let result = '=== Case Conversion ===\n\n';
+            result += `Original: "${str}"\n`;
+            result += `Upper: "${str.toUpperCase()}"\n`;
+            result += `Lower: "${str.toLowerCase()}"\n`;
+            
+            output.textContent = result;
+        }
+        
+        function demoSlice() {
+            const str = getStringInput();
+            const output = document.getElementById('stringMethodOutput');
+            
+            let result = '=== slice() Demo ===\n\n';
+            result += `Original: "${str}"\n\n`;
+            result += `slice(0, 5): "${str.slice(0, 5)}"\n`;
+            result += `slice(6): "${str.slice(6)}"\n`;
+            result += `slice(-5): "${str.slice(-5)}"\n`;
+            
+            output.textContent = result;
+        }
+        
+        function demoSplit() {
+            const str = getStringInput();
+            const output = document.getElementById('stringMethodOutput');
+            
+            let result = '=== split() Demo ===\n\n';
+            result += `Original: "${str}"\n\n`;
+            result += `split(' '): ${JSON.stringify(str.split(' '))}\n`;
+            result += `split(''): ${JSON.stringify(str.split(''))}\n`;
+            
+            output.textContent = result;
+        }
+        
+        function demoReverse() {
+            const str = getStringInput();
+            const output = document.getElementById('stringMethodOutput');
+            
+            const reversed = str.split('').reverse().join('');
+            
+            let result = '=== Reverse String ===\n\n';
+            result += `Original: "${str}"\n`;
+            result += `Reversed: "${reversed}"\n\n`;
+            result += 'Method: str.split("").reverse().join("")';
+            
+            output.textContent = result;
+        }
+        
+        function generateTemplate() {
+            const name = document.getElementById('nameInput').value;
+            const age = document.getElementById('ageInput').value;
+            const output = document.getElementById('templateOutput');
+            
+            let result = '=== Template Literal Output ===\n\n';
+            result += `1. String Interpolation:\n`;
+            result += `"Hello, my name is ${name} and I am ${age} years old."\n\n`;
+            
+            result += `2. Expression:\n`;
+            result += `"In 5 years, I'll be ${parseInt(age) + 5}"\n\n`;
+            
+            result += `3. Multi-line:\n`;
+            result += `\`Name: ${name}\n`;
+            result += `Age: ${age}\n`;
+            result += `Status: Active\`\n\n`;
+            
+            result += `4. HTML Template:\n`;
+            result += `\`<div>\n`;
+            result += `  <h2>${name}</h2>\n`;
+            result += `  <p>Age: ${age}</p>\n`;
+            result += `</div>\``;
+            
+            output.textContent = result;
+        }
+        
+        function testRegex() {
+            const pattern = document.getElementById('regexPattern').value;
+            const testStr = document.getElementById('regexTest').value;
+            const output = document.getElementById('regexOutput');
+            
+            try {
+                const regex = new RegExp(pattern, 'g');
+                const matches = testStr.match(regex);
+                
+                let result = '=== Regex Test Results ===\n\n';
+                result += `Pattern: /${pattern}/g\n`;
+                result += `Test String: "${testStr}"\n\n`;
+                result += `Matches: ${matches ? JSON.stringify(matches) : 'No matches'}\n`;
+                result += `Test: ${regex.test(testStr)}\n`;
+                
+                output.textContent = result;
+            } catch (error) {
+                output.textContent = 'Invalid regex pattern: ' + error.message;
+            }
+        }
+        
+        function getPatternInput() {
+            return document.getElementById('patternInput').value;
+        }
+        
+        function demoCapitalize() {
+            const str = getPatternInput();
+            const output = document.getElementById('patternOutput');
+            
+            function capitalize(s) {
+                return s.charAt(0).toUpperCase() + s.slice(1);
+            }
+            
+            function titleCase(s) {
+                return s.split(' ').map(word => capitalize(word)).join(' ');
+            }
+            
+            let result = '=== Capitalize ===\n\n';
+            result += `Original: "${str}"\n`;
+            result += `First Letter: "${capitalize(str)}"\n`;
+            result += `Title Case: "${titleCase(str)}"`;
+            
+            output.textContent = result;
+        }
+        
+        function demoReverseFull() {
+            const str = getPatternInput();
+            const output = document.getElementById('patternOutput');
+            
+            const reversed = str.split('').reverse().join('');
+            
+            let result = '=== Reverse ===\n\n';
+            result += `Original: "${str}"\n`;
+            result += `Reversed: "${reversed}"`;
+            
+            output.textContent = result;
+        }
+        
+        function demoPalindrome() {
+            const str = getPatternInput();
+            const output = document.getElementById('patternOutput');
+            
+            function isPalindrome(s) {
+                const cleaned = s.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const reversed = cleaned.split('').reverse().join('');
+                return cleaned === reversed;
+            }
+            
+            let result = '=== Palindrome Check ===\n\n';
+            result += `Original: "${str}"\n`;
+            result += `Is Palindrome: ${isPalindrome(str) ? 'YES ✓' : 'NO ✗'}`;
+            
+            output.textContent = result;
+        }
+        
+        function demoVowels() {
+            const str = getPatternInput();
+            const output = document.getElementById('patternOutput');
+            
+            function countVowels(s) {
+                const matches = s.match(/[aeiou]/gi);
+                return matches ? matches.length : 0;
+            }
+            
+            let result = '=== Vowel Count ===\n\n';
+            result += `Original: "${str}"\n`;
+            result += `Vowel Count: ${countVowels(str)}\n`;
+            result += `Vowels Found: ${str.match(/[aeiou]/gi) ? str.match(/[aeiou]/gi).join(', ') : 'none'}`;
+            
+            output.textContent = result;
+        }
+    </script>
+</body>
+</html>

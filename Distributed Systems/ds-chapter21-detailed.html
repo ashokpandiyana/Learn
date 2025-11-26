@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 21: Edge Computing and IoT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+        }
+        
+        .tier-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .tier-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .edge-device {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .fog-node {
+            background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .cloud-node {
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 10px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .latency-badge {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .latency-slow {
+            background: linear-gradient(135deg, #f44336 0%, #e57373 100%);
+        }
+        
+        .latency-medium {
+            background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .iot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .iot-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .iot-icon {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📡 Chapter 21: Edge Computing and IoT</h1>
+        
+        <div class="problem-box">
+            <h3>⚡ The Latency Problem</h3>
+            <p style="font-size: 1.2em;"><strong>Cloud is powerful, but sometimes too far away!</strong></p>
+            <p>Critical use cases where cloud latency (50-200ms) is unacceptable:</p>
+            <ul style="margin-top: 10px;">
+                <li>Autonomous vehicles (need &lt;10ms for safety!)</li>
+                <li>Augmented reality (VR/AR needs &lt;20ms)</li>
+                <li>Industrial automation (real-time control)</li>
+                <li>Smart cities (traffic lights, emergency response)</li>
+                <li>Healthcare monitoring (immediate alerts)</li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>Solution:</strong> Process data at the EDGE - closer to where it's generated!</p>
+        </div>
+        
+        <h2>1️⃣ Edge vs Cloud Computing</h2>
+        
+        <div class="definition">
+            <h4>Bringing Computation to the Data</h4>
+            <p><strong>Edge Computing:</strong> Process data near the source (at the "edge" of the network) rather than in centralized cloud data centers.</p>
+            <p><strong>Key idea:</strong> Reverse of cloud - distribute computation OUT instead of centralizing it</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Cloud vs Edge vs Fog Architecture</h4>
+            
+            <div style="margin: 30px 0;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div class="cloud-node">
+                        ☁️ CLOUD DATA CENTER<br>
+                        <small>Centralized, Powerful, Far Away</small>
+                        <div class="latency-badge latency-slow">Latency: 50-200ms</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; font-size: 1.5em; color: #667eea; margin: 20px 0;">
+                    ↕ 1000s of kilometers ↕
+                </div>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <div class="fog-node">
+                        🌫️ FOG LAYER<br>
+                        <small>Regional Servers, Medium Power</small>
+                        <div class="latency-badge latency-medium">Latency: 10-50ms</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; font-size: 1.5em; color: #667eea; margin: 20px 0;">
+                    ↕ 10s of kilometers ↕
+                </div>
+                
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                    <div class="edge-device">
+                        📱 EDGE DEVICE<br>
+                        <small>Phone, Gateway</small>
+                        <div class="latency-badge">1-10ms</div>
+                    </div>
+                    <div class="edge-device">
+                        🚗 EDGE DEVICE<br>
+                        <small>Car, Drone</small>
+                        <div class="latency-badge">1-10ms</div>
+                    </div>
+                    <div class="edge-device">
+                        🏭 EDGE DEVICE<br>
+                        <small>Factory Sensor</small>
+                        <div class="latency-badge">1-10ms</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Aspect</th>
+                <th>Cloud Computing</th>
+                <th>Edge Computing</th>
+            </tr>
+            <tr>
+                <td><strong>Location</strong></td>
+                <td>Centralized data centers</td>
+                <td>Near data source (devices, gateways)</td>
+            </tr>
+            <tr>
+                <td><strong>Latency</strong></td>
+                <td>50-200ms</td>
+                <td>1-10ms ⚡</td>
+            </tr>
+            <tr>
+                <td><strong>Compute Power</strong></td>
+                <td>Massive (GPUs, clusters)</td>
+                <td>Limited (embedded processors)</td>
+            </tr>
+            <tr>
+                <td><strong>Bandwidth</strong></td>
+                <td>High (data center links)</td>
+                <td>Limited (cellular, WiFi)</td>
+            </tr>
+            <tr>
+                <td><strong>Cost</strong></td>
+                <td>Pay for compute + data transfer</td>
+                <td>Upfront device cost, lower transfer</td>
+            </tr>
+            <tr>
+                <td><strong>Scalability</strong></td>
+                <td>✅ Unlimited (elastic)</td>
+                <td>⚠️ Limited by devices</td>
+            </tr>
+            <tr>
+                <td><strong>Privacy</strong></td>
+                <td>Data leaves device</td>
+                <td>✅ Data stays local</td>
+            </tr>
+            <tr>
+                <td><strong>Reliability</strong></td>
+                <td>Needs network connection</td>
+                <td>✅ Works offline</td>
+            </tr>
+            <tr>
+                <td><strong>Use Case</strong></td>
+                <td>Heavy computation, storage, ML training</td>
+                <td>Real-time, low-latency, privacy-sensitive</td>
+            </tr>
+        </table>
+        
+        <h2>2️⃣ Fog Computing</h2>
+        
+        <div class="definition">
+            <h4>The Middle Layer</h4>
+            <p><strong>Fog Computing:</strong> Intermediate layer between edge devices and cloud. Provides compute/storage between device and data center.</p>
+            <p><strong>Think:</strong> Edge = processing on device, Fog = processing at local gateway/base station, Cloud = centralized data center</p>
+        </div>
+        
+        <div class="example">
+            <h4>🏙️ Smart City Example: Traffic Management</h4>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Three-Tier Processing:</strong>
+                
+                <div style="margin: 20px 0; background: #e8f5e9; padding: 15px; border-radius: 5px;">
+                    <strong>EDGE (Traffic Cameras):</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Task: Detect vehicles in real-time</li>
+                        <li>Processing: Basic computer vision (car present? yes/no)</li>
+                        <li>Latency: &lt;10ms</li>
+                        <li>Data: Send count, not raw video (bandwidth savings!)</li>
+                    </ul>
+                </div>
+                
+                <div style="margin: 20px 0; background: #fff3e0; padding: 15px; border-radius: 5px;">
+                    <strong>FOG (Local Traffic Controller):</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Task: Optimize traffic lights for neighborhood</li>
+                        <li>Processing: Aggregate counts from 20 cameras</li>
+                        <li>Latency: 10-20ms</li>
+                        <li>Data: Send summary statistics to cloud</li>
+                    </ul>
+                </div>
+                
+                <div style="margin: 20px 0; background: #e3f2fd; padding: 15px; border-radius: 5px;">
+                    <strong>CLOUD (City Operations Center):</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Task: City-wide traffic analysis, planning</li>
+                        <li>Processing: ML models, long-term optimization</li>
+                        <li>Latency: Seconds/minutes (not critical)</li>
+                        <li>Data: Historical analysis, reports</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <h2>3️⃣ IoT Architecture</h2>
+        
+        <div class="definition">
+            <h4>Internet of Things</h4>
+            <p><strong>IoT:</strong> Network of physical devices with sensors, software, and connectivity that exchange data.</p>
+            <p><strong>Scale:</strong> Billions of devices worldwide (35+ billion by 2025)</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>IoT Reference Architecture</h4>
+            
+            <div style="margin: 30px 0;">
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #4caf50;">
+                    <h4>Layer 1: Perception Layer (Sensing)</h4>
+                    <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin: 15px 0;">
+                        <div class="edge-device" style="padding: 10px; font-size: 0.85em;">🌡️ Temperature<br>Sensor</div>
+                        <div class="edge-device" style="padding: 10px; font-size: 0.85em;">📷 Camera</div>
+                        <div class="edge-device" style="padding: 10px; font-size: 0.85em;">🎤 Microphone</div>
+                        <div class="edge-device" style="padding: 10px; font-size: 0.85em;">📍 GPS</div>
+                        <div class="edge-device" style="padding: 10px; font-size: 0.85em;">💧 Moisture<br>Sensor</div>
+                    </div>
+                </div>
+                
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ff9800;">
+                    <h4>Layer 2: Network Layer (Communication)</h4>
+                    <p>Protocols: WiFi, Bluetooth, LoRaWAN, 5G, MQTT, CoAP</p>
+                </div>
+                
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2196f3;">
+                    <h4>Layer 3: Processing Layer (Edge/Fog/Cloud)</h4>
+                    <p>Data aggregation, filtering, analytics, ML inference</p>
+                </div>
+                
+                <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #9c27b0;">
+                    <h4>Layer 4: Application Layer (Services)</h4>
+                    <p>Smart home, healthcare, agriculture, manufacturing apps</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="iot-grid">
+            <div class="iot-card">
+                <div class="iot-icon">🏠</div>
+                <h4>Smart Home</h4>
+                <ul style="margin-top: 10px;">
+                    <li>Devices: Lights, thermostat, cameras, locks</li>
+                    <li>Hub: Amazon Echo, Google Home</li>
+                    <li>Edge: Local automation rules</li>
+                    <li>Cloud: Voice processing, ML</li>
+                </ul>
+            </div>
+            
+            <div class="iot-card">
+                <div class="iot-icon">🚗</div>
+                <h4>Autonomous Vehicles</h4>
+                <ul style="margin-top: 10px;">
+                    <li>Sensors: LiDAR, cameras, radar</li>
+                    <li>Edge: Real-time object detection</li>
+                    <li>Fog: V2V communication</li>
+                    <li>Cloud: Map updates, fleet analytics</li>
+                </ul>
+            </div>
+            
+            <div class="iot-card">
+                <div class="iot-icon">🏭</div>
+                <h4>Industrial IoT</h4>
+                <ul style="margin-top: 10px;">
+                    <li>Sensors: Pressure, temperature, vibration</li>
+                    <li>Edge: Immediate safety shutoffs</li>
+                    <li>Fog: Factory-level optimization</li>
+                    <li>Cloud: Predictive maintenance ML</li>
+                </ul>
+            </div>
+            
+            <div class="iot-card">
+                <div class="iot-icon">🌾</div>
+                <h4>Smart Agriculture</h4>
+                <ul style="margin-top: 10px;">
+                    <li>Sensors: Soil moisture, weather</li>
+                    <li>Edge: Irrigation control</li>
+                    <li>Fog: Farm-level analytics</li>
+                    <li>Cloud: Regional predictions</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>4️⃣ Data Processing at the Edge</h2>
+        
+        <div class="key-point">
+            <h4>Why Process at Edge?</h4>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>1. Latency Reduction</strong>
+                <p>Process locally → respond in milliseconds, not seconds</p>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>2. Bandwidth Savings</strong>
+                <p>Send results (KB), not raw data (GB). 1000x reduction!</p>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>3. Privacy</strong>
+                <p>Sensitive data never leaves device (medical, personal)</p>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>4. Reliability</strong>
+                <p>Works offline (network failure doesn't stop processing)</p>
+            </div>
+        </div>
+        
+        <div class="example">
+            <h4>🎥 Real-World Example: Security Camera</h4>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                <div style="background: #ffebee; padding: 20px; border-radius: 8px;">
+                    <h4 style="color: #c62828;">❌ Cloud-Only Approach</h4>
+                    <ol style="margin-top: 10px;">
+                        <li>Camera captures 1080p video</li>
+                        <li>Upload: 5 Mbps × 24hr = 54 GB/day</li>
+                        <li>Cloud: Process all video (ML for person detection)</li>
+                        <li>Alert if person detected</li>
+                    </ol>
+                    <div style="background: white; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                        <strong>Problems:</strong>
+                        <ul style="margin-top: 5px;">
+                            <li>Huge bandwidth ($$)</li>
+                            <li>Cloud processing cost ($$)</li>
+                            <li>Latency: 500ms+ for detection</li>
+                            <li>Needs constant connection</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px;">
+                    <h4 style="color: #2e7d32;">✅ Edge Processing Approach</h4>
+                    <ol style="margin-top: 10px;">
+                        <li>Camera has embedded processor</li>
+                        <li>Run ML model locally (person detection)</li>
+                        <li>Upload only when person detected</li>
+                        <li>Send alert immediately</li>
+                    </ol>
+                    <div style="background: white; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                        <strong>Benefits:</strong>
+                        <ul style="margin-top: 5px;">
+                            <li>Bandwidth: 54 GB → 500 MB (100x less!)</li>
+                            <li>Cost: 10x cheaper</li>
+                            <li>Latency: &lt;100ms detection ⚡</li>
+                            <li>Works offline</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Edge Processing Example (JavaScript on IoT device)
+// Running on camera with embedded processor
+
+class EdgeCamera {
+    constructor() {
+        this.mlModel = loadModel('person-detection-lite.tflite');
+        this.cloudConnected = false;
+    }
+    
+    async processFrame(frame) {
+        // Run ML inference locally (on device!)
+        const detections = await this.mlModel.detect(frame);
+        
+        // Filter for persons
+        const persons = detections.filter(d => d.class === 'person');
+        
+        if (persons.length > 0) {
+            console.log(`Detected ${persons.length} persons - ALERT!`);
+            
+            // Send to cloud only when needed
+            await this.sendAlert({
+                timestamp: Date.now(),
+                personCount: persons.length,
+                thumbnail: this.createThumbnail(frame), // Small image
+                location: this.getGPS()
+            });
+            
+            // Store locally (SD card)
+            this.saveClip(frame);
+        }
+        
+        // Don't send anything if no person detected
+        // Saves bandwidth and cloud costs!
+    }
+    
+    async sendAlert(data) {
+        if (this.cloudConnected) {
+            // Send via MQTT (lightweight protocol)
+            await mqtt.publish('alerts/camera-01', JSON.stringify(data));
+        } else {
+            // Queue for later (offline operation)
+            this.queueForSync(data);
+        }
+    }
+}
+
+// Edge device processes 24/7 locally
+// Only sends relevant data to cloud
+// Result: 100x bandwidth reduction!</code></pre>
+        
+        <h2>5️⃣ 5G and Distributed Systems</h2>
+        
+        <div class="definition">
+            <h4>5G Enables Edge Computing</h4>
+            <p><strong>5G</strong> (Fifth Generation cellular) provides the network infrastructure for edge computing at scale.</p>
+        </div>
+        
+        <div class="key-point">
+            <h4>5G Key Features for Edge:</h4>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>1. Ultra-Low Latency</strong>
+                <p>1-10ms latency (vs 4G: 50ms)</p>
+                <p><strong>Enables:</strong> Autonomous vehicles, remote surgery, VR/AR</p>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>2. High Bandwidth</strong>
+                <p>10 Gbps+ (vs 4G: 100 Mbps)</p>
+                <p><strong>Enables:</strong> 4K streaming, massive IoT deployments</p>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>3. Massive Device Density</strong>
+                <p>1 million devices per km² (vs 4G: 100,000)</p>
+                <p><strong>Enables:</strong> Smart cities, dense IoT networks</p>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>4. Network Slicing</strong>
+                <p>Virtual networks with guaranteed SLAs</p>
+                <p><strong>Enables:</strong> Dedicated slices for critical services (emergency, autonomous vehicles)</p>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <strong>5. Edge Computing Infrastructure (MEC)</strong>
+                <p>Multi-Access Edge Computing at cell towers</p>
+                <p><strong>Enables:</strong> Process data at base station (very close to device)</p>
+            </div>
+        </div>
+        
+        <h2>6️⃣ Edge Analytics</h2>
+        
+        <div class="definition">
+            <h4>Real-Time Intelligence at the Source</h4>
+            <p><strong>Edge Analytics:</strong> Analyze data where it's generated, send only insights to cloud.</p>
+        </div>
+        
+        <div class="example">
+            <h4>🏭 Industrial IoT: Predictive Maintenance</h4>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <strong>Scenario:</strong> Factory with 1000 machines, each has vibration sensor
+                
+                <div style="margin: 20px 0; background: #ffebee; padding: 15px; border-radius: 5px;">
+                    <strong>Without Edge Analytics (Cloud-only):</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Each sensor: 1000 readings/second</li>
+                        <li>Total: 1M readings/second</li>
+                        <li>Upload: 10 MB/second continuously</li>
+                        <li>Cloud processes all data</li>
+                        <li>Cost: $50,000/month (bandwidth + processing) 💸</li>
+                        <li>Latency: 200ms to detect anomaly</li>
+                    </ul>
+                </div>
+                
+                <div style="margin: 20px 0; background: #e8f5e9; padding: 15px; border-radius: 5px;">
+                    <strong>With Edge Analytics:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Edge gateway runs anomaly detection</li>
+                        <li>Process: 1M readings/second locally</li>
+                        <li>Upload: Only anomalies (10 events/hour)</li>
+                        <li>Bandwidth: 10 MB/s → 1 KB/hour (10,000x reduction!)</li>
+                        <li>Cost: $500/month (mostly edge devices) 💰</li>
+                        <li>Latency: 10ms to detect anomaly ⚡</li>
+                        <li>Alert: Shut down machine immediately (prevent damage)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <pre><code>// Edge Analytics Example (Python on Raspberry Pi)
+import numpy as np
+from collections import deque
+
+class EdgeAnalytics:
+    def __init__(self):
+        self.window = deque(maxlen=100)  # Rolling window
+        self.threshold_std = 3.0  # 3 standard deviations
+        
+    def process_reading(self, vibration):
+        # Add to window
+        self.window.append(vibration)
+        
+        if len(self.window) < 100:
+            return None  # Need full window
+        
+        # Calculate statistics locally
+        mean = np.mean(self.window)
+        std = np.std(self.window)
+        
+        # Detect anomaly
+        if abs(vibration - mean) > self.threshold_std * std:
+            # Anomaly detected!
+            alert = {
+                'machine_id': 'M-1001',
+                'reading': vibration,
+                'mean': mean,
+                'deviation': abs(vibration - mean) / std,
+                'timestamp': time.time(),
+                'severity': 'HIGH' if vibration > mean else 'MEDIUM'
+            }
+            
+            # Send ONLY alert to cloud (not all readings!)
+            self.send_to_cloud(alert)
+            
+            # Take immediate action
+            if alert['severity'] == 'HIGH':
+                self.shutdown_machine()  # Emergency stop!
+            
+            return alert
+        
+        return None  # Normal operation, don't send anything
+    
+    def send_to_cloud(self, alert):
+        # Send via MQTT (IoT protocol)
+        mqtt_client.publish('alerts/factory-01', json.dumps(alert))
+
+# Process 1000 readings/second
+# Send ~10 alerts/hour (only anomalies)
+# 99.999% of data processed locally!
+# Bandwidth: GB/day → KB/day</code></pre>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: Edge Computing Demos</h3>
+            <p>Explore edge computing scenarios:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demoEdgeVsCloud()">Edge vs Cloud Latency</button>
+                <button class="demo-button" onclick="demoFogComputing()">Fog Computing</button>
+                <button class="demo-button" onclick="demoEdgeAnalytics()">Edge Analytics</button>
+                <button class="demo-button" onclick="demo5GEdge()">5G + Edge</button>
+            </div>
+            <div id="edgeDemo" class="demo-output">Click a button to see edge computing in action...</div>
+        </div>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 21</h3>
+            <ul style="line-height: 2;">
+                <li><strong>Edge computing</strong> - process data near source, not in cloud</li>
+                <li><strong>Latency is key driver</strong> - 1-10ms vs cloud's 50-200ms</li>
+                <li><strong>Fog computing</strong> - middle layer between edge and cloud</li>
+                <li><strong>IoT architecture</strong> - perception, network, processing, application layers</li>
+                <li><strong>Edge processing benefits</strong> - low latency, bandwidth savings, privacy, offline operation</li>
+                <li><strong>5G enables edge</strong> - ultra-low latency, high bandwidth, massive device support</li>
+                <li><strong>Edge analytics</strong> - real-time insights, send summaries not raw data</li>
+                <li><strong>Three-tier model</strong> - edge (real-time) + fog (local) + cloud (global)</li>
+                <li><strong>Not edge OR cloud</strong> - use both strategically!</li>
+                <li><strong>Trade-off</strong> - latency vs compute power vs cost</li>
+                <li><strong>Distributed systems extended</strong> - to billions of edge devices!</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>Why can't autonomous vehicles rely solely on cloud computing?</li>
+                <li>Compare edge, fog, and cloud - when to use each layer?</li>
+                <li>How does edge processing reduce bandwidth by 1000x?</li>
+                <li>What is fog computing and how does it differ from edge?</li>
+                <li>How does 5G enable edge computing at scale?</li>
+                <li>Give an example where edge analytics is essential.</li>
+                <li>What are the security challenges of edge computing?</li>
+                <li>Design IoT system for smart agriculture - edge/fog/cloud split?</li>
+                <li>Why is privacy better with edge computing?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function demoEdgeVsCloud() {
+            const output = document.getElementById('edgeDemo');
+            output.textContent = '=== EDGE vs CLOUD: LATENCY COMPARISON ===\n\n';
+            
+            output.textContent += 'Use Case: Autonomous Vehicle Obstacle Detection\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- CLOUD PROCESSING ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'T=0ms: Camera captures image\n';
+            await sleep(300);
+            output.textContent += 'T=5ms: Compress and prepare upload\n';
+            await sleep(300);
+            output.textContent += 'T=10ms: Start upload (via 4G)\n';
+            await sleep(500);
+            output.textContent += 'T=60ms: Image reaches cloud (50ms network)\n';
+            await sleep(500);
+            output.textContent += 'T=80ms: Cloud ML model processes\n';
+            await sleep(300);
+            output.textContent += 'T=100ms: Cloud sends response\n';
+            await sleep(500);
+            output.textContent += 'T=150ms: Car receives "STOP!" command\n\n';
+            
+            output.textContent += 'Total: 150ms ⏱️\n';
+            output.textContent += 'Distance traveled at 60 mph: 13 feet! 😱\n\n';
+            
+            await sleep(1000);
+            output.textContent += '--- EDGE PROCESSING ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'T=0ms: Camera captures image\n';
+            await sleep(300);
+            output.textContent += 'T=5ms: Run ML model on edge processor\n';
+            await sleep(500);
+            output.textContent += 'T=8ms: Detection complete - PEDESTRIAN!\n';
+            await sleep(300);
+            output.textContent += 'T=9ms: Trigger brakes immediately ✓\n\n';
+            
+            output.textContent += 'Total: 9ms ⚡\n';
+            output.textContent += 'Distance traveled: 0.8 feet (16x safer!)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Summary:\n';
+            output.textContent += '  Cloud: 150ms (too slow for safety!)\n';
+            output.textContent += '  Edge: 9ms (real-time response) ✓\n\n';
+            
+            output.textContent += 'Autonomous vehicles REQUIRE edge computing!\n';
+            output.textContent += 'Cloud latency literally life-threatening.';
+        }
+        
+        async function demoFogComputing() {
+            const output = document.getElementById('edgeDemo');
+            output.textContent = '=== FOG COMPUTING LAYER ===\n\n';
+            
+            output.textContent += 'Scenario: Smart building with 1000 sensors\n\n';
+            
+            await sleep(500);
+            output.textContent += 'EDGE Layer (Sensors):\n';
+            output.textContent += '  • Temperature sensors (×200)\n';
+            output.textContent += '  • Motion sensors (×500)\n';
+            output.textContent += '  • Light sensors (×300)\n';
+            output.textContent += '  Processing: Basic thresholds\n';
+            output.textContent += '  Frequency: 1 reading/second each\n';
+            output.textContent += '  Total: 1000 readings/second\n\n';
+            
+            await sleep(500);
+            output.textContent += 'FOG Layer (Building Gateway):\n';
+            await sleep(300);
+            output.textContent += '  Location: Server in building basement\n';
+            output.textContent += '  Receives: 1000 readings/second from sensors\n\n';
+            
+            await sleep(500);
+            output.textContent += '  Processing:\n';
+            await sleep(300);
+            output.textContent += '    1. Aggregate by floor (10 floors)\n';
+            output.textContent += '    2. Calculate floor averages\n';
+            await sleep(300);
+            output.textContent += '    3. Detect patterns (occupancy, HVAC needs)\n';
+            await sleep(300);
+            output.textContent += '    4. Control building systems locally\n';
+            await sleep(300);
+            output.textContent += '       → Adjust HVAC per floor\n';
+            output.textContent += '       → Turn off lights in empty areas\n\n';
+            
+            await sleep(500);
+            output.textContent += '  Send to cloud: 10 aggregates/minute\n';
+            output.textContent += '  Bandwidth: 1000 readings/s → 0.16 readings/s\n';
+            output.textContent += '  Reduction: 99.98%! 📉\n\n';
+            
+            await sleep(500);
+            output.textContent += 'CLOUD Layer (City Operations):\n';
+            await sleep(300);
+            output.textContent += '  Receives: Aggregated data from 100 buildings\n';
+            output.textContent += '  Processing:\n';
+            output.textContent += '    • City-wide energy optimization\n';
+            output.textContent += '    • Long-term trend analysis\n';
+            output.textContent += '    • ML model training\n';
+            output.textContent += '    • Dashboard for facilities manager\n\n';
+            
+            output.textContent += 'Result:\n';
+            output.textContent += '  ✓ Real-time control at building (fog)\n';
+            output.textContent += '  ✓ Global insights at city (cloud)\n';
+            output.textContent += '  ✓ Minimal bandwidth (efficient!)\n';
+            output.textContent += '  ✓ Works even if cloud disconnects';
+        }
+        
+        async function demoEdgeAnalytics() {
+            const output = document.getElementById('edgeDemo');
+            output.textContent = '=== EDGE ANALYTICS: SMART AGRICULTURE ===\n\n';
+            
+            output.textContent += 'Farm: 100 acres with soil moisture sensors\n';
+            output.textContent += 'Sensors: 500 devices (one per 0.2 acres)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Sensor readings every 5 minutes:\n';
+            output.textContent += '  500 sensors × 12 readings/hour = 6000 readings/hour\n';
+            output.textContent += '  Raw data: ~5 KB each = 30 MB/hour\n';
+            output.textContent += '  Daily: 720 MB 📊\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Edge Gateway processes locally:\n\n';
+            
+            await sleep(300);
+            output.textContent += '1. Aggregate by zone (10 zones)\n';
+            await sleep(300);
+            output.textContent += '   500 sensors → 10 zone averages\n\n';
+            
+            await sleep(300);
+            output.textContent += '2. Detect dry zones:\n';
+            await sleep(300);
+            output.textContent += '   Zone 3: Moisture 15% (threshold: 20%)\n';
+            output.textContent += '   Zone 7: Moisture 12% (critical!)\n\n';
+            
+            await sleep(500);
+            output.textContent += '3. Take immediate action:\n';
+            await sleep(300);
+            output.textContent += '   → Activate irrigation for Zone 3 ✓\n';
+            output.textContent += '   → Emergency irrigation for Zone 7 ✓\n';
+            output.textContent += '   Response time: 10ms (real-time!)\n\n';
+            
+            await sleep(500);
+            output.textContent += '4. Send to cloud (hourly summary):\n';
+            await sleep(300);
+            output.textContent += '   Upload: Zone statistics only (10 values)\n';
+            output.textContent += '   Size: 1 KB/hour\n';
+            output.textContent += '   Daily: 24 KB (vs 720 MB raw!) 📉\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Cloud uses summary for:\n';
+            output.textContent += '  • Long-term planning\n';
+            output.textContent += '  • Weather correlation\n';
+            output.textContent += '  • ML model improvement\n\n';
+            
+            output.textContent += 'Benefits:\n';
+            output.textContent += '  ✓ Real-time irrigation (crops saved!)\n';
+            output.textContent += '  ✓ 30,000x bandwidth reduction\n';
+            output.textContent += '  ✓ Works without internet\n';
+            output.textContent += '  ✓ Privacy (data stays on farm)';
+        }
+        
+        async function demo5GEdge() {
+            const output = document.getElementById('edgeDemo');
+            output.textContent = '=== 5G + EDGE COMPUTING ===\n\n';
+            
+            output.textContent += 'Use Case: AR Shopping Experience\n';
+            output.textContent += 'User wearing AR glasses in mall\n\n';
+            
+            await sleep(500);
+            output.textContent += '--- 4G + CLOUD (Old Approach) ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'User looks at product:\n';
+            await sleep(300);
+            output.textContent += '  1. Camera captures image\n';
+            await sleep(300);
+            output.textContent += '  2. Upload via 4G: 30ms\n';
+            await sleep(300);
+            output.textContent += '  3. Cloud recognizes product: 20ms\n';
+            await sleep(300);
+            output.textContent += '  4. Cloud retrieves info: 10ms\n';
+            await sleep(300);
+            output.textContent += '  5. Download AR overlay: 40ms\n\n';
+            
+            output.textContent += 'Total: 100ms\n';
+            output.textContent += 'Result: Noticeable lag, poor UX 😕\n\n';
+            
+            await sleep(1000);
+            output.textContent += '--- 5G + EDGE (New Approach) ---\n\n';
+            
+            await sleep(300);
+            output.textContent += 'User looks at product:\n';
+            await sleep(300);
+            output.textContent += '  1. Camera captures image\n';
+            await sleep(300);
+            output.textContent += '  2. Upload via 5G to MEC (cell tower): 2ms ⚡\n';
+            await sleep(300);
+            output.textContent += '  3. MEC edge server recognizes: 5ms\n';
+            await sleep(300);
+            output.textContent += '  4. MEC retrieves cached info: 1ms\n';
+            await sleep(300);
+            output.textContent += '  5. Download AR overlay: 2ms\n\n';
+            
+            output.textContent += 'Total: 10ms ⚡\n';
+            output.textContent += 'Result: Instant, seamless UX! ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += '5G Features Used:\n';
+            output.textContent += '  • Ultra-low latency (1-10ms)\n';
+            output.textContent += '  • High bandwidth (10 Gbps)\n';
+            output.textContent += '  • MEC at cell tower (processing nearby)\n\n';
+            
+            output.textContent += 'Edge server at tower:\n';
+            output.textContent += '  • Serves 1000s of users in area\n';
+            output.textContent += '  • Caches product catalog\n';
+            output.textContent += '  • Runs ML models locally\n';
+            output.textContent += '  • Falls back to cloud if needed\n\n';
+            
+            output.textContent += '10x latency improvement enables new experiences!';
+        }
+    </script>
+</body>
+</html>

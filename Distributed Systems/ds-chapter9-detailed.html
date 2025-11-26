@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 9: Replication</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-left: 6px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-left: 5px solid #00acc1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .problem-box {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            border: 3px solid #e91e63;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #dee2e6;
+        }
+        
+        .replica {
+            display: inline-block;
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            min-width: 120px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .replica:hover {
+            transform: scale(1.05);
+        }
+        
+        .primary {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            border: 3px solid #2e7d32;
+        }
+        
+        .backup {
+            background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+        }
+        
+        .arrow {
+            display: inline-block;
+            color: #667eea;
+            font-size: 1.5em;
+            margin: 0 10px;
+        }
+        
+        .benefit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .benefit-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .benefit-icon {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .quorum-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .node {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .node-read {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+        }
+        
+        .node-write {
+            background: linear-gradient(135deg, #f44336 0%, #e57373 100%);
+        }
+        
+        .chain-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #e91e63;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .demo-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .tradeoff-box {
+            background: white;
+            border: 2px solid #ff9800;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .cap-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .cap-choice {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 10px;
+            min-width: 250px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Chapter 9: Replication</h1>
+        
+        <div class="problem-box">
+            <h3>🎯 The Core Idea</h3>
+            <p style="font-size: 1.2em;"><strong>Replication = Keeping multiple copies of data on different machines</strong></p>
+            <p>Why? Because a single machine can fail, become overloaded, or be too far away. Replication provides <strong>fault tolerance</strong>, <strong>scalability</strong>, and <strong>performance</strong>.</p>
+            <p><strong>Challenge:</strong> How do we keep replicas consistent with each other?</p>
+        </div>
+        
+        <h2>1️⃣ Why Replication?</h2>
+        
+        <div class="benefit-grid">
+            <div class="benefit-card">
+                <div class="benefit-icon">🛡️</div>
+                <h4>Fault Tolerance</h4>
+                <p>If one replica fails, others continue serving</p>
+                <div style="background: #e8f5e9; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Example:</strong> Amazon S3 stores each object in 3+ availability zones. If one zone fails, data still accessible!
+                </div>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">📈</div>
+                <h4>Scalability</h4>
+                <p>Distribute load across multiple replicas</p>
+                <div style="background: #e8f5e9; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Example:</strong> Netflix serves video from thousands of servers worldwide. Single server = 100 streams. 1000 servers = 100,000 streams!
+                </div>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">⚡</div>
+                <h4>Performance</h4>
+                <p>Place replicas closer to users</p>
+                <div style="background: #e8f5e9; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Example:</strong> CDN caches website in Mumbai for Indian users. Latency: 20ms vs 200ms from US!
+                </div>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">🌍</div>
+                <h4>Geographic Distribution</h4>
+                <p>Serve users from nearest location</p>
+                <div style="background: #e8f5e9; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Example:</strong> Google Search has data centers on every continent. Users always hit nearby server!
+                </div>
+            </div>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Single Server vs Replicated System</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 20px 0;">
+                <div>
+                    <h4 style="text-align: center; color: #f44336;">❌ Single Server</h4>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <div class="replica" style="background: linear-gradient(135deg, #f44336 0%, #e57373 100%);">
+                            Server<br>
+                            <small>(Single Point of Failure)</small>
+                        </div>
+                    </div>
+                    <div style="background: #ffebee; padding: 15px; border-radius: 5px;">
+                        <strong>Problems:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li>If it fails → ALL data lost</li>
+                            <li>Can't scale reads</li>
+                            <li>Far from many users</li>
+                            <li>Limited capacity</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="text-align: center; color: #4caf50;">✓ Replicated System</h4>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <div class="replica" style="width: 100px; height: 100px;">Replica 1<br>US West</div>
+                        <div class="replica" style="width: 100px; height: 100px;">Replica 2<br>Europe</div>
+                        <div class="replica" style="width: 100px; height: 100px;">Replica 3<br>Asia</div>
+                    </div>
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 5px;">
+                        <strong>Benefits:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li>One fails → others continue</li>
+                            <li>3x read capacity</li>
+                            <li>Low latency worldwide</li>
+                            <li>Can add more replicas</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h2>2️⃣ Data-Centric vs Client-Centric Replication</h2>
+        
+        <div class="definition">
+            <h4>Two Perspectives on Consistency:</h4>
+            <p><strong>Data-centric:</strong> Focus on how replicas relate to each other (system's view)</p>
+            <p><strong>Client-centric:</strong> Focus on what individual clients observe (user's view)</p>
+        </div>
+        
+        <h3>🗄️ Data-Centric Replication</h3>
+        
+        <div class="key-point">
+            <h4>Data-Centric Consistency</h4>
+            <p><strong>Goal:</strong> All replicas agree on the data and its order</p>
+            <p><strong>Models:</strong> Linearizability, Sequential, Causal (Chapter 6!)</p>
+            <p><strong>Focus:</strong> Global system properties</p>
+        </div>
+        
+        <div class="example">
+            <h4>Example: Distributed Database</h4>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                <strong>Scenario:</strong> 3 replicas of a user database
+                <ul style="margin-top: 10px;">
+                    <li><strong>Data-centric view:</strong> "Do all replicas have user's age = 30?"</li>
+                    <li><strong>Question:</strong> Are replicas in consistent state?</li>
+                    <li><strong>Guarantee:</strong> All replicas converge to same value</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>👤 Client-Centric Replication</h3>
+        
+        <div class="key-point">
+            <h4>Client-Centric Consistency</h4>
+            <p><strong>Goal:</strong> Each client sees consistent view, regardless of which replica they access</p>
+            <p><strong>Models:</strong> Read Your Writes, Monotonic Reads, Monotonic Writes (Chapter 6!)</p>
+            <p><strong>Focus:</strong> Individual user experience</p>
+        </div>
+        
+        <div class="example">
+            <h4>Example: Mobile App with Replicas</h4>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                <strong>Scenario:</strong> User updates profile picture
+                <ul style="margin-top: 10px;">
+                    <li><strong>Client-centric view:</strong> "Does user see their own update?"</li>
+                    <li><strong>Question:</strong> Does user get consistent experience?</li>
+                    <li><strong>Guarantee:</strong> User always sees their writes (even if replicas differ)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Aspect</th>
+                <th>Data-Centric</th>
+                <th>Client-Centric</th>
+            </tr>
+            <tr>
+                <td><strong>Focus</strong></td>
+                <td>Replica agreement</td>
+                <td>User experience</td>
+            </tr>
+            <tr>
+                <td><strong>Question</strong></td>
+                <td>Do replicas have same data?</td>
+                <td>Does client see consistent view?</td>
+            </tr>
+            <tr>
+                <td><strong>Guarantees</strong></td>
+                <td>Linearizability, Causal, etc.</td>
+                <td>Read Your Writes, Monotonic Reads</td>
+            </tr>
+            <tr>
+                <td><strong>Use Case</strong></td>
+                <td>Database replication</td>
+                <td>Mobile apps, web browsers</td>
+            </tr>
+        </table>
+        
+        <h2>3️⃣ Replication Strategies</h2>
+        
+        <h3>🟢 Active Replication</h3>
+        
+        <div class="definition">
+            <h4>How it works:</h4>
+            <p><strong>All replicas process all requests</strong> simultaneously. They should produce identical results (deterministic execution).</p>
+            <p><strong>Also called:</strong> State Machine Replication</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Active Replication Flow</h4>
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px auto; max-width: 300px;">
+                    <strong>Client Request</strong><br>
+                    Write X = 100
+                </div>
+                
+                <div style="font-size: 1.5em; margin: 20px 0;">↓ Broadcast to ALL ↓</div>
+                
+                <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                    <div class="replica primary" style="min-width: 150px;">
+                        Replica 1<br>
+                        ✓ Processes<br>
+                        X = 100
+                    </div>
+                    <div class="replica primary" style="min-width: 150px;">
+                        Replica 2<br>
+                        ✓ Processes<br>
+                        X = 100
+                    </div>
+                    <div class="replica primary" style="min-width: 150px;">
+                        Replica 3<br>
+                        ✓ Processes<br>
+                        X = 100
+                    </div>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                    <strong>All replicas in same state!</strong> Any can respond to reads.
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li><strong>Fast failover:</strong> All replicas already up-to-date</li>
+                <li><strong>No lost work:</strong> Backup doesn't need to catch up</li>
+                <li><strong>Load balancing:</strong> Can read from any replica</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li><strong>Higher resource usage:</strong> All replicas do all work</li>
+                <li><strong>Requires determinism:</strong> All must produce same result</li>
+                <li><strong>Complex:</strong> Hard to ensure identical behavior</li>
+                <li><strong>Non-deterministic operations problem:</strong> Random numbers, timestamps differ!</li>
+            </ul>
+        </div>
+        
+        <h3>🔵 Passive Replication (Primary-Backup)</h3>
+        
+        <div class="definition">
+            <h4>How it works:</h4>
+            <p><strong>One primary</strong> processes all requests. <strong>Backups</strong> receive state updates. If primary fails, a backup takes over.</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Passive Replication Flow</h4>
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px auto; max-width: 300px;">
+                    <strong>Client Request</strong><br>
+                    Write X = 100
+                </div>
+                
+                <div style="font-size: 1.5em; margin: 20px 0;">↓ Only to Primary ↓</div>
+                
+                <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; align-items: center;">
+                    <div class="replica primary" style="min-width: 150px;">
+                        PRIMARY<br>
+                        ✓ Processes<br>
+                        X = 100
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <div class="arrow">→</div>
+                        <div style="font-size: 0.9em;">State updates</div>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="replica backup" style="min-width: 120px; padding: 15px;">
+                            Backup 1<br>
+                            ⏸ Receives state
+                        </div>
+                        <div class="replica backup" style="min-width: 120px; padding: 15px;">
+                            Backup 2<br>
+                            ⏸ Receives state
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                    <strong>Only primary processes requests.</strong> Backups stay in sync.
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li><strong>Lower resource usage:</strong> Backups idle until needed</li>
+                <li><strong>Simple:</strong> Only primary does work</li>
+                <li><strong>Works with non-deterministic operations:</strong> Primary decides</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li><strong>Slower failover:</strong> Backup needs to be promoted</li>
+                <li><strong>Lost work:</strong> If primary fails before update sent</li>
+                <li><strong>Single bottleneck:</strong> Primary handles all writes</li>
+            </ul>
+        </div>
+        
+        <h2>4️⃣ Primary-Backup Replication (Deep Dive)</h2>
+        
+        <pre><code>// Primary-Backup Replication Implementation
+class PrimaryBackupSystem {
+    constructor() {
+        this.primary = null;
+        this.backups = [];
+        this.state = {};
+    }
+    
+    setPrimary(replica) {
+        this.primary = replica;
+        replica.role = 'primary';
+        console.log(`${replica.id} promoted to PRIMARY`);
+    }
+    
+    addBackup(replica) {
+        this.backups.push(replica);
+        replica.role = 'backup';
+        console.log(`${replica.id} added as BACKUP`);
+    }
+    
+    async write(key, value) {
+        if (!this.primary || !this.primary.alive) {
+            throw new Error('No primary available');
+        }
+        
+        console.log(`\nWrite request: ${key} = ${value}`);
+        
+        // Primary processes write
+        this.state[key] = value;
+        console.log(`Primary: Updated ${key} = ${value}`);
+        
+        // Replicate to backups
+        await this.replicateToBackups();
+        
+        return { success: true, primary: this.primary.id };
+    }
+    
+    async replicateToBackups() {
+        console.log('Replicating state to backups...');
+        
+        const promises = this.backups
+            .filter(b => b.alive)
+            .map(backup => 
+                backup.updateState(this.state)
+                    .then(() => console.log(`  ✓ ${backup.id} updated`))
+                    .catch(err => console.error(`  ✗ ${backup.id} failed: ${err.message}`))
+            );
+        
+        await Promise.allSettled(promises);
+    }
+    
+    read(key) {
+        // Can read from primary or backups
+        // For strong consistency: read from primary
+        // For eventual consistency: can read from any
+        return this.state[key];
+    }
+    
+    async handlePrimaryFailure() {
+        console.log(`\n💥 PRIMARY ${this.primary.id} FAILED!`);
+        
+        // Find best backup to promote
+        const aliveBackups = this.backups.filter(b => b.alive);
+        
+        if (aliveBackups.length === 0) {
+            console.error('❌ No backups available for failover!');
+            this.primary = null;
+            return;
+        }
+        
+        // Promote first alive backup
+        const newPrimary = aliveBackups[0];
+        
+        // Remove from backups list
+        this.backups = this.backups.filter(b => b !== newPrimary);
+        
+        // Promote to primary
+        this.setPrimary(newPrimary);
+        
+        console.log(`✓ Failover complete! New primary: ${newPrimary.id}`);
+    }
+}
+
+class Replica {
+    constructor(id) {
+        this.id = id;
+        this.alive = true;
+        this.role = null;
+        this.localState = {};
+    }
+    
+    async updateState(state) {
+        if (!this.alive) {
+            throw new Error('Replica is down');
+        }
+        
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        this.localState = { ...state };
+    }
+    
+    fail() {
+        this.alive = false;
+        console.log(`${this.id} has CRASHED 💥`);
+    }
+}
+
+// Usage Example
+const system = new PrimaryBackupSystem();
+
+const r1 = new Replica('R1');
+const r2 = new Replica('R2');
+const r3 = new Replica('R3');
+
+system.setPrimary(r1);
+system.addBackup(r2);
+system.addBackup(r3);
+
+// Normal operation
+await system.write('balance', 1000);
+await system.write('name', 'Alice');
+
+console.log('\nCurrent state:', system.state);
+
+// Simulate primary failure
+r1.fail();
+await system.handlePrimaryFailure();
+
+// System continues with new primary
+await system.write('balance', 1100);</code></pre>
+        
+        <h2>5️⃣ Chain Replication</h2>
+        
+        <div class="definition">
+            <h4>What is Chain Replication?</h4>
+            <p>Replicas arranged in a <strong>chain</strong>. Writes go through the chain from head to tail. Reads come from tail only.</p>
+            <p><strong>Key insight:</strong> Tail always has the most up-to-date committed data!</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Chain Replication Architecture</h4>
+            
+            <div class="chain-visual">
+                <div class="replica primary" style="min-width: 100px;">
+                    HEAD<br>
+                    (Writes)
+                </div>
+                <div class="arrow">→</div>
+                <div class="replica" style="min-width: 100px;">
+                    Middle 1
+                </div>
+                <div class="arrow">→</div>
+                <div class="replica" style="min-width: 100px;">
+                    Middle 2
+                </div>
+                <div class="arrow">→</div>
+                <div class="replica primary" style="background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);">
+                    TAIL<br>
+                    (Reads)
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong>Write Flow:</strong>
+                    <ol style="margin-top: 10px;">
+                        <li>Client sends write to HEAD</li>
+                        <li>HEAD applies write, forwards to next</li>
+                        <li>Each replica applies write, forwards down chain</li>
+                        <li>TAIL applies write, sends ACK back to client</li>
+                        <li>Write is committed when ACK received</li>
+                    </ol>
+                </div>
+                
+                <div style="background: #f3e5f5; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong>Read Flow:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Client sends read to TAIL only</li>
+                        <li>TAIL has all committed updates</li>
+                        <li>Returns data immediately</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li><strong>Strong consistency:</strong> Tail always has committed data</li>
+                <li><strong>Simple recovery:</strong> Chain reorganizes automatically</li>
+                <li><strong>Load distribution:</strong> Head handles writes, Tail handles reads</li>
+                <li><strong>Ordered updates:</strong> Chain enforces order</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li><strong>Higher latency:</strong> Write must go through entire chain</li>
+                <li><strong>Limited read scalability:</strong> Only tail handles reads</li>
+                <li><strong>Head is bottleneck:</strong> All writes go through head</li>
+            </ul>
+        </div>
+        
+        <div class="example">
+            <h4>🔗 Chain Replication Failure Handling</h4>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                <strong>Head Fails:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Next replica becomes new head</li>
+                    <li>Continues serving writes</li>
+                    <li>Simple! No state transfer needed</li>
+                </ul>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                <strong>Middle Fails:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Previous replica connects to next replica</li>
+                    <li>Chain continues uninterrupted</li>
+                </ul>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                <strong>Tail Fails:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Previous replica becomes new tail</li>
+                    <li>Starts serving reads</li>
+                    <li>May need to finish pending writes</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>6️⃣ Quorum-Based Replication</h2>
+        
+        <div class="definition">
+            <h4>What is Quorum-Based Replication?</h4>
+            <p>Don't require ALL replicas to agree. Instead, require a <strong>quorum</strong> (majority) for reads and writes.</p>
+            <p><strong>Key formula:</strong> R + W > N (where N = total replicas)</p>
+        </div>
+        
+        <div class="visual-diagram">
+            <h4>Quorum System with N=5 replicas</h4>
+            
+            <div style="margin: 20px 0;">
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px;">
+                    <strong>Write Quorum (W = 3):</strong>
+                    <div class="quorum-visual">
+                        <div class="node node-write">W</div>
+                        <div class="node node-write">W</div>
+                        <div class="node node-write">W</div>
+                        <div class="node">-</div>
+                        <div class="node">-</div>
+                    </div>
+                    <p style="margin-top: 10px;">Write to 3 replicas before acknowledging</p>
+                </div>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 8px;">
+                    <strong>Read Quorum (R = 3):</strong>
+                    <div class="quorum-visual">
+                        <div class="node node-read">R</div>
+                        <div class="node node-read">R</div>
+                        <div class="node node-read">R</div>
+                        <div class="node">-</div>
+                        <div class="node">-</div>
+                    </div>
+                    <p style="margin-top: 10px;">Read from 3 replicas, return latest version</p>
+                </div>
+            </div>
+            
+            <div style="background: #fff3e0; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <strong>Why R + W > N guarantees consistency:</strong>
+                <p style="margin-top: 10px;">R=3 + W=3 = 6 > 5 (N)<br>
+                Read and write quorums MUST overlap! At least one replica has latest write.</p>
+            </div>
+        </div>
+        
+        <div class="key-point">
+            <h4>Common Quorum Configurations:</h4>
+            <ul>
+                <li><strong>N=3, R=2, W=2:</strong> Simple majority (Raft, Paxos use this)</li>
+                <li><strong>N=5, R=3, W=3:</strong> Can tolerate 2 failures</li>
+                <li><strong>N=3, R=1, W=3:</strong> Fast reads, slower writes (read-heavy workload)</li>
+                <li><strong>N=3, R=3, W=1:</strong> Fast writes, slower reads (write-heavy workload)</li>
+            </ul>
+        </div>
+        
+        <pre><code>// Quorum-Based Replication Implementation
+class QuorumSystem {
+    constructor(replicas, readQuorum, writeQuorum) {
+        this.replicas = replicas;
+        this.N = replicas.length;
+        this.R = readQuorum;
+        this.W = writeQuorum;
+        
+        // Validate quorum
+        if (this.R + this.W <= this.N) {
+            console.warn('⚠️ R + W ≤ N: May not guarantee consistency!');
+        }
+        
+        console.log(`Quorum System: N=${this.N}, R=${this.R}, W=${this.W}`);
+    }
+    
+    async write(key, value) {
+        console.log(`\nWrite: ${key} = ${value}`);
+        console.log(`Need ${this.W} successful writes out of ${this.N} replicas`);
+        
+        const version = Date.now(); // Use timestamp as version
+        const packet = { key, value, version };
+        
+        // Send to all replicas
+        const promises = this.replicas.map(replica =>
+            replica.write(packet)
+                .then(() => {
+                    console.log(`  ✓ ${replica.id} wrote ${key}`);
+                    return true;
+                })
+                .catch(err => {
+                    console.log(`  ✗ ${replica.id} failed: ${err.message}`);
+                    return false;
+                })
+        );
+        
+        const results = await Promise.allSettled(promises);
+        const successCount = results.filter(r => 
+            r.status === 'fulfilled' && r.value
+        ).length;
+        
+        if (successCount >= this.W) {
+            console.log(`✓ Write successful (${successCount}/${this.N} replicas)`);
+            return true;
+        } else {
+            console.log(`✗ Write failed (${successCount}/${this.W} required)`);
+            throw new Error('Write quorum not met');
+        }
+    }
+    
+    async read(key) {
+        console.log(`\nRead: ${key}`);
+        console.log(`Need ${this.R} successful reads out of ${this.N} replicas`);
+        
+        // Read from all replicas
+        const promises = this.replicas.map(replica =>
+            replica.read(key)
+                .then(result => {
+                    console.log(`  ✓ ${replica.id}: ${key} = ${result?.value} (v${result?.version})`);
+                    return result;
+                })
+                .catch(err => {
+                    console.log(`  ✗ ${replica.id} failed: ${err.message}`);
+                    return null;
+                })
+        );
+        
+        const results = await Promise.allSettled(promises);
+        const successfulReads = results
+            .filter(r => r.status === 'fulfilled' && r.value !== null)
+            .map(r => r.value);
+        
+        if (successfulReads.length < this.R) {
+            throw new Error('Read quorum not met');
+        }
+        
+        // Return value with highest version (most recent)
+        const latest = successfulReads.reduce((max, current) => 
+            current.version > max.version ? current : max
+        );
+        
+        console.log(`✓ Read successful: ${key} = ${latest.value} (v${latest.version})`);
+        
+        // Repair: write latest value to outdated replicas
+        await this.readRepair(key, latest);
+        
+        return latest.value;
+    }
+    
+    async readRepair(key, latestData) {
+        console.log('Read repair: updating stale replicas...');
+        
+        for (const replica of this.replicas) {
+            try {
+                const current = await replica.read(key);
+                if (!current || current.version < latestData.version) {
+                    await replica.write(latestData);
+                    console.log(`  ✓ Repaired ${replica.id}`);
+                }
+            } catch (err) {
+                // Ignore failures during repair
+            }
+        }
+    }
+}
+
+class QuorumReplica {
+    constructor(id) {
+        this.id = id;
+        this.data = new Map();
+        this.alive = true;
+    }
+    
+    async write(packet) {
+        if (!this.alive) {
+            throw new Error('Replica is down');
+        }
+        
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, Math.random() * 100));
+        
+        this.data.set(packet.key, {
+            value: packet.value,
+            version: packet.version
+        });
+    }
+    
+    async read(key) {
+        if (!this.alive) {
+            throw new Error('Replica is down');
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, Math.random() * 50));
+        
+        return this.data.get(key) || null;
+    }
+}
+
+// Usage
+const replicas = [
+    new QuorumReplica('R1'),
+    new QuorumReplica('R2'),
+    new QuorumReplica('R3'),
+    new QuorumReplica('R4'),
+    new QuorumReplica('R5')
+];
+
+const quorum = new QuorumSystem(replicas, 3, 3); // R=3, W=3
+
+await quorum.write('balance', 1000);
+await quorum.read('balance');</code></pre>
+        
+        <div class="key-point">
+            <h4>✅ Advantages:</h4>
+            <ul>
+                <li><strong>Flexible:</strong> Tune R and W for your workload</li>
+                <li><strong>Fault tolerant:</strong> Can survive N - W failures for writes</li>
+                <li><strong>Available:</strong> Don't need all replicas up</li>
+                <li><strong>Used in production:</strong> Cassandra, DynamoDB, Riak</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h4>❌ Disadvantages:</h4>
+            <ul>
+                <li><strong>Complex:</strong> Need to track versions, resolve conflicts</li>
+                <li><strong>Latency:</strong> Wait for quorum to respond</li>
+                <li><strong>Read repair needed:</strong> Extra work to fix stale replicas</li>
+            </ul>
+        </div>
+        
+        <h2>7️⃣ Consistency vs Availability Trade-offs</h2>
+        
+        <div class="tradeoff-box">
+            <h4>The Fundamental Trade-off (CAP Theorem Applied)</h4>
+            <p>Remember from Chapter 6: During a <strong>network partition</strong>, you must choose between <strong>Consistency</strong> and <strong>Availability</strong>.</p>
+            <p><strong>Replication strategies reflect this choice!</strong></p>
+        </div>
+        
+        <div class="cap-diagram">
+            <div class="cap-choice">
+                <h4 style="color: #4caf50; text-align: center;">CP System</h4>
+                <h5>Choose Consistency</h5>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Strategy:</strong> Synchronous replication</li>
+                    <li><strong>Behavior:</strong> Wait for all replicas</li>
+                    <li><strong>On failure:</strong> Reject writes</li>
+                    <li><strong>Examples:</strong> MongoDB, HBase</li>
+                </ul>
+                <div style="background: #e8f5e9; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Use when:</strong> Data correctness is critical (banking, inventory)
+                </div>
+            </div>
+            
+            <div class="cap-choice">
+                <h4 style="color: #2196f3; text-align: center;">AP System</h4>
+                <h5>Choose Availability</h5>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Strategy:</strong> Async replication</li>
+                    <li><strong>Behavior:</strong> Accept writes on any replica</li>
+                    <li><strong>On failure:</strong> Continue, resolve conflicts later</li>
+                    <li><strong>Examples:</strong> Cassandra, DynamoDB</li>
+                </ul>
+                <div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Use when:</strong> Availability matters more (social media, shopping cart)
+                </div>
+            </div>
+        </div>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Strategy</th>
+                <th>Consistency</th>
+                <th>Availability</th>
+                <th>Performance</th>
+                <th>Use Case</th>
+            </tr>
+            <tr>
+                <td><strong>Synchronous Primary-Backup</strong></td>
+                <td>✅ Strong</td>
+                <td>❌ Lower</td>
+                <td>⚠️ Slow writes</td>
+                <td>Databases requiring ACID</td>
+            </tr>
+            <tr>
+                <td><strong>Asynchronous Primary-Backup</strong></td>
+                <td>⚠️ Eventual</td>
+                <td>✅ Higher</td>
+                <td>✅ Fast writes</td>
+                <td>Read-heavy apps, caching</td>
+            </tr>
+            <tr>
+                <td><strong>Chain Replication</strong></td>
+                <td>✅ Strong</td>
+                <td>⚠️ Moderate</td>
+                <td>⚠️ Higher latency</td>
+                <td>Storage systems (HDFS)</td>
+            </tr>
+            <tr>
+                <td><strong>Quorum (R=W=N/2+1)</strong></td>
+                <td>✅ Strong</td>
+                <td>✅ High</td>
+                <td>⚠️ Moderate</td>
+                <td>Distributed databases (Cassandra)</td>
+            </tr>
+            <tr>
+                <td><strong>Quorum (R=1, W=N)</strong></td>
+                <td>✅ Strong</td>
+                <td>⚠️ Moderate</td>
+                <td>✅ Fast reads</td>
+                <td>Read-heavy workloads</td>
+            </tr>
+        </table>
+        
+        <div class="interactive-demo">
+            <h3>🎮 Interactive: Replication Strategies Demo</h3>
+            <p>See different replication strategies in action:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="demo-button" onclick="demoPrimaryBackup()">Primary-Backup</button>
+                <button class="demo-button" onclick="demoChainReplication()">Chain Replication</button>
+                <button class="demo-button" onclick="demoQuorum()">Quorum (R=2,W=2,N=3)</button>
+                <button class="demo-button" onclick="demoFailover()">Failover Scenario</button>
+            </div>
+            <div id="replicationDemo" class="demo-output">Click a button to see replication in action...</div>
+        </div>
+        
+        <div style="margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h3>🔑 Key Takeaways from Chapter 9</h3>
+            <ul style="line-height: 2;">
+                <li><strong>Why replicate?</strong> Fault tolerance, scalability, performance, geographic distribution</li>
+                <li><strong>Data-centric:</strong> Focus on replica agreement (system view)</li>
+                <li><strong>Client-centric:</strong> Focus on user experience (client view)</li>
+                <li><strong>Active replication:</strong> All process all requests (fast failover, high cost)</li>
+                <li><strong>Passive replication:</strong> Primary handles requests (simple, slower failover)</li>
+                <li><strong>Chain replication:</strong> Ordered chain (strong consistency, higher latency)</li>
+                <li><strong>Quorum:</strong> R + W > N (flexible, tunable, production-ready)</li>
+                <li><strong>Trade-off:</strong> Consistency vs Availability - choose based on use case</li>
+                <li><strong>No silver bullet:</strong> Each strategy has pros/cons</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff3e0; border-radius: 12px; border-left: 5px solid #ff9800;">
+            <h3>📝 Practice Questions</h3>
+            <ol style="line-height: 2;">
+                <li>Why is replication necessary in distributed systems?</li>
+                <li>Compare active vs passive replication - when would you use each?</li>
+                <li>How does chain replication achieve strong consistency?</li>
+                <li>Why must R + W > N for quorum consistency?</li>
+                <li>With N=5, design quorum values for: (a) read-heavy, (b) write-heavy workload</li>
+                <li>What happens during network partition in: (a) CP system, (b) AP system?</li>
+                <li>Why can't we have both strong consistency and high availability?</li>
+                <li>Design replication strategy for: (a) banking app, (b) social media feed</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function demoPrimaryBackup() {
+            const output = document.getElementById('replicationDemo');
+            output.textContent = '=== PRIMARY-BACKUP REPLICATION ===\n\n';
+            
+            output.textContent += 'Setup: Primary (R1), Backups (R2, R3)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Write Request: balance = 1000\n';
+            output.textContent += '  → Sent to PRIMARY (R1)\n';
+            await sleep(300);
+            output.textContent += '  → R1 processes write ✓\n';
+            await sleep(300);
+            output.textContent += '  → R1 replicates to R2... ✓\n';
+            await sleep(300);
+            output.textContent += '  → R1 replicates to R3... ✓\n';
+            await sleep(300);
+            output.textContent += '  → Write complete!\n\n';
+            
+            output.textContent += 'Read Request:\n';
+            output.textContent += '  → Can read from R1 (PRIMARY) ✓\n\n';
+            
+            output.textContent += 'State:\n';
+            output.textContent += '  R1 (Primary): balance = 1000 ✓\n';
+            output.textContent += '  R2 (Backup):  balance = 1000 ✓\n';
+            output.textContent += '  R3 (Backup):  balance = 1000 ✓\n\n';
+            
+            output.textContent += 'Characteristics:\n';
+            output.textContent += '  • Only primary processes requests\n';
+            output.textContent += '  • Backups stay synchronized\n';
+            output.textContent += '  • Simple and reliable!';
+        }
+        
+        async function demoChainReplication() {
+            const output = document.getElementById('replicationDemo');
+            output.textContent = '=== CHAIN REPLICATION ===\n\n';
+            
+            output.textContent += 'Chain: HEAD (R1) → R2 → R3 → TAIL (R4)\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Write Request: X = 100\n';
+            output.textContent += '  → Client sends to HEAD (R1)\n';
+            await sleep(300);
+            output.textContent += '  → R1 applies write, forwards to R2\n';
+            await sleep(300);
+            output.textContent += '  → R2 applies write, forwards to R3\n';
+            await sleep(300);
+            output.textContent += '  → R3 applies write, forwards to TAIL (R4)\n';
+            await sleep(300);
+            output.textContent += '  → R4 (TAIL) applies write\n';
+            await sleep(300);
+            output.textContent += '  → R4 sends ACK to client ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Read Request:\n';
+            output.textContent += '  → Client reads from TAIL (R4) only\n';
+            await sleep(300);
+            output.textContent += '  → R4 returns X = 100 ✓\n\n';
+            
+            output.textContent += 'Why this works:\n';
+            output.textContent += '  • TAIL has all committed writes\n';
+            output.textContent += '  • Strong consistency guaranteed\n';
+            output.textContent += '  • Ordered updates through chain\n\n';
+            
+            output.textContent += 'Trade-off: Higher write latency (goes through chain)';
+        }
+        
+        async function demoQuorum() {
+            const output = document.getElementById('replicationDemo');
+            output.textContent = '=== QUORUM REPLICATION (N=3, R=2, W=2) ===\n\n';
+            
+            output.textContent += 'Replicas: R1, R2, R3\n';
+            output.textContent += 'Write Quorum (W): 2\n';
+            output.textContent += 'Read Quorum (R): 2\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Write: balance = 1000\n';
+            output.textContent += '  → Send to all 3 replicas\n';
+            await sleep(300);
+            output.textContent += '  → R1: ✓ Written (v1)\n';
+            await sleep(300);
+            output.textContent += '  → R2: ✓ Written (v1)\n';
+            await sleep(300);
+            output.textContent += '  → R3: ⏳ Slow (not yet acknowledged)\n';
+            await sleep(300);
+            output.textContent += '  → W=2 quorum reached! Write complete ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Read: balance\n';
+            output.textContent += '  → Read from all 3 replicas\n';
+            await sleep(300);
+            output.textContent += '  → R1: balance = 1000 (v1) ✓\n';
+            await sleep(300);
+            output.textContent += '  → R2: balance = 1000 (v1) ✓\n';
+            await sleep(300);
+            output.textContent += '  → R3: balance = null (not updated yet)\n';
+            await sleep(300);
+            output.textContent += '  → R=2 quorum reached!\n';
+            output.textContent += '  → Return latest: 1000 ✓\n\n';
+            
+            output.textContent += 'Read repair:\n';
+            output.textContent += '  → Update R3 with latest value (v1)\n\n';
+            
+            output.textContent += 'Why R + W > N matters:\n';
+            output.textContent += '  R=2 + W=2 = 4 > 3 (N)\n';
+            output.textContent += '  Read and write quorums MUST overlap!\n';
+            output.textContent += '  Guarantees consistency ✓';
+        }
+        
+        async function demoFailover() {
+            const output = document.getElementById('replicationDemo');
+            output.textContent = '=== FAILOVER SCENARIO ===\n\n';
+            
+            output.textContent += 'Initial State:\n';
+            output.textContent += '  Primary: R1 (healthy) ✓\n';
+            output.textContent += '  Backup: R2 (healthy) ✓\n';
+            output.textContent += '  Backup: R3 (healthy) ✓\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Normal operation:\n';
+            output.textContent += '  Client writes to R1...\n';
+            await sleep(300);
+            output.textContent += '  R1 processes and replicates to R2, R3 ✓\n\n';
+            
+            await sleep(800);
+            output.textContent += '💥 PRIMARY R1 CRASHES!\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Failure Detection:\n';
+            await sleep(300);
+            output.textContent += '  ⏰ Heartbeat timeout detected\n';
+            await sleep(300);
+            output.textContent += '  ⚠️ R1 marked as FAILED\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Failover Process:\n';
+            await sleep(300);
+            output.textContent += '  Step 1: Select new primary from backups\n';
+            await sleep(300);
+            output.textContent += '  Step 2: R2 promoted to PRIMARY 👑\n';
+            await sleep(300);
+            output.textContent += '  Step 3: Update configuration\n';
+            await sleep(300);
+            output.textContent += '  Step 4: Resume operations\n\n';
+            
+            await sleep(500);
+            output.textContent += 'New State:\n';
+            output.textContent += '  Primary: R2 (healthy) ✓\n';
+            output.textContent += '  Backup: R3 (healthy) ✓\n';
+            output.textContent += '  Failed: R1 ❌\n\n';
+            
+            await sleep(500);
+            output.textContent += 'Result:\n';
+            output.textContent += '  ✓ System continues operating!\n';
+            output.textContent += '  ✓ Clients automatically routed to R2\n';
+            output.textContent += '  ✓ No data loss (replicated to R2, R3)\n\n';
+            
+            output.textContent += 'Failover time: ~5 seconds\n';
+            output.textContent += 'Replication enables fault tolerance! 🛡️';
+        }
+    </script>
+</body>
+</html>

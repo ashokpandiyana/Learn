@@ -1,0 +1,2575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring and Observability</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 3px solid #667eea;
+            overflow-x: auto;
+        }
+        
+        .nav-tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1em;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .nav-tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+        
+        .nav-tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            margin-bottom: -3px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.6em;
+            margin: 25px 0 15px 0;
+        }
+        
+        h4 {
+            color: #667eea;
+            font-size: 1.3em;
+            margin: 20px 0 10px 0;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+        
+        .visual-demo {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .demo-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .node {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: transform 0.3s;
+        }
+        
+        .node:hover {
+            transform: translateY(-5px);
+        }
+        
+        .node-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+        
+        .node-desc {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .service-node {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .storage-node {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .alert-node {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            margin: 0 10px;
+        }
+        
+        .arrow-down {
+            font-size: 2em;
+            color: #667eea;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 25px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .keyword {
+            color: #ff79c6;
+        }
+        
+        .string {
+            color: #f1fa8c;
+        }
+        
+        .comment {
+            color: #6272a4;
+            font-style: italic;
+        }
+        
+        .function {
+            color: #50fa7b;
+        }
+        
+        .number {
+            color: #bd93f9;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px;
+            text-align: left;
+            font-size: 1.05em;
+        }
+        
+        .comparison-table td {
+            padding: 18px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .feature-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .feature-box h4 {
+            color: #667eea;
+            margin-bottom: 12px;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
+            padding: 20px;
+            border-left: 5px solid #ffc107;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .highlight strong {
+            color: #f57c00;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 20px;
+            border-left: 5px solid #2196f3;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .info-box strong {
+            color: #1976d2;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            padding: 20px;
+            border-left: 5px solid #f44336;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .warning-box strong {
+            color: #c62828;
+        }
+        
+        .success-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            padding: 20px;
+            border-left: 5px solid #4caf50;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .success-box strong {
+            color: #2e7d32;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .card-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .card-title {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .card-desc {
+            text-align: center;
+            color: #666;
+        }
+        
+        ul {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline-item {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-item h4 {
+            margin-top: 0;
+        }
+        
+        .metric-display {
+            background: #2d2d2d;
+            color: #50fa7b;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #444;
+        }
+        
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+        
+        .trace-span {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            position: relative;
+        }
+        
+        .trace-span.child {
+            margin-left: 30px;
+            border-left-color: #4facfe;
+        }
+        
+        .trace-span.grandchild {
+            margin-left: 60px;
+            border-left-color: #43e97b;
+        }
+        
+        @media (max-width: 768px) {
+            .demo-row {
+                flex-direction: column;
+            }
+            
+            .arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Monitoring and Observability</h1>
+            <p>Building Observable Distributed Systems with Metrics, Logs, and Traces</p>
+        </header>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('overview')">Overview</button>
+            <button class="nav-tab" onclick="showTab('metrics')">Metrics</button>
+            <button class="nav-tab" onclick="showTab('logging')">Distributed Logging</button>
+            <button class="nav-tab" onclick="showTab('tracing')">Distributed Tracing</button>
+            <button class="nav-tab" onclick="showTab('health')">Health Checks</button>
+            <button class="nav-tab" onclick="showTab('alerting')">Alerting</button>
+            <button class="nav-tab" onclick="showTab('chaos')">Chaos Engineering</button>
+            <button class="nav-tab" onclick="showTab('sli-slo-sla')">SLI/SLO/SLA</button>
+        </div>
+        
+        <div class="content">
+            <!-- Tab 1: Overview -->
+            <div id="overview" class="tab-content active">
+                <div class="section">
+                    <h2><span class="icon">🔍</span>Observability Fundamentals</h2>
+                    
+                    <p>Observability is the ability to understand the internal state of a system by examining its outputs. In distributed systems, observability is critical because you can't simply attach a debugger or look at a single log file.</p>
+                    
+                    <h3>The Three Pillars of Observability</h3>
+                    
+                    <div class="grid-container">
+                        <div class="card">
+                            <div class="card-icon">📊</div>
+                            <div class="card-title">Metrics</div>
+                            <div class="card-desc">
+                                Numeric measurements over time<br>
+                                <strong>What:</strong> CPU, memory, request rate<br>
+                                <strong>When:</strong> Dashboards, alerts, trends
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">📝</div>
+                            <div class="card-title">Logs</div>
+                            <div class="card-desc">
+                                Discrete events with context<br>
+                                <strong>What:</strong> Errors, debug info, audit trail<br>
+                                <strong>When:</strong> Debugging, forensics
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">🔗</div>
+                            <div class="card-title">Traces</div>
+                            <div class="card-desc">
+                                Request journey across services<br>
+                                <strong>What:</strong> Latency breakdown, dependencies<br>
+                                <strong>When:</strong> Performance analysis
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Monitoring vs Observability</h3>
+                    
+                    <div class="visual-demo">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Aspect</th>
+                                    <th>Monitoring</th>
+                                    <th>Observability</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Purpose</strong></td>
+                                    <td>Know when things break</td>
+                                    <td>Understand why things break</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Questions</strong></td>
+                                    <td>Predefined, known failure modes</td>
+                                    <td>Ad-hoc, unknown unknowns</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Data</strong></td>
+                                    <td>Aggregated metrics, dashboards</td>
+                                    <td>High-cardinality, detailed telemetry</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Approach</strong></td>
+                                    <td>"Is the system healthy?"</td>
+                                    <td>"What is the system doing?"</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Example</strong></td>
+                                    <td>Alert: CPU > 80%</td>
+                                    <td>Query: Show all requests from user X that failed</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <h3>Observability Architecture</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Complete Observability Stack</h4>
+                        <div class="demo-row" style="flex-direction: column;">
+                            <div class="demo-row">
+                                <div class="node service-node">
+                                    <div class="node-title">Service A</div>
+                                    <div class="node-desc">Instrumented</div>
+                                </div>
+                                <div class="node service-node">
+                                    <div class="node-title">Service B</div>
+                                    <div class="node-desc">Instrumented</div>
+                                </div>
+                                <div class="node service-node">
+                                    <div class="node-title">Service C</div>
+                                    <div class="node-desc">Instrumented</div>
+                                </div>
+                            </div>
+                            <div class="arrow-down">↓ Emit telemetry ↓</div>
+                            <div class="demo-row">
+                                <div class="node storage-node">
+                                    <div class="node-title">Prometheus</div>
+                                    <div class="node-desc">Metrics DB</div>
+                                </div>
+                                <div class="node storage-node">
+                                    <div class="node-title">Elasticsearch</div>
+                                    <div class="node-desc">Log Storage</div>
+                                </div>
+                                <div class="node storage-node">
+                                    <div class="node-title">Jaeger</div>
+                                    <div class="node-desc">Trace Storage</div>
+                                </div>
+                            </div>
+                            <div class="arrow-down">↓ Visualize & Alert ↓</div>
+                            <div class="demo-row">
+                                <div class="node">
+                                    <div class="node-title">Grafana</div>
+                                    <div class="node-desc">Dashboards</div>
+                                </div>
+                                <div class="node">
+                                    <div class="node-title">Kibana</div>
+                                    <div class="node-desc">Log Analysis</div>
+                                </div>
+                                <div class="node alert-node">
+                                    <div class="node-title">AlertManager</div>
+                                    <div class="node-desc">Alerts</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Key Concepts</h3>
+                    
+                    <div class="feature-box">
+                        <h4>1. Instrumentation</h4>
+                        <p>Adding code to emit telemetry data from your application.</p>
+                        <ul>
+                            <li><strong>Automatic:</strong> Framework/library instrumentation</li>
+                            <li><strong>Manual:</strong> Custom business metrics and events</li>
+                            <li><strong>Low overhead:</strong> Should not impact performance significantly</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h4>2. Cardinality</h4>
+                        <p>Number of unique combinations of label values. High cardinality (user_id, request_id) requires careful handling.</p>
+                        <ul>
+                            <li><strong>Low:</strong> Status codes (200, 404, 500) - safe for metrics</li>
+                            <li><strong>High:</strong> User IDs, IP addresses - use logs/traces instead</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h4>3. Sampling</h4>
+                        <p>Recording only a subset of events to reduce costs.</p>
+                        <ul>
+                            <li><strong>Metrics:</strong> Rarely sampled (aggregated anyway)</li>
+                            <li><strong>Logs:</strong> Often sampled (especially debug logs)</li>
+                            <li><strong>Traces:</strong> Usually sampled (1-10% typical)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>🎯 Observability Best Practices:</strong>
+                        <ul>
+                            <li><strong>Correlation IDs:</strong> Link logs, metrics, and traces</li>
+                            <li><strong>Structured Logging:</strong> Use JSON, not plain text</li>
+                            <li><strong>Context Propagation:</strong> Pass trace context between services</li>
+                            <li><strong>Consistent Tagging:</strong> Use same labels across pillars</li>
+                            <li><strong>Don't Over-Monitor:</strong> Focus on actionable signals</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 2: Metrics -->
+            <div id="metrics" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">📊</span>Metrics Collection</h2>
+                    
+                    <p>Metrics are numeric measurements collected at regular intervals. They answer questions like "How many requests per second?" and "What's the average response time?"</p>
+                    
+                    <h3>Types of Metrics</h3>
+                    
+                    <div class="grid-container">
+                        <div class="card">
+                            <div class="card-icon">🔢</div>
+                            <div class="card-title">Counter</div>
+                            <div class="card-desc">
+                                Monotonically increasing value<br>
+                                <strong>Examples:</strong> Total requests, errors<br>
+                                <strong>Operations:</strong> Increment, rate()
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">📏</div>
+                            <div class="card-title">Gauge</div>
+                            <div class="card-desc">
+                                Point-in-time value that can go up/down<br>
+                                <strong>Examples:</strong> CPU%, memory, queue depth<br>
+                                <strong>Operations:</strong> Set, inc, dec
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">📊</div>
+                            <div class="card-title">Histogram</div>
+                            <div class="card-desc">
+                                Distribution of values in buckets<br>
+                                <strong>Examples:</strong> Request duration, size<br>
+                                <strong>Operations:</strong> Observe, percentiles
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">📈</div>
+                            <div class="card-title">Summary</div>
+                            <div class="card-desc">
+                                Pre-calculated percentiles<br>
+                                <strong>Examples:</strong> p50, p95, p99 latency<br>
+                                <strong>Operations:</strong> Observe
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Prometheus Instrumentation</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Node.js with Prometheus Client</span>
+<span class="keyword">const</span> express = require(<span class="string">'express'</span>);
+<span class="keyword">const</span> promClient = require(<span class="string">'prom-client'</span>);
+
+<span class="comment">// Create a Registry for metrics</span>
+<span class="keyword">const</span> register = <span class="keyword">new</span> promClient.Registry();
+
+<span class="comment">// Enable default metrics (CPU, memory, etc.)</span>
+promClient.collectDefaultMetrics({ register });
+
+<span class="comment">// 1. COUNTER: Total HTTP requests</span>
+<span class="keyword">const</span> httpRequestsTotal = <span class="keyword">new</span> promClient.Counter({
+    name: <span class="string">'http_requests_total'</span>,
+    help: <span class="string">'Total number of HTTP requests'</span>,
+    labelNames: [<span class="string">'method'</span>, <span class="string">'route'</span>, <span class="string">'status_code'</span>],
+    registers: [register]
+});
+
+<span class="comment">// 2. GAUGE: Active connections</span>
+<span class="keyword">const</span> activeConnections = <span class="keyword">new</span> promClient.Gauge({
+    name: <span class="string">'active_connections'</span>,
+    help: <span class="string">'Number of active connections'</span>,
+    registers: [register]
+});
+
+<span class="comment">// 3. HISTOGRAM: Request duration</span>
+<span class="keyword">const</span> httpRequestDuration = <span class="keyword">new</span> promClient.Histogram({
+    name: <span class="string">'http_request_duration_seconds'</span>,
+    help: <span class="string">'Duration of HTTP requests in seconds'</span>,
+    labelNames: [<span class="string">'method'</span>, <span class="string">'route'</span>, <span class="string">'status_code'</span>],
+    buckets: [<span class="number">0.001</span>, <span class="number">0.01</span>, <span class="number">0.1</span>, <span class="number">0.5</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">5</span>],  <span class="comment">// Seconds</span>
+    registers: [register]
+});
+
+<span class="comment">// 4. SUMMARY: Database query times</span>
+<span class="keyword">const</span> dbQueryDuration = <span class="keyword">new</span> promClient.Summary({
+    name: <span class="string">'db_query_duration_seconds'</span>,
+    help: <span class="string">'Duration of database queries'</span>,
+    labelNames: [<span class="string">'operation'</span>, <span class="string">'table'</span>],
+    percentiles: [<span class="number">0.5</span>, <span class="number">0.9</span>, <span class="number">0.95</span>, <span class="number">0.99</span>],
+    registers: [register]
+});
+
+<span class="keyword">const</span> app = express();
+
+<span class="comment">// Middleware to track metrics</span>
+app.use((req, res, next) => {
+    <span class="keyword">const</span> start = Date.now();
+    
+    <span class="comment">// Track active connections</span>
+    activeConnections.inc();
+    
+    <span class="comment">// On response finish</span>
+    res.on(<span class="string">'finish'</span>, () => {
+        <span class="keyword">const</span> duration = (Date.now() - start) / <span class="number">1000</span>;
+        
+        <span class="comment">// Record metrics</span>
+        httpRequestsTotal.labels(
+            req.method,
+            req.route?.path || req.path,
+            res.statusCode
+        ).inc();
+        
+        httpRequestDuration.labels(
+            req.method,
+            req.route?.path || req.path,
+            res.statusCode
+        ).observe(duration);
+        
+        activeConnections.dec();
+    });
+    
+    next();
+});
+
+<span class="comment">// Business metrics</span>
+<span class="keyword">const</span> ordersTotal = <span class="keyword">new</span> promClient.Counter({
+    name: <span class="string">'orders_total'</span>,
+    help: <span class="string">'Total number of orders'</span>,
+    labelNames: [<span class="string">'status'</span>],
+    registers: [register]
+});
+
+<span class="keyword">const</span> revenueTotal = <span class="keyword">new</span> promClient.Counter({
+    name: <span class="string">'revenue_total_cents'</span>,
+    help: <span class="string">'Total revenue in cents'</span>,
+    labelNames: [<span class="string">'currency'</span>],
+    registers: [register]
+});
+
+<span class="comment">// Example endpoint</span>
+app.post(<span class="string">'/api/orders'</span>, <span class="keyword">async</span> (req, res) => {
+    <span class="keyword">try</span> {
+        <span class="comment">// Measure DB query time</span>
+        <span class="keyword">const</span> queryStart = Date.now();
+        <span class="keyword">const</span> order = <span class="keyword">await</span> db.createOrder(req.body);
+        <span class="keyword">const</span> queryDuration = (Date.now() - queryStart) / <span class="number">1000</span>;
+        
+        dbQueryDuration.labels(<span class="string">'insert'</span>, <span class="string">'orders'</span>).observe(queryDuration);
+        
+        <span class="comment">// Track business metrics</span>
+        ordersTotal.labels(<span class="string">'completed'</span>).inc();
+        revenueTotal.labels(order.currency).inc(order.amountCents);
+        
+        res.json(order);
+    } <span class="keyword">catch</span> (error) {
+        ordersTotal.labels(<span class="string">'failed'</span>).inc();
+        res.status(<span class="number">500</span>).json({ error: error.message });
+    }
+});
+
+<span class="comment">// Metrics endpoint for Prometheus to scrape</span>
+app.get(<span class="string">'/metrics'</span>, <span class="keyword">async</span> (req, res) => {
+    res.set(<span class="string">'Content-Type'</span>, register.contentType);
+    res.end(<span class="keyword">await</span> register.metrics());
+});
+
+app.listen(<span class="number">3000</span>, () => {
+    console.log(<span class="string">'Server running on port 3000'</span>);
+    console.log(<span class="string">'Metrics available at http://localhost:3000/metrics'</span>);
+});
+                    </code-block>
+                    
+                    <h3>Example Metrics Output</h3>
+                    
+                    <div class="metric-display">
+# HELP http_requests_total Total number of HTTP requests
+# TYPE http_requests_total counter
+http_requests_total{method="GET",route="/api/users",status_code="200"} 1523
+http_requests_total{method="POST",route="/api/orders",status_code="201"} 342
+http_requests_total{method="GET",route="/api/orders",status_code="404"} 12
+
+# HELP http_request_duration_seconds Duration of HTTP requests in seconds
+# TYPE http_request_duration_seconds histogram
+http_request_duration_seconds_bucket{method="GET",route="/api/users",status_code="200",le="0.001"} 45
+http_request_duration_seconds_bucket{method="GET",route="/api/users",status_code="200",le="0.01"} 823
+http_request_duration_seconds_bucket{method="GET",route="/api/users",status_code="200",le="0.1"} 1498
+http_request_duration_seconds_bucket{method="GET",route="/api/users",status_code="200",le="+Inf"} 1523
+http_request_duration_seconds_sum{method="GET",route="/api/users",status_code="200"} 45.234
+http_request_duration_seconds_count{method="GET",route="/api/users",status_code="200"} 1523
+
+# HELP active_connections Number of active connections
+# TYPE active_connections gauge
+active_connections 23
+                    </div>
+                    
+                    <h3>PromQL Queries</h3>
+                    
+                    <div class="feature-box">
+                        <h4>Common Query Patterns</h4>
+                        <div class="code-block" style="margin-top: 15px;">
+<span class="comment"># Request rate (requests per second)</span>
+rate(http_requests_total[<span class="number">5</span>m])
+
+<span class="comment"># Error rate (4xx + 5xx errors)</span>
+sum(rate(http_requests_total{status_code=~<span class="string">"4..|5.."</span>}[<span class="number">5</span>m]))
+  / 
+sum(rate(http_requests_total[<span class="number">5</span>m]))
+
+<span class="comment"># 95th percentile latency</span>
+histogram_quantile(<span class="number">0.95</span>, 
+  rate(http_request_duration_seconds_bucket[<span class="number">5</span>m])
+)
+
+<span class="comment"># Average request duration</span>
+rate(http_request_duration_seconds_sum[<span class="number">5</span>m])
+  /
+rate(http_request_duration_seconds_count[<span class="number">5</span>m])
+
+<span class="comment"># Top 5 slowest endpoints</span>
+topk(<span class="number">5</span>, 
+  avg by (route) (
+    rate(http_request_duration_seconds_sum[<span class="number">5</span>m])
+  )
+)
+                        </div>
+                    </div>
+                    
+                    <h3>The RED Method</h3>
+                    
+                    <div class="info-box">
+                        <strong>📊 For every service, monitor:</strong>
+                        <ul>
+                            <li><strong>Rate:</strong> Number of requests per second</li>
+                            <li><strong>Errors:</strong> Number of failed requests per second</li>
+                            <li><strong>Duration:</strong> Distribution of request latencies</li>
+                        </ul>
+                        <p style="margin-top: 15px;">These three metrics give you a complete picture of service health.</p>
+                    </div>
+                    
+                    <h3>The USE Method</h3>
+                    
+                    <div class="info-box">
+                        <strong>💻 For every resource, monitor:</strong>
+                        <ul>
+                            <li><strong>Utilization:</strong> % of time resource is busy</li>
+                            <li><strong>Saturation:</strong> Degree of queuing/waiting</li>
+                            <li><strong>Errors:</strong> Count of error events</li>
+                        </ul>
+                        <p style="margin-top: 15px;">Useful for infrastructure: CPU, memory, disk, network.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 3: Distributed Logging -->
+            <div id="logging" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">📝</span>Distributed Logging</h2>
+                    
+                    <p>In distributed systems, logs are scattered across many services and machines. Centralized logging aggregates them into a single searchable location.</p>
+                    
+                    <h3>Structured Logging</h3>
+                    
+                    <div class="visual-demo">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div>
+                                <h4 style="color: #c62828; margin-bottom: 15px;">❌ Unstructured (Bad)</h4>
+                                <div class="code-block">
+<span class="comment">// Hard to parse, search, and aggregate</span>
+User alice logged in from 192.168.1.1
+Order 12345 processed successfully in 234ms
+Payment failed for order 67890: insufficient funds
+                                </div>
+                            </div>
+                            <div>
+                                <h4 style="color: #2e7d32; margin-bottom: 15px;">✅ Structured (Good)</h4>
+                                <div class="code-block">
+{<span class="string">"timestamp"</span>:<span class="string">"2024-11-25T10:30:00Z"</span>,<span class="string">"level"</span>:<span class="string">"info"</span>,<span class="string">"event"</span>:<span class="string">"user_login"</span>,<span class="string">"user"</span>:<span class="string">"alice"</span>,<span class="string">"ip"</span>:<span class="string">"192.168.1.1"</span>}
+{<span class="string">"timestamp"</span>:<span class="string">"2024-11-25T10:30:01Z"</span>,<span class="string">"level"</span>:<span class="string">"info"</span>,<span class="string">"event"</span>:<span class="string">"order_processed"</span>,<span class="string">"order_id"</span>:<span class="string">"12345"</span>,<span class="string">"duration_ms"</span>:<span class="number">234</span>}
+{<span class="string">"timestamp"</span>:<span class="string">"2024-11-25T10:30:02Z"</span>,<span class="string">"level"</span>:<span class="string">"error"</span>,<span class="string">"event"</span>:<span class="string">"payment_failed"</span>,<span class="string">"order_id"</span>:<span class="string">"67890"</span>,<span class="string">"reason"</span>:<span class="string">"insufficient_funds"</span>}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Logging Best Practices Implementation</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Winston logger with correlation IDs</span>
+<span class="keyword">const</span> winston = require(<span class="string">'winston'</span>);
+<span class="keyword">const</span> { v4: uuidv4 } = require(<span class="string">'uuid'</span>);
+
+<span class="comment">// Create logger</span>
+<span class="keyword">const</span> logger = winston.createLogger({
+    level: process.env.LOG_LEVEL || <span class="string">'info'</span>,
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.errors({ stack: <span class="keyword">true</span> }),
+        winston.format.json()
+    ),
+    defaultMeta: { 
+        service: <span class="string">'order-service'</span>,
+        version: process.env.APP_VERSION || <span class="string">'unknown'</span>,
+        environment: process.env.NODE_ENV || <span class="string">'development'</span>
+    },
+    transports: [
+        <span class="comment">// Console for development</span>
+        <span class="keyword">new</span> winston.transports.Console({
+            format: winston.format.combine(
+                winston.format.colorize(),
+                winston.format.simple()
+            )
+        }),
+        <span class="comment">// File for production</span>
+        <span class="keyword">new</span> winston.transports.File({ 
+            filename: <span class="string">'logs/error.log'</span>, 
+            level: <span class="string">'error'</span> 
+        }),
+        <span class="keyword">new</span> winston.transports.File({ 
+            filename: <span class="string">'logs/combined.log'</span> 
+        })
+    ]
+});
+
+<span class="comment">// Middleware to add correlation ID</span>
+<span class="keyword">function</span> <span class="function">correlationMiddleware</span>(req, res, next) {
+    <span class="comment">// Try to get correlation ID from header, or generate new one</span>
+    req.correlationId = req.headers[<span class="string">'x-correlation-id'</span>] || uuidv4();
+    
+    <span class="comment">// Pass it downstream</span>
+    res.setHeader(<span class="string">'x-correlation-id'</span>, req.correlationId);
+    
+    <span class="comment">// Attach logger with correlation ID to request</span>
+    req.logger = logger.child({
+        correlationId: req.correlationId,
+        method: req.method,
+        path: req.path,
+        ip: req.ip
+    });
+    
+    next();
+}
+
+app.use(correlationMiddleware);
+
+<span class="comment">// Request logging middleware</span>
+app.use((req, res, next) => {
+    <span class="keyword">const</span> start = Date.now();
+    
+    req.logger.info(<span class="string">'request_started'</span>, {
+        userAgent: req.headers[<span class="string">'user-agent'</span>]
+    });
+    
+    res.on(<span class="string">'finish'</span>, () => {
+        <span class="keyword">const</span> duration = Date.now() - start;
+        <span class="keyword">const</span> level = res.statusCode >= <span class="number">500</span> ? <span class="string">'error'</span> : 
+                      res.statusCode >= <span class="number">400</span> ? <span class="string">'warn'</span> : <span class="string">'info'</span>;
+        
+        req.logger.log(level, <span class="string">'request_completed'</span>, {
+            statusCode: res.statusCode,
+            durationMs: duration,
+            contentLength: res.get(<span class="string">'content-length'</span>)
+        });
+    });
+    
+    next();
+});
+
+<span class="comment">// Example usage in application code</span>
+app.post(<span class="string">'/api/orders'</span>, <span class="keyword">async</span> (req, res) => {
+    <span class="keyword">const</span> { userId, items } = req.body;
+    
+    req.logger.info(<span class="string">'order_creation_started'</span>, {
+        userId,
+        itemCount: items.length
+    });
+    
+    <span class="keyword">try</span> {
+        <span class="comment">// Validate order</span>
+        <span class="keyword">if</span> (!items || items.length === <span class="number">0</span>) {
+            req.logger.warn(<span class="string">'order_validation_failed'</span>, {
+                reason: <span class="string">'empty_items'</span>,
+                userId
+            });
+            <span class="keyword">return</span> res.status(<span class="number">400</span>).json({ error: <span class="string">'Items required'</span> });
+        }
+        
+        <span class="comment">// Create order</span>
+        <span class="keyword">const</span> order = <span class="keyword">await</span> orderService.create({
+            userId,
+            items,
+            correlationId: req.correlationId
+        });
+        
+        req.logger.info(<span class="string">'order_created'</span>, {
+            orderId: order.id,
+            userId,
+            amount: order.total,
+            currency: order.currency
+        });
+        
+        <span class="comment">// Process payment</span>
+        <span class="keyword">try</span> {
+            <span class="keyword">const</span> payment = <span class="keyword">await</span> paymentService.charge({
+                orderId: order.id,
+                amount: order.total,
+                correlationId: req.correlationId
+            });
+            
+            req.logger.info(<span class="string">'payment_processed'</span>, {
+                orderId: order.id,
+                paymentId: payment.id,
+                amount: order.total
+            });
+            
+        } <span class="keyword">catch</span> (paymentError) {
+            req.logger.error(<span class="string">'payment_failed'</span>, {
+                orderId: order.id,
+                error: paymentError.message,
+                errorCode: paymentError.code,
+                stack: paymentError.stack
+            });
+            <span class="keyword">throw</span> paymentError;
+        }
+        
+        res.json(order);
+        
+    } <span class="keyword">catch</span> (error) {
+        req.logger.error(<span class="string">'order_creation_failed'</span>, {
+            userId,
+            error: error.message,
+            errorType: error.constructor.name,
+            stack: error.stack
+        });
+        
+        res.status(<span class="number">500</span>).json({ 
+            error: <span class="string">'Failed to create order'</span>,
+            correlationId: req.correlationId
+        });
+    }
+});
+                    </code-block>
+                    
+                    <h3>ELK Stack Architecture</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Elasticsearch, Logstash, Kibana</h4>
+                        <div class="demo-row" style="flex-direction: column;">
+                            <div class="demo-row">
+                                <div class="node service-node">
+                                    <div class="node-title">Service A</div>
+                                    <div class="node-desc">Logs to stdout</div>
+                                </div>
+                                <div class="node service-node">
+                                    <div class="node-title">Service B</div>
+                                    <div class="node-desc">Logs to stdout</div>
+                                </div>
+                                <div class="node service-node">
+                                    <div class="node-title">Service C</div>
+                                    <div class="node-desc">Logs to stdout</div>
+                                </div>
+                            </div>
+                            <div class="arrow-down">↓ Filebeat/Fluentd collects ↓</div>
+                            <div class="node">
+                                <div class="node-title">Logstash</div>
+                                <div class="node-desc">Parse, transform, enrich logs</div>
+                            </div>
+                            <div class="arrow-down">↓ Index logs ↓</div>
+                            <div class="node storage-node">
+                                <div class="node-title">Elasticsearch</div>
+                                <div class="node-desc">Store & search logs (full-text)</div>
+                            </div>
+                            <div class="arrow-down">↓ Visualize ↓</div>
+                            <div class="node">
+                                <div class="node-title">Kibana</div>
+                                <div class="node-desc">Search UI, dashboards, alerts</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Log Levels</h3>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Level</th>
+                                <th>Use When</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>DEBUG</strong></td>
+                                <td>Detailed diagnostic information</td>
+                                <td>Variable values, function entry/exit</td>
+                            </tr>
+                            <tr>
+                                <td><strong>INFO</strong></td>
+                                <td>General informational messages</td>
+                                <td>User logged in, order created</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WARN</strong></td>
+                                <td>Potentially harmful situations</td>
+                                <td>Deprecated API used, slow query</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ERROR</strong></td>
+                                <td>Error events, might continue</td>
+                                <td>Failed payment, DB connection lost</td>
+                            </tr>
+                            <tr>
+                                <td><strong>FATAL</strong></td>
+                                <td>Severe errors, application aborts</td>
+                                <td>Out of memory, cannot bind port</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="info-box">
+                        <strong>🎯 Logging Best Practices:</strong>
+                        <ul>
+                            <li><strong>Correlation IDs:</strong> Track requests across services</li>
+                            <li><strong>Structured Format:</strong> Use JSON for machine parsing</li>
+                            <li><strong>Context:</strong> Include user ID, order ID, etc.</li>
+                            <li><strong>Sensitive Data:</strong> Never log passwords, credit cards, PII</li>
+                            <li><strong>Log Rotation:</strong> Prevent disk filling up</li>
+                            <li><strong>Sampling:</strong> Sample verbose logs (DEBUG) in production</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 4: Distributed Tracing -->
+            <div id="tracing" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">🔗</span>Distributed Tracing</h2>
+                    
+                    <p>Distributed tracing tracks requests as they flow through multiple services. Each request gets a unique trace ID, and each operation within that request gets a span ID. This creates a complete picture of request execution.</p>
+                    
+                    <h3>Trace Anatomy</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Request Flow Through Microservices</h4>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                            <div class="trace-span">
+                                <strong>Trace ID:</strong> abc123 | <strong>Span:</strong> api-gateway | <strong>Duration:</strong> 250ms
+                                <div style="margin-top: 10px; color: #666;">
+                                    GET /api/orders/12345
+                                </div>
+                                
+                                <div class="trace-span child">
+                                    <strong>Span:</strong> order-service | <strong>Duration:</strong> 180ms
+                                    <div style="margin-top: 5px; color: #666;">
+                                        fetchOrder(12345)
+                                    </div>
+                                    
+                                    <div class="trace-span grandchild">
+                                        <strong>Span:</strong> postgres-query | <strong>Duration:</strong> 45ms
+                                        <div style="margin-top: 5px; color: #666;">
+                                            SELECT * FROM orders WHERE id = 12345
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="trace-span grandchild">
+                                        <strong>Span:</strong> user-service | <strong>Duration:</strong> 80ms
+                                        <div style="margin-top: 5px; color: #666;">
+                                            getUserDetails(user-789)
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="trace-span child">
+                                    <strong>Span:</strong> cache-check | <strong>Duration:</strong> 5ms
+                                    <div style="margin-top: 5px; color: #666;">
+                                        Redis GET order:12345
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px;">
+                            <strong>Total Time:</strong> 250ms<br>
+                            <strong>Service Time:</strong> 180ms (order-service) + 5ms (cache) = 185ms<br>
+                            <strong>Overhead/Network:</strong> 65ms<br>
+                            <strong>Parallelism:</strong> postgres-query and user-service ran concurrently
+                        </div>
+                    </div>
+                    
+                    <h3>OpenTelemetry Implementation</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Node.js with OpenTelemetry</span>
+<span class="keyword">const</span> opentelemetry = require(<span class="string">'@opentelemetry/api'</span>);
+<span class="keyword">const</span> { NodeTracerProvider } = require(<span class="string">'@opentelemetry/sdk-trace-node'</span>);
+<span class="keyword">const</span> { SimpleSpanProcessor } = require(<span class="string">'@opentelemetry/sdk-trace-base'</span>);
+<span class="keyword">const</span> { JaegerExporter } = require(<span class="string">'@opentelemetry/exporter-jaeger'</span>);
+<span class="keyword">const</span> { registerInstrumentations } = require(<span class="string">'@opentelemetry/instrumentation'</span>);
+<span class="keyword">const</span> { HttpInstrumentation } = require(<span class="string">'@opentelemetry/instrumentation-http'</span>);
+<span class="keyword">const</span> { ExpressInstrumentation } = require(<span class="string">'@opentelemetry/instrumentation-express'</span>);
+
+<span class="comment">// Configure tracer provider</span>
+<span class="keyword">const</span> provider = <span class="keyword">new</span> NodeTracerProvider({
+    resource: {
+        attributes: {
+            <span class="string">'service.name'</span>: <span class="string">'order-service'</span>,
+            <span class="string">'service.version'</span>: <span class="string">'1.0.0'</span>,
+            <span class="string">'deployment.environment'</span>: <span class="string">'production'</span>
+        }
+    }
+});
+
+<span class="comment">// Configure Jaeger exporter</span>
+<span class="keyword">const</span> exporter = <span class="keyword">new</span> JaegerExporter({
+    endpoint: <span class="string">'http://jaeger-collector:14268/api/traces'</span>
+});
+
+provider.addSpanProcessor(<span class="keyword">new</span> SimpleSpanProcessor(exporter));
+provider.register();
+
+<span class="comment">// Auto-instrument HTTP and Express</span>
+registerInstrumentations({
+    instrumentations: [
+        <span class="keyword">new</span> HttpInstrumentation(),
+        <span class="keyword">new</span> ExpressInstrumentation()
+    ]
+});
+
+<span class="comment">// Get tracer</span>
+<span class="keyword">const</span> tracer = opentelemetry.trace.getTracer(<span class="string">'order-service'</span>);
+
+<span class="comment">// Manual instrumentation example</span>
+app.get(<span class="string">'/api/orders/:id'</span>, <span class="keyword">async</span> (req, res) => {
+    <span class="comment">// Current span is automatically created by Express instrumentation</span>
+    <span class="keyword">const</span> currentSpan = opentelemetry.trace.getActiveSpan();
+    
+    <span class="keyword">if</span> (currentSpan) {
+        <span class="comment">// Add attributes to span</span>
+        currentSpan.setAttributes({
+            <span class="string">'order.id'</span>: req.params.id,
+            <span class="string">'user.id'</span>: req.user?.id,
+            <span class="string">'http.route'</span>: req.route.path
+        });
+    }
+    
+    <span class="keyword">try</span> {
+        <span class="comment">// Create child span for database query</span>
+        <span class="keyword">const</span> order = <span class="keyword">await</span> tracer.startActiveSpan(
+            <span class="string">'db.query.get_order'</span>,
+            { 
+                attributes: {
+                    <span class="string">'db.system'</span>: <span class="string">'postgresql'</span>,
+                    <span class="string">'db.operation'</span>: <span class="string">'SELECT'</span>,
+                    <span class="string">'db.statement'</span>: <span class="string">'SELECT * FROM orders WHERE id = $1'</span>
+                }
+            },
+            <span class="keyword">async</span> (span) => {
+                <span class="keyword">try</span> {
+                    <span class="keyword">const</span> result = <span class="keyword">await</span> db.query(
+                        <span class="string">'SELECT * FROM orders WHERE id = $1'</span>,
+                        [req.params.id]
+                    );
+                    
+                    span.setAttributes({
+                        <span class="string">'db.rows_returned'</span>: result.rows.length
+                    });
+                    
+                    <span class="keyword">return</span> result.rows[<span class="number">0</span>];
+                } <span class="keyword">catch</span> (error) {
+                    <span class="comment">// Record error in span</span>
+                    span.recordException(error);
+                    span.setStatus({ 
+                        code: opentelemetry.SpanStatusCode.ERROR,
+                        message: error.message 
+                    });
+                    <span class="keyword">throw</span> error;
+                } <span class="keyword">finally</span> {
+                    span.end();
+                }
+            }
+        );
+        
+        <span class="keyword">if</span> (!order) {
+            currentSpan?.setStatus({ 
+                code: opentelemetry.SpanStatusCode.ERROR,
+                message: <span class="string">'Order not found'</span> 
+            });
+            <span class="keyword">return</span> res.status(<span class="number">404</span>).json({ error: <span class="string">'Not found'</span> });
+        }
+        
+        <span class="comment">// Create span for external service call</span>
+        <span class="keyword">const</span> user = <span class="keyword">await</span> tracer.startActiveSpan(
+            <span class="string">'http.get.user_service'</span>,
+            {
+                attributes: {
+                    <span class="string">'http.url'</span>: <span class="string">`http://user-service/users/${order.userId}`</span>,
+                    <span class="string">'http.method'</span>: <span class="string">'GET'</span>
+                }
+            },
+            <span class="keyword">async</span> (span) => {
+                <span class="keyword">try</span> {
+                    <span class="comment">// Propagate trace context to downstream service</span>
+                    <span class="keyword">const</span> response = <span class="keyword">await</span> fetch(
+                        <span class="string">`http://user-service/users/${order.userId}`</span>,
+                        {
+                            headers: {
+                                <span class="comment">// OpenTelemetry automatically injects trace headers</span>
+                            }
+                        }
+                    );
+                    
+                    span.setAttributes({
+                        <span class="string">'http.status_code'</span>: response.status
+                    });
+                    
+                    <span class="keyword">return await</span> response.json();
+                } <span class="keyword">finally</span> {
+                    span.end();
+                }
+            }
+        );
+        
+        res.json({ ...order, user });
+        
+    } <span class="keyword">catch</span> (error) {
+        currentSpan?.recordException(error);
+        res.status(<span class="number">500</span>).json({ error: error.message });
+    }
+});
+
+<span class="comment">// Middleware to extract trace context from incoming requests</span>
+app.use((req, res, next) => {
+    <span class="comment">// OpenTelemetry automatically extracts W3C Trace Context headers:</span>
+    <span class="comment">// traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01</span>
+    <span class="comment">// tracestate: congo=t61rcWkgMzE</span>
+    next();
+});
+                    </code-block>
+                    
+                    <h3>Trace Context Propagation</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Trace Context Headers</h4>
+                        <div class="code-block">
+<span class="comment">// W3C Trace Context Standard</span>
+traceparent: <span class="number">00</span>-<span class="string">4bf92f3577b34da6a3ce929d0e0e4736</span>-<span class="string">00f067aa0ba902b7</span>-<span class="number">01</span>
+             │  │                                │                  │
+             │  └─ Trace ID (16 bytes)           │                  └─ Flags
+             │                                    └─ Parent Span ID
+             └─ Version
+
+<span class="comment">// When Service A calls Service B:</span>
+<span class="number">1</span>. Service A creates new span with span-id-<span class="number">123</span>
+<span class="number">2</span>. Service A sends request with header:
+   traceparent: <span class="number">00</span>-<span class="string">trace-abc</span>-<span class="string">span-123</span>-<span class="number">01</span>
+<span class="number">3</span>. Service B extracts trace-abc from header
+<span class="number">4</span>. Service B creates child span with span-id-<span class="number">456</span>
+   parent: span-<span class="number">123</span>
+<span class="number">5</span>. Both spans share same trace-abc → visible in Jaeger
+                        </div>
+                    </div>
+                    
+                    <h3>Sampling Strategies</h3>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Strategy</th>
+                                <th>Description</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Always On</strong></td>
+                                <td>Trace every request (100%)</td>
+                                <td>Development, debugging</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Always Off</strong></td>
+                                <td>Never trace</td>
+                                <td>Disable tracing temporarily</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Probability</strong></td>
+                                <td>Sample N% of requests (e.g., 1%)</td>
+                                <td>High-traffic production systems</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rate Limiting</strong></td>
+                                <td>Sample max N traces per second</td>
+                                <td>Predictable costs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tail-based</strong></td>
+                                <td>Sample based on outcome (errors, slow)</td>
+                                <td>Capture interesting traces</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="info-box">
+                        <strong>🎯 Tracing Best Practices:</strong>
+                        <ul>
+                            <li><strong>Consistent Sampling:</strong> Sample decision made at entry point, propagated downstream</li>
+                            <li><strong>Span Attributes:</strong> Add useful tags (user_id, order_id, error_type)</li>
+                            <li><strong>Error Recording:</strong> Always record exceptions in spans</li>
+                            <li><strong>Span Naming:</strong> Use meaningful names: "db.query.get_user" not "query"</li>
+                            <li><strong>Performance:</strong> Tracing overhead should be <1% of request time</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 5: Health Checks -->
+            <div id="health" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">💚</span>Health Checks</h2>
+                    
+                    <p>Health checks allow orchestrators (Kubernetes, load balancers) to determine if a service is ready to receive traffic and if it's still alive.</p>
+                    
+                    <h3>Types of Health Checks</h3>
+                    
+                    <div class="grid-container">
+                        <div class="card">
+                            <div class="card-icon">💚</div>
+                            <div class="card-title">Liveness</div>
+                            <div class="card-desc">
+                                Is the app alive?<br>
+                                <strong>Failure:</strong> Restart container<br>
+                                <strong>Check:</strong> Can process respond?
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">🎯</div>
+                            <div class="card-title">Readiness</div>
+                            <div class="card-desc">
+                                Is the app ready for traffic?<br>
+                                <strong>Failure:</strong> Remove from load balancer<br>
+                                <strong>Check:</strong> Dependencies available?
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">🚀</div>
+                            <div class="card-title">Startup</div>
+                            <div class="card-desc">
+                                Has the app finished starting?<br>
+                                <strong>Failure:</strong> Wait longer or restart<br>
+                                <strong>Check:</strong> Initialization complete?
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Health Check Implementation</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Comprehensive Health Check System</span>
+<span class="keyword">class</span> <span class="function">HealthCheck</span> {
+    <span class="keyword">constructor</span>() {
+        <span class="keyword">this</span>.checks = <span class="keyword">new</span> Map();
+        <span class="keyword">this</span>.startupComplete = <span class="keyword">false</span>;
+    }
+    
+    <span class="comment">// Register a health check</span>
+    <span class="function">register</span>(name, checkFn, options = {}) {
+        <span class="keyword">this</span>.checks.set(name, {
+            fn: checkFn,
+            critical: options.critical !== <span class="keyword">false</span>,  <span class="comment">// Critical by default</span>
+            timeout: options.timeout || <span class="number">5000</span>
+        });
+    }
+    
+    <span class="comment">// Execute all health checks</span>
+    <span class="keyword">async</span> <span class="function">check</span>() {
+        <span class="keyword">const</span> results = {};
+        <span class="keyword">let</span> healthy = <span class="keyword">true</span>;
+        
+        <span class="keyword">for</span> (<span class="keyword">const</span> [name, config] <span class="keyword">of this</span>.checks) {
+            <span class="keyword">try</span> {
+                <span class="comment">// Run check with timeout</span>
+                <span class="keyword">const</span> result = <span class="keyword">await</span> Promise.race([
+                    config.fn(),
+                    <span class="keyword">new</span> Promise((_, reject) => 
+                        setTimeout(() => reject(<span class="keyword">new</span> Error(<span class="string">'Timeout'</span>)), config.timeout)
+                    )
+                ]);
+                
+                results[name] = {
+                    status: <span class="string">'pass'</span>,
+                    ...result
+                };
+                
+            } <span class="keyword">catch</span> (error) {
+                results[name] = {
+                    status: <span class="string">'fail'</span>,
+                    error: error.message
+                };
+                
+                <span class="keyword">if</span> (config.critical) {
+                    healthy = <span class="keyword">false</span>;
+                }
+            }
+        }
+        
+        <span class="keyword">return</span> {
+            status: healthy ? <span class="string">'healthy'</span> : <span class="string">'unhealthy'</span>,
+            checks: results,
+            timestamp: <span class="keyword">new</span> Date().toISOString()
+        };
+    }
+    
+    <span class="function">markStartupComplete</span>() {
+        <span class="keyword">this</span>.startupComplete = <span class="keyword">true</span>;
+    }
+    
+    <span class="function">isStartupComplete</span>() {
+        <span class="keyword">return this</span>.startupComplete;
+    }
+}
+
+<span class="comment">// Create health check instance</span>
+<span class="keyword">const</span> health = <span class="keyword">new</span> HealthCheck();
+
+<span class="comment">// Register database check</span>
+health.register(<span class="string">'database'</span>, <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> start = Date.now();
+    <span class="keyword">await</span> db.query(<span class="string">'SELECT 1'</span>);
+    <span class="keyword">const</span> responseTime = Date.now() - start;
+    
+    <span class="keyword">return</span> {
+        responseTime: <span class="string">`${responseTime}ms`</span>,
+        connections: db.pool.totalCount
+    };
+}, { critical: <span class="keyword">true</span>, timeout: <span class="number">3000</span> });
+
+<span class="comment">// Register Redis check</span>
+health.register(<span class="string">'redis'</span>, <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> start = Date.now();
+    <span class="keyword">await</span> redis.ping();
+    <span class="keyword">const</span> responseTime = Date.now() - start;
+    
+    <span class="keyword">return</span> {
+        responseTime: <span class="string">`${responseTime}ms`</span>,
+        connectedClients: <span class="keyword">await</span> redis.info(<span class="string">'clients'</span>)
+    };
+}, { critical: <span class="keyword">false</span> });  <span class="comment">// Non-critical: app works without cache</span>
+
+<span class="comment">// Register external API check</span>
+health.register(<span class="string">'payment_api'</span>, <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> response = <span class="keyword">await</span> fetch(<span class="string">'https://api.payment.com/health'</span>);
+    
+    <span class="keyword">if</span> (!response.ok) {
+        <span class="keyword">throw new</span> Error(<span class="string">`HTTP ${response.status}`</span>);
+    }
+    
+    <span class="keyword">return</span> { status: <span class="string">'connected'</span> };
+}, { critical: <span class="keyword">true</span> });
+
+<span class="comment">// Liveness probe - simple, always succeeds if process is running</span>
+app.get(<span class="string">'/health/live'</span>, (req, res) => {
+    res.json({ status: <span class="string">'alive'</span> });
+});
+
+<span class="comment">// Readiness probe - checks dependencies</span>
+app.get(<span class="string">'/health/ready'</span>, <span class="keyword">async</span> (req, res) => {
+    <span class="keyword">const</span> result = <span class="keyword">await</span> health.check();
+    
+    <span class="keyword">if</span> (result.status === <span class="string">'healthy'</span>) {
+        res.json(result);
+    } <span class="keyword">else</span> {
+        res.status(<span class="number">503</span>).json(result);
+    }
+});
+
+<span class="comment">// Startup probe - checks if initialization is complete</span>
+app.get(<span class="string">'/health/startup'</span>, <span class="keyword">async</span> (req, res) => {
+    <span class="keyword">if</span> (!health.isStartupComplete()) {
+        <span class="keyword">return</span> res.status(<span class="number">503</span>).json({
+            status: <span class="string">'starting'</span>,
+            message: <span class="string">'Application still initializing'</span>
+        });
+    }
+    
+    <span class="keyword">const</span> result = <span class="keyword">await</span> health.check();
+    res.status(result.status === <span class="string">'healthy'</span> ? <span class="number">200</span> : <span class="number">503</span>).json(result);
+});
+
+<span class="comment">// Application startup</span>
+<span class="keyword">async function</span> <span class="function">startup</span>() {
+    console.log(<span class="string">'Starting application...'</span>);
+    
+    <span class="comment">// Initialize database connection pool</span>
+    <span class="keyword">await</span> db.connect();
+    console.log(<span class="string">'Database connected'</span>);
+    
+    <span class="comment">// Warm up cache</span>
+    <span class="keyword">await</span> redis.connect();
+    console.log(<span class="string">'Redis connected'</span>);
+    
+    <span class="comment">// Load configuration</span>
+    <span class="keyword">await</span> loadConfig();
+    console.log(<span class="string">'Configuration loaded'</span>);
+    
+    <span class="comment">// Mark startup complete</span>
+    health.markStartupComplete();
+    console.log(<span class="string">'Application ready'</span>);
+}
+
+startup().catch(console.error);
+                    </code-block>
+                    
+                    <h3>Kubernetes Health Check Configuration</h3>
+                    
+                    <div class="code-block">
+<span class="comment"># Kubernetes Pod Spec with Health Checks</span>
+<span class="keyword">apiVersion</span>: v1
+<span class="keyword">kind</span>: Pod
+<span class="keyword">metadata</span>:
+  <span class="keyword">name</span>: order-service
+<span class="keyword">spec</span>:
+  <span class="keyword">containers</span>:
+  - <span class="keyword">name</span>: app
+    <span class="keyword">image</span>: order-service:<span class="number">1.0</span>
+    
+    <span class="comment"># Liveness: Restart if fails</span>
+    <span class="keyword">livenessProbe</span>:
+      <span class="keyword">httpGet</span>:
+        <span class="keyword">path</span>: /health/live
+        <span class="keyword">port</span>: <span class="number">3000</span>
+      <span class="keyword">initialDelaySeconds</span>: <span class="number">30</span>    <span class="comment"># Wait 30s after start</span>
+      <span class="keyword">periodSeconds</span>: <span class="number">10</span>          <span class="comment"># Check every 10s</span>
+      <span class="keyword">timeoutSeconds</span>: <span class="number">5</span>          <span class="comment"># Timeout after 5s</span>
+      <span class="keyword">failureThreshold</span>: <span class="number">3</span>        <span class="comment"># Restart after 3 failures</span>
+    
+    <span class="comment"># Readiness: Remove from service if fails</span>
+    <span class="keyword">readinessProbe</span>:
+      <span class="keyword">httpGet</span>:
+        <span class="keyword">path</span>: /health/ready
+        <span class="keyword">port</span>: <span class="number">3000</span>
+      <span class="keyword">initialDelaySeconds</span>: <span class="number">10</span>
+      <span class="keyword">periodSeconds</span>: <span class="number">5</span>
+      <span class="keyword">timeoutSeconds</span>: <span class="number">3</span>
+      <span class="keyword">failureThreshold</span>: <span class="number">2</span>
+    
+    <span class="comment"># Startup: Give time for slow initialization</span>
+    <span class="keyword">startupProbe</span>:
+      <span class="keyword">httpGet</span>:
+        <span class="keyword">path</span>: /health/startup
+        <span class="keyword">port</span>: <span class="number">3000</span>
+      <span class="keyword">initialDelaySeconds</span>: <span class="number">0</span>
+      <span class="keyword">periodSeconds</span>: <span class="number">5</span>
+      <span class="keyword">timeoutSeconds</span>: <span class="number">3</span>
+      <span class="keyword">failureThreshold</span>: <span class="number">30</span>      <span class="comment"># Allow 150s for startup (30 * 5s)</span>
+                    </code-block>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ Health Check Anti-Patterns:</strong>
+                        <ul>
+                            <li><strong>Heavy Liveness Checks:</strong> Don't query database in liveness - can cause cascade failures</li>
+                            <li><strong>No Timeout:</strong> Health checks must timeout quickly</li>
+                            <li><strong>Transient Failures:</strong> Use failureThreshold > 1 to avoid flapping</li>
+                            <li><strong>Same Endpoint:</strong> Don't use same endpoint for liveness and readiness</li>
+                            <li><strong>No Startup Probe:</strong> Slow-starting apps need startup probe to avoid premature restarts</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 6: Alerting -->
+            <div id="alerting" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">🚨</span>Alerting Strategies</h2>
+                    
+                    <p>Good alerts tell you when something is wrong and needs immediate attention. Bad alerts cause alert fatigue and are ignored.</p>
+                    
+                    <h3>Alert Quality Principles</h3>
+                    
+                    <div class="grid-container">
+                        <div class="card">
+                            <div class="card-icon">🎯</div>
+                            <div class="card-title">Actionable</div>
+                            <div class="card-desc">
+                                Alert must require human action<br>
+                                If no action needed → don't alert
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">🚨</div>
+                            <div class="card-title">Urgent</div>
+                            <div class="card-desc">
+                                Needs immediate response<br>
+                                Can't wait until morning → alert
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">📋</div>
+                            <div class="card-title">Clear Context</div>
+                            <div class="card-desc">
+                                What's wrong, why, what to do<br>
+                                Link to runbook/dashboard
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">🔕</div>
+                            <div class="card-title">Minimize Noise</div>
+                            <div class="card-desc">
+                                Alert fatigue kills on-call<br>
+                                Quality > Quantity
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Prometheus AlertManager Configuration</h3>
+                    
+                    <div class="code-block">
+<span class="comment"># prometheus-alerts.yml</span>
+<span class="keyword">groups</span>:
+- <span class="keyword">name</span>: service_alerts
+  <span class="keyword">interval</span>: <span class="number">30</span>s
+  <span class="keyword">rules</span>:
+  
+  <span class="comment"># Alert: High error rate</span>
+  - <span class="keyword">alert</span>: HighErrorRate
+    <span class="keyword">expr</span>: |
+      (
+        sum(rate(http_requests_total{status_code=~<span class="string">"5.."</span>}[<span class="number">5</span>m]))
+        /
+        sum(rate(http_requests_total[<span class="number">5</span>m]))
+      ) > <span class="number">0.05</span>
+    <span class="keyword">for</span>: <span class="number">5</span>m
+    <span class="keyword">labels</span>:
+      <span class="keyword">severity</span>: critical
+      <span class="keyword">team</span>: backend
+    <span class="keyword">annotations</span>:
+      <span class="keyword">summary</span>: <span class="string">"High error rate on {{ $labels.service }}"</span>
+      <span class="keyword">description</span>: <span class="string">"Error rate is {{ $value | humanizePercentage }} (threshold: 5%)"</span>
+      <span class="keyword">runbook</span>: <span class="string">"https://wiki.example.com/runbooks/high-error-rate"</span>
+      <span class="keyword">dashboard</span>: <span class="string">"https://grafana.example.com/d/service-health"</span>
+  
+  <span class="comment"># Alert: High latency (p95 > 500ms)</span>
+  - <span class="keyword">alert</span>: HighLatency
+    <span class="keyword">expr</span>: |
+      histogram_quantile(<span class="number">0.95</span>,
+        rate(http_request_duration_seconds_bucket[<span class="number">5</span>m])
+      ) > <span class="number">0.5</span>
+    <span class="keyword">for</span>: <span class="number">10</span>m
+    <span class="keyword">labels</span>:
+      <span class="keyword">severity</span>: warning
+      <span class="keyword">team</span>: backend
+    <span class="keyword">annotations</span>:
+      <span class="keyword">summary</span>: <span class="string">"High latency on {{ $labels.service }}"</span>
+      <span class="keyword">description</span>: <span class="string">"p95 latency is {{ $value }}s (threshold: 0.5s)"</span>
+  
+  <span class="comment"># Alert: Service down</span>
+  - <span class="keyword">alert</span>: ServiceDown
+    <span class="keyword">expr</span>: up{job=<span class="string">"order-service"</span>} == <span class="number">0</span>
+    <span class="keyword">for</span>: <span class="number">1</span>m
+    <span class="keyword">labels</span>:
+      <span class="keyword">severity</span>: critical
+      <span class="keyword">team</span>: backend
+    <span class="keyword">annotations</span>:
+      <span class="keyword">summary</span>: <span class="string">"Service {{ $labels.job }} is down"</span>
+      <span class="keyword">description</span>: <span class="string">"{{ $labels.instance }} has been down for 1 minute"</span>
+  
+  <span class="comment"># Alert: High memory usage</span>
+  - <span class="keyword">alert</span>: HighMemoryUsage
+    <span class="keyword">expr</span>: |
+      (
+        process_resident_memory_bytes
+        /
+        machine_memory_bytes
+      ) > <span class="number">0.9</span>
+    <span class="keyword">for</span>: <span class="number">15</span>m
+    <span class="keyword">labels</span>:
+      <span class="keyword">severity</span>: warning
+    <span class="keyword">annotations</span>:
+      <span class="keyword">summary</span>: <span class="string">"High memory usage on {{ $labels.instance }}"</span>
+      <span class="keyword">description</span>: <span class="string">"Memory usage is {{ $value | humanizePercentage }}"</span>
+  
+  <span class="comment"># Alert: Database connection pool exhausted</span>
+  - <span class="keyword">alert</span>: DatabasePoolExhausted
+    <span class="keyword">expr</span>: |
+      (
+        db_connections_active
+        /
+        db_connections_max
+      ) > <span class="number">0.9</span>
+    <span class="keyword">for</span>: <span class="number">5</span>m
+    <span class="keyword">labels</span>:
+      <span class="keyword">severity</span>: critical
+    <span class="keyword">annotations</span>:
+      <span class="keyword">summary</span>: <span class="string">"Database connection pool nearly exhausted"</span>
+      <span class="keyword">description</span>: <span class="string">"{{ $value | humanizePercentage }} of connections in use"</span>
+                    </code-block>
+                    
+                    <h3>Alert Routing Configuration</h3>
+                    
+                    <div class="code-block">
+<span class="comment"># alertmanager.yml</span>
+<span class="keyword">global</span>:
+  <span class="keyword">resolve_timeout</span>: <span class="number">5</span>m
+
+<span class="keyword">route</span>:
+  <span class="keyword">receiver</span>: <span class="string">'default'</span>
+  <span class="keyword">group_by</span>: [<span class="string">'alertname'</span>, <span class="string">'cluster'</span>]
+  <span class="keyword">group_wait</span>: <span class="number">10</span>s          <span class="comment"># Wait before sending first alert</span>
+  <span class="keyword">group_interval</span>: <span class="number">5</span>m      <span class="comment"># Wait between sending grouped alerts</span>
+  <span class="keyword">repeat_interval</span>: <span class="number">4</span>h      <span class="comment"># Resend if still firing</span>
+  
+  <span class="keyword">routes</span>:
+  <span class="comment"># Critical alerts → PagerDuty (immediate)</span>
+  - <span class="keyword">match</span>:
+      <span class="keyword">severity</span>: critical
+    <span class="keyword">receiver</span>: <span class="string">'pagerduty'</span>
+    <span class="keyword">continue</span>: <span class="keyword">true</span>           <span class="comment"># Also send to other receivers</span>
+  
+  <span class="comment"># Warnings → Slack (during work hours)</span>
+  - <span class="keyword">match</span>:
+      <span class="keyword">severity</span>: warning
+    <span class="keyword">receiver</span>: <span class="string">'slack'</span>
+    <span class="keyword">active_time_intervals</span>:
+    - <span class="string">'work_hours'</span>
+  
+  <span class="comment"># Team-specific routing</span>
+  - <span class="keyword">match</span>:
+      <span class="keyword">team</span>: backend
+    <span class="keyword">receiver</span>: <span class="string">'backend-team'</span>
+  
+  - <span class="keyword">match</span>:
+      <span class="keyword">team</span>: frontend
+    <span class="keyword">receiver</span>: <span class="string">'frontend-team'</span>
+
+<span class="keyword">receivers</span>:
+- <span class="keyword">name</span>: <span class="string">'default'</span>
+  <span class="keyword">email_configs</span>:
+  - <span class="keyword">to</span>: <span class="string">'ops@example.com'</span>
+
+- <span class="keyword">name</span>: <span class="string">'pagerduty'</span>
+  <span class="keyword">pagerduty_configs</span>:
+  - <span class="keyword">service_key</span>: <span class="string">'<your-pagerduty-key>'</span>
+    <span class="keyword">description</span>: <span class="string">'{{ .GroupLabels.alertname }}: {{ .CommonAnnotations.summary }}'</span>
+
+- <span class="keyword">name</span>: <span class="string">'slack'</span>
+  <span class="keyword">slack_configs</span>:
+  - <span class="keyword">api_url</span>: <span class="string">'<your-slack-webhook>'</span>
+    <span class="keyword">channel</span>: <span class="string">'#alerts'</span>
+    <span class="keyword">title</span>: <span class="string">'{{ .GroupLabels.alertname }}'</span>
+    <span class="keyword">text</span>: <span class="string">'{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'</span>
+
+<span class="keyword">time_intervals</span>:
+- <span class="keyword">name</span>: <span class="string">'work_hours'</span>
+  <span class="keyword">time_intervals</span>:
+  - <span class="keyword">weekdays</span>: [<span class="string">'monday:friday'</span>]
+    <span class="keyword">times</span>:
+    - <span class="keyword">start_time</span>: <span class="string">'09:00'</span>
+      <span class="keyword">end_time</span>: <span class="string">'18:00'</span>
+                    </code-block>
+                    
+                    <h3>Alert Hierarchy</h3>
+                    
+                    <div class="visual-demo">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Severity</th>
+                                    <th>Response</th>
+                                    <th>Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="background: #ffcdd2;">
+                                    <td><strong>🔴 Critical</strong></td>
+                                    <td>Page on-call immediately</td>
+                                    <td>Service down, data loss, security breach</td>
+                                </tr>
+                                <tr style="background: #fff3cd;">
+                                    <td><strong>🟡 Warning</strong></td>
+                                    <td>Notify during work hours</td>
+                                    <td>High latency, approaching limits</td>
+                                </tr>
+                                <tr style="background: #e3f2fd;">
+                                    <td><strong>🔵 Info</strong></td>
+                                    <td>Log to dashboard, no notification</td>
+                                    <td>Deployment complete, config changed</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>🎯 Alert Best Practices:</strong>
+                        <ul>
+                            <li><strong>Symptom-based:</strong> Alert on user impact (errors, latency) not causes (CPU, memory)</li>
+                            <li><strong>Window Duration:</strong> Use "for:" clause to avoid flapping (5-15 minutes typical)</li>
+                            <li><strong>Clear Resolution:</strong> Alert should auto-resolve when condition clears</li>
+                            <li><strong>Runbooks:</strong> Every alert links to runbook with troubleshooting steps</li>
+                            <li><strong>Context:</strong> Include dashboard links, affected services, customer impact</li>
+                            <li><strong>Review Regularly:</strong> Delete unused alerts, tune thresholds based on data</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 7: Chaos Engineering -->
+            <div id="chaos" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">💥</span>Chaos Engineering</h2>
+                    
+                    <p>Chaos Engineering is the discipline of experimenting on a system to build confidence in its capability to withstand turbulent conditions in production. The idea: break things intentionally to find weaknesses before they cause outages.</p>
+                    
+                    <h3>Principles of Chaos Engineering</h3>
+                    
+                    <div class="grid-container">
+                        <div class="card">
+                            <div class="card-icon">🔬</div>
+                            <div class="card-title">Hypothesis</div>
+                            <div class="card-desc">
+                                Define steady state<br>
+                                "System should serve 99.9% of requests successfully"
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">💥</div>
+                            <div class="card-title">Inject Failure</div>
+                            <div class="card-desc">
+                                Introduce realistic failure<br>
+                                Kill services, add latency, corrupt data
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">📊</div>
+                            <div class="card-title">Observe</div>
+                            <div class="card-desc">
+                                Monitor system behavior<br>
+                                Does it maintain steady state?
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">🔧</div>
+                            <div class="card-title">Fix</div>
+                            <div class="card-desc">
+                                Improve resilience<br>
+                                Add retries, timeouts, fallbacks
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Types of Chaos Experiments</h3>
+                    
+                    <div class="feature-box">
+                        <h4>1. Resource Attacks</h4>
+                        <ul>
+                            <li><strong>CPU Stress:</strong> Max out CPU to simulate heavy load</li>
+                            <li><strong>Memory Pressure:</strong> Consume memory until OOM</li>
+                            <li><strong>Disk I/O:</strong> Saturate disk bandwidth</li>
+                            <li><strong>Network Saturation:</strong> Fill network capacity</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h4>2. Network Chaos</h4>
+                        <ul>
+                            <li><strong>Latency Injection:</strong> Add 500ms delay to all requests</li>
+                            <li><strong>Packet Loss:</strong> Drop 10% of packets</li>
+                            <li><strong>Network Partition:</strong> Split cluster into isolated groups</li>
+                            <li><strong>DNS Failures:</strong> Make DNS lookups fail/slow</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h4>3. Application-Level Chaos</h4>
+                        <ul>
+                            <li><strong>Service Termination:</strong> Kill random pods/containers</li>
+                            <li><strong>Exception Injection:</strong> Throw errors in code</li>
+                            <li><strong>Function Delays:</strong> Slow down specific functions</li>
+                            <li><strong>Dependency Failures:</strong> Make downstream services fail</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>Chaos Toolkit Example</h3>
+                    
+                    <div class="code-block">
+<span class="comment"># chaos-experiment.yaml</span>
+<span class="keyword">version</span>: <span class="number">1.0</span>.<span class="number">0</span>
+<span class="keyword">title</span>: <span class="string">"Order Service Resilience Test"</span>
+<span class="keyword">description</span>: <span class="string">"Verify order service handles database failures gracefully"</span>
+
+<span class="keyword">steady-state-hypothesis</span>:
+  <span class="keyword">title</span>: <span class="string">"System is healthy"</span>
+  <span class="keyword">probes</span>:
+  - <span class="keyword">name</span>: <span class="string">"order-service-available"</span>
+    <span class="keyword">type</span>: probe
+    <span class="keyword">tolerance</span>: <span class="number">200</span>
+    <span class="keyword">provider</span>:
+      <span class="keyword">type</span>: http
+      <span class="keyword">url</span>: <span class="string">"http://order-service/health"</span>
+  
+  - <span class="keyword">name</span>: <span class="string">"success-rate-above-99"</span>
+    <span class="keyword">type</span>: probe
+    <span class="keyword">tolerance</span>: <span class="number">0.99</span>
+    <span class="keyword">provider</span>:
+      <span class="keyword">type</span>: python
+      <span class="keyword">module</span>: chaoslib.metrics
+      <span class="keyword">func</span>: query_prometheus
+      <span class="keyword">arguments</span>:
+        <span class="keyword">query</span>: |
+          sum(rate(http_requests_total{status=~<span class="string">"2.."</span>}[<span class="number">1</span>m]))
+          /
+          sum(rate(http_requests_total[<span class="number">1</span>m]))
+
+<span class="keyword">method</span>:
+- <span class="keyword">name</span>: <span class="string">"terminate-database-pod"</span>
+  <span class="keyword">type</span>: action
+  <span class="keyword">provider</span>:
+    <span class="keyword">type</span>: python
+    <span class="keyword">module</span>: chaosk8s.pod.actions
+    <span class="keyword">func</span>: terminate_pods
+    <span class="keyword">arguments</span>:
+      <span class="keyword">label_selector</span>: <span class="string">"app=postgres"</span>
+      <span class="keyword">ns</span>: <span class="string">"production"</span>
+      <span class="keyword">qty</span>: <span class="number">1</span>
+      <span class="keyword">grace_period</span>: <span class="number">0</span>
+
+- <span class="keyword">name</span>: <span class="string">"wait-for-recovery"</span>
+  <span class="keyword">type</span>: action
+  <span class="keyword">provider</span>:
+    <span class="keyword">type</span>: python
+    <span class="keyword">module</span>: time
+    <span class="keyword">func</span>: sleep
+    <span class="keyword">arguments</span>:
+      <span class="keyword">secs</span>: <span class="number">30</span>
+
+<span class="keyword">rollbacks</span>:
+- <span class="keyword">name</span>: <span class="string">"ensure-database-running"</span>
+  <span class="keyword">type</span>: action
+  <span class="keyword">provider</span>:
+    <span class="keyword">type</span>: python
+    <span class="keyword">module</span>: chaosk8s.pod.actions
+    <span class="keyword">func</span>: scale_deployment
+    <span class="keyword">arguments</span>:
+      <span class="keyword">name</span>: <span class="string">"postgres"</span>
+      <span class="keyword">ns</span>: <span class="string">"production"</span>
+      <span class="keyword">replicas</span>: <span class="number">3</span>
+                    </code-block>
+                    
+                    <h3>Implementing Chaos in Code</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Chaos Middleware - Inject failures randomly</span>
+<span class="keyword">class</span> <span class="function">ChaosMiddleware</span> {
+    <span class="keyword">constructor</span>(options = {}) {
+        <span class="keyword">this</span>.enabled = options.enabled || process.env.CHAOS_ENABLED === <span class="string">'true'</span>;
+        <span class="keyword">this</span>.latencyProbability = options.latencyProbability || <span class="number">0.05</span>;  <span class="comment">// 5%</span>
+        <span class="keyword">this</span>.errorProbability = options.errorProbability || <span class="number">0.01</span>;     <span class="comment">// 1%</span>
+        <span class="keyword">this</span>.latencyMs = options.latencyMs || <span class="number">5000</span>;
+    }
+    
+    <span class="function">middleware</span>() {
+        <span class="keyword">return async</span> (req, res, next) => {
+            <span class="keyword">if</span> (!<span class="keyword">this</span>.enabled) {
+                <span class="keyword">return</span> next();
+            }
+            
+            <span class="comment">// Inject latency</span>
+            <span class="keyword">if</span> (Math.random() < <span class="keyword">this</span>.latencyProbability) {
+                <span class="keyword">const</span> delay = Math.random() * <span class="keyword">this</span>.latencyMs;
+                console.log(<span class="string">`[Chaos] Injecting ${Math.round(delay)}ms latency`</span>);
+                <span class="keyword">await new</span> Promise(resolve => setTimeout(resolve, delay));
+            }
+            
+            <span class="comment">// Inject error</span>
+            <span class="keyword">if</span> (Math.random() < <span class="keyword">this</span>.errorProbability) {
+                console.log(<span class="string">'[Chaos] Injecting 503 error'</span>);
+                <span class="keyword">return</span> res.status(<span class="number">503</span>).json({
+                    error: <span class="string">'Service temporarily unavailable (chaos injection)'</span>
+                });
+            }
+            
+            next();
+        };
+    }
+}
+
+<span class="comment">// Use in application</span>
+<span class="keyword">if</span> (process.env.NODE_ENV === <span class="string">'staging'</span>) {
+    <span class="keyword">const</span> chaos = <span class="keyword">new</span> ChaosMiddleware({
+        enabled: <span class="keyword">true</span>,
+        latencyProbability: <span class="number">0.1</span>,   <span class="comment">// 10% of requests</span>
+        errorProbability: <span class="number">0.05</span>,     <span class="comment">// 5% of requests</span>
+        latencyMs: <span class="number">3000</span>
+    });
+    
+    app.use(chaos.middleware());
+}
+
+<span class="comment">// Database chaos wrapper</span>
+<span class="keyword">class</span> <span class="function">ChaosDatabase</span> {
+    <span class="keyword">constructor</span>(db, options = {}) {
+        <span class="keyword">this</span>.db = db;
+        <span class="keyword">this</span>.failureProbability = options.failureProbability || <span class="number">0.01</span>;
+        <span class="keyword">this</span>.slowQueryProbability = options.slowQueryProbability || <span class="number">0.05</span>;
+    }
+    
+    <span class="keyword">async</span> <span class="function">query</span>(sql, params) {
+        <span class="comment">// Random query failure</span>
+        <span class="keyword">if</span> (Math.random() < <span class="keyword">this</span>.failureProbability) {
+            console.log(<span class="string">'[Chaos] Injecting DB connection error'</span>);
+            <span class="keyword">throw new</span> Error(<span class="string">'ECONNREFUSED: Database connection failed'</span>);
+        }
+        
+        <span class="comment">// Slow query</span>
+        <span class="keyword">if</span> (Math.random() < <span class="keyword">this</span>.slowQueryProbability) {
+            <span class="keyword">const</span> delay = <span class="number">2000</span> + Math.random() * <span class="number">3000</span>;
+            console.log(<span class="string">`[Chaos] Slowing down query by ${Math.round(delay)}ms`</span>);
+            <span class="keyword">await new</span> Promise(resolve => setTimeout(resolve, delay));
+        }
+        
+        <span class="keyword">return this</span>.db.query(sql, params);
+    }
+}
+                    </code-block>
+                    
+                    <h3>Netflix Chaos Monkey</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Chaos Engineering at Scale</h4>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <h4>Chaos Monkey (2011)</h4>
+                                <p>Randomly terminates instances in production</p>
+                                <p><strong>Goal:</strong> Ensure services handle instance failures</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Chaos Kong (2015)</h4>
+                                <p>Takes down entire AWS regions</p>
+                                <p><strong>Goal:</strong> Verify multi-region failover works</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Chaos Gorilla</h4>
+                                <p>Simulates availability zone failures</p>
+                                <p><strong>Goal:</strong> Test zone-level redundancy</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4>Latency Monkey</h4>
+                                <p>Induces artificial delays in requests</p>
+                                <p><strong>Goal:</strong> Verify timeout handling</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>🎯 Chaos Engineering Best Practices:</strong>
+                        <ul>
+                            <li><strong>Start Small:</strong> Begin in staging, graduate to production</li>
+                            <li><strong>Define Blast Radius:</strong> Limit impact (single region, % of traffic)</li>
+                            <li><strong>Hypothesis First:</strong> Predict outcome before experimenting</li>
+                            <li><strong>Monitor Everything:</strong> Watch metrics, logs, traces during experiment</li>
+                            <li><strong>Automate:</strong> Run experiments regularly (GameDays)</li>
+                            <li><strong>Have Rollback:</strong> Stop button to end experiment immediately</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ Safety First:</strong>
+                        <ul>
+                            <li>Never run chaos experiments during incidents</li>
+                            <li>Inform team before production experiments</li>
+                            <li>Have rollback plan ready</li>
+                            <li>Monitor customer impact metrics</li>
+                            <li>Start with lowest risk experiments</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 8: SLI/SLO/SLA -->
+            <div id="sli-slo-sla" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">🎯</span>SLIs, SLOs, and SLAs</h2>
+                    
+                    <p>Service Level Indicators (SLI), Objectives (SLO), and Agreements (SLA) form the foundation of reliability engineering. They define what "good" looks like and provide a framework for decision-making.</p>
+                    
+                    <h3>Definitions</h3>
+                    
+                    <div class="grid-container">
+                        <div class="card">
+                            <div class="card-icon">📊</div>
+                            <div class="card-title">SLI</div>
+                            <div class="card-desc">
+                                <strong>Service Level Indicator</strong><br>
+                                Quantitative measure of service quality<br>
+                                <em>Example:</em> Request success rate, latency
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">🎯</div>
+                            <div class="card-title">SLO</div>
+                            <div class="card-desc">
+                                <strong>Service Level Objective</strong><br>
+                                Target value for an SLI<br>
+                                <em>Example:</em> 99.9% success rate
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">📜</div>
+                            <div class="card-title">SLA</div>
+                            <div class="card-desc">
+                                <strong>Service Level Agreement</strong><br>
+                                Contract with consequences<br>
+                                <em>Example:</em> 99.9% or refund
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>The Relationship</h3>
+                    
+                    <div class="visual-demo">
+                        <div style="background: #f8f9fa; padding: 30px; border-radius: 10px;">
+                            <div style="text-align: center; font-size: 1.2em; margin-bottom: 30px;">
+                                <strong>SLI</strong> (measurement) → <strong>SLO</strong> (internal target) → <strong>SLA</strong> (customer promise)
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; text-align: center;">
+                                <div style="background: #e3f2fd; padding: 20px; border-radius: 10px;">
+                                    <strong>SLI</strong><br>
+                                    <div style="margin-top: 10px; font-family: monospace;">
+                                        99.95% success rate<br>
+                                        150ms p95 latency
+                                    </div>
+                                </div>
+                                <div style="background: #fff3cd; padding: 20px; border-radius: 10px;">
+                                    <strong>SLO</strong><br>
+                                    <div style="margin-top: 10px; font-family: monospace;">
+                                        ≥ 99.9% success<br>
+                                        ≤ 200ms p95
+                                    </div>
+                                    <div style="margin-top: 10px; color: #2e7d32;">✅ Meeting target!</div>
+                                </div>
+                                <div style="background: #ffebee; padding: 20px; border-radius: 10px;">
+                                    <strong>SLA</strong><br>
+                                    <div style="margin-top: 10px; font-family: monospace;">
+                                        ≥ 99.5% success<br>
+                                        or 10% refund
+                                    </div>
+                                    <div style="margin-top: 10px; color: #2e7d32;">✅ No breach</div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 30px; padding: 20px; background: white; border-radius: 10px;">
+                                <strong>Key Insight:</strong> SLO should be stricter than SLA (buffer zone for error budget)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Common SLIs</h3>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>SLI Type</th>
+                                <th>Definition</th>
+                                <th>Example Target</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Availability</strong></td>
+                                <td>% of time service is accessible</td>
+                                <td>99.9% uptime (43.2 min downtime/month)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Success Rate</strong></td>
+                                <td>% of successful requests</td>
+                                <td>99.95% of requests return 2xx/3xx</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Latency</strong></td>
+                                <td>Request response time</td>
+                                <td>95% of requests < 200ms</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Throughput</strong></td>
+                                <td>Requests handled per second</td>
+                                <td>Support 10,000 RPS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Durability</strong></td>
+                                <td>% of data retained</td>
+                                <td>99.999999999% (11 nines)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>Calculating SLI</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// Prometheus queries for SLIs</span>
+
+<span class="comment">// 1. Availability SLI - % of time service is up</span>
+avg_over_time(up{job=<span class="string">"api-service"</span>}[<span class="number">30</span>d]) * <span class="number">100</span>
+
+<span class="comment">// 2. Success Rate SLI - % of successful requests</span>
+(
+  sum(rate(http_requests_total{status=~<span class="string">"2..|3.."</span>}[<span class="number">30</span>d]))
+  /
+  sum(rate(http_requests_total[<span class="number">30</span>d]))
+) * <span class="number">100</span>
+
+<span class="comment">// 3. Latency SLI - % of requests under 200ms</span>
+(
+  sum(rate(http_request_duration_seconds_bucket{le=<span class="string">"0.2"</span>}[<span class="number">30</span>d]))
+  /
+  sum(rate(http_request_duration_seconds_count[<span class="number">30</span>d]))
+) * <span class="number">100</span>
+
+<span class="comment">// 4. Error Budget Remaining</span>
+<span class="comment">// SLO = 99.9%, Error Budget = 0.1%</span>
+<span class="keyword">let</span> slo = <span class="number">99.9</span>;
+<span class="keyword">let</span> currentSLI = <span class="number">99.95</span>;
+<span class="keyword">let</span> errorBudget = (<span class="number">100</span> - slo);           <span class="comment">// 0.1%</span>
+<span class="keyword">let</span> errorBudgetConsumed = (<span class="number">100</span> - currentSLI); <span class="comment">// 0.05%</span>
+<span class="keyword">let</span> errorBudgetRemaining = errorBudget - errorBudgetConsumed; <span class="comment">// 0.05%</span>
+                    </code-block>
+                    
+                    <h3>Error Budget</h3>
+                    
+                    <div class="visual-demo">
+                        <h4 style="text-align: center; margin-bottom: 20px;">Error Budget Concept</h4>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                            <p><strong>SLO:</strong> 99.9% availability</p>
+                            <p><strong>Error Budget:</strong> 100% - 99.9% = 0.1% = 43.2 minutes/month</p>
+                            <p><strong>Purpose:</strong> Balance between velocity and reliability</p>
+                            
+                            <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div style="background: #e8f5e9; padding: 15px; border-radius: 8px;">
+                                    <h4 style="color: #2e7d32; margin-bottom: 10px;">Error Budget Remaining</h4>
+                                    <ul style="margin-left: 20px;">
+                                        <li>Deploy new features frequently</li>
+                                        <li>Take more risks</li>
+                                        <li>Move faster</li>
+                                    </ul>
+                                </div>
+                                <div style="background: #ffebee; padding: 15px; border-radius: 8px;">
+                                    <h4 style="color: #c62828; margin-bottom: 10px;">Error Budget Exhausted</h4>
+                                    <ul style="margin-left: 20px;">
+                                        <li>Freeze deployments</li>
+                                        <li>Focus on reliability</li>
+                                        <li>Fix technical debt</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>SLO Document Example</h3>
+                    
+                    <div class="code-block">
+<span class="comment">// API Service SLO Document</span>
+
+<span class="keyword">Service</span>: Order API
+<span class="keyword">Owner</span>: Backend Team
+<span class="keyword">Last Updated</span>: <span class="number">2024</span>-<span class="number">11</span>-<span class="number">25</span>
+
+<span class="comment">## SLIs and SLOs</span>
+
+<span class="comment">### 1. Availability</span>
+<span class="keyword">SLI Definition</span>: Ratio of successful health checks to total checks
+<span class="keyword">SLO</span>: <span class="number">99.9</span>% availability over <span class="number">30</span> days
+<span class="keyword">Measurement Window</span>: Rolling <span class="number">30</span> days
+<span class="keyword">Error Budget</span>: <span class="number">43.2</span> minutes/month
+
+<span class="keyword">Query</span>:
+  avg_over_time(up{job=<span class="string">"order-api"</span>}[<span class="number">30</span>d]) >= <span class="number">0.999</span>
+
+<span class="comment">### 2. Request Success Rate</span>
+<span class="keyword">SLI Definition</span>: Ratio of <span class="number">2</span>xx/<span class="number">3</span>xx responses to total requests
+<span class="keyword">SLO</span>: <span class="number">99.95</span>% of requests succeed
+<span class="keyword">Exclusions</span>: <span class="number">4</span>xx errors (client errors)
+<span class="keyword">Error Budget</span>: <span class="number">0.05</span>% = <span class="number">2</span>,<span class="number">160</span> failed requests/month (@<span class="number">1</span>M RPM)
+
+<span class="keyword">Query</span>:
+  (
+    sum(rate(http_requests_total{status=~<span class="string">"2..|3.."</span>}[<span class="number">30</span>d]))
+    /
+    sum(rate(http_requests_total[<span class="number">30</span>d]))
+  ) >= <span class="number">0.9995</span>
+
+<span class="comment">### 3. Latency (p95)</span>
+<span class="keyword">SLI Definition</span>: <span class="number">95</span>th percentile of request duration
+<span class="keyword">SLO</span>: <span class="number">95</span>% of requests complete within <span class="number">200</span>ms
+<span class="keyword">Measurement</span>: Server-side timing (after authentication)
+
+<span class="keyword">Query</span>:
+  histogram_quantile(<span class="number">0.95</span>,
+    rate(http_request_duration_seconds_bucket[<span class="number">30</span>d])
+  ) <= <span class="number">0.2</span>
+
+<span class="comment">## Alerting</span>
+
+<span class="keyword">Fast Burn Alert</span> (<span class="number">1</span>h):
+  - Consumes <span class="number">5</span>% of monthly error budget in <span class="number">1</span> hour
+  - Severity: Critical
+  - Page on-call
+
+<span class="keyword">Slow Burn Alert</span> (<span class="number">24</span>h):
+  - Consumes <span class="number">10</span>% of monthly error budget in <span class="number">24</span> hours
+  - Severity: Warning
+  - Ticket created
+
+<span class="comment">## Error Budget Policy</span>
+
+<span class="keyword">Budget Remaining</span> > <span class="number">20</span>%:
+  - Normal deployment cadence
+  - Accept calculated risks
+
+<span class="keyword">Budget</span> <span class="number">5</span>% - <span class="number">20</span>%:
+  - Review recent changes
+  - Increase monitoring
+  - Defer risky deploys
+
+<span class="keyword">Budget</span> < <span class="number">5</span>%:
+  - Deployment freeze
+  - Focus on stability
+  - Root cause analysis
+
+<span class="keyword">Budget Exhausted</span>:
+  - Complete deployment freeze
+  - All hands on stability
+  - Executive escalation
+                    </code-block>
+                    
+                    <h3>Availability Math</h3>
+                    
+                    <div class="visual-demo">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Availability %</th>
+                                    <th>Downtime/Year</th>
+                                    <th>Downtime/Month</th>
+                                    <th>Downtime/Week</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>90% ("one nine")</strong></td>
+                                    <td>36.5 days</td>
+                                    <td>72 hours</td>
+                                    <td>16.8 hours</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>99% ("two nines")</strong></td>
+                                    <td>3.65 days</td>
+                                    <td>7.2 hours</td>
+                                    <td>1.68 hours</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>99.9% ("three nines")</strong></td>
+                                    <td>8.76 hours</td>
+                                    <td>43.2 minutes</td>
+                                    <td>10.1 minutes</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>99.95% ("three and a half")</strong></td>
+                                    <td>4.38 hours</td>
+                                    <td>21.6 minutes</td>
+                                    <td>5 minutes</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>99.99% ("four nines")</strong></td>
+                                    <td>52.6 minutes</td>
+                                    <td>4.32 minutes</td>
+                                    <td>1.01 minutes</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>99.999% ("five nines")</strong></td>
+                                    <td>5.26 minutes</td>
+                                    <td>25.9 seconds</td>
+                                    <td>6.05 seconds</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>🎯 SLO Best Practices:</strong>
+                        <ul>
+                            <li><strong>User-Centric:</strong> SLIs should reflect user experience, not system metrics</li>
+                            <li><strong>Achievable:</strong> Target 99.9%, not 100% (perfect reliability is impossible and expensive)</li>
+                            <li><strong>Few is Better:</strong> 3-5 SLIs per service maximum</li>
+                            <li><strong>Iterate:</strong> Review and adjust SLOs quarterly based on actual performance</li>
+                            <li><strong>Document:</strong> Clear SLO documents prevent confusion</li>
+                            <li><strong>Measure Correctly:</strong> Use correct time windows (30 days rolling)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="success-box">
+                        <strong>✅ Benefits of SLOs:</strong>
+                        <ul>
+                            <li><strong>Objective Decision Making:</strong> "Can we deploy?" → Check error budget</li>
+                            <li><strong>Prioritization:</strong> Focus on what matters to users</li>
+                            <li><strong>Shared Understanding:</strong> Common language between teams</li>
+                            <li><strong>Risk Management:</strong> Error budget balances speed vs stability</li>
+                            <li><strong>Improved Communication:</strong> SLOs align engineering with business goals</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
