@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 11: Modern CSS Features - Interactive Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            /* Color System */
+            --color-primary: #667eea;
+            --color-secondary: #764ba2;
+            --color-accent: #f093fb;
+            --color-success: #2ecc71;
+            --color-danger: #e74c3c;
+            
+            /* Spacing System */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            
+            /* Typography */
+            --font-size-sm: clamp(14px, 2vw, 16px);
+            --font-size-md: clamp(16px, 2.5vw, 18px);
+            --font-size-lg: clamp(18px, 3vw, 24px);
+            --font-size-xl: clamp(24px, 5vw, 48px);
+            
+            /* Sizing */
+            --container-max: 1400px;
+            --border-radius: 8px;
+            --transition-speed: 0.3s;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: var(--container-max);
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: var(--space-2xl);
+            font-size: var(--font-size-xl);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: var(--space-2xl);
+            margin-bottom: var(--space-2xl);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .section-title {
+            color: var(--color-primary);
+            border-bottom: 3px solid var(--color-primary);
+            padding-bottom: var(--space-md);
+            margin-bottom: var(--space-lg);
+            font-size: 1.8rem;
+        }
+        
+        .demo-box {
+            border: 2px solid #e0e0e0;
+            padding: var(--space-lg);
+            border-radius: var(--border-radius);
+            background: #f9f9f9;
+            margin-bottom: var(--space-lg);
+        }
+        
+        .demo-label {
+            font-size: 0.9rem;
+            color: var(--color-secondary);
+            font-weight: bold;
+            margin-bottom: var(--space-md);
+            display: block;
+        }
+        
+        /* Variable Demo */
+        .variable-demo {
+            background: linear-gradient(135deg, var(--demo-color-1, #667eea), var(--demo-color-2, #764ba2));
+            color: white;
+            padding: var(--demo-padding, 20px);
+            border-radius: var(--demo-radius, 8px);
+            text-align: center;
+            font-weight: bold;
+            transition: all var(--transition-speed);
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* clamp() Demo */
+        .clamp-demo {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: clamp(1rem, 3vw, 3rem);
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .clamp-text {
+            font-size: clamp(1rem, 5vw, 3rem);
+            line-height: 1.2;
+        }
+        
+        /* Logical Properties Demo */
+        .logical-demo {
+            background: #f0f0f0;
+            padding: var(--space-lg);
+            border-radius: var(--border-radius);
+            position: relative;
+        }
+        
+        .logical-box {
+            background: white;
+            padding-block: var(--space-md);
+            padding-inline: var(--space-lg);
+            margin-block-end: var(--space-md);
+            border-inline-start: 4px solid var(--color-primary);
+            border-radius: var(--border-radius);
+        }
+        
+        /* Direction Toggle */
+        html[dir="rtl"] .logical-box {
+            /* Automatically adapts! */
+        }
+        
+        /* Color Picker */
+        .color-picker {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: var(--space-xl);
+            border-radius: var(--border-radius);
+        }
+        
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .color-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+        
+        .color-input-group label {
+            font-weight: bold;
+            color: var(--color-secondary);
+            font-size: 0.9rem;
+        }
+        
+        input[type="color"] {
+            width: 100%;
+            height: 60px;
+            border: 2px solid var(--color-primary);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+        
+        .preview-box {
+            background: white;
+            padding: var(--space-xl);
+            border-radius: var(--border-radius);
+            min-height: 200px;
+            margin-bottom: var(--space-lg);
+        }
+        
+        /* Math Functions Demo */
+        .calc-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+        }
+        
+        .calc-box {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: white;
+            padding: var(--space-lg);
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .calc-example-1 {
+            width: calc(100% - 40px);
+            margin-inline: 20px;
+        }
+        
+        .calc-example-2 {
+            height: calc(100vh - 200px);
+            min-height: 100px;
+        }
+        
+        .min-example {
+            width: min(100%, 400px);
+        }
+        
+        .max-example {
+            width: max(50%, 300px);
+        }
+        
+        .clamp-example {
+            font-size: clamp(1rem, 3vw, 2rem);
+        }
+        
+        /* Code Output */
+        .code-output {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin-top: var(--space-md);
+        }
+        
+        .property { color: #56b6c2; }
+        .value { color: #98c379; }
+        .comment { color: #5c6370; font-style: italic; }
+        .keyword { color: #c678dd; }
+        
+        button {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: bold;
+            transition: all var(--transition-speed);
+            margin: var(--space-sm);
+        }
+        
+        button:hover {
+            background: var(--color-secondary);
+            transform: translateY(-2px);
+        }
+        
+        .info-badge {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-left: var(--space-sm);
+        }
+        
+        .highlight-box {
+            background: #fff3cd;
+            border-left: 4px solid #ff9800;
+            padding: var(--space-md);
+            margin: var(--space-md) 0;
+            border-radius: 4px;
+        }
+        
+        .direction-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        @media (max-width: 768px) {
+            .section {
+                padding: var(--space-lg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="direction-toggle" onclick="toggleDirection()">
+        🔄 Toggle RTL/LTR
+    </button>
+    
+    <div class="container">
+        <h1>🚀 Chapter 11: Modern CSS Features - Interactive Demonstrations</h1>
+        
+        <!-- CSS Variables -->
+        <div class="section">
+            <h2 class="section-title">1. CSS Custom Properties (Variables) <span class="info-badge">Dynamic!</span></h2>
+            
+            <div class="highlight-box">
+                💡 <strong>CSS Variables</strong> can be changed at runtime with JavaScript, making them perfect for theming!
+            </div>
+            
+            <div class="demo-box">
+                <div class="demo-label">Adjust variables to see live changes:</div>
+                <div class="color-picker">
+                    <div class="color-grid">
+                        <div class="color-input-group">
+                            <label for="color1">--demo-color-1</label>
+                            <input type="color" id="color1" value="#667eea">
+                        </div>
+                        
+                        <div class="color-input-group">
+                            <label for="color2">--demo-color-2</label>
+                            <input type="color" id="color2" value="#764ba2">
+                        </div>
+                        
+                        <div class="color-input-group">
+                            <label for="padding">--demo-padding: <span id="padding-val">20px</span></label>
+                            <input type="range" id="padding" min="10" max="60" value="20">
+                        </div>
+                        
+                        <div class="color-input-group">
+                            <label for="radius">--demo-radius: <span id="radius-val">8px</span></label>
+                            <input type="range" id="radius" min="0" max="40" value="8">
+                        </div>
+                    </div>
+                    
+                    <div class="preview-box">
+                        <div class="variable-demo">
+                            Live CSS Variable Demo!
+                        </div>
+                    </div>
+                    
+                    <div class="code-output" id="variable-code">
+                        <!-- Generated CSS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- clamp() Function -->
+        <div class="section">
+            <h2 class="section-title">2. clamp() Function <span class="info-badge">Resize window!</span></h2>
+            
+            <div class="demo-box">
+                <div class="demo-label">Text scales between min and max (resize browser to see)</div>
+                <div class="clamp-demo">
+                    <div class="clamp-text">
+                        Resize Window!
+                    </div>
+                    <p style="margin-top: var(--space-md); font-size: 0.9rem;">
+                        Font size: clamp(1rem, 5vw, 3rem)<br>
+                        Padding: clamp(1rem, 3vw, 3rem)
+                    </p>
+                </div>
+            </div>
+            
+            <div class="code-output">
+<span class="comment">/* Fluid typography - scales with viewport */</span>
+<span class="selector">.text</span> {
+    <span class="property">font-size</span>: <span class="value">clamp(1rem, 5vw, 3rem)</span>;
+    <span class="comment">/* Min: 1rem, Preferred: 5vw, Max: 3rem */</span>
+}
+
+<span class="selector">.container</span> {
+    <span class="property">padding</span>: <span class="value">clamp(1rem, 3vw, 3rem)</span>;
+    <span class="comment">/* Responsive padding without media queries! */</span>
+}
+            </div>
+        </div>
+        
+        <!-- Math Functions -->
+        <div class="section">
+            <h2 class="section-title">3. CSS Math Functions</h2>
+            
+            <div class="calc-demo">
+                <div class="demo-box">
+                    <div class="demo-label">calc()</div>
+                    <div class="calc-box calc-example-1">
+                        calc(100% - 40px)
+                    </div>
+                    <div class="code-output" style="font-size: 0.75rem;">
+<span class="property">width</span>: <span class="value">calc(100% - 40px)</span>;
+                    </div>
+                </div>
+                
+                <div class="demo-box">
+                    <div class="demo-label">min()</div>
+                    <div class="calc-box min-example">
+                        min(100%, 400px)
+                    </div>
+                    <div class="code-output" style="font-size: 0.75rem;">
+<span class="property">width</span>: <span class="value">min(100%, 400px)</span>;
+                    </div>
+                </div>
+                
+                <div class="demo-box">
+                    <div class="demo-label">max()</div>
+                    <div class="calc-box max-example">
+                        max(50%, 300px)
+                    </div>
+                    <div class="code-output" style="font-size: 0.75rem;">
+<span class="property">width</span>: <span class="value">max(50%, 300px)</span>;
+                    </div>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                💡 <strong>Function Comparison:</strong><br>
+                • <strong>calc():</strong> Perform calculations (100% - 20px)<br>
+                • <strong>min():</strong> Use smallest value (100%, 800px) = max-width behavior<br>
+                • <strong>max():</strong> Use largest value (50%, 300px) = min-width behavior<br>
+                • <strong>clamp():</strong> Constrain between min and max (best for responsive!)
+            </div>
+        </div>
+        
+        <!-- Logical Properties -->
+        <div class="section">
+            <h2 class="section-title">4. Logical Properties <span class="info-badge">Click to toggle RTL!</span></h2>
+            
+            <div class="highlight-box">
+                💡 Logical properties automatically adapt to text direction (LTR/RTL). Click the "Toggle RTL/LTR" button (top-right) to see!
+            </div>
+            
+            <div class="demo-box">
+                <div class="demo-label">margin-inline-start adapts to direction</div>
+                <div class="logical-demo">
+                    <div class="logical-box">
+                        This box has border-inline-start (left in LTR, right in RTL)
+                    </div>
+                    <div class="logical-box">
+                        margin-inline-start creates spacing that adapts to direction
+                    </div>
+                    <div class="logical-box">
+                        padding-inline adjusts for reading direction
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: var(--space-md);">
+                    <p style="font-weight: bold; color: var(--color-primary);">
+                        Current Direction: <span id="current-dir">LTR</span>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="code-output">
+<span class="comment">/* Physical properties (fixed direction) */</span>
+<span class="property">margin-left</span>: <span class="value">20px</span>;     <span class="comment">/* Always left */</span>
+<span class="property">border-left</span>: <span class="value">4px solid blue</span>;  <span class="comment">/* Always left */</span>
+
+<span class="comment">/* Logical properties (adapts to RTL!) */</span>
+<span class="property">margin-inline-start</span>: <span class="value">20px</span>;  <span class="comment">/* Left in LTR, right in RTL */</span>
+<span class="property">border-inline-start</span>: <span class="value">4px solid blue</span>;  <span class="comment">/* Adapts! */</span>
+            </div>
+        </div>
+        
+        <!-- Feature Queries -->
+        <div class="section">
+            <h2 class="section-title">5. @supports (Feature Queries)</h2>
+            
+            <div class="demo-box">
+                <div class="demo-label">Progressive enhancement with @supports</div>
+                <div style="background: white; padding: var(--space-lg); border-radius: var(--border-radius);">
+                    <div id="supports-grid" style="padding: var(--space-md); background: #e8f5e9; border-radius: 4px; margin-bottom: var(--space-md);">
+                        ✓ Your browser supports CSS Grid
+                    </div>
+                    
+                    <div id="supports-container" style="padding: var(--space-md); background: #e8f5e9; border-radius: 4px; margin-bottom: var(--space-md);">
+                        ✓ Your browser supports Container Queries
+                    </div>
+                    
+                    <div id="supports-nesting" style="padding: var(--space-md); background: #e8f5e9; border-radius: 4px;">
+                        ✓ Your browser supports CSS Nesting
+                    </div>
+                </div>
+            </div>
+            
+            <div class="code-output">
+<span class="comment">/* Check for feature support */</span>
+<span class="keyword">@supports</span> (display: grid) {
+    <span class="selector">.container</span> {
+        <span class="property">display</span>: <span class="value">grid</span>;
+    }
+}
+
+<span class="comment">/* Fallback for older browsers */</span>
+<span class="keyword">@supports not</span> (display: grid) {
+    <span class="selector">.container</span> {
+        <span class="property">display</span>: <span class="value">flex</span>;  <span class="comment">/* Fallback */</span>
+    }
+}
+            </div>
+        </div>
+        
+        <!-- Interactive Theme Builder -->
+        <div class="section">
+            <h2 class="section-title">6. 🎨 Interactive Theme Builder</h2>
+            
+            <div class="color-picker">
+                <div class="color-grid">
+                    <div class="color-input-group">
+                        <label for="theme-primary">Primary Color</label>
+                        <input type="color" id="theme-primary" value="#667eea">
+                    </div>
+                    
+                    <div class="color-input-group">
+                        <label for="theme-secondary">Secondary Color</label>
+                        <input type="color" id="theme-secondary" value="#764ba2">
+                    </div>
+                    
+                    <div class="color-input-group">
+                        <label for="theme-spacing">Base Spacing: <span id="spacing-val">16px</span></label>
+                        <input type="range" id="theme-spacing" min="8" max="32" value="16">
+                    </div>
+                    
+                    <div class="color-input-group">
+                        <label for="theme-radius">Border Radius: <span id="border-radius-val">8px</span></label>
+                        <input type="range" id="theme-radius" min="0" max="24" value="8">
+                    </div>
+                </div>
+                
+                <div class="preview-box" id="theme-preview">
+                    <div style="background: var(--theme-primary, #667eea); color: white; padding: var(--theme-spacing, 16px); border-radius: var(--theme-radius, 8px); margin-bottom: var(--theme-spacing, 16px); text-align: center; font-weight: bold;">
+                        Primary Button
+                    </div>
+                    
+                    <div style="background: var(--theme-secondary, #764ba2); color: white; padding: var(--theme-spacing, 16px); border-radius: var(--theme-radius, 8px); margin-bottom: var(--theme-spacing, 16px); text-align: center; font-weight: bold;">
+                        Secondary Button
+                    </div>
+                    
+                    <div style="background: white; border: 2px solid var(--theme-primary, #667eea); padding: var(--theme-spacing, 16px); border-radius: var(--theme-radius, 8px); text-align: center; font-weight: bold; color: var(--theme-primary, #667eea);">
+                        Outlined Button
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: var(--space-lg);">
+                    <button onclick="exportTheme()">📋 Export CSS Variables</button>
+                    <button onclick="resetTheme()">🔄 Reset Theme</button>
+                </div>
+                
+                <div class="code-output" id="theme-code" style="display: none; margin-top: var(--space-lg);">
+                    <!-- Generated CSS -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Key Takeaways -->
+        <div class="section" style="background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); color: white;">
+            <h2 class="section-title" style="color: white; border-bottom-color: white;">🎯 Key Takeaways</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>CSS Variables:</strong> Declared with --, used with var(), can change with JavaScript
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>clamp():</strong> Best for responsive sizing - clamp(min, preferred, max)
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>calc():</strong> Mix units freely - calc(100% - 40px)
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Logical Properties:</strong> inline-start/end adapt to RTL automatically
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>@supports:</strong> Feature detection for progressive enhancement
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Modern CSS reduces preprocessor need:</strong> Variables, nesting, calculations built-in!
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // CSS Variable Demo
+        const color1 = document.getElementById('color1');
+        const color2 = document.getElementById('color2');
+        const padding = document.getElementById('padding');
+        const radius = document.getElementById('radius');
+        
+        function updateVariables() {
+            const root = document.documentElement;
+            
+            root.style.setProperty('--demo-color-1', color1.value);
+            root.style.setProperty('--demo-color-2', color2.value);
+            root.style.setProperty('--demo-padding', padding.value + 'px');
+            root.style.setProperty('--demo-radius', radius.value + 'px');
+            
+            document.getElementById('padding-val').textContent = padding.value + 'px';
+            document.getElementById('radius-val').textContent = radius.value + 'px';
+            
+            const code = document.getElementById('variable-code');
+            code.innerHTML = `<span class="keyword">:root</span> {
+    <span class="property">--demo-color-1</span>: <span class="value">${color1.value}</span>;
+    <span class="property">--demo-color-2</span>: <span class="value">${color2.value}</span>;
+    <span class="property">--demo-padding</span>: <span class="value">${padding.value}px</span>;
+    <span class="property">--demo-radius</span>: <span class="value">${radius.value}px</span>;
+}
+
+<span class="selector">.element</span> {
+    <span class="property">background</span>: <span class="value">linear-gradient(135deg, var(--demo-color-1), var(--demo-color-2))</span>;
+    <span class="property">padding</span>: <span class="value">var(--demo-padding)</span>;
+    <span class="property">border-radius</span>: <span class="value">var(--demo-radius)</span>;
+}`;
+        }
+        
+        color1.addEventListener('input', updateVariables);
+        color2.addEventListener('input', updateVariables);
+        padding.addEventListener('input', updateVariables);
+        radius.addEventListener('input', updateVariables);
+        
+        // Theme Builder
+        const themePrimary = document.getElementById('theme-primary');
+        const themeSecondary = document.getElementById('theme-secondary');
+        const themeSpacing = document.getElementById('theme-spacing');
+        const themeBorderRadius = document.getElementById('theme-radius');
+        
+        function updateTheme() {
+            const root = document.documentElement;
+            
+            root.style.setProperty('--theme-primary', themePrimary.value);
+            root.style.setProperty('--theme-secondary', themeSecondary.value);
+            root.style.setProperty('--theme-spacing', themeSpacing.value + 'px');
+            root.style.setProperty('--theme-radius', themeBorderRadius.value + 'px');
+            
+            document.getElementById('spacing-val').textContent = themeSpacing.value + 'px';
+            document.getElementById('border-radius-val').textContent = themeBorderRadius.value + 'px';
+        }
+        
+        themePrimary.addEventListener('input', updateTheme);
+        themeSecondary.addEventListener('input', updateTheme);
+        themeSpacing.addEventListener('input', updateTheme);
+        themeBorderRadius.addEventListener('input', updateTheme);
+        
+        function exportTheme() {
+            const code = document.getElementById('theme-code');
+            code.style.display = 'block';
+            code.innerHTML = `<span class="comment">/* Copy this CSS to your stylesheet */</span>
+<span class="keyword">:root</span> {
+    <span class="property">--theme-primary</span>: <span class="value">${themePrimary.value}</span>;
+    <span class="property">--theme-secondary</span>: <span class="value">${themeSecondary.value}</span>;
+    <span class="property">--theme-spacing</span>: <span class="value">${themeSpacing.value}px</span>;
+    <span class="property">--theme-radius</span>: <span class="value">${themeBorderRadius.value}px</span>;
+}
+
+<span class="selector">.button-primary</span> {
+    <span class="property">background</span>: <span class="value">var(--theme-primary)</span>;
+    <span class="property">padding</span>: <span class="value">var(--theme-spacing)</span>;
+    <span class="property">border-radius</span>: <span class="value">var(--theme-radius)</span>;
+}`;
+        }
+        
+        function resetTheme() {
+            themePrimary.value = '#667eea';
+            themeSecondary.value = '#764ba2';
+            themeSpacing.value = 16;
+            themeBorderRadius.value = 8;
+            updateTheme();
+            document.getElementById('theme-code').style.display = 'none';
+        }
+        
+        // RTL Toggle
+        function toggleDirection() {
+            const html = document.documentElement;
+            const currentDir = html.getAttribute('dir');
+            
+            if (currentDir === 'rtl') {
+                html.setAttribute('dir', 'ltr');
+                document.getElementById('current-dir').textContent = 'LTR';
+            } else {
+                html.setAttribute('dir', 'rtl');
+                document.getElementById('current-dir').textContent = 'RTL';
+            }
+        }
+        
+        // Feature Detection
+        const supportsGrid = CSS.supports('display', 'grid');
+        const supportsContainer = CSS.supports('container-type', 'inline-size');
+        
+        if (!supportsGrid) {
+            document.getElementById('supports-grid').style.background = '#ffebee';
+            document.getElementById('supports-grid').innerHTML = '✗ Your browser does not support CSS Grid';
+        }
+        
+        if (!supportsContainer) {
+            document.getElementById('supports-container').style.background = '#ffebee';
+            document.getElementById('supports-container').innerHTML = '✗ Your browser does not support Container Queries';
+        }
+        
+        // Check nesting support (tricky to detect)
+        try {
+            const testStyle = document.createElement('style');
+            testStyle.textContent = '.test { & .nested { color: red; } }';
+            document.head.appendChild(testStyle);
+            const supported = testStyle.sheet && testStyle.sheet.cssRules.length > 0;
+            document.head.removeChild(testStyle);
+            
+            if (!supported) {
+                document.getElementById('supports-nesting').style.background = '#fff3cd';
+                document.getElementById('supports-nesting').innerHTML = '⚠️ CSS Nesting support may be limited';
+            }
+        } catch (e) {
+            document.getElementById('supports-nesting').style.background = '#ffebee';
+            document.getElementById('supports-nesting').innerHTML = '✗ Your browser does not support CSS Nesting';
+        }
+        
+        // Initialize
+        updateVariables();
+        updateTheme();
+    </script>
+</body>
+</html>

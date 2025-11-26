@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 8: Advanced Selectors - Interactive Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .section-title {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .demo-box {
+            border: 2px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f9f9f9;
+            margin-bottom: 20px;
+        }
+        
+        .demo-label {
+            font-size: 0.9rem;
+            color: #764ba2;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        /* Combinator Demos */
+        .tree-structure {
+            font-family: monospace;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        
+        .tree-item {
+            padding: 5px 10px;
+            margin: 2px 0;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .tree-item.highlight {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Combinator Visual Demo */
+        .combinator-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .combinator-box {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .combinator-title {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .combinator-content {
+            padding: 15px;
+        }
+        
+        .demo-parent {
+            border: 2px dashed #667eea;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        
+        .demo-child {
+            background: #e3f2fd;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border: 1px solid #2196f3;
+        }
+        
+        .demo-grandchild {
+            background: #fff3cd;
+            padding: 6px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border: 1px solid #ffc107;
+        }
+        
+        /* nth-child Demo */
+        .nth-demo {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .nth-item {
+            width: 60px;
+            height: 60px;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .nth-item.selected {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        /* Pseudo-elements Demo */
+        .pseudo-demo {
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .before-after-demo::before {
+            content: "→ ";
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .before-after-demo::after {
+            content: " ←";
+            color: #764ba2;
+            font-weight: bold;
+        }
+        
+        .first-letter-demo::first-letter {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            float: left;
+            line-height: 1;
+            margin-right: 0.1em;
+        }
+        
+        .selection-demo::selection {
+            background: #667eea;
+            color: white;
+        }
+        
+        /* Interactive Hover Demo */
+        .hover-demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .hover-card {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid #2196f3;
+        }
+        
+        .hover-card:hover {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        /* :has() Demo */
+        .has-demo-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .has-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+            transition: all 0.3s;
+        }
+        
+        .has-card:has(img) {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 15px;
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+        
+        .has-card:has(.important) {
+            border-color: #f44336;
+            border-width: 3px;
+            background: #ffebee;
+        }
+        
+        .card-img {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Specificity Calculator */
+        .specificity-calc {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 12px;
+        }
+        
+        .calc-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .calc-result {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .specificity-score {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .score-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .score-number {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .score-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        .code-output {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        
+        .property { color: #56b6c2; }
+        .value { color: #98c379; }
+        .comment { color: #5c6370; font-style: italic; }
+        .selector { color: #e06c75; }
+        
+        .info-badge {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .highlight-box {
+            background: #fff3cd;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #764ba2;
+            transform: scale(1.05);
+        }
+        
+        .formula-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .section {
+                padding: 20px;
+            }
+            
+            .specificity-score {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Chapter 8: Advanced Selectors - Interactive Demonstrations</h1>
+        
+        <!-- Combinators -->
+        <div class="section">
+            <h2 class="section-title">1. CSS Combinators</h2>
+            
+            <div class="combinator-demo">
+                <div class="combinator-box">
+                    <div class="combinator-title">Descendant (space)</div>
+                    <div class="combinator-content">
+                        <p style="font-size: 0.85rem; margin-bottom: 10px;">Selects ALL descendants at any depth</p>
+                        <div class="demo-parent">
+                            Parent
+                            <div class="demo-child">
+                                Child ✓
+                                <div class="demo-grandchild">Grandchild ✓</div>
+                            </div>
+                            <div class="demo-child">Child ✓</div>
+                        </div>
+                        <div class="code-output" style="font-size: 0.75rem; margin-top: 10px;">
+<span class="selector">div p</span> { <span class="comment">/* All p in div */</span> }
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="combinator-box">
+                    <div class="combinator-title">Child (>)</div>
+                    <div class="combinator-content">
+                        <p style="font-size: 0.85rem; margin-bottom: 10px;">Selects ONLY direct children</p>
+                        <div class="demo-parent">
+                            Parent
+                            <div class="demo-child">
+                                Child ✓
+                                <div class="demo-grandchild">Grandchild ✗</div>
+                            </div>
+                            <div class="demo-child">Child ✓</div>
+                        </div>
+                        <div class="code-output" style="font-size: 0.75rem; margin-top: 10px;">
+<span class="selector">div > p</span> { <span class="comment">/* Direct p only */</span> }
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="combinator-box">
+                    <div class="combinator-title">Adjacent Sibling (+)</div>
+                    <div class="combinator-content">
+                        <p style="font-size: 0.85rem; margin-bottom: 10px;">Immediately following sibling</p>
+                        <div style="padding: 10px;">
+                            <div class="demo-child">First</div>
+                            <div class="demo-child">Second ✓</div>
+                            <div class="demo-child">Third ✗</div>
+                        </div>
+                        <div class="code-output" style="font-size: 0.75rem; margin-top: 10px;">
+<span class="selector">div + div</span> { <span class="comment">/* Next sibling */</span> }
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="combinator-box">
+                    <div class="combinator-title">General Sibling (~)</div>
+                    <div class="combinator-content">
+                        <p style="font-size: 0.85rem; margin-bottom: 10px;">ALL following siblings</p>
+                        <div style="padding: 10px;">
+                            <div class="demo-child">First</div>
+                            <div class="demo-child">Second ✓</div>
+                            <div class="demo-child">Third ✓</div>
+                        </div>
+                        <div class="code-output" style="font-size: 0.75rem; margin-top: 10px;">
+<span class="selector">div ~ div</span> { <span class="comment">/* All after */</span> }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- nth-child Interactive -->
+        <div class="section">
+            <h2 class="section-title">2. :nth-child() Formulas <span class="info-badge">Interactive!</span></h2>
+            
+            <div class="demo-box">
+                <div class="demo-label">Click formulas to see which items are selected:</div>
+                
+                <div class="formula-buttons">
+                    <button onclick="highlightNth('odd')">odd</button>
+                    <button onclick="highlightNth('even')">even</button>
+                    <button onclick="highlightNth('2n')">2n</button>
+                    <button onclick="highlightNth('2n+1')">2n+1</button>
+                    <button onclick="highlightNth('3n')">3n</button>
+                    <button onclick="highlightNth('3n+1')">3n+1</button>
+                    <button onclick="highlightNth('3n+2')">3n+2</button>
+                    <button onclick="highlightNth('-n+3')">-n+3 (first 3)</button>
+                    <button onclick="highlightNth('n+4')">n+4 (from 4th)</button>
+                    <button onclick="clearNth()">Clear</button>
+                </div>
+                
+                <div id="nth-demo" class="nth-demo">
+                    <!-- Generated by JS -->
+                </div>
+                
+                <div id="nth-explanation" style="margin-top: 15px; padding: 15px; background: #e3f2fd; border-radius: 6px; font-weight: bold; color: #1565c0;">
+                    Click a formula to see which items are selected!
+                </div>
+            </div>
+            
+            <div class="code-output">
+<span class="comment">/* nth-child formulas */</span>
+<span class="selector">li:nth-child(odd)</span> { <span class="comment">/* 1, 3, 5, 7... */</span> }
+<span class="selector">li:nth-child(2n)</span> { <span class="comment">/* 2, 4, 6, 8... */</span> }
+<span class="selector">li:nth-child(3n+1)</span> { <span class="comment">/* 1, 4, 7, 10... */</span> }
+<span class="selector">li:nth-child(-n+3)</span> { <span class="comment">/* First 3: 1, 2, 3 */</span> }
+            </div>
+        </div>
+        
+        <!-- Hover Demo -->
+        <div class="section">
+            <h2 class="section-title">3. Interactive Pseudo-classes</h2>
+            
+            <div class="demo-box">
+                <div class="demo-label">Hover over cards to see :hover effects</div>
+                <div class="hover-demo-grid">
+                    <div class="hover-card">Hover Me!</div>
+                    <div class="hover-card">Hover Me!</div>
+                    <div class="hover-card">Hover Me!</div>
+                    <div class="hover-card">Hover Me!</div>
+                </div>
+            </div>
+            
+            <div class="code-output">
+<span class="selector">.card:hover</span> {
+    <span class="property">transform</span>: <span class="value">translateY(-5px)</span>;
+    <span class="property">box-shadow</span>: <span class="value">0 10px 20px rgba(0,0,0,0.2)</span>;
+}
+            </div>
+        </div>
+        
+        <!-- :has() Demo -->
+        <div class="section">
+            <h2 class="section-title">4. :has() - Parent Selector <span class="info-badge">Modern!</span></h2>
+            
+            <div class="highlight-box">
+                💡 <strong>:has()</strong> selects parents based on their children. Cards with images get grid layout automatically!
+            </div>
+            
+            <div class="demo-box">
+                <div class="demo-label">Notice different layouts based on content:</div>
+                <div class="has-demo-container">
+                    <div class="has-card">
+                        <div class="card-img">IMG</div>
+                        <div>
+                            <strong>Card with image</strong>
+                            <p>Grid layout applied via :has(img)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="has-card">
+                        <strong>Card without image</strong>
+                        <p>Normal stacked layout</p>
+                    </div>
+                    
+                    <div class="has-card">
+                        <strong class="important">Important Card</strong>
+                        <p>Red border via :has(.important)</p>
+                    </div>
+                    
+                    <div class="has-card">
+                        <strong>Regular Card</strong>
+                        <p>No special styling</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="code-output">
+<span class="comment">/* Card with image gets grid layout */</span>
+<span class="selector">.card:has(img)</span> {
+    <span class="property">display</span>: <span class="value">grid</span>;
+    <span class="property">grid-template-columns</span>: <span class="value">80px 1fr</span>;
+}
+
+<span class="comment">/* Card with important content gets red border */</span>
+<span class="selector">.card:has(.important)</span> {
+    <span class="property">border-color</span>: <span class="value">red</span>;
+    <span class="property">border-width</span>: <span class="value">3px</span>;
+}
+            </div>
+        </div>
+        
+        <!-- Pseudo-elements -->
+        <div class="section">
+            <h2 class="section-title">5. Pseudo-elements (::before, ::after)</h2>
+            
+            <div class="demo-box">
+                <div class="demo-label">::before and ::after</div>
+                <div class="pseudo-demo">
+                    <p class="before-after-demo">This text has arrows added via ::before and ::after</p>
+                </div>
+                <div class="code-output">
+<span class="selector">p::before</span> {
+    <span class="property">content</span>: <span class="value">"→ "</span>;
+    <span class="property">color</span>: <span class="value">blue</span>;
+}
+<span class="selector">p::after</span> {
+    <span class="property">content</span>: <span class="value">" ←"</span>;
+    <span class="property">color</span>: <span class="value">purple</span>;
+}
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <div class="demo-label">::first-letter (drop cap)</div>
+                <div class="pseudo-demo">
+                    <p class="first-letter-demo">This paragraph has a drop cap on the first letter. The ::first-letter pseudo-element makes it large and bold, creating a classic typographic effect.</p>
+                </div>
+                <div class="code-output">
+<span class="selector">p::first-letter</span> {
+    <span class="property">font-size</span>: <span class="value">3em</span>;
+    <span class="property">font-weight</span>: <span class="value">bold</span>;
+    <span class="property">float</span>: <span class="value">left</span>;
+}
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <div class="demo-label">::selection</div>
+                <div class="pseudo-demo">
+                    <p class="selection-demo">Select this text to see custom selection colors! The ::selection pseudo-element styles highlighted text.</p>
+                </div>
+                <div class="code-output">
+<span class="selector">::selection</span> {
+    <span class="property">background</span>: <span class="value">#667eea</span>;
+    <span class="property">color</span>: <span class="value">white</span>;
+}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Specificity Calculator -->
+        <div class="section">
+            <h2 class="section-title">6. 🧮 Specificity Calculator</h2>
+            
+            <div class="specificity-calc">
+                <label style="font-weight: bold; color: #764ba2; margin-bottom: 10px; display: block;">
+                    Enter a CSS selector:
+                </label>
+                <input 
+                    type="text" 
+                    class="calc-input" 
+                    id="specificity-input" 
+                    placeholder="e.g., div#header .nav ul li.active"
+                    value="div#header .nav ul li.active">
+                <button onclick="calculateSpecificity()">Calculate Specificity</button>
+                
+                <div class="calc-result" id="calc-result">
+                    <!-- Result will appear here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Key Takeaways -->
+        <div class="section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h2 class="section-title" style="color: white; border-bottom-color: white;">🎯 Key Takeaways</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Combinators:</strong> Space (any), > (direct), + (next), ~ (all after)
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>:nth-child():</strong> Use formulas like 2n (even), 2n+1 (odd), 3n+1, -n+3 (first 3)
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>:has():</strong> Parent selector! Selects elements containing specific children
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Pseudo-elements:</strong> ::before, ::after (require content), ::first-letter, ::selection
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Specificity:</strong> Inline (1,0,0,0) > ID (0,1,0,0) > Class (0,0,1,0) > Element (0,0,0,1)
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>LVHA order:</strong> :link, :visited, :hover, :active (for links)
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Generate nth-child demo items
+        function initNthDemo() {
+            const container = document.getElementById('nth-demo');
+            for (let i = 1; i <= 20; i++) {
+                const item = document.createElement('div');
+                item.className = 'nth-item';
+                item.textContent = i;
+                item.dataset.index = i;
+                container.appendChild(item);
+            }
+        }
+        
+        // Highlight nth-child formula results
+        function highlightNth(formula) {
+            const items = document.querySelectorAll('.nth-item');
+            items.forEach(item => item.classList.remove('selected'));
+            
+            let selected = [];
+            const total = items.length;
+            
+            switch(formula) {
+                case 'odd':
+                    for (let i = 1; i <= total; i += 2) selected.push(i);
+                    break;
+                case 'even':
+                    for (let i = 2; i <= total; i += 2) selected.push(i);
+                    break;
+                case '2n':
+                    for (let i = 2; i <= total; i += 2) selected.push(i);
+                    break;
+                case '2n+1':
+                    for (let i = 1; i <= total; i += 2) selected.push(i);
+                    break;
+                case '3n':
+                    for (let i = 3; i <= total; i += 3) selected.push(i);
+                    break;
+                case '3n+1':
+                    for (let i = 1; i <= total; i += 3) selected.push(i);
+                    break;
+                case '3n+2':
+                    for (let i = 2; i <= total; i += 3) selected.push(i);
+                    break;
+                case '-n+3':
+                    selected = [1, 2, 3];
+                    break;
+                case 'n+4':
+                    for (let i = 4; i <= total; i++) selected.push(i);
+                    break;
+            }
+            
+            selected.forEach(index => {
+                const item = document.querySelector(`.nth-item[data-index="${index}"]`);
+                if (item) item.classList.add('selected');
+            });
+            
+            // Update explanation
+            const explanation = document.getElementById('nth-explanation');
+            explanation.textContent = `Formula: :nth-child(${formula}) → Selects items: ${selected.join(', ')}`;
+        }
+        
+        function clearNth() {
+            const items = document.querySelectorAll('.nth-item');
+            items.forEach(item => item.classList.remove('selected'));
+            document.getElementById('nth-explanation').textContent = 'Click a formula to see which items are selected!';
+        }
+        
+        // Specificity Calculator
+        function calculateSpecificity() {
+            const input = document.getElementById('specificity-input').value.trim();
+            const result = document.getElementById('calc-result');
+            
+            if (!input) {
+                result.innerHTML = '<p style="color: #f44336; font-weight: bold;">Please enter a selector!</p>';
+                return;
+            }
+            
+            // Count specificity components
+            let ids = 0;
+            let classes = 0;
+            let elements = 0;
+            
+            // IDs
+            ids = (input.match(/#[\w-]+/g) || []).length;
+            
+            // Classes, attributes, pseudo-classes
+            classes += (input.match(/\.[\w-]+/g) || []).length; // Classes
+            classes += (input.match(/\[[\w\-\=\"\'\^\$\*\~\|]+\]/g) || []).length; // Attributes
+            classes += (input.match(/:(?!before|after|first-letter|first-line)[\w-]+/g) || []).length; // Pseudo-classes
+            
+            // Elements and pseudo-elements
+            const elementPattern = /\b(div|span|p|a|h[1-6]|ul|ol|li|section|article|header|footer|nav|main|aside|button|input|form|label|img|table|tr|td|th|body|html|strong|em|code|pre|blockquote)\b/g;
+            elements = (input.match(elementPattern) || []).length;
+            elements += (input.match(/::?(?:before|after|first-letter|first-line)/g) || []).length;
+            
+            const specificity = `0,${ids},${classes},${elements}`;
+            
+            result.innerHTML = `
+                <h3 style="color: #667eea; margin-bottom: 15px;">Specificity: ${specificity}</h3>
+                <div class="specificity-score">
+                    <div class="score-box">
+                        <div class="score-number">0</div>
+                        <div class="score-label">Inline</div>
+                    </div>
+                    <div class="score-box">
+                        <div class="score-number">${ids}</div>
+                        <div class="score-label">IDs</div>
+                    </div>
+                    <div class="score-box">
+                        <div class="score-number">${classes}</div>
+                        <div class="score-label">Classes</div>
+                    </div>
+                    <div class="score-box">
+                        <div class="score-number">${elements}</div>
+                        <div class="score-label">Elements</div>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; padding: 15px; background: #e8f5e9; border-radius: 6px;">
+                    <strong>Breakdown:</strong><br>
+                    IDs: ${ids} (#)<br>
+                    Classes/Attributes/Pseudo-classes: ${classes} (., [], :)<br>
+                    Elements/Pseudo-elements: ${elements} (element names, ::)
+                </div>
+            `;
+        }
+        
+        // Initialize
+        initNthDemo();
+        calculateSpecificity();
+        
+        // Allow Enter key in specificity calculator
+        document.getElementById('specificity-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculateSpecificity();
+            }
+        });
+    </script>
+</body>
+</html>

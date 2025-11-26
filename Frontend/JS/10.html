@@ -1,0 +1,1889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Async Programming - Chapter 10</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            margin: 25px 0 15px 0;
+            font-size: 1.5em;
+        }
+        
+        .section h4 {
+            color: #666;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+        
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow-x: auto;
+            position: relative;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+        
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .number { color: #d19a66; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+        .property { color: #e06c75; }
+        
+        .visual-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f1f3f5;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .note strong {
+            color: #856404;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .warning strong {
+            color: #721c24;
+        }
+        
+        .tip {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .tip strong {
+            color: #0c5460;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .success strong {
+            color: #155724;
+        }
+        
+        .interactive-demo {
+            background: white;
+            border: 2px solid #764ba2;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .interactive-demo button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        
+        .interactive-demo button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .output {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+        
+        .event-loop-diagram {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .stack-box {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px;
+            min-height: 150px;
+        }
+        
+        .stack-box h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .stack-item {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .queue-item {
+            background: #764ba2;
+            color: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .promise-states {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .state-box {
+            flex: 1;
+            min-width: 150px;
+            margin: 10px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .state-pending {
+            background: #fff3cd;
+            border: 3px solid #ffc107;
+        }
+        
+        .state-fulfilled {
+            background: #d4edda;
+            border: 3px solid #28a745;
+        }
+        
+        .state-rejected {
+            background: #f8d7da;
+            border: 3px solid #dc3545;
+        }
+        
+        .state-box h4 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .arrow-flow {
+            text-align: center;
+            font-size: 24px;
+            color: #667eea;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .example-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .example-card h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .promise-states {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⏰ Chapter 10: Asynchronous JavaScript</h1>
+            <p>Master Async Programming: Callbacks, Promises & Async/Await</p>
+        </header>
+        
+        <div class="content">
+            <!-- Section 1: Understanding Async -->
+            <div class="section" id="understanding-async">
+                <h2>🎯 1. Understanding Asynchronous JavaScript</h2>
+                
+                <p><strong>Asynchronous programming</strong> allows JavaScript to perform long-running operations without blocking the main thread. This is essential for:</p>
+                <ul>
+                    <li>Making API calls</li>
+                    <li>Reading files</li>
+                    <li>Database queries</li>
+                    <li>Timers (setTimeout, setInterval)</li>
+                    <li>User interactions</li>
+                </ul>
+                
+                <h3>1.1 Synchronous vs Asynchronous</h3>
+                
+                <div class="grid-2">
+                    <div class="example-card">
+                        <h4>❌ Synchronous (Blocking)</h4>
+                        <div class="code-block">
+<code><span class="comment">// Executes line by line</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"1. Start"</span>);
+
+<span class="comment">// This blocks for 3 seconds!</span>
+<span class="keyword">const</span> end = <span class="function">Date</span>.<span class="function">now</span>() + <span class="number">3000</span>;
+<span class="keyword">while</span> (<span class="function">Date</span>.<span class="function">now</span>() < end) {}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"2. End"</span>);
+
+<span class="comment">// Output:
+// 1. Start
+// (wait 3 seconds)
+// 2. End</span></code>
+                        </div>
+                    </div>
+                    
+                    <div class="example-card">
+                        <h4>✅ Asynchronous (Non-blocking)</h4>
+                        <div class="code-block">
+<code><span class="comment">// Executes without waiting</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"1. Start"</span>);
+
+<span class="comment">// Non-blocking timer</span>
+<span class="function">setTimeout</span>(() => {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"2. Timer"</span>);
+}, <span class="number">3000</span>);
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"3. End"</span>);
+
+<span class="comment">// Output:
+// 1. Start
+// 3. End (immediately)
+// 2. Timer (after 3s)</span></code>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="note">
+                    <strong>💡 Key Concept:</strong> JavaScript is <strong>single-threaded</strong> but can handle asynchronous operations through the <strong>event loop</strong>. It doesn't block waiting for operations to complete!
+                </div>
+            </div>
+
+            <!-- Section 2: Event Loop -->
+            <div class="section" id="event-loop">
+                <h2>🔄 2. Event Loop and Call Stack</h2>
+                
+                <p>Understanding the event loop is crucial for mastering async JavaScript.</p>
+                
+                <h3>2.1 The Call Stack</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">third</span>() {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Third"</span>);
+}
+
+<span class="keyword">function</span> <span class="function">second</span>() {
+    <span class="function">third</span>();
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Second"</span>);
+}
+
+<span class="keyword">function</span> <span class="function">first</span>() {
+    <span class="function">second</span>();
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"First"</span>);
+}
+
+<span class="function">first</span>();
+
+<span class="comment">// Call Stack Execution:
+// 1. first() pushed
+// 2. second() pushed
+// 3. third() pushed
+// 4. third() pops (logs "Third")
+// 5. second() pops (logs "Second")
+// 6. first() pops (logs "First")</span></code>
+                </div>
+                
+                <div class="event-loop-diagram">
+                    <h4 style="text-align: center; color: #667eea; margin-bottom: 20px;">📚 Call Stack Visualization</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="stack-box">
+                            <h4>Step 1</h4>
+                            <div class="stack-item">first()</div>
+                        </div>
+                        <div class="stack-box">
+                            <h4>Step 2</h4>
+                            <div class="stack-item">second()</div>
+                            <div class="stack-item">first()</div>
+                        </div>
+                        <div class="stack-box">
+                            <h4>Step 3</h4>
+                            <div class="stack-item">third()</div>
+                            <div class="stack-item">second()</div>
+                            <div class="stack-item">first()</div>
+                        </div>
+                        <div class="stack-box">
+                            <h4>Step 4</h4>
+                            <div class="stack-item">second()</div>
+                            <div class="stack-item">first()</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>2.2 Event Loop Components</h3>
+                
+                <div class="event-loop-diagram">
+                    <h4 style="text-align: center; color: #667eea; margin-bottom: 20px;">🔁 Event Loop Architecture</h4>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="stack-box">
+                            <h4>📚 Call Stack</h4>
+                            <p>Executes synchronous code</p>
+                            <div class="stack-item">console.log()</div>
+                            <div class="stack-item">someFunction()</div>
+                        </div>
+                        
+                        <div class="stack-box">
+                            <h4>🌐 Web APIs</h4>
+                            <p>Browser handles async operations</p>
+                            <div class="queue-item">setTimeout</div>
+                            <div class="queue-item">fetch</div>
+                            <div class="queue-item">DOM events</div>
+                        </div>
+                        
+                        <div class="stack-box">
+                            <h4>📋 Callback Queue (Task Queue)</h4>
+                            <p>Macrotasks (setTimeout, setInterval)</p>
+                            <div class="queue-item">callback 1</div>
+                            <div class="queue-item">callback 2</div>
+                        </div>
+                        
+                        <div class="stack-box">
+                            <h4>⚡ Microtask Queue</h4>
+                            <p>Promises, queueMicrotask</p>
+                            <div class="queue-item" style="background: #28a745;">promise.then()</div>
+                            <div class="queue-item" style="background: #28a745;">async/await</div>
+                        </div>
+                    </div>
+                    
+                    <div class="arrow-flow">↓</div>
+                    <div style="text-align: center; padding: 15px; background: white; border-radius: 10px;">
+                        <strong>Event Loop Rule:</strong><br>
+                        1. Execute all synchronous code (call stack)<br>
+                        2. Execute ALL microtasks<br>
+                        3. Execute ONE macrotask<br>
+                        4. Repeat
+                    </div>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 Critical:</strong> Microtasks (Promises) have higher priority than macrotasks (setTimeout). ALL microtasks execute before the next macrotask!
+                </div>
+            </div>
+
+            <!-- Section 3: Callbacks -->
+            <div class="section" id="callbacks">
+                <h2>📞 3. Callbacks</h2>
+                
+                <p>A <strong>callback</strong> is a function passed as an argument to another function, to be executed later.</p>
+                
+                <h3>3.1 Basic Callbacks</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Simple callback example</span>
+<span class="keyword">function</span> <span class="function">fetchData</span>(callback) {
+    <span class="function">setTimeout</span>(() => {
+        <span class="keyword">const</span> data = { name: <span class="string">"Alice"</span>, age: <span class="number">25</span> };
+        <span class="function">callback</span>(data);
+    }, <span class="number">1000</span>);
+}
+
+<span class="function">fetchData</span>(<span class="keyword">function</span>(data) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Received:"</span>, data);
+});
+<span class="comment">// After 1s: "Received: { name: 'Alice', age: 25 }"</span>
+
+<span class="comment">// Real-world example: Array methods</span>
+[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>].<span class="function">forEach</span>(<span class="keyword">function</span>(num) {  <span class="comment">// Callback</span>
+    <span class="function">console</span>.<span class="function">log</span>(num);
+});</code>
+                </div>
+                
+                <h3>3.2 Error-First Callbacks (Node.js Pattern)</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Convention: First parameter is error, second is result</span>
+<span class="keyword">function</span> <span class="function">readFile</span>(filename, callback) {
+    <span class="function">setTimeout</span>(() => {
+        <span class="keyword">const</span> error = filename ? <span class="keyword">null</span> : <span class="keyword">new</span> <span class="function">Error</span>(<span class="string">"No filename"</span>);
+        <span class="keyword">const</span> data = filename ? <span class="string">"File contents"</span> : <span class="keyword">null</span>;
+        
+        <span class="function">callback</span>(error, data);
+    }, <span class="number">1000</span>);
+}
+
+<span class="comment">// Usage</span>
+<span class="function">readFile</span>(<span class="string">"test.txt"</span>, (err, data) => {
+    <span class="keyword">if</span> (err) {
+        <span class="function">console</span>.<span class="function">error</span>(<span class="string">"Error:"</span>, err.message);
+        <span class="keyword">return</span>;
+    }
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Data:"</span>, data);
+});</code>
+                </div>
+                
+                <h3>3.3 Callback Hell (Pyramid of Doom)</h3>
+                
+                <div class="warning">
+                    <strong>⚠️ The Problem with Callbacks:</strong> Nested callbacks become unreadable and hard to maintain!
+                </div>
+                
+                <div class="code-block">
+<code><span class="comment">// ❌ Callback Hell - hard to read and maintain</span>
+<span class="function">getUser</span>(<span class="number">1</span>, (err, user) => {
+    <span class="keyword">if</span> (err) <span class="keyword">return</span> <span class="function">handleError</span>(err);
+    
+    <span class="function">getPosts</span>(user.id, (err, posts) => {
+        <span class="keyword">if</span> (err) <span class="keyword">return</span> <span class="function">handleError</span>(err);
+        
+        <span class="function">getComments</span>(posts[<span class="number">0</span>].id, (err, comments) => {
+            <span class="keyword">if</span> (err) <span class="keyword">return</span> <span class="function">handleError</span>(err);
+            
+            <span class="function">getLikes</span>(comments[<span class="number">0</span>].id, (err, likes) => {
+                <span class="keyword">if</span> (err) <span class="keyword">return</span> <span class="function">handleError</span>(err);
+                
+                <span class="comment">// Finally got what we need... 😵</span>
+                <span class="function">console</span>.<span class="function">log</span>(likes);
+            });
+        });
+    });
+});
+
+<span class="comment">// Problems:
+// - Hard to read (nested structure)
+// - Error handling repeated
+// - Difficult to maintain
+// - Hard to reason about flow</span></code>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 Solution:</strong> Promises and async/await (coming next) solve callback hell by providing cleaner, more readable syntax!
+                </div>
+            </div>
+
+            <!-- Section 4: Promises -->
+            <div class="section" id="promises">
+                <h2>🤝 4. Promises</h2>
+                
+                <p>A <strong>Promise</strong> is an object representing the eventual completion or failure of an asynchronous operation. It's a placeholder for a value that will be available in the future.</p>
+                
+                <h3>4.1 Promise States</h3>
+                
+                <div class="promise-states">
+                    <div class="state-box state-pending">
+                        <h4>⏳ Pending</h4>
+                        <p>Initial state</p>
+                        <p>Neither fulfilled nor rejected</p>
+                    </div>
+                    <div class="state-box state-fulfilled">
+                        <h4>✅ Fulfilled</h4>
+                        <p>Operation completed successfully</p>
+                        <p>Has a result value</p>
+                    </div>
+                    <div class="state-box state-rejected">
+                        <h4>❌ Rejected</h4>
+                        <p>Operation failed</p>
+                        <p>Has a reason (error)</p>
+                    </div>
+                </div>
+                
+                <div class="note">
+                    <strong>💡 Important:</strong> A promise can only settle once - either fulfilled OR rejected. Once settled, it cannot change state.
+                </div>
+                
+                <h3>4.2 Creating Promises</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Promise constructor takes executor function</span>
+<span class="keyword">const</span> promise = <span class="keyword">new</span> <span class="function">Promise</span>((resolve, reject) => {
+    <span class="comment">// Async operation</span>
+    <span class="keyword">const</span> success = <span class="keyword">true</span>;
+    
+    <span class="keyword">if</span> (success) {
+        <span class="function">resolve</span>(<span class="string">"Operation successful!"</span>);  <span class="comment">// Fulfill</span>
+    } <span class="keyword">else</span> {
+        <span class="function">reject</span>(<span class="string">"Operation failed!"</span>);      <span class="comment">// Reject</span>
+    }
+});
+
+<span class="comment">// Consuming the promise</span>
+promise
+    .<span class="function">then</span>(result => {
+        <span class="function">console</span>.<span class="function">log</span>(result);  <span class="comment">// "Operation successful!"</span>
+    })
+    .<span class="function">catch</span>(error => {
+        <span class="function">console</span>.<span class="function">error</span>(error);
+    });
+
+<span class="comment">// Practical example: Simulated API call</span>
+<span class="keyword">function</span> <span class="function">fetchUser</span>(id) {
+    <span class="keyword">return</span> <span class="keyword">new</span> <span class="function">Promise</span>((resolve, reject) => {
+        <span class="function">setTimeout</span>(() => {
+            <span class="keyword">if</span> (id > <span class="number">0</span>) {
+                <span class="function">resolve</span>({ id: id, name: <span class="string">"User"</span> + id });
+            } <span class="keyword">else</span> {
+                <span class="function">reject</span>(<span class="keyword">new</span> <span class="function">Error</span>(<span class="string">"Invalid ID"</span>));
+            }
+        }, <span class="number">1000</span>);
+    });
+}
+
+<span class="function">fetchUser</span>(<span class="number">1</span>)
+    .<span class="function">then</span>(user => <span class="function">console</span>.<span class="function">log</span>(user))
+    .<span class="function">catch</span>(err => <span class="function">console</span>.<span class="function">error</span>(err));</code>
+                </div>
+                
+                <h3>4.3 Promise Chaining</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Chain promises to avoid callback hell</span>
+<span class="keyword">function</span> <span class="function">getUser</span>(id) {
+    <span class="keyword">return</span> <span class="keyword">new</span> <span class="function">Promise</span>(resolve => {
+        <span class="function">setTimeout</span>(() => resolve({ id, name: <span class="string">`User${id}`</span> }), <span class="number">500</span>);
+    });
+}
+
+<span class="keyword">function</span> <span class="function">getPosts</span>(userId) {
+    <span class="keyword">return</span> <span class="keyword">new</span> <span class="function">Promise</span>(resolve => {
+        <span class="function">setTimeout</span>(() => resolve([<span class="string">`Post1`</span>, <span class="string">`Post2`</span>]), <span class="number">500</span>);
+    });
+}
+
+<span class="keyword">function</span> <span class="function">getComments</span>(postId) {
+    <span class="keyword">return</span> <span class="keyword">new</span> <span class="function">Promise</span>(resolve => {
+        <span class="function">setTimeout</span>(() => resolve([<span class="string">`Comment1`</span>, <span class="string">`Comment2`</span>]), <span class="number">500</span>);
+    });
+}
+
+<span class="comment">// ✅ Clean promise chain (vs callback hell)</span>
+<span class="function">getUser</span>(<span class="number">1</span>)
+    .<span class="function">then</span>(user => {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">"User:"</span>, user);
+        <span class="keyword">return</span> <span class="function">getPosts</span>(user.id);  <span class="comment">// Return promise!</span>
+    })
+    .<span class="function">then</span>(posts => {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Posts:"</span>, posts);
+        <span class="keyword">return</span> <span class="function">getComments</span>(posts[<span class="number">0</span>]);
+    })
+    .<span class="function">then</span>(comments => {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Comments:"</span>, comments);
+    })
+    .<span class="function">catch</span>(error => {
+        <span class="function">console</span>.<span class="function">error</span>(<span class="string">"Error:"</span>, error);
+    });</code>
+                </div>
+                
+                <div class="success">
+                    <strong>✅ Promise Chaining Rules:</strong>
+                    <ul>
+                        <li>Always return from <code>.then()</code> to continue chain</li>
+                        <li>Returning a promise chains it automatically</li>
+                        <li>One <code>.catch()</code> at the end handles all errors</li>
+                        <li>Much more readable than nested callbacks!</li>
+                    </ul>
+                </div>
+                
+                <h3>4.4 Promise Methods</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// .then(onFulfilled, onRejected)</span>
+promise.<span class="function">then</span>(
+    result => <span class="function">console</span>.<span class="function">log</span>(result),
+    error => <span class="function">console</span>.<span class="function">error</span>(error)
+);
+
+<span class="comment">// .catch(onRejected) - syntactic sugar for .then(null, onRejected)</span>
+promise.<span class="function">catch</span>(error => <span class="function">console</span>.<span class="function">error</span>(error));
+
+<span class="comment">// .finally(onFinally) - always runs, regardless of outcome</span>
+promise
+    .<span class="function">then</span>(result => <span class="function">console</span>.<span class="function">log</span>(result))
+    .<span class="function">catch</span>(error => <span class="function">console</span>.<span class="function">error</span>(error))
+    .<span class="function">finally</span>(() => {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Cleanup code here"</span>);  <span class="comment">// Always executes</span>
+    });</code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Promise Demo</h4>
+                    <button onclick="demoPromiseSuccess()">Test Success</button>
+                    <button onclick="demoPromiseError()">Test Error</button>
+                    <button onclick="demoPromiseChain()">Test Chain</button>
+                    <div class="output" id="promiseOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 5: Promise Static Methods -->
+            <div class="section" id="promise-static">
+                <h2>🔧 5. Promise Static Methods</h2>
+                
+                <h3>5.1 Promise.all()</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Wait for ALL promises to fulfill</span>
+<span class="keyword">const</span> promise1 = <span class="function">Promise</span>.<span class="function">resolve</span>(<span class="number">3</span>);
+<span class="keyword">const</span> promise2 = <span class="keyword">new</span> <span class="function">Promise</span>(resolve => <span class="function">setTimeout</span>(() => <span class="function">resolve</span>(<span class="number">42</span>), <span class="number">1000</span>));
+<span class="keyword">const</span> promise3 = <span class="function">Promise</span>.<span class="function">resolve</span>(<span class="string">"foo"</span>);
+
+<span class="function">Promise</span>.<span class="function">all</span>([promise1, promise2, promise3])
+    .<span class="function">then</span>(values => {
+        <span class="function">console</span>.<span class="function">log</span>(values);  <span class="comment">// [3, 42, "foo"] (after 1s)</span>
+    });
+
+<span class="comment">// ❌ If ANY promise rejects, Promise.all rejects</span>
+<span class="keyword">const</span> p1 = <span class="function">Promise</span>.<span class="function">resolve</span>(<span class="number">1</span>);
+<span class="keyword">const</span> p2 = <span class="function">Promise</span>.<span class="function">reject</span>(<span class="string">"Error!"</span>);
+<span class="keyword">const</span> p3 = <span class="function">Promise</span>.<span class="function">resolve</span>(<span class="number">3</span>);
+
+<span class="function">Promise</span>.<span class="function">all</span>([p1, p2, p3])
+    .<span class="function">then</span>(values => <span class="function">console</span>.<span class="function">log</span>(values))
+    .<span class="function">catch</span>(err => <span class="function">console</span>.<span class="function">error</span>(err));  <span class="comment">// "Error!"</span>
+
+<span class="comment">// Real-world: Fetch multiple resources</span>
+<span class="function">Promise</span>.<span class="function">all</span>([
+    <span class="function">fetch</span>(<span class="string">'/api/users'</span>),
+    <span class="function">fetch</span>(<span class="string">'/api/posts'</span>),
+    <span class="function">fetch</span>(<span class="string">'/api/comments'</span>)
+])
+.<span class="function">then</span>(responses => <span class="function">Promise</span>.<span class="function">all</span>(responses.<span class="function">map</span>(r => r.<span class="function">json</span>())))
+.<span class="function">then</span>(([users, posts, comments]) => {
+    <span class="function">console</span>.<span class="function">log</span>(users, posts, comments);
+});</code>
+                </div>
+                
+                <h3>5.2 Promise.race()</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Returns first promise to settle (fulfill or reject)</span>
+<span class="keyword">const</span> promise1 = <span class="keyword">new</span> <span class="function">Promise</span>(resolve => <span class="function">setTimeout</span>(() => <span class="function">resolve</span>(<span class="string">"slow"</span>), <span class="number">2000</span>));
+<span class="keyword">const</span> promise2 = <span class="keyword">new</span> <span class="function">Promise</span>(resolve => <span class="function">setTimeout</span>(() => <span class="function">resolve</span>(<span class="string">"fast"</span>), <span class="number">500</span>));
+
+<span class="function">Promise</span>.<span class="function">race</span>([promise1, promise2])
+    .<span class="function">then</span>(value => <span class="function">console</span>.<span class="function">log</span>(value));  <span class="comment">// "fast"</span>
+
+<span class="comment">// Use case: Timeout pattern</span>
+<span class="keyword">function</span> <span class="function">timeout</span>(ms) {
+    <span class="keyword">return</span> <span class="keyword">new</span> <span class="function">Promise</span>((_, reject) => {
+        <span class="function">setTimeout</span>(() => <span class="function">reject</span>(<span class="keyword">new</span> <span class="function">Error</span>(<span class="string">"Timeout"</span>)), ms);
+    });
+}
+
+<span class="function">Promise</span>.<span class="function">race</span>([
+    <span class="function">fetch</span>(<span class="string">'/api/data'</span>),
+    <span class="function">timeout</span>(<span class="number">5000</span>)  <span class="comment">// Reject if takes > 5s</span>
+])
+.<span class="function">then</span>(response => <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Got data"</span>))
+.<span class="function">catch</span>(err => <span class="function">console</span>.<span class="function">error</span>(<span class="string">"Failed or timeout"</span>));</code>
+                </div>
+                
+                <h3>5.3 Promise.allSettled()</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Waits for ALL promises to settle (doesn't short-circuit on rejection)</span>
+<span class="keyword">const</span> promises = [
+    <span class="function">Promise</span>.<span class="function">resolve</span>(<span class="number">1</span>),
+    <span class="function">Promise</span>.<span class="function">reject</span>(<span class="string">"Error"</span>),
+    <span class="function">Promise</span>.<span class="function">resolve</span>(<span class="number">3</span>)
+];
+
+<span class="function">Promise</span>.<span class="function">allSettled</span>(promises)
+    .<span class="function">then</span>(results => {
+        <span class="function">console</span>.<span class="function">log</span>(results);
+        <span class="comment">// [
+        //   { status: "fulfilled", value: 1 },
+        //   { status: "rejected", reason: "Error" },
+        //   { status: "fulfilled", value: 3 }
+        // ]</span>
+        
+        results.<span class="function">forEach</span>(result => {
+            <span class="keyword">if</span> (result.status === <span class="string">"fulfilled"</span>) {
+                <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Success:"</span>, result.value);
+            } <span class="keyword">else</span> {
+                <span class="function">console</span>.<span class="function">error</span>(<span class="string">"Failed:"</span>, result.reason);
+            }
+        });
+    });</code>
+                </div>
+                
+                <h3>5.4 Promise.any()</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Returns first FULFILLED promise (ignores rejections)</span>
+<span class="keyword">const</span> promises = [
+    <span class="function">Promise</span>.<span class="function">reject</span>(<span class="string">"Error 1"</span>),
+    <span class="keyword">new</span> <span class="function">Promise</span>(resolve => <span class="function">setTimeout</span>(() => <span class="function">resolve</span>(<span class="string">"Success!"</span>), <span class="number">1000</span>)),
+    <span class="function">Promise</span>.<span class="function">reject</span>(<span class="string">"Error 2"</span>)
+];
+
+<span class="function">Promise</span>.<span class="function">any</span>(promises)
+    .<span class="function">then</span>(value => <span class="function">console</span>.<span class="function">log</span>(value))  <span class="comment">// "Success!" (ignores errors)</span>
+    .<span class="function">catch</span>(err => <span class="function">console</span>.<span class="function">error</span>(err));
+
+<span class="comment">// If ALL reject, returns AggregateError</span>
+<span class="function">Promise</span>.<span class="function">any</span>([
+    <span class="function">Promise</span>.<span class="function">reject</span>(<span class="string">"Error 1"</span>),
+    <span class="function">Promise</span>.<span class="function">reject</span>(<span class="string">"Error 2"</span>)
+])
+.<span class="function">catch</span>(err => <span class="function">console</span>.<span class="function">error</span>(err.errors));  <span class="comment">// ["Error 1", "Error 2"]</span></code>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Resolves When</th>
+                            <th>Rejects When</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Promise.all()</strong></td>
+                            <td>ALL fulfill</td>
+                            <td>ANY rejects (short-circuits)</td>
+                            <td>All operations must succeed</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Promise.race()</strong></td>
+                            <td>FIRST settles (fulfill/reject)</td>
+                            <td>FIRST settles (fulfill/reject)</td>
+                            <td>Timeouts, fastest response</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Promise.allSettled()</strong></td>
+                            <td>ALL settle (always resolves)</td>
+                            <td>Never (always resolves)</td>
+                            <td>Want all results regardless</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Promise.any()</strong></td>
+                            <td>FIRST fulfills</td>
+                            <td>ALL reject</td>
+                            <td>Need at least one success</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Promise Methods Demo</h4>
+                    <button onclick="demoPromiseAll()">Promise.all()</button>
+                    <button onclick="demoPromiseRace()">Promise.race()</button>
+                    <button onclick="demoPromiseAllSettled()">Promise.allSettled()</button>
+                    <div class="output" id="promiseMethodsOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 6: Async/Await -->
+            <div class="section" id="async-await">
+                <h2>⚡ 6. Async/Await - Modern Syntax</h2>
+                
+                <p><strong>Async/await</strong> is syntactic sugar over Promises, making asynchronous code look and behave more like synchronous code.</p>
+                
+                <h3>6.1 Basic async/await</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// async function always returns a Promise</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">getData</span>() {
+    <span class="keyword">return</span> <span class="string">"Hello"</span>;  <span class="comment">// Automatically wrapped in Promise.resolve()</span>
+}
+
+<span class="function">getData</span>().<span class="function">then</span>(result => <span class="function">console</span>.<span class="function">log</span>(result));  <span class="comment">// "Hello"</span>
+
+<span class="comment">// await pauses execution until promise settles</span>
+<span class="keyword">function</span> <span class="function">fetchUser</span>() {
+    <span class="keyword">return</span> <span class="keyword">new</span> <span class="function">Promise</span>(resolve => {
+        <span class="function">setTimeout</span>(() => resolve({ name: <span class="string">"Alice"</span> }), <span class="number">1000</span>);
+    });
+}
+
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">displayUser</span>() {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Fetching user..."</span>);
+    
+    <span class="keyword">const</span> user = <span class="keyword">await</span> <span class="function">fetchUser</span>();  <span class="comment">// Waits here!</span>
+    
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"User:"</span>, user.name);  <span class="comment">// Executes after promise resolves</span>
+}
+
+<span class="function">displayUser</span>();
+<span class="comment">// Output:
+// "Fetching user..."
+// (wait 1 second)
+// "User: Alice"</span></code>
+                </div>
+                
+                <div class="note">
+                    <strong>💡 Important Rules:</strong>
+                    <ul>
+                        <li><code>await</code> can only be used inside <code>async</code> functions</li>
+                        <li><code>async</code> functions always return a Promise</li>
+                        <li><code>await</code> pauses execution until promise settles</li>
+                        <li>Code after <code>await</code> is like <code>.then()</code></li>
+                    </ul>
+                </div>
+                
+                <h3>6.2 Sequential vs Parallel Execution</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">delay</span>(ms, value) {
+    <span class="keyword">return</span> <span class="keyword">new</span> <span class="function">Promise</span>(resolve => <span class="function">setTimeout</span>(() => <span class="function">resolve</span>(value), ms));
+}
+
+<span class="comment">// ❌ Sequential (slower) - waits for each</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">sequential</span>() {
+    <span class="keyword">const</span> a = <span class="keyword">await</span> <span class="function">delay</span>(<span class="number">1000</span>, <span class="string">"A"</span>);  <span class="comment">// Wait 1s</span>
+    <span class="keyword">const</span> b = <span class="keyword">await</span> <span class="function">delay</span>(<span class="number">1000</span>, <span class="string">"B"</span>);  <span class="comment">// Wait another 1s</span>
+    <span class="keyword">const</span> c = <span class="keyword">await</span> <span class="function">delay</span>(<span class="number">1000</span>, <span class="string">"C"</span>);  <span class="comment">// Wait another 1s</span>
+    <span class="keyword">return</span> [a, b, c];  <span class="comment">// Total: 3 seconds</span>
+}
+
+<span class="comment">// ✅ Parallel (faster) - all start simultaneously</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">parallel</span>() {
+    <span class="keyword">const</span> [a, b, c] = <span class="keyword">await</span> <span class="function">Promise</span>.<span class="function">all</span>([
+        <span class="function">delay</span>(<span class="number">1000</span>, <span class="string">"A"</span>),
+        <span class="function">delay</span>(<span class="number">1000</span>, <span class="string">"B"</span>),
+        <span class="function">delay</span>(<span class="number">1000</span>, <span class="string">"C"</span>)
+    ]);
+    <span class="keyword">return</span> [a, b, c];  <span class="comment">// Total: 1 second (all parallel)</span>
+}
+
+<span class="comment">// Better for independent operations</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">parallelBetter</span>() {
+    <span class="comment">// Start all promises immediately</span>
+    <span class="keyword">const</span> promiseA = <span class="function">delay</span>(<span class="number">1000</span>, <span class="string">"A"</span>);
+    <span class="keyword">const</span> promiseB = <span class="function">delay</span>(<span class="number">1000</span>, <span class="string">"B"</span>);
+    <span class="keyword">const</span> promiseC = <span class="function">delay</span>(<span class="number">1000</span>, <span class="string">"C"</span>);
+    
+    <span class="comment">// Then await them</span>
+    <span class="keyword">const</span> a = <span class="keyword">await</span> promiseA;
+    <span class="keyword">const</span> b = <span class="keyword">await</span> promiseB;
+    <span class="keyword">const</span> c = <span class="keyword">await</span> promiseC;
+    
+    <span class="keyword">return</span> [a, b, c];  <span class="comment">// Total: 1 second</span>
+}</code>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Common Mistake:</strong> Using <code>await</code> in a loop when operations could run in parallel. Use <code>Promise.all()</code> for independent operations!
+                </div>
+                
+                <h3>6.3 Error Handling with try-catch</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// With Promises</span>
+<span class="function">fetchUser</span>(<span class="number">1</span>)
+    .<span class="function">then</span>(user => <span class="function">console</span>.<span class="function">log</span>(user))
+    .<span class="function">catch</span>(error => <span class="function">console</span>.<span class="function">error</span>(error));
+
+<span class="comment">// With async/await - use try-catch</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">getUser</span>() {
+    <span class="keyword">try</span> {
+        <span class="keyword">const</span> user = <span class="keyword">await</span> <span class="function">fetchUser</span>(<span class="number">1</span>);
+        <span class="function">console</span>.<span class="function">log</span>(user);
+    } <span class="keyword">catch</span> (error) {
+        <span class="function">console</span>.<span class="function">error</span>(<span class="string">"Error:"</span>, error);
+    }
+}
+
+<span class="comment">// Multiple operations with error handling</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">getData</span>() {
+    <span class="keyword">try</span> {
+        <span class="keyword">const</span> user = <span class="keyword">await</span> <span class="function">fetchUser</span>(<span class="number">1</span>);
+        <span class="keyword">const</span> posts = <span class="keyword">await</span> <span class="function">fetchPosts</span>(user.id);
+        <span class="keyword">const</span> comments = <span class="keyword">await</span> <span class="function">fetchComments</span>(posts[<span class="number">0</span>].id);
+        
+        <span class="keyword">return</span> { user, posts, comments };
+    } <span class="keyword">catch</span> (error) {
+        <span class="function">console</span>.<span class="function">error</span>(<span class="string">"Failed at:"</span>, error);
+        <span class="keyword">throw</span> error;  <span class="comment">// Re-throw if needed</span>
+    } <span class="keyword">finally</span> {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Cleanup code"</span>);
+    }
+}</code>
+                </div>
+                
+                <h3>6.4 Async/Await Patterns</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Pattern 1: Multiple independent requests (parallel)</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">fetchMultiple</span>() {
+    <span class="keyword">const</span> [users, posts, comments] = <span class="keyword">await</span> <span class="function">Promise</span>.<span class="function">all</span>([
+        <span class="function">fetch</span>(<span class="string">'/api/users'</span>).<span class="function">then</span>(r => r.<span class="function">json</span>()),
+        <span class="function">fetch</span>(<span class="string">'/api/posts'</span>).<span class="function">then</span>(r => r.<span class="function">json</span>()),
+        <span class="function">fetch</span>(<span class="string">'/api/comments'</span>).<span class="function">then</span>(r => r.<span class="function">json</span>())
+    ]);
+    
+    <span class="keyword">return</span> { users, posts, comments };
+}
+
+<span class="comment">// Pattern 2: Dependent requests (sequential)</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">fetchDependent</span>() {
+    <span class="keyword">const</span> user = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/api/user/1'</span>).<span class="function">then</span>(r => r.<span class="function">json</span>());
+    <span class="keyword">const</span> posts = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">`/api/user/${user.id}/posts`</span>).<span class="function">then</span>(r => r.<span class="function">json</span>());
+    
+    <span class="keyword">return</span> { user, posts };
+}
+
+<span class="comment">// Pattern 3: Loop with async operations</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">processUsers</span>(userIds) {
+    <span class="keyword">const</span> results = [];
+    
+    <span class="comment">// Sequential (one at a time)</span>
+    <span class="keyword">for</span> (<span class="keyword">const</span> id <span class="keyword">of</span> userIds) {
+        <span class="keyword">const</span> user = <span class="keyword">await</span> <span class="function">fetchUser</span>(id);
+        results.<span class="function">push</span>(user);
+    }
+    
+    <span class="keyword">return</span> results;
+}
+
+<span class="comment">// Better: Parallel processing</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">processUsersParallel</span>(userIds) {
+    <span class="keyword">const</span> promises = userIds.<span class="function">map</span>(id => <span class="function">fetchUser</span>(id));
+    <span class="keyword">return</span> <span class="keyword">await</span> <span class="function">Promise</span>.<span class="function">all</span>(promises);
+}</code>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 When to use Sequential vs Parallel:</strong>
+                    <ul>
+                        <li><strong>Sequential:</strong> When next operation depends on previous result</li>
+                        <li><strong>Parallel:</strong> When operations are independent - much faster!</li>
+                    </ul>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Async/Await Demo</h4>
+                    <button onclick="demoAsyncAwait()">Run Async Function</button>
+                    <button onclick="demoSequentialVsParallel()">Sequential vs Parallel</button>
+                    <div class="output" id="asyncAwaitOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 7: Microtasks vs Macrotasks -->
+            <div class="section" id="micro-macro">
+                <h2>⚡ 7. Microtasks vs Macrotasks</h2>
+                
+                <p>Understanding task priority is crucial for predicting execution order.</p>
+                
+                <h3>7.1 The Difference</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// What order will these execute?</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"1. Sync"</span>);
+
+<span class="function">setTimeout</span>(() => <span class="function">console</span>.<span class="function">log</span>(<span class="string">"2. setTimeout"</span>), <span class="number">0</span>);  <span class="comment">// Macrotask</span>
+
+<span class="function">Promise</span>.<span class="function">resolve</span>().<span class="function">then</span>(() => <span class="function">console</span>.<span class="function">log</span>(<span class="string">"3. Promise"</span>));  <span class="comment">// Microtask</span>
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"4. Sync"</span>);
+
+<span class="comment">// Output:
+// 1. Sync (synchronous)
+// 4. Sync (synchronous)
+// 3. Promise (microtask - higher priority!)
+// 2. setTimeout (macrotask)</span></code>
+                </div>
+                
+                <div class="visual-box">
+                    <h4>Execution Order Visualization</h4>
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <strong>Step 1: Synchronous Code</strong>
+                        <div style="margin: 10px 0; padding: 10px; background: white; border-radius: 5px;">
+                            Execute: console.log("1. Sync")<br>
+                            Execute: console.log("4. Sync")
+                        </div>
+                    </div>
+                    
+                    <div class="arrow-flow">↓</div>
+                    
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <strong>Step 2: ALL Microtasks</strong>
+                        <div style="margin: 10px 0; padding: 10px; background: white; border-radius: 5px;">
+                            Execute: Promise.then() → "3. Promise"
+                        </div>
+                    </div>
+                    
+                    <div class="arrow-flow">↓</div>
+                    
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <strong>Step 3: ONE Macrotask</strong>
+                        <div style="margin: 10px 0; padding: 10px; background: white; border-radius: 5px;">
+                            Execute: setTimeout callback → "2. setTimeout"
+                        </div>
+                    </div>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Examples</th>
+                            <th>Priority</th>
+                            <th>When Executed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Microtasks</strong></td>
+                            <td>Promises, queueMicrotask, MutationObserver</td>
+                            <td>🔥 High</td>
+                            <td>After current script, before next task</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Macrotasks</strong></td>
+                            <td>setTimeout, setInterval, I/O, UI rendering</td>
+                            <td>Normal</td>
+                            <td>One per event loop iteration</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>7.2 Complex Example</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Predict the output order!</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"Start"</span>);
+
+<span class="function">setTimeout</span>(() => <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Timeout 1"</span>), <span class="number">0</span>);
+
+<span class="function">Promise</span>.<span class="function">resolve</span>()
+    .<span class="function">then</span>(() => <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Promise 1"</span>))
+    .<span class="function">then</span>(() => <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Promise 2"</span>));
+
+<span class="function">setTimeout</span>(() => <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Timeout 2"</span>), <span class="number">0</span>);
+
+<span class="function">Promise</span>.<span class="function">resolve</span>().<span class="function">then</span>(() => <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Promise 3"</span>));
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"End"</span>);
+
+<span class="comment">// Output:
+// Start (sync)
+// End (sync)
+// Promise 1 (microtask)
+// Promise 2 (microtask)
+// Promise 3 (microtask)
+// Timeout 1 (macrotask)
+// Timeout 2 (macrotask)</span></code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Event Loop Visualizer</h4>
+                    <button onclick="demoEventLoop()">Run Event Loop Demo</button>
+                    <div class="output" id="eventLoopOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 8: Real World Patterns -->
+            <div class="section" id="patterns">
+                <h2>🌟 8. Real-World Async Patterns</h2>
+                
+                <h3>8.1 Retry Pattern</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Retry failed operations</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">retry</span>(fn, maxAttempts = <span class="number">3</span>, delay = <span class="number">1000</span>) {
+    <span class="keyword">for</span> (<span class="keyword">let</span> attempt = <span class="number">1</span>; attempt <= maxAttempts; attempt++) {
+        <span class="keyword">try</span> {
+            <span class="keyword">return</span> <span class="keyword">await</span> <span class="function">fn</span>();  <span class="comment">// Try operation</span>
+        } <span class="keyword">catch</span> (error) {
+            <span class="keyword">if</span> (attempt === maxAttempts) {
+                <span class="keyword">throw</span> error;  <span class="comment">// Last attempt failed</span>
+            }
+            
+            <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Attempt ${attempt} failed, retrying...`</span>);
+            <span class="keyword">await</span> <span class="keyword">new</span> <span class="function">Promise</span>(r => <span class="function">setTimeout</span>(r, delay));
+        }
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">await</span> <span class="function">retry</span>(() => <span class="function">fetch</span>(<span class="string">'/api/data'</span>), <span class="number">3</span>, <span class="number">2000</span>);</code>
+                </div>
+                
+                <h3>8.2 Timeout Pattern</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Reject if operation takes too long</span>
+<span class="keyword">function</span> <span class="function">withTimeout</span>(promise, ms) {
+    <span class="keyword">const</span> timeout = <span class="keyword">new</span> <span class="function">Promise</span>((_, reject) => {
+        <span class="function">setTimeout</span>(() => <span class="function">reject</span>(<span class="keyword">new</span> <span class="function">Error</span>(<span class="string">"Timeout"</span>)), ms);
+    });
+    
+    <span class="keyword">return</span> <span class="function">Promise</span>.<span class="function">race</span>([promise, timeout]);
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">fetchWithTimeout</span>() {
+    <span class="keyword">try</span> {
+        <span class="keyword">const</span> data = <span class="keyword">await</span> <span class="function">withTimeout</span>(<span class="function">fetch</span>(<span class="string">'/api/slow'</span>), <span class="number">5000</span>);
+        <span class="keyword">return</span> data;
+    } <span class="keyword">catch</span> (error) {
+        <span class="function">console</span>.<span class="function">error</span>(<span class="string">"Request timeout or failed"</span>);
+    }
+}</code>
+                </div>
+                
+                <h3>8.3 Queue Pattern</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Process tasks one at a time in order</span>
+<span class="keyword">class</span> <span class="class-name">AsyncQueue</span> {
+    <span class="function">constructor</span>() {
+        <span class="keyword">this</span>.queue = [];
+        <span class="keyword">this</span>.processing = <span class="keyword">false</span>;
+    }
+    
+    <span class="keyword">async</span> <span class="function">add</span>(task) {
+        <span class="keyword">this</span>.queue.<span class="function">push</span>(task);
+        <span class="keyword">if</span> (!<span class="keyword">this</span>.processing) {
+            <span class="keyword">await</span> <span class="keyword">this</span>.<span class="function">process</span>();
+        }
+    }
+    
+    <span class="keyword">async</span> <span class="function">process</span>() {
+        <span class="keyword">this</span>.processing = <span class="keyword">true</span>;
+        
+        <span class="keyword">while</span> (<span class="keyword">this</span>.queue.length > <span class="number">0</span>) {
+            <span class="keyword">const</span> task = <span class="keyword">this</span>.queue.<span class="function">shift</span>();
+            <span class="keyword">await</span> <span class="function">task</span>();
+        }
+        
+        <span class="keyword">this</span>.processing = <span class="keyword">false</span>;
+    }
+}
+
+<span class="keyword">const</span> queue = <span class="keyword">new</span> <span class="class-name">AsyncQueue</span>();
+queue.<span class="function">add</span>(() => <span class="function">delay</span>(<span class="number">1000</span>, <span class="string">"Task 1"</span>));
+queue.<span class="function">add</span>(() => <span class="function">delay</span>(<span class="number">500</span>, <span class="string">"Task 2"</span>));</code>
+                </div>
+                
+                <h3>8.4 Parallel Limit Pattern</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Process array with limited concurrency</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">parallelLimit</span>(items, limit, asyncFn) {
+    <span class="keyword">const</span> results = [];
+    <span class="keyword">const</span> executing = [];
+    
+    <span class="keyword">for</span> (<span class="keyword">const</span> item <span class="keyword">of</span> items) {
+        <span class="keyword">const</span> promise = <span class="function">asyncFn</span>(item).<span class="function">then</span>(result => {
+            executing.<span class="function">splice</span>(executing.<span class="function">indexOf</span>(promise), <span class="number">1</span>);
+            <span class="keyword">return</span> result;
+        });
+        
+        results.<span class="function">push</span>(promise);
+        executing.<span class="function">push</span>(promise);
+        
+        <span class="keyword">if</span> (executing.length >= limit) {
+            <span class="keyword">await</span> <span class="function">Promise</span>.<span class="function">race</span>(executing);
+        }
+    }
+    
+    <span class="keyword">return</span> <span class="function">Promise</span>.<span class="function">all</span>(results);
+}
+
+<span class="comment">// Process 100 items, max 5 at a time</span>
+<span class="keyword">const</span> items = <span class="function">Array</span>.<span class="function">from</span>({ length: <span class="number">100</span> }, (_, i) => i);
+<span class="keyword">await</span> <span class="function">parallelLimit</span>(items, <span class="number">5</span>, <span class="keyword">async</span> item => {
+    <span class="keyword">await</span> <span class="function">processItem</span>(item);
+});</code>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 When to Use:</strong>
+                    <ul>
+                        <li><strong>Retry:</strong> Network requests, flaky operations</li>
+                        <li><strong>Timeout:</strong> Prevent hanging requests</li>
+                        <li><strong>Queue:</strong> Rate-limiting, sequential processing</li>
+                        <li><strong>Parallel Limit:</strong> Avoid overwhelming servers</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 8: Error Handling Strategies -->
+            <div class="section" id="error-handling">
+                <h2>🛡️ 8. Error Handling Strategies</h2>
+                
+                <h3>8.1 Multiple try-catch Blocks</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">async</span> <span class="keyword">function</span> <span class="function">processData</span>() {
+    <span class="keyword">let</span> user, posts, comments;
+    
+    <span class="comment">// Try each operation separately</span>
+    <span class="keyword">try</span> {
+        user = <span class="keyword">await</span> <span class="function">fetchUser</span>(<span class="number">1</span>);
+    } <span class="keyword">catch</span> (error) {
+        <span class="function">console</span>.<span class="function">error</span>(<span class="string">"User fetch failed"</span>, error);
+        user = { name: <span class="string">"Guest"</span> };  <span class="comment">// Fallback</span>
+    }
+    
+    <span class="keyword">try</span> {
+        posts = <span class="keyword">await</span> <span class="function">fetchPosts</span>(user.id);
+    } <span class="keyword">catch</span> (error) {
+        <span class="function">console</span>.<span class="function">error</span>(<span class="string">"Posts fetch failed"</span>, error);
+        posts = [];  <span class="comment">// Fallback</span>
+    }
+    
+    <span class="keyword">return</span> { user, posts };
+}</code>
+                </div>
+                
+                <h3>8.2 Promise.allSettled for Graceful Degradation</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">async</span> <span class="keyword">function</span> <span class="function">fetchDashboard</span>() {
+    <span class="keyword">const</span> results = <span class="keyword">await</span> <span class="function">Promise</span>.<span class="function">allSettled</span>([
+        <span class="function">fetchUser</span>(),
+        <span class="function">fetchPosts</span>(),
+        <span class="function">fetchNotifications</span>()
+    ]);
+    
+    <span class="keyword">return</span> {
+        user: results[<span class="number">0</span>].status === <span class="string">"fulfilled"</span> ? results[<span class="number">0</span>].value : <span class="keyword">null</span>,
+        posts: results[<span class="number">1</span>].status === <span class="string">"fulfilled"</span> ? results[<span class="number">1</span>].value : [],
+        notifications: results[<span class="number">2</span>].status === <span class="string">"fulfilled"</span> ? results[<span class="number">2</span>].value : []
+    };
+    <span class="comment">// Dashboard loads even if some parts fail!</span>
+}</code>
+                </div>
+                
+                <h3>8.3 Custom Error Classes</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">class</span> <span class="class-name">NetworkError</span> <span class="keyword">extends</span> <span class="class-name">Error</span> {
+    <span class="function">constructor</span>(message, statusCode) {
+        <span class="keyword">super</span>(message);
+        <span class="keyword">this</span>.name = <span class="string">"NetworkError"</span>;
+        <span class="keyword">this</span>.statusCode = statusCode;
+    }
+}
+
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">fetchData</span>(url) {
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(url);
+    
+    <span class="keyword">if</span> (!response.ok) {
+        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="class-name">NetworkError</span>(
+            <span class="string">`Failed to fetch: ${response.statusText}`</span>,
+            response.status
+        );
+    }
+    
+    <span class="keyword">return</span> response.<span class="function">json</span>();
+}
+
+<span class="keyword">try</span> {
+    <span class="keyword">const</span> data = <span class="keyword">await</span> <span class="function">fetchData</span>(<span class="string">'/api/users'</span>);
+} <span class="keyword">catch</span> (error) {
+    <span class="keyword">if</span> (error <span class="keyword">instanceof</span> NetworkError) {
+        <span class="function">console</span>.<span class="function">error</span>(<span class="string">`Network error ${error.statusCode}`</span>);
+    } <span class="keyword">else</span> {
+        <span class="function">console</span>.<span class="function">error</span>(<span class="string">"Unknown error"</span>, error);
+    }
+}</code>
+                </div>
+            </div>
+
+            <!-- Section 9: Common Pitfalls -->
+            <div class="section" id="pitfalls">
+                <h2>⚠️ 9. Common Pitfalls and Solutions</h2>
+                
+                <h3>9.1 Forgotten await</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// ❌ WRONG: Forgot await</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">wrong</span>() {
+    <span class="keyword">const</span> data = <span class="function">fetchData</span>();  <span class="comment">// Returns Promise, not data!</span>
+    <span class="function">console</span>.<span class="function">log</span>(data);  <span class="comment">// Promise { &lt;pending&gt; }</span>
+}
+
+<span class="comment">// ✅ CORRECT: Use await</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">correct</span>() {
+    <span class="keyword">const</span> data = <span class="keyword">await</span> <span class="function">fetchData</span>();  <span class="comment">// Waits for result</span>
+    <span class="function">console</span>.<span class="function">log</span>(data);  <span class="comment">// Actual data</span>
+}</code>
+                </div>
+                
+                <h3>9.2 Unhandled Promise Rejections</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// ❌ WRONG: No error handling</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">riskyCode</span>() {
+    <span class="keyword">const</span> data = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/api/data'</span>);  <span class="comment">// What if it fails?</span>
+    <span class="keyword">return</span> data;
+}
+
+<span class="comment">// ✅ CORRECT: Always handle errors</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">safeCode</span>() {
+    <span class="keyword">try</span> {
+        <span class="keyword">const</span> data = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/api/data'</span>);
+        <span class="keyword">return</span> data;
+    } <span class="keyword">catch</span> (error) {
+        <span class="function">console</span>.<span class="function">error</span>(<span class="string">"Fetch failed:"</span>, error);
+        <span class="keyword">return</span> <span class="keyword">null</span>;  <span class="comment">// Or throw, or return default</span>
+    }
+}</code>
+                </div>
+                
+                <h3>9.3 Async in Array Methods</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// ❌ WRONG: forEach with async</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">wrong</span>(ids) {
+    ids.<span class="function">forEach</span>(<span class="keyword">async</span> id => {
+        <span class="keyword">const</span> user = <span class="keyword">await</span> <span class="function">fetchUser</span>(id);  <span class="comment">// Doesn't wait!</span>
+        <span class="function">console</span>.<span class="function">log</span>(user);
+    });
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Done"</span>);  <span class="comment">// Logs before fetches complete!</span>
+}
+
+<span class="comment">// ✅ CORRECT: for...of with async</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">correct</span>(ids) {
+    <span class="keyword">for</span> (<span class="keyword">const</span> id <span class="keyword">of</span> ids) {
+        <span class="keyword">const</span> user = <span class="keyword">await</span> <span class="function">fetchUser</span>(id);
+        <span class="function">console</span>.<span class="function">log</span>(user);
+    }
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Done"</span>);  <span class="comment">// Logs after all complete</span>
+}
+
+<span class="comment">// ✅ BETTER: Parallel with Promise.all</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">better</span>(ids) {
+    <span class="keyword">const</span> users = <span class="keyword">await</span> <span class="function">Promise</span>.<span class="function">all</span>(ids.<span class="function">map</span>(id => <span class="function">fetchUser</span>(id)));
+    users.<span class="function">forEach</span>(user => <span class="function">console</span>.<span class="function">log</span>(user));
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Done"</span>);
+}</code>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Critical:</strong> <code>forEach</code>, <code>map</code>, <code>filter</code> don't wait for async callbacks! Use <code>for...of</code> loop or <code>Promise.all()</code>.
+                </div>
+            </div>
+
+            <!-- Section 10: Summary -->
+            <div class="section" id="summary">
+                <h2>📝 Chapter Summary & Interview Questions</h2>
+                
+                <h3>Key Takeaways:</h3>
+                <ol>
+                    <li><strong>JavaScript is single-threaded</strong> but handles async via event loop</li>
+                    <li><strong>Event Loop:</strong> Call stack → Microtasks → Macrotasks</li>
+                    <li><strong>Callbacks:</strong> Functions passed as arguments, can lead to callback hell</li>
+                    <li><strong>Promises:</strong> 3 states (pending, fulfilled, rejected)</li>
+                    <li><strong>Promise.all():</strong> All must succeed (parallel, fail-fast)</li>
+                    <li><strong>Promise.race():</strong> First to settle wins</li>
+                    <li><strong>Promise.allSettled():</strong> Wait for all (never rejects)</li>
+                    <li><strong>Promise.any():</strong> First to fulfill (ignores rejections)</li>
+                    <li><strong>async/await:</strong> Syntactic sugar over Promises</li>
+                    <li><strong>try-catch:</strong> Error handling in async functions</li>
+                    <li><strong>Microtasks > Macrotasks:</strong> Promises execute before timers</li>
+                </ol>
+                
+                <h3>Common Interview Questions:</h3>
+                <div class="visual-box">
+                    <ol>
+                        <li><strong>Q:</strong> What is the event loop?<br>
+                            <strong>A:</strong> The event loop is a mechanism that allows JavaScript to perform non-blocking operations despite being single-threaded. It continuously monitors the call stack and task queues, moving callbacks to the stack when empty.</li>
+                        
+                        <li><strong>Q:</strong> Explain the three states of a Promise.<br>
+                            <strong>A:</strong> <strong>Pending</strong> (initial, neither fulfilled nor rejected), <strong>Fulfilled</strong> (operation completed successfully with a value), <strong>Rejected</strong> (operation failed with a reason/error). A promise can only transition once.</li>
+                        
+                        <li><strong>Q:</strong> What's the difference between Promise.all() and Promise.allSettled()?<br>
+                            <strong>A:</strong> Promise.all() rejects immediately if ANY promise rejects (fail-fast). Promise.allSettled() waits for ALL promises to settle and returns array of all results with status (never rejects).</li>
+                        
+                        <li><strong>Q:</strong> What does async function return?<br>
+                            <strong>A:</strong> Always returns a Promise. If you return a value, it's wrapped in Promise.resolve(). If you throw an error, it's wrapped in Promise.reject().</li>
+                        
+                        <li><strong>Q:</strong> Can you use await outside async function?<br>
+                            <strong>A:</strong> No (except top-level await in ES modules). await must be inside async function or you'll get SyntaxError.</li>
+                        
+                        <li><strong>Q:</strong> What's the difference between microtasks and macrotasks?<br>
+                            <strong>A:</strong> Microtasks (Promises, queueMicrotask) have higher priority - ALL execute before next macrotask. Macrotasks (setTimeout, setInterval) execute one per event loop cycle.</li>
+                        
+                        <li><strong>Q:</strong> Predict the output:<br>
+                            <code>console.log('A'); setTimeout(() => console.log('B'), 0); Promise.resolve().then(() => console.log('C')); console.log('D');</code><br>
+                            <strong>A:</strong> A, D, C, B (sync first, then microtasks, then macrotasks)</li>
+                        
+                        <li><strong>Q:</strong> How to handle errors in async/await?<br>
+                            <strong>A:</strong> Use try-catch blocks around await expressions. Can also use .catch() on the returned promise.</li>
+                        
+                        <li><strong>Q:</strong> What's callback hell and how to solve it?<br>
+                            <strong>A:</strong> Deeply nested callbacks creating pyramid of doom. Solve with Promises (chaining) or async/await (linear code).</li>
+                        
+                        <li><strong>Q:</strong> When to use Promise.all() vs awaiting in sequence?<br>
+                            <strong>A:</strong> Use Promise.all() when operations are independent (parallel - faster). Use sequential await when next operation depends on previous result.</li>
+                        
+                        <li><strong>Q:</strong> Why doesn't forEach work with async/await?<br>
+                            <strong>A:</strong> forEach doesn't wait for async callbacks. It fires all callbacks immediately without waiting. Use for...of loop or Promise.all() with map.</li>
+                        
+                        <li><strong>Q:</strong> What's Promise.race() useful for?<br>
+                            <strong>A:</strong> Implementing timeouts (race between operation and timeout), getting fastest response from multiple sources, or canceling slow operations.</li>
+                    </ol>
+                </div>
+                
+                <h3>Quick Reference Chart:</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Pattern</th>
+                            <th>Syntax</th>
+                            <th>Pros</th>
+                            <th>Cons</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Callbacks</strong></td>
+                            <td><code>func(callback)</code></td>
+                            <td>Simple, universal</td>
+                            <td>Callback hell, hard to maintain</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Promises</strong></td>
+                            <td><code>.then().catch()</code></td>
+                            <td>Chainable, better errors</td>
+                            <td>Still some nesting</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Async/Await</strong></td>
+                            <td><code>await promise</code></td>
+                            <td>Readable, try-catch, clean</td>
+                            <td>Need async function wrapper</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="success">
+                    <strong>💪 Practice Exercises:</strong>
+                    <ol>
+                        <li>Create a Promise that resolves after 2 seconds with a value</li>
+                        <li>Chain 3 promises together with .then()</li>
+                        <li>Convert this callback to Promise: <code>setTimeout(callback, 1000)</code></li>
+                        <li>Use Promise.all() to fetch 3 resources in parallel</li>
+                        <li>Implement a timeout wrapper using Promise.race()</li>
+                        <li>Convert a Promise chain to async/await</li>
+                        <li>Handle errors in async function with try-catch</li>
+                        <li>Compare sequential vs parallel execution time</li>
+                        <li>Create a retry function with max attempts</li>
+                        <li>Predict output order with mix of sync/async code</li>
+                        <li>Fix: <code>forEach</code> with async callbacks</li>
+                        <li>Implement Promise.all() from scratch</li>
+                    </ol>
+                </div>
+                
+                <div class="tip">
+                    <strong>🎯 Best Practices Summary:</strong>
+                    <ul>
+                        <li>✅ Prefer async/await over .then() for readability</li>
+                        <li>✅ Always handle errors (catch or try-catch)</li>
+                        <li>✅ Use Promise.all() for parallel independent operations</li>
+                        <li>✅ Avoid await in loops when operations can be parallel</li>
+                        <li>✅ Use Promise.allSettled() when you need all results</li>
+                        <li>✅ Add timeouts to prevent hanging requests</li>
+                        <li>✅ Use finally for cleanup code</li>
+                        <li>❌ Don't forget await (returns Promise, not value)</li>
+                        <li>❌ Don't use async callbacks in forEach/map/filter</li>
+                        <li>❌ Don't swallow errors (always log or re-throw)</li>
+                    </ul>
+                </div>
+                
+                <div class="note">
+                    <strong>🎓 Congratulations!</strong> You've completed Chapter 10 - one of the most important chapters for modern JavaScript development! Async programming is used everywhere:
+                    <ul>
+                        <li>🌐 API calls and data fetching</li>
+                        <li>📁 File operations</li>
+                        <li>💾 Database queries</li>
+                        <li>⏰ Timers and delays</li>
+                        <li>🖱️ Event handling</li>
+                        <li>🎮 Animations and games</li>
+                    </ul>
+                    Master this chapter and you're ready for real-world JavaScript!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoPromiseSuccess() {
+            const output = document.getElementById('promiseOutput');
+            output.textContent = 'Creating promise...\n';
+            
+            const promise = new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve('✓ Promise resolved successfully!');
+                }, 1500);
+            });
+            
+            promise.then(result => {
+                output.textContent += '\n' + result + '\n\nSteps:\n';
+                output.textContent += '1. Promise created (pending)\n';
+                output.textContent += '2. Waited 1.5 seconds\n';
+                output.textContent += '3. resolve() called\n';
+                output.textContent += '4. Promise fulfilled\n';
+                output.textContent += '5. .then() handler executed';
+            });
+        }
+        
+        function demoPromiseError() {
+            const output = document.getElementById('promiseOutput');
+            output.textContent = 'Creating promise...\n';
+            
+            const promise = new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    reject(new Error('Promise rejected!'));
+                }, 1500);
+            });
+            
+            promise
+                .then(result => {
+                    output.textContent += 'This will not run\n';
+                })
+                .catch(error => {
+                    output.textContent += '\n✗ ' + error.message + '\n\nSteps:\n';
+                    output.textContent += '1. Promise created (pending)\n';
+                    output.textContent += '2. Waited 1.5 seconds\n';
+                    output.textContent += '3. reject() called\n';
+                    output.textContent += '4. Promise rejected\n';
+                    output.textContent += '5. .catch() handler executed';
+                });
+        }
+        
+        function demoPromiseChain() {
+            const output = document.getElementById('promiseOutput');
+            output.textContent = 'Starting promise chain...\n\n';
+            
+            Promise.resolve(5)
+                .then(num => {
+                    output.textContent += `Step 1: Start with ${num}\n`;
+                    return num * 2;
+                })
+                .then(num => {
+                    output.textContent += `Step 2: Double to ${num}\n`;
+                    return num + 10;
+                })
+                .then(num => {
+                    output.textContent += `Step 3: Add 10 to get ${num}\n`;
+                    return num;
+                })
+                .then(finalResult => {
+                    output.textContent += `\nFinal Result: ${finalResult}\n\n`;
+                    output.textContent += 'Each .then() returns a value\n';
+                    output.textContent += 'Next .then() receives that value';
+                });
+        }
+        
+        function demoPromiseAll() {
+            const output = document.getElementById('promiseMethodsOutput');
+            output.textContent = 'Running Promise.all()...\n\n';
+            
+            const p1 = new Promise(resolve => setTimeout(() => resolve('First'), 1000));
+            const p2 = new Promise(resolve => setTimeout(() => resolve('Second'), 500));
+            const p3 = new Promise(resolve => setTimeout(() => resolve('Third'), 1500));
+            
+            const start = Date.now();
+            
+            Promise.all([p1, p2, p3]).then(results => {
+                const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+                output.textContent += `Completed in ${elapsed}s\n\n`;
+                output.textContent += `Results: ${JSON.stringify(results)}\n\n`;
+                output.textContent += 'Note: All ran in parallel!\n';
+                output.textContent += 'Total time ≈ slowest promise (1.5s)';
+            });
+        }
+        
+        function demoPromiseRace() {
+            const output = document.getElementById('promiseMethodsOutput');
+            output.textContent = 'Running Promise.race()...\n\n';
+            
+            const p1 = new Promise(resolve => setTimeout(() => resolve('Slow (2s)'), 2000));
+            const p2 = new Promise(resolve => setTimeout(() => resolve('Fast (500ms)'), 500));
+            const p3 = new Promise(resolve => setTimeout(() => resolve('Medium (1s)'), 1000));
+            
+            Promise.race([p1, p2, p3]).then(result => {
+                output.textContent += `Winner: ${result}\n\n`;
+                output.textContent += 'Promise.race() returns the first to settle\n';
+                output.textContent += 'Other promises are ignored\n\n';
+                output.textContent += 'Use case: Implement timeouts';
+            });
+        }
+        
+        function demoPromiseAllSettled() {
+            const output = document.getElementById('promiseMethodsOutput');
+            output.textContent = 'Running Promise.allSettled()...\n\n';
+            
+            const promises = [
+                Promise.resolve('Success 1'),
+                Promise.reject('Error 1'),
+                Promise.resolve('Success 2'),
+                Promise.reject('Error 2')
+            ];
+            
+            Promise.allSettled(promises).then(results => {
+                output.textContent += 'Results:\n';
+                results.forEach((result, index) => {
+                    output.textContent += `${index + 1}. ${result.status}: `;
+                    if (result.status === 'fulfilled') {
+                        output.textContent += result.value + '\n';
+                    } else {
+                        output.textContent += result.reason + '\n';
+                    }
+                });
+                output.textContent += '\nNote: ALL promises settled\n';
+                output.textContent += 'No short-circuit on rejection!';
+            });
+        }
+        
+        function demoAsyncAwait() {
+            const output = document.getElementById('asyncAwaitOutput');
+            
+            function delay(ms, value) {
+                return new Promise(resolve => setTimeout(() => resolve(value), ms));
+            }
+            
+            async function demo() {
+                output.textContent = 'Starting async function...\n\n';
+                
+                output.textContent += '1. First await (1s)...\n';
+                const first = await delay(1000, 'First result');
+                output.textContent += `   Got: ${first}\n\n`;
+                
+                output.textContent += '2. Second await (1s)...\n';
+                const second = await delay(1000, 'Second result');
+                output.textContent += `   Got: ${second}\n\n`;
+                
+                output.textContent += '3. Complete!\n';
+                output.textContent += `   Final: [${first}, ${second}]\n\n`;
+                output.textContent += 'Total time: ~2 seconds (sequential)';
+            }
+            
+            demo();
+        }
+        
+        function demoSequentialVsParallel() {
+            const output = document.getElementById('asyncAwaitOutput');
+            
+            function delay(ms, value) {
+                return new Promise(resolve => setTimeout(() => resolve(value), ms));
+            }
+            
+            async function sequential() {
+                const start = Date.now();
+                const a = await delay(1000, 'A');
+                const b = await delay(1000, 'B');
+                const c = await delay(1000, 'C');
+                return { results: [a, b, c], time: Date.now() - start };
+            }
+            
+            async function parallel() {
+                const start = Date.now();
+                const [a, b, c] = await Promise.all([
+                    delay(1000, 'A'),
+                    delay(1000, 'B'),
+                    delay(1000, 'C')
+                ]);
+                return { results: [a, b, c], time: Date.now() - start };
+            }
+            
+            output.textContent = 'Testing performance...\n\n';
+            
+            sequential().then(result => {
+                output.textContent += `Sequential: ${result.results}\n`;
+                output.textContent += `Time: ${(result.time / 1000).toFixed(1)}s\n\n`;
+                
+                return parallel();
+            }).then(result => {
+                output.textContent += `Parallel: ${result.results}\n`;
+                output.textContent += `Time: ${(result.time / 1000).toFixed(1)}s\n\n`;
+                output.textContent += '🚀 Parallel is 3x faster!\n';
+                output.textContent += 'Use Promise.all() for independent operations';
+            });
+        }
+        function demoEventLoop() {
+            const output = document.getElementById('eventLoopOutput');
+            
+            output.textContent = 'Running event loop demonstration...\n\n';
+            output.textContent += 'Code execution order:\n';
+            
+            const log = (msg) => {
+                output.textContent += msg + '\n';
+            };
+            
+            log('1. Start (sync)');
+            
+            setTimeout(() => log('5. setTimeout (macrotask)'), 0);
+            
+            Promise.resolve().then(() => log('3. Promise 1 (microtask)'))
+                             .then(() => log('4. Promise 2 (microtask)'));
+            
+            log('2. End (sync)');
+            
+            setTimeout(() => {
+                output.textContent += '\n🎯 Explanation:\n';
+                output.textContent += '• Synchronous code executes first (1, 2)\n';
+                output.textContent += '• Then ALL microtasks (3, 4)\n';
+                output.textContent += '• Finally macrotasks (5)\n\n';
+                output.textContent += 'Microtasks have higher priority!';
+            }, 100);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Modules - Chapter 12</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            margin: 25px 0 15px 0;
+            font-size: 1.5em;
+        }
+        
+        .section h4 {
+            color: #666;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+        
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow-x: auto;
+            position: relative;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+        
+        .file-label {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px 5px 0 0;
+            font-size: 12px;
+            margin: -20px -20px 10px -20px;
+            font-weight: bold;
+        }
+        
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .number { color: #d19a66; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+        .property { color: #e06c75; }
+        .import { color: #e5c07b; }
+        
+        .visual-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f1f3f5;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .note strong {
+            color: #856404;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .warning strong {
+            color: #721c24;
+        }
+        
+        .tip {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .tip strong {
+            color: #0c5460;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .success strong {
+            color: #155724;
+        }
+        
+        .module-diagram {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .module-box {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px;
+            position: relative;
+        }
+        
+        .module-box h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .export-item {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        
+        .import-item {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        
+        .arrow-flow {
+            text-align: center;
+            font-size: 32px;
+            color: #667eea;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .file-structure {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .folder {
+            color: #e5c07b;
+            margin-left: 0;
+        }
+        
+        .file {
+            color: #98c379;
+            margin-left: 20px;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .example-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .example-card h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📦 Chapter 12: Modules</h1>
+            <p>Master Code Organization and Reusability</p>
+        </header>
+        
+        <div class="content">
+            <!-- Section 1: What are Modules -->
+            <div class="section" id="what-are-modules">
+                <h2>🎯 1. What are Modules?</h2>
+                
+                <p><strong>Modules</strong> are reusable pieces of code that can be exported from one file and imported into another. They help organize code into logical, maintainable units.</p>
+                
+                <h3>1.1 Why Use Modules?</h3>
+                
+                <div class="success">
+                    <strong>✅ Benefits of Modules:</strong>
+                    <ul>
+                        <li><strong>Encapsulation</strong> - Each module has its own scope</li>
+                        <li><strong>Reusability</strong> - Use code across multiple files</li>
+                        <li><strong>Maintainability</strong> - Easier to find and fix bugs</li>
+                        <li><strong>Organization</strong> - Logical file structure</li>
+                        <li><strong>Dependency Management</strong> - Clear dependencies between files</li>
+                        <li><strong>Namespace Management</strong> - Avoid global scope pollution</li>
+                    </ul>
+                </div>
+                
+                <h3>1.2 Before Modules</h3>
+                
+                <div class="code-block">
+<code><span class="comment">&lt;!-- ❌ Old way: Multiple script tags --&gt;</span>
+<span class="comment">&lt;!-- index.html --&gt;</span>
+&lt;script src="utility.js"&gt;&lt;/script&gt;
+&lt;script src="user.js"&gt;&lt;/script&gt;
+&lt;script src="app.js"&gt;&lt;/script&gt;
+
+<span class="comment">// All variables are global!</span>
+<span class="comment">// utility.js</span>
+<span class="keyword">function</span> <span class="function">formatDate</span>(date) { ... }  <span class="comment">// Global function</span>
+
+<span class="comment">// user.js</span>
+<span class="keyword">function</span> <span class="function">formatDate</span>(date) { ... }  <span class="comment">// ❌ Naming conflict!</span>
+
+<span class="comment">// Problems:
+// - Global namespace pollution
+// - Naming conflicts
+// - Unclear dependencies
+// - Load order matters</span></code>
+                </div>
+                
+                <div class="note">
+                    <strong>💡 Module Scope:</strong> Each module has its own scope. Variables declared in a module are NOT global unless explicitly exported.
+                </div>
+            </div>
+
+            <!-- Section 2: ES6 Modules -->
+            <div class="section" id="es6-modules">
+                <h2>📤 2. ES6 Modules (ESM)</h2>
+                
+                <p>ES6 introduced native module support with <code>import</code> and <code>export</code> keywords. This is the modern, standard way to work with modules in JavaScript.</p>
+                
+                <h3>2.1 Named Exports</h3>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 math.js</span>
+<span class="comment">// Export individual items</span>
+<span class="keyword">export</span> <span class="keyword">const</span> PI = <span class="number">3.14159</span>;
+
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">add</span>(a, b) {
+    <span class="keyword">return</span> a + b;
+}
+
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">subtract</span>(a, b) {
+    <span class="keyword">return</span> a - b;
+}
+
+<span class="keyword">export</span> <span class="keyword">class</span> <span class="function">Calculator</span> {
+    <span class="function">multiply</span>(a, b) {
+        <span class="keyword">return</span> a * b;
+    }
+}
+
+<span class="comment">// Or export at the end</span>
+<span class="keyword">const</span> E = <span class="number">2.71828</span>;
+<span class="keyword">function</span> <span class="function">divide</span>(a, b) {
+    <span class="keyword">return</span> a / b;
+}
+
+<span class="keyword">export</span> { E, divide };</code>
+                </div>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 app.js</span>
+<span class="comment">// Import specific named exports</span>
+<span class="keyword">import</span> { add, subtract, PI } <span class="keyword">from</span> <span class="string">'./math.js'</span>;
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">add</span>(<span class="number">5</span>, <span class="number">3</span>));      <span class="comment">// 8</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">subtract</span>(<span class="number">10</span>, <span class="number">4</span>)); <span class="comment">// 6</span>
+<span class="function">console</span>.<span class="function">log</span>(PI);             <span class="comment">// 3.14159</span>
+
+<span class="comment">// Import all named exports</span>
+<span class="keyword">import</span> * <span class="keyword">as</span> math <span class="keyword">from</span> <span class="string">'./math.js'</span>;
+
+<span class="function">console</span>.<span class="function">log</span>(math.<span class="function">add</span>(<span class="number">5</span>, <span class="number">3</span>));      <span class="comment">// 8</span>
+<span class="function">console</span>.<span class="function">log</span>(math.PI);            <span class="comment">// 3.14159</span>
+<span class="keyword">const</span> calc = <span class="keyword">new</span> math.<span class="function">Calculator</span>();
+
+<span class="comment">// Rename imports</span>
+<span class="keyword">import</span> { add <span class="keyword">as</span> sum, subtract <span class="keyword">as</span> minus } <span class="keyword">from</span> <span class="string">'./math.js'</span>;
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">sum</span>(<span class="number">5</span>, <span class="number">3</span>));    <span class="comment">// 8</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">minus</span>(<span class="number">10</span>, <span class="number">4</span>)); <span class="comment">// 6</span></code>
+                </div>
+                
+                <h3>2.2 Default Exports</h3>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 user.js</span>
+<span class="comment">// Default export - one per module</span>
+<span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="function">User</span> {
+    <span class="function">constructor</span>(name, email) {
+        <span class="keyword">this</span>.name = name;
+        <span class="keyword">this</span>.email = email;
+    }
+    
+    <span class="function">greet</span>() {
+        <span class="keyword">return</span> <span class="string">`Hello, I'm ${<span class="keyword">this</span>.name}`</span>;
+    }
+}
+
+<span class="comment">// Alternative: Export at end</span>
+<span class="keyword">class</span> <span class="function">User</span> { ... }
+<span class="keyword">export</span> <span class="keyword">default</span> User;
+
+<span class="comment">// Can also export functions</span>
+<span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">function</span> <span class="function">formatDate</span>(date) {
+    <span class="keyword">return</span> date.<span class="function">toLocaleDateString</span>();
+}</code>
+                </div>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 app.js</span>
+<span class="comment">// Import default export (can use any name!)</span>
+<span class="keyword">import</span> User <span class="keyword">from</span> <span class="string">'./user.js'</span>;
+
+<span class="keyword">const</span> user = <span class="keyword">new</span> <span class="function">User</span>(<span class="string">"Alice"</span>, <span class="string">"alice@example.com"</span>);
+<span class="function">console</span>.<span class="function">log</span>(user.<span class="function">greet</span>());
+
+<span class="comment">// Import with different name</span>
+<span class="keyword">import</span> UserClass <span class="keyword">from</span> <span class="string">'./user.js'</span>;
+<span class="keyword">import</span> formatDate <span class="keyword">from</span> <span class="string">'./dateUtils.js'</span>;</code>
+                </div>
+                
+                <h3>2.3 Mixed Exports (Named + Default)</h3>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 auth.js</span>
+<span class="comment">// Can have both default and named exports</span>
+<span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="function">Auth</span> {
+    <span class="function">login</span>(username, password) { ... }
+    <span class="function">logout</span>() { ... }
+}
+
+<span class="keyword">export</span> <span class="keyword">const</span> AUTH_TOKEN_KEY = <span class="string">"auth_token"</span>;
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">isAuthenticated</span>() { ... }
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">getToken</span>() { ... }</code>
+                </div>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 app.js</span>
+<span class="comment">// Import both default and named</span>
+<span class="keyword">import</span> Auth, { AUTH_TOKEN_KEY, isAuthenticated } <span class="keyword">from</span> <span class="string">'./auth.js'</span>;
+
+<span class="keyword">const</span> auth = <span class="keyword">new</span> <span class="function">Auth</span>();
+<span class="function">console</span>.<span class="function">log</span>(AUTH_TOKEN_KEY);
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">isAuthenticated</span>());</code>
+                </div>
+                
+                <div class="module-diagram">
+                    <h4 style="text-align: center; color: #667eea; margin-bottom: 20px;">📦 Module Import/Export Flow</h4>
+                    
+                    <div class="module-box">
+                        <h4>math.js (Exporter)</h4>
+                        <div class="export-item">export const PI = 3.14159</div>
+                        <div class="export-item">export function add(a, b) {...}</div>
+                        <div class="export-item">export default class Calculator {...}</div>
+                    </div>
+                    
+                    <div class="arrow-flow">↓ imports</div>
+                    
+                    <div class="module-box">
+                        <h4>app.js (Importer)</h4>
+                        <div class="import-item">import Calculator from './math.js'</div>
+                        <div class="import-item">import { PI, add } from './math.js'</div>
+                    </div>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Named Export</th>
+                            <th>Default Export</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Syntax</strong></td>
+                            <td><code>export const x = 1;</code></td>
+                            <td><code>export default X;</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Import</strong></td>
+                            <td><code>import { x } from '...'</code></td>
+                            <td><code>import X from '...'</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Per module</strong></td>
+                            <td>Multiple allowed</td>
+                            <td>Only ONE allowed</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Import name</strong></td>
+                            <td>Must match export name</td>
+                            <td>Can be anything</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Curly braces</strong></td>
+                            <td>✅ Required</td>
+                            <td>❌ Not used</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use case</strong></td>
+                            <td>Multiple utilities</td>
+                            <td>Main export of module</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Section 3: Import Variations -->
+            <div class="section" id="import-variations">
+                <h2>📥 3. Import Variations and Patterns</h2>
+                
+                <h3>3.1 Different Import Syntaxes</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// 1. Import specific named exports</span>
+<span class="keyword">import</span> { user, post, comment } <span class="keyword">from</span> <span class="string">'./data.js'</span>;
+
+<span class="comment">// 2. Import default export</span>
+<span class="keyword">import</span> User <span class="keyword">from</span> <span class="string">'./User.js'</span>;
+
+<span class="comment">// 3. Import both default and named</span>
+<span class="keyword">import</span> React, { useState, useEffect } <span class="keyword">from</span> <span class="string">'react'</span>;
+
+<span class="comment">// 4. Import everything as namespace</span>
+<span class="keyword">import</span> * <span class="keyword">as</span> utils <span class="keyword">from</span> <span class="string">'./utils.js'</span>;
+
+<span class="comment">// 5. Rename imports</span>
+<span class="keyword">import</span> { 
+    longFunctionName <span class="keyword">as</span> fn,
+    anotherLongName <span class="keyword">as</span> short 
+} <span class="keyword">from</span> <span class="string">'./module.js'</span>;
+
+<span class="comment">// 6. Import for side effects only (no imports)</span>
+<span class="keyword">import</span> <span class="string">'./polyfills.js'</span>;  <span class="comment">// Runs code but doesn't import anything</span>
+
+<span class="comment">// 7. Import type (TypeScript)</span>
+<span class="keyword">import</span> <span class="keyword">type</span> { UserType } <span class="keyword">from</span> <span class="string">'./types.js'</span>;</code>
+                </div>
+                
+                <h3>3.2 Re-exporting</h3>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 index.js (Barrel File)</span>
+<span class="comment">// Re-export from other modules</span>
+<span class="keyword">export</span> { User } <span class="keyword">from</span> <span class="string">'./User.js'</span>;
+<span class="keyword">export</span> { Post } <span class="keyword">from</span> <span class="string">'./Post.js'</span>;
+<span class="keyword">export</span> { Comment } <span class="keyword">from</span> <span class="string">'./Comment.js'</span>;
+
+<span class="comment">// Re-export everything</span>
+<span class="keyword">export</span> * <span class="keyword">from</span> <span class="string">'./utils.js'</span>;
+
+<span class="comment">// Re-export with rename</span>
+<span class="keyword">export</span> { <span class="keyword">default</span> <span class="keyword">as</span> UserClass } <span class="keyword">from</span> <span class="string">'./User.js'</span>;</code>
+                </div>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 app.js</span>
+<span class="comment">// Now can import everything from one place!</span>
+<span class="keyword">import</span> { User, Post, Comment } <span class="keyword">from</span> <span class="string">'./index.js'</span>;
+
+<span class="comment">// Instead of:</span>
+<span class="comment">// import { User } from './User.js';</span>
+<span class="comment">// import { Post } from './Post.js';</span>
+<span class="comment">// import { Comment } from './Comment.js';</span></code>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 Barrel Pattern:</strong> Create an <code>index.js</code> that re-exports from multiple files. Makes imports cleaner and provides a single entry point for a folder.
+                </div>
+                
+                <h3>3.3 Module Path Resolution</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Relative paths</span>
+<span class="keyword">import</span> { func } <span class="keyword">from</span> <span class="string">'./utils.js'</span>;        <span class="comment">// Same directory</span>
+<span class="keyword">import</span> { func } <span class="keyword">from</span> <span class="string">'../utils.js'</span>;       <span class="comment">// Parent directory</span>
+<span class="keyword">import</span> { func } <span class="keyword">from</span> <span class="string">'../../utils.js'</span>;    <span class="comment">// Two levels up</span>
+<span class="keyword">import</span> { func } <span class="keyword">from</span> <span class="string">'./folder/utils.js'</span>; <span class="comment">// Subdirectory</span>
+
+<span class="comment">// Absolute paths (from node_modules)</span>
+<span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;           <span class="comment">// npm package</span>
+<span class="keyword">import</span> lodash <span class="keyword">from</span> <span class="string">'lodash'</span>;         <span class="comment">// npm package</span>
+
+<span class="comment">// With file extensions (browser)</span>
+<span class="keyword">import</span> { func } <span class="keyword">from</span> <span class="string">'./utils.js'</span>;  <span class="comment">// .js required in browser</span>
+
+<span class="comment">// Without extensions (bundlers handle it)</span>
+<span class="keyword">import</span> { func } <span class="keyword">from</span> <span class="string">'./utils'</span>;     <span class="comment">// Webpack/Vite adds extension</span></code>
+                </div>
+            </div>
+
+            <!-- Section 4: Dynamic Imports -->
+            <div class="section" id="dynamic-imports">
+                <h2>⚡ 4. Dynamic Imports</h2>
+                
+                <p><strong>Dynamic imports</strong> allow you to load modules on-demand at runtime, enabling code splitting and lazy loading.</p>
+                
+                <h3>4.1 Basic Dynamic Import</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Static import - loaded at parse time</span>
+<span class="keyword">import</span> utils <span class="keyword">from</span> <span class="string">'./utils.js'</span>;  <span class="comment">// Always loaded</span>
+
+<span class="comment">// Dynamic import - loaded at runtime</span>
+<span class="keyword">const</span> loadUtils = <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> module = <span class="keyword">await</span> <span class="keyword">import</span>(<span class="string">'./utils.js'</span>);  <span class="comment">// Returns promise!</span>
+    <span class="function">console</span>.<span class="function">log</span>(module);  <span class="comment">// Module object</span>
+    module.<span class="function">someFunction</span>();
+};
+
+<span class="comment">// With .then() syntax</span>
+<span class="keyword">import</span>(<span class="string">'./utils.js'</span>)
+    .<span class="function">then</span>(module => {
+        module.<span class="function">someFunction</span>();
+    })
+    .<span class="function">catch</span>(error => {
+        <span class="function">console</span>.<span class="function">error</span>(<span class="string">"Failed to load module"</span>, error);
+    });</code>
+                </div>
+                
+                <h3>4.2 Conditional Loading</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Load module only when needed</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">handleChartClick</span>() {
+    <span class="comment">// Only load chart library when user clicks</span>
+    <span class="keyword">const</span> { Chart } = <span class="keyword">await</span> <span class="keyword">import</span>(<span class="string">'./chart.js'</span>);
+    <span class="keyword">new</span> <span class="function">Chart</span>().<span class="function">render</span>();
+}
+
+<span class="comment">// Feature detection</span>
+<span class="keyword">if</span> (userPrefersDarkMode) {
+    <span class="keyword">const</span> { darkTheme } = <span class="keyword">await</span> <span class="keyword">import</span>(<span class="string">'./themes/dark.js'</span>);
+    <span class="function">applyTheme</span>(darkTheme);
+} <span class="keyword">else</span> {
+    <span class="keyword">const</span> { lightTheme } = <span class="keyword">await</span> <span class="keyword">import</span>(<span class="string">'./themes/light.js'</span>);
+    <span class="function">applyTheme</span>(lightTheme);
+}
+
+<span class="comment">// Route-based loading (SPA)</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">loadRoute</span>(route) {
+    <span class="keyword">switch</span> (route) {
+        <span class="keyword">case</span> <span class="string">'/home'</span>:
+            <span class="keyword">const</span> { HomePage } = <span class="keyword">await</span> <span class="keyword">import</span>(<span class="string">'./pages/Home.js'</span>);
+            <span class="keyword">return</span> HomePage;
+        <span class="keyword">case</span> <span class="string">'/about'</span>:
+            <span class="keyword">const</span> { AboutPage } = <span class="keyword">await</span> <span class="keyword">import</span>(<span class="string">'./pages/About.js'</span>);
+            <span class="keyword">return</span> AboutPage;
+    }
+}</code>
+                </div>
+                
+                <h3>4.3 Dynamic Import with Destructuring</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Default export</span>
+<span class="keyword">const</span> { <span class="keyword">default</span>: User } = <span class="keyword">await</span> <span class="keyword">import</span>(<span class="string">'./User.js'</span>);
+
+<span class="comment">// Named exports</span>
+<span class="keyword">const</span> { add, subtract, multiply } = <span class="keyword">await</span> <span class="keyword">import</span>(<span class="string">'./math.js'</span>);
+
+<span class="comment">// Both default and named</span>
+<span class="keyword">const</span> module = <span class="keyword">await</span> <span class="keyword">import</span>(<span class="string">'./auth.js'</span>);
+<span class="keyword">const</span> Auth = module.<span class="keyword">default</span>;
+<span class="keyword">const</span> { isAuthenticated } = module;</code>
+                </div>
+                
+                <div class="success">
+                    <strong>✅ Benefits of Dynamic Imports:</strong>
+                    <ul>
+                        <li>Faster initial page load (code splitting)</li>
+                        <li>Load code only when needed</li>
+                        <li>Reduce bundle size</li>
+                        <li>Conditional loading based on features</li>
+                        <li>Better performance for large applications</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 5: CommonJS -->
+            <div class="section" id="commonjs">
+                <h2>📚 5. CommonJS (Node.js)</h2>
+                
+                <p><strong>CommonJS</strong> is the module system used in Node.js. Uses <code>require()</code> and <code>module.exports</code>.</p>
+                
+                <h3>5.1 CommonJS Syntax</h3>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 math.js (CommonJS)</span>
+<span class="comment">// Export individual items</span>
+<span class="keyword">const</span> PI = <span class="number">3.14159</span>;
+
+<span class="keyword">function</span> <span class="function">add</span>(a, b) {
+    <span class="keyword">return</span> a + b;
+}
+
+<span class="keyword">function</span> <span class="function">subtract</span>(a, b) {
+    <span class="keyword">return</span> a - b;
+}
+
+<span class="comment">// Export as object</span>
+module.exports = {
+    PI,
+    add,
+    subtract
+};
+
+<span class="comment">// Alternative: exports.property</span>
+exports.PI = <span class="number">3.14159</span>;
+exports.add = <span class="keyword">function</span>(a, b) { <span class="keyword">return</span> a + b; };</code>
+                </div>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 app.js (CommonJS)</span>
+<span class="comment">// Import entire module</span>
+<span class="keyword">const</span> math = <span class="function">require</span>(<span class="string">'./math.js'</span>);
+
+<span class="function">console</span>.<span class="function">log</span>(math.<span class="function">add</span>(<span class="number">5</span>, <span class="number">3</span>));  <span class="comment">// 8</span>
+<span class="function">console</span>.<span class="function">log</span>(math.PI);        <span class="comment">// 3.14159</span>
+
+<span class="comment">// Destructure imports</span>
+<span class="keyword">const</span> { add, subtract, PI } = <span class="function">require</span>(<span class="string">'./math.js'</span>);
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">add</span>(<span class="number">5</span>, <span class="number">3</span>));  <span class="comment">// 8</span></code>
+                </div>
+                
+                <h3>5.2 Default Export in CommonJS</h3>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 User.js</span>
+<span class="comment">// Export single item (default)</span>
+<span class="keyword">class</span> <span class="function">User</span> {
+    <span class="function">constructor</span>(name) {
+        <span class="keyword">this</span>.name = name;
+    }
+}
+
+module.exports = User;  <span class="comment">// Export the class</span>
+
+<span class="comment">// Or export function directly</span>
+module.exports = <span class="keyword">function</span> <span class="function">formatDate</span>(date) {
+    <span class="keyword">return</span> date.<span class="function">toLocaleDateString</span>();
+};</code>
+                </div>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 app.js</span>
+<span class="comment">// Import default export</span>
+<span class="keyword">const</span> User = <span class="function">require</span>(<span class="string">'./User.js'</span>);
+
+<span class="keyword">const</span> user = <span class="keyword">new</span> <span class="function">User</span>(<span class="string">"Alice"</span>);
+
+<span class="comment">// Import function</span>
+<span class="keyword">const</span> formatDate = <span class="function">require</span>(<span class="string">'./dateUtils.js'</span>);
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">formatDate</span>(<span class="keyword">new</span> <span class="function">Date</span>()));</code>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Warning:</strong> Don't mix <code>module.exports</code> and <code>exports</code>! If you assign to <code>module.exports</code>, <code>exports</code> becomes useless.
+                </div>
+                
+                <div class="code-block">
+<code><span class="comment">// ❌ BAD: Mixing exports</span>
+exports.add = <span class="keyword">function</span>(a, b) { <span class="keyword">return</span> a + b; };
+module.exports = { subtract };  <span class="comment">// This overwrites everything!</span>
+
+<span class="comment">// ✅ GOOD: Use one or the other</span>
+<span class="comment">// Option 1:</span>
+exports.add = ...;
+exports.subtract = ...;
+
+<span class="comment">// Option 2:</span>
+module.exports = {
+    add: ...,
+    subtract: ...
+};</code>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>ES6 Modules (ESM)</th>
+                            <th>CommonJS (CJS)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Syntax</strong></td>
+                            <td><code>import/export</code></td>
+                            <td><code>require/module.exports</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Loading</strong></td>
+                            <td>Static (compile-time)</td>
+                            <td>Dynamic (runtime)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Top-level await</strong></td>
+                            <td>✅ Supported</td>
+                            <td>❌ Not supported</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tree shaking</strong></td>
+                            <td>✅ Yes (dead code elimination)</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Browser support</strong></td>
+                            <td>✅ Modern browsers</td>
+                            <td>❌ Needs bundler</td>
+                        </tr>
+                        <tr>
+                            <td><strong>File extension</strong></td>
+                            <td>.js or .mjs</td>
+                            <td>.js or .cjs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>this in module</strong></td>
+                            <td>undefined</td>
+                            <td>exports object</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Where used</strong></td>
+                            <td>Modern JS, browsers, Node.js 12+</td>
+                            <td>Node.js (legacy), older projects</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Section 6: Module Patterns -->
+            <div class="section" id="module-patterns">
+                <h2>🎨 6. Module Patterns and Organization</h2>
+                
+                <h3>6.1 File Structure Best Practices</h3>
+                
+                <div class="file-structure">
+<code>src/
+├── components/
+│   ├── index.js           <span class="comment">(barrel file)</span>
+│   ├── Button.js
+│   ├── Input.js
+│   └── Card.js
+├── utils/
+│   ├── index.js           <span class="comment">(barrel file)</span>
+│   ├── string.js
+│   ├── array.js
+│   └── date.js
+├── services/
+│   ├── api.js
+│   ├── auth.js
+│   └── storage.js
+├── models/
+│   ├── User.js
+│   ├── Post.js
+│   └── Comment.js
+└── app.js                 <span class="comment">(entry point)</span></code>
+                </div>
+                
+                <h3>6.2 Utility Module Pattern</h3>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 utils/string.js</span>
+<span class="comment">// Group related utilities</span>
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">capitalize</span>(str) {
+    <span class="keyword">return</span> str.<span class="function">charAt</span>(<span class="number">0</span>).<span class="function">toUpperCase</span>() + str.<span class="function">slice</span>(<span class="number">1</span>);
+}
+
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">slugify</span>(str) {
+    <span class="keyword">return</span> str.<span class="function">toLowerCase</span>().<span class="function">replace</span>(<span class="string">/\s+/g</span>, <span class="string">'-'</span>);
+}
+
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">truncate</span>(str, length) {
+    <span class="keyword">return</span> str.length > length ? str.<span class="function">slice</span>(<span class="number">0</span>, length) + <span class="string">'...'</span> : str;
+}</code>
+                </div>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 utils/index.js (Barrel)</span>
+<span class="comment">// Re-export all utilities from one place</span>
+<span class="keyword">export</span> * <span class="keyword">from</span> <span class="string">'./string.js'</span>;
+<span class="keyword">export</span> * <span class="keyword">from</span> <span class="string">'./array.js'</span>;
+<span class="keyword">export</span> * <span class="keyword">from</span> <span class="string">'./date.js'</span>;</code>
+                </div>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 app.js</span>
+<span class="comment">// Clean import from barrel file</span>
+<span class="keyword">import</span> { capitalize, slugify, sortBy, groupBy } <span class="keyword">from</span> <span class="string">'./utils'</span>;
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">capitalize</span>(<span class="string">"hello"</span>));     <span class="comment">// "Hello"</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">slugify</span>(<span class="string">"Hello World"</span>));  <span class="comment">// "hello-world"</span></code>
+                </div>
+                
+                <h3>6.3 Service Module Pattern</h3>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 services/api.js</span>
+<span class="comment">// Encapsulate API logic</span>
+<span class="keyword">const</span> BASE_URL = <span class="string">'https://api.example.com'</span>;
+
+<span class="keyword">class</span> <span class="function">ApiService</span> {
+    <span class="keyword">async</span> <span class="function">get</span>(endpoint) {
+        <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">`${BASE_URL}${endpoint}`</span>);
+        <span class="keyword">if</span> (!response.ok) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="function">Error</span>(<span class="string">'API error'</span>);
+        <span class="keyword">return</span> response.<span class="function">json</span>();
+    }
+    
+    <span class="keyword">async</span> <span class="function">post</span>(endpoint, data) {
+        <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">`${BASE_URL}${endpoint}`</span>, {
+            method: <span class="string">'POST'</span>,
+            headers: { <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span> },
+            body: <span class="function">JSON</span>.<span class="function">stringify</span>(data)
+        });
+        <span class="keyword">return</span> response.<span class="function">json</span>();
+    }
+}
+
+<span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">new</span> <span class="function">ApiService</span>();  <span class="comment">// Export singleton instance</span></code>
+                </div>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 services/userService.js</span>
+<span class="keyword">import</span> api <span class="keyword">from</span> <span class="string">'./api.js'</span>;
+
+<span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="function">getUser</span>(id) {
+    <span class="keyword">return</span> <span class="keyword">await</span> api.<span class="function">get</span>(<span class="string">`/users/${id}`</span>);
+}
+
+<span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="function">createUser</span>(userData) {
+    <span class="keyword">return</span> <span class="keyword">await</span> api.<span class="function">post</span>(<span class="string">'/users'</span>, userData);
+}
+
+<span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="function">updateUser</span>(id, updates) {
+    <span class="keyword">return</span> <span class="keyword">await</span> api.<span class="function">post</span>(<span class="string">`/users/${id}`</span>, updates);
+}</code>
+                </div>
+                
+                <h3>6.4 Configuration Module Pattern</h3>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 config/index.js</span>
+<span class="comment">// Centralized configuration</span>
+<span class="keyword">const</span> config = {
+    api: {
+        baseUrl: process.env.API_URL || <span class="string">'http://localhost:3000'</span>,
+        timeout: <span class="number">5000</span>
+    },
+    app: {
+        name: <span class="string">'My App'</span>,
+        version: <span class="string">'1.0.0'</span>
+    },
+    features: {
+        darkMode: <span class="keyword">true</span>,
+        analytics: process.env.NODE_ENV === <span class="string">'production'</span>
+    }
+};
+
+<span class="keyword">export</span> <span class="keyword">default</span> config;
+
+<span class="comment">// Usage</span>
+<span class="keyword">import</span> config <span class="keyword">from</span> <span class="string">'./config'</span>;
+<span class="function">console</span>.<span class="function">log</span>(config.api.baseUrl);</code>
+                </div>
+            </div>
+
+            <!-- Section 7: Module Caching -->
+            <div class="section" id="module-caching">
+                <h2>💾 7. Module Caching and Circular Dependencies</h2>
+                
+                <h3>7.1 Module Caching</h3>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 counter.js</span>
+<span class="keyword">let</span> count = <span class="number">0</span>;
+
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">increment</span>() {
+    count++;
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Count: ${count}`</span>);
+}
+
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">getCount</span>() {
+    <span class="keyword">return</span> count;
+}</code>
+                </div>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 app.js</span>
+<span class="comment">// Modules are cached - same instance everywhere!</span>
+<span class="keyword">import</span> { increment, getCount } <span class="keyword">from</span> <span class="string">'./counter.js'</span>;
+
+<span class="function">increment</span>();  <span class="comment">// Count: 1</span>
+<span class="function">increment</span>();  <span class="comment">// Count: 2</span>
+
+<span class="comment">// In another file...</span>
+<span class="keyword">import</span> { getCount } <span class="keyword">from</span> <span class="string">'./counter.js'</span>;  <span class="comment">// Same module!</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">getCount</span>());  <span class="comment">// 2 (not 0!)</span></code>
+                </div>
+                
+                <div class="note">
+                    <strong>💡 Important:</strong> Modules are executed only ONCE on first import. Subsequent imports return the cached module. This enables the singleton pattern!
+                </div>
+                
+                <h3>7.2 Circular Dependencies</h3>
+                
+                <div class="warning">
+                    <strong>⚠️ Warning:</strong> Circular dependencies (A imports B, B imports A) should be avoided but are technically possible in ES6 modules.
+                </div>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 a.js</span>
+<span class="keyword">import</span> { b } <span class="keyword">from</span> <span class="string">'./b.js'</span>;
+
+<span class="keyword">export</span> <span class="keyword">const</span> a = <span class="string">"A"</span>;
+
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">functionA</span>() {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`A calling B: ${<span class="function">b</span>()}`</span>);
+}</code>
+                </div>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 b.js</span>
+<span class="keyword">import</span> { a } <span class="keyword">from</span> <span class="string">'./a.js'</span>;  <span class="comment">// Circular!</span>
+
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">b</span>() {
+    <span class="keyword">return</span> <span class="string">"B"</span>;
+}
+
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">functionB</span>() {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`B using A: ${a}`</span>);  <span class="comment">// Works due to hoisting</span>
+}</code>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 Best Practice:</strong> Avoid circular dependencies! Restructure code to have a clear dependency hierarchy. If needed, extract shared code to a third module.
+                </div>
+            </div>
+
+            <!-- Section 8: Using Modules in HTML -->
+            <div class="section" id="html-modules">
+                <h2>🌐 8. Using Modules in HTML</h2>
+                
+                <h3>8.1 Module Script Tag</h3>
+                
+                <div class="code-block">
+<code><span class="comment">&lt;!-- Regular script (no modules) --&gt;</span>
+&lt;script src="app.js"&gt;&lt;/script&gt;
+
+<span class="comment">&lt;!-- Module script (enables import/export) --&gt;</span>
+&lt;script <span class="keyword">type</span>=<span class="string">"module"</span> src="app.js"&gt;&lt;/script&gt;
+
+<span class="comment">&lt;!-- Inline module --&gt;</span>
+&lt;script <span class="keyword">type</span>=<span class="string">"module"</span>&gt;
+    <span class="keyword">import</span> { greet } <span class="keyword">from</span> <span class="string">'./utils.js'</span>;
+    <span class="function">greet</span>(<span class="string">"World"</span>);
+&lt;/script&gt;</code>
+                </div>
+                
+                <div class="note">
+                    <strong>💡 Module Script Differences:</strong>
+                    <ul>
+                        <li>Automatically in strict mode</li>
+                        <li>Deferred by default (like defer attribute)</li>
+                        <li>Have their own scope (not global)</li>
+                        <li>CORS applies to module scripts</li>
+                        <li>Can use import/export</li>
+                    </ul>
+                </div>
+                
+                <h3>8.2 Module vs Regular Script</h3>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Regular Script</th>
+                            <th>Module Script</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Strict mode</strong></td>
+                            <td>Optional</td>
+                            <td>Always enabled</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Top-level this</strong></td>
+                            <td>window (browser)</td>
+                            <td>undefined</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scope</strong></td>
+                            <td>Global</td>
+                            <td>Module scope</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Loading</strong></td>
+                            <td>Blocking (unless async/defer)</td>
+                            <td>Deferred by default</td>
+                        </tr>
+                        <tr>
+                            <td><strong>import/export</strong></td>
+                            <td>❌ Not allowed</td>
+                            <td>✅ Allowed</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Same-origin</strong></td>
+                            <td>Not required</td>
+                            <td>✅ Required (CORS)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Section 9: Advanced Module Features -->
+            <div class="section" id="advanced-features">
+                <h2>🚀 9. Advanced Module Features</h2>
+                
+                <h3>9.1 Top-Level Await</h3>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 data.js</span>
+<span class="comment">// Top-level await in ES6 modules</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'https://api.example.com/config'</span>);
+<span class="keyword">const</span> config = <span class="keyword">await</span> response.<span class="function">json</span>();
+
+<span class="keyword">export</span> <span class="keyword">default</span> config;
+
+<span class="comment">// Module waits for async operation before being ready</span></code>
+                </div>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 app.js</span>
+<span class="comment">// Import will wait for data.js to finish loading</span>
+<span class="keyword">import</span> config <span class="keyword">from</span> <span class="string">'./data.js'</span>;  <span class="comment">// Waits for fetch to complete</span>
+
+<span class="function">console</span>.<span class="function">log</span>(config);  <span class="comment">// Already loaded data</span></code>
+                </div>
+                
+                <h3>9.2 Import Assertions (JSON Modules)</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Import JSON files directly (ES2021)</span>
+<span class="keyword">import</span> config <span class="keyword">from</span> <span class="string">'./config.json'</span> <span class="keyword">assert</span> { type: <span class="string">'json'</span> };
+
+<span class="function">console</span>.<span class="function">log</span>(config.apiUrl);
+
+<span class="comment">// Import CSS modules</span>
+<span class="keyword">import</span> styles <span class="keyword">from</span> <span class="string">'./styles.css'</span> <span class="keyword">assert</span> { type: <span class="string">'css'</span> };</code>
+                </div>
+                
+                <h3>9.3 Import Meta</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// import.meta provides metadata about module</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="keyword">import</span>.meta.url);  <span class="comment">// Module's URL</span>
+
+<span class="comment">// Check if module is main entry point</span>
+<span class="keyword">if</span> (<span class="keyword">import</span>.meta.url === <span class="keyword">new</span> <span class="function">URL</span>(document.location).href) {
+    <span class="comment">// This is the entry module</span>
+}
+
+<span class="comment">// Load resources relative to module</span>
+<span class="keyword">const</span> iconUrl = <span class="keyword">new</span> <span class="function">URL</span>(<span class="string">'./icon.png'</span>, <span class="keyword">import</span>.meta.url);
+<span class="function">console</span>.<span class="function">log</span>(iconUrl.href);</code>
+                </div>
+                
+                <h3>9.4 Module Specifier Resolution</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Different ways to specify modules</span>
+
+<span class="comment">// 1. Relative path</span>
+<span class="keyword">import</span> { func } <span class="keyword">from</span> <span class="string">'./utils.js'</span>;
+<span class="keyword">import</span> { func } <span class="keyword">from</span> <span class="string">'../utils.js'</span>;
+
+<span class="comment">// 2. Absolute URL (browser)</span>
+<span class="keyword">import</span> { func } <span class="keyword">from</span> <span class="string">'https://cdn.example.com/module.js'</span>;
+
+<span class="comment">// 3. Bare specifier (requires import map or bundler)</span>
+<span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;  <span class="comment">// Resolved via node_modules</span>
+
+<span class="comment">// 4. Import maps (browser)</span>
+<span class="comment">&lt;script type="importmap"&gt;</span>
+{
+  <span class="string">"imports"</span>: {
+    <span class="string">"react"</span>: <span class="string">"https://esm.sh/react@18"</span>,
+    <span class="string">"utils/"</span>: <span class="string">"/js/utils/"</span>
+  }
+}
+<span class="comment">&lt;/script&gt;</span></code>
+                </div>
+            </div>
+
+            <!-- Section 10: Real-World Examples -->
+            <div class="section" id="real-world">
+                <h2>🌟 10. Real-World Module Organization</h2>
+                
+                <h3>10.1 React/Frontend App Structure</h3>
+                
+                <div class="file-structure">
+<code>src/
+├── components/
+│   ├── index.js                 <span class="comment">// Barrel: export all components</span>
+│   ├── Button/
+│   │   ├── Button.js
+│   │   ├── Button.css
+│   │   └── index.js             <span class="comment">// export { default } from './Button.js'</span>
+│   └── Card/
+│       ├── Card.js
+│       └── index.js
+├── hooks/
+│   ├── useAuth.js
+│   ├── useFetch.js
+│   └── index.js
+├── services/
+│   ├── api.js
+│   ├── auth.js
+│   └── storage.js
+├── utils/
+│   ├── string.js
+│   ├── array.js
+│   └── index.js
+├── constants/
+│   └── index.js
+└── App.js</code>
+                </div>
+                
+                <h3>10.2 Node.js/Backend Structure</h3>
+                
+                <div class="file-structure">
+<code>src/
+├── models/
+│   ├── User.js
+│   ├── Post.js
+│   └── index.js
+├── controllers/
+│   ├── userController.js
+│   ├── postController.js
+│   └── index.js
+├── services/
+│   ├── emailService.js
+│   ├── authService.js
+│   └── index.js
+├── middleware/
+│   ├── auth.js
+│   ├── validation.js
+│   └── errorHandler.js
+├── routes/
+│   ├── users.js
+│   ├── posts.js
+│   └── index.js
+├── utils/
+│   └── helpers.js
+├── config/
+│   └── index.js
+└── app.js</code>
+                </div>
+                
+                <h3>10.3 Complete Module Example</h3>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 models/User.js</span>
+<span class="comment">// Model with validation</span>
+<span class="keyword">export</span> <span class="keyword">class</span> <span class="function">User</span> {
+    #id;
+    
+    <span class="function">constructor</span>(name, email) {
+        <span class="keyword">this</span>.#id = <span class="function">crypto</span>.<span class="function">randomUUID</span>();
+        <span class="keyword">this</span>.name = name;
+        <span class="keyword">this</span>.email = email;
+    }
+    
+    <span class="keyword">get</span> <span class="function">id</span>() {
+        <span class="keyword">return</span> <span class="keyword">this</span>.#id;
+    }
+    
+    <span class="keyword">static</span> <span class="function">validate</span>(userData) {
+        <span class="keyword">if</span> (!userData.name) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="function">Error</span>(<span class="string">'Name required'</span>);
+        <span class="keyword">if</span> (!userData.email) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="function">Error</span>(<span class="string">'Email required'</span>);
+        <span class="keyword">return</span> <span class="keyword">true</span>;
+    }
+}
+
+<span class="keyword">export</span> <span class="keyword">const</span> USER_ROLES = {
+    ADMIN: <span class="string">'admin'</span>,
+    USER: <span class="string">'user'</span>,
+    GUEST: <span class="string">'guest'</span>
+};</code>
+                </div>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 services/userService.js</span>
+<span class="keyword">import</span> { User, USER_ROLES } <span class="keyword">from</span> <span class="string">'../models/User.js'</span>;
+<span class="keyword">import</span> api <span class="keyword">from</span> <span class="string">'./api.js'</span>;
+
+<span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="function">createUser</span>(userData) {
+    User.<span class="function">validate</span>(userData);
+    <span class="keyword">const</span> user = <span class="keyword">new</span> <span class="function">User</span>(userData.name, userData.email);
+    <span class="keyword">return</span> <span class="keyword">await</span> api.<span class="function">post</span>(<span class="string">'/users'</span>, user);
+}
+
+<span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="function">getUser</span>(id) {
+    <span class="keyword">return</span> <span class="keyword">await</span> api.<span class="function">get</span>(<span class="string">`/users/${id}`</span>);
+}
+
+<span class="keyword">export</span> { USER_ROLES };</code>
+                </div>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 app.js</span>
+<span class="keyword">import</span> { createUser, getUser, USER_ROLES } <span class="keyword">from</span> <span class="string">'./services/userService.js'</span>;
+
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">main</span>() {
+    <span class="keyword">try</span> {
+        <span class="keyword">const</span> user = <span class="keyword">await</span> <span class="function">createUser</span>({
+            name: <span class="string">"Alice"</span>,
+            email: <span class="string">"alice@example.com"</span>
+        });
+        
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">"User created:"</span>, user);
+    } <span class="keyword">catch</span> (error) {
+        <span class="function">console</span>.<span class="function">error</span>(<span class="string">"Error:"</span>, error);
+    }
+}
+
+<span class="function">main</span>();</code>
+                </div>
+            </div>
+
+            <!-- Section 9: Module Best Practices -->
+            <div class="section" id="best-practices">
+                <h2>✨ 9. Module Best Practices</h2>
+                
+                <h3>9.1 Single Responsibility</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// ❌ BAD: Module doing too much</span>
+<span class="file-label">📄 everything.js</span>
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">formatDate</span>() {}
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">validateEmail</span>() {}
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">fetchUsers</span>() {}
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">renderComponent</span>() {}
+
+<span class="comment">// ✅ GOOD: Focused modules</span>
+<span class="file-label">📄 utils/date.js</span>
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">formatDate</span>() {}
+
+<span class="file-label">📄 utils/validation.js</span>
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">validateEmail</span>() {}
+
+<span class="file-label">📄 services/api.js</span>
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">fetchUsers</span>() {}
+
+<span class="file-label">📄 components/Component.js</span>
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">renderComponent</span>() {}</code>
+                </div>
+                
+                <h3>9.2 Avoid Deep Nesting</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// ❌ BAD: Deep import paths</span>
+<span class="keyword">import</span> { Button } <span class="keyword">from</span> <span class="string">'../../../components/ui/buttons/Button.js'</span>;
+
+<span class="comment">// ✅ GOOD: Use barrel files</span>
+<span class="keyword">import</span> { Button } <span class="keyword">from</span> <span class="string">'@/components'</span>;  <span class="comment">// With path alias</span>
+
+<span class="comment">// ✅ GOOD: Use index.js</span>
+<span class="keyword">import</span> { Button } <span class="keyword">from</span> <span class="string">'./components'</span>;  <span class="comment">// Resolves to ./components/index.js</span></code>
+                </div>
+                
+                <h3>9.3 Consistent Export Style</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// ✅ GOOD: Consistent pattern across project</span>
+
+<span class="comment">// Pattern 1: Named exports for utilities</span>
+<span class="file-label">📄 utils/math.js</span>
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">add</span>() {}
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">subtract</span>() {}
+
+<span class="comment">// Pattern 2: Default exports for classes/components</span>
+<span class="file-label">📄 components/Button.js</span>
+<span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="function">Button</span> {}
+
+<span class="comment">// Pattern 3: Both for libraries</span>
+<span class="file-label">📄 lib/myLib.js</span>
+<span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="function">MyLib</span> {}
+<span class="keyword">export</span> <span class="keyword">const</span> VERSION = <span class="string">"1.0.0"</span>;
+<span class="keyword">export</span> <span class="keyword">const</span> utils = {};</code>
+                </div>
+                
+                <h3>9.4 Documentation</h3>
+                
+                <div class="code-block">
+<code><span class="file-label">📄 services/api.js</span>
+<span class="comment">/**
+ * API Service
+ * Handles all HTTP requests to the backend
+ * @module services/api
+ */</span>
+
+<span class="comment">/**
+ * Fetch user by ID
+ * @param {number} id - User ID
+ * @returns {Promise&lt;User&gt;} User object
+ * @throws {NotFoundError} If user doesn't exist
+ */</span>
+<span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="function">getUser</span>(id) {
+    <span class="comment">// Implementation</span>
+}</code>
+                </div>
+            </div>
+
+            <!-- Section 10: Summary -->
+            <div class="section" id="summary">
+                <h2>📝 Chapter Summary & Interview Questions</h2>
+                
+                <h3>Key Takeaways:</h3>
+                <ol>
+                    <li><strong>Modules</strong> organize code into reusable, encapsulated units</li>
+                    <li><strong>ES6 Modules</strong> use import/export (modern standard)</li>
+                    <li><strong>Named exports</strong> - multiple per module, import with exact name</li>
+                    <li><strong>Default export</strong> - one per module, import with any name</li>
+                    <li><strong>Dynamic imports</strong> - load modules on-demand with import()</li>
+                    <li><strong>CommonJS</strong> - Node.js legacy (require/module.exports)</li>
+                    <li><strong>Module scope</strong> - each module has private scope</li>
+                    <li><strong>Modules are cached</strong> - executed once, reused everywhere</li>
+                    <li><strong>Barrel files</strong> - index.js re-exports for clean imports</li>
+                    <li><strong>Tree shaking</strong> - ESM enables dead code elimination</li>
+                </ol>
+                
+                <h3>Common Interview Questions:</h3>
+                <div class="visual-box">
+                    <ol>
+                        <li><strong>Q:</strong> What's the difference between named and default exports?<br>
+                            <strong>A:</strong> Named exports can have multiple per module and must be imported with exact name in {}. Default export is one per module and can be imported with any name without {}.</li>
+                        
+                        <li><strong>Q:</strong> Difference between ES6 modules and CommonJS?<br>
+                            <strong>A:</strong> ES6 uses import/export (static, tree-shakeable, browser-native). CommonJS uses require/module.exports (dynamic, runtime, Node.js legacy).</li>
+                        
+                        <li><strong>Q:</strong> What are dynamic imports?<br>
+                            <strong>A:</strong> import() function that returns a promise, allowing modules to be loaded at runtime. Enables code splitting and lazy loading.</li>
+                        
+                        <li><strong>Q:</strong> Can you import the same module multiple times?<br>
+                            <strong>A:</strong> Yes, but the module executes only once. JavaScript caches the module and returns the same instance on subsequent imports.</li>
+                        
+                        <li><strong>Q:</strong> What's tree shaking?<br>
+                            <strong>A:</strong> Build process that removes unused exported code from final bundle. Only works with ES6 modules (static analysis).</li>
+                        
+                        <li><strong>Q:</strong> Can you use await at the top level in modules?<br>
+                            <strong>A:</strong> Yes, with ES6 modules (top-level await). Not in CommonJS or regular scripts.</li>
+                        
+                        <li><strong>Q:</strong> What's a barrel file?<br>
+                            <strong>A:</strong> index.js that re-exports from multiple modules, providing a single import point for a folder.</li>
+                        
+                        <li><strong>Q:</strong> How do circular dependencies work?<br>
+                            <strong>A:</strong> ES6 modules handle them via hoisting, but they should be avoided. Restructure to eliminate cycles.</li>
+                        
+                        <li><strong>Q:</strong> What's module.exports vs exports?<br>
+                            <strong>A:</strong> module.exports is the actual exported object. exports is a shorthand reference. Assigning to module.exports breaks the reference.</li>
+                        
+                        <li><strong>Q:</strong> When to use default vs named exports?<br>
+                            <strong>A:</strong> Default for main export (classes, main function). Named for multiple utilities or when you want explicit import names.</li>
+                    </ol>
+                </div>
+                
+                <h3>Module Patterns Cheatsheet:</h3>
+                <div class="visual-box">
+                    <h4>Common Export Patterns</h4>
+                    <div class="code-block">
+<code><span class="comment">// 1. Named exports (utilities)</span>
+<span class="keyword">export</span> <span class="keyword">const</span> config = {};
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">helper</span>() {}
+
+<span class="comment">// 2. Default export (main class)</span>
+<span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="function">Main</span> {}
+
+<span class="comment">// 3. Both (library pattern)</span>
+<span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="function">Library</span> {}
+<span class="keyword">export</span> <span class="keyword">const</span> VERSION = <span class="string">"1.0"</span>;
+
+<span class="comment">// 4. Aggregate exports (barrel)</span>
+<span class="keyword">export</span> * <span class="keyword">from</span> <span class="string">'./module1.js'</span>;
+<span class="keyword">export</span> { specific } <span class="keyword">from</span> <span class="string">'./module2.js'</span>;</code>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">Common Import Patterns</h4>
+                    <div class="code-block">
+<code><span class="comment">// 1. Named imports</span>
+<span class="keyword">import</span> { func1, func2 } <span class="keyword">from</span> <span class="string">'./module.js'</span>;
+
+<span class="comment">// 2. Default import</span>
+<span class="keyword">import</span> MyClass <span class="keyword">from</span> <span class="string">'./MyClass.js'</span>;
+
+<span class="comment">// 3. Namespace import</span>
+<span class="keyword">import</span> * <span class="keyword">as</span> utils <span class="keyword">from</span> <span class="string">'./utils.js'</span>;
+
+<span class="comment">// 4. Rename import</span>
+<span class="keyword">import</span> { longName <span class="keyword">as</span> short } <span class="keyword">from</span> <span class="string">'./module.js'</span>;
+
+<span class="comment">// 5. Dynamic import</span>
+<span class="keyword">const</span> module = <span class="keyword">await</span> <span class="keyword">import</span>(<span class="string">'./module.js'</span>);</code>
+                    </div>
+                </div>
+                
+                <div class="success">
+                    <strong>💪 Practice Exercises:</strong>
+                    <ol>
+                        <li>Create a math.js module with named exports (add, subtract, multiply, divide)</li>
+                        <li>Build a User class as default export with named constant exports</li>
+                        <li>Set up barrel file pattern for a components folder</li>
+                        <li>Convert CommonJS module to ES6 module syntax</li>
+                        <li>Implement dynamic import with loading state</li>
+                        <li>Create API service module with singleton pattern</li>
+                        <li>Build utility modules organized by category (string, array, date)</li>
+                        <li>Set up configuration module with environment variables</li>
+                        <li>Create re-export pattern for clean folder organization</li>
+                        <li>Implement code splitting with dynamic imports</li>
+                        <li>Build complete app structure with proper module organization</li>
+                        <li>Fix circular dependency by extracting shared code</li>
+                    </ol>
+                </div>
+                
+                <div class="tip">
+                    <strong>🎯 Module Organization Principles:</strong>
+                    <ul>
+                        <li><strong>Cohesion:</strong> Related code stays together</li>
+                        <li><strong>Coupling:</strong> Minimize dependencies between modules</li>
+                        <li><strong>Single Responsibility:</strong> One module, one purpose</li>
+                        <li><strong>Explicit Dependencies:</strong> Import what you use</li>
+                        <li><strong>Consistent Naming:</strong> Clear, descriptive file names</li>
+                        <li><strong>Flat Structure:</strong> Avoid deep nesting (use barrel files)</li>
+                        <li><strong>Public Interface:</strong> Export only what's needed</li>
+                        <li><strong>Documentation:</strong> Comment module purpose and exports</li>
+                    </ul>
+                </div>
+                
+                <div class="note">
+                    <strong>🎓 Real-World Impact:</strong> Modules are fundamental to modern JavaScript development! Every framework, library, and professional application uses modules. Understanding modules is essential for:
+                    <ul>
+                        <li>📱 React/Vue/Angular applications</li>
+                        <li>🌐 Node.js backend development</li>
+                        <li>📦 npm package development</li>
+                        <li>🏗️ Building scalable applications</li>
+                        <li>🤝 Team collaboration (clear interfaces)</li>
+                        <li>⚡ Performance optimization (code splitting)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // No interactive demos needed for this chapter as modules require
+        // separate files and build tooling that can't be demonstrated in a single HTML file
+        console.log('Chapter 12: Modules guide loaded!');
+    </script>
+</body>
+</html>

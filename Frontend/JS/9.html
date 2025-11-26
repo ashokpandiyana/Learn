@@ -975,13 +975,93 @@ rect.width = <span class="number">10</span>;
                 </div>
             </div>
 
-            <!-- Section 6: Private Fields -->
+            <!-- Section 6: Static Methods Advanced -->
+            <div class="section" id="static-advanced">
+                <h2>⚡ 6. Static Methods - Advanced Usage</h2>
+                
+                <h3>6.1 Static Methods in Inheritance</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">class</span> <span class="class-name">Animal</span> {
+    <span class="keyword">static</span> kingdom = <span class="string">"Animalia"</span>;
+    
+    <span class="keyword">static</span> <span class="function">getKingdom</span>() {
+        <span class="keyword">return</span> <span class="keyword">this</span>.kingdom;
+    }
+    
+    <span class="keyword">static</span> <span class="function">compareAnimals</span>(a, b) {
+        <span class="keyword">return</span> a.age - b.age;
+    }
+}
+
+<span class="keyword">class</span> <span class="class-name">Dog</span> <span class="keyword">extends</span> <span class="class-name">Animal</span> {
+    <span class="keyword">static</span> species = <span class="string">"Canis familiaris"</span>;
+    
+    <span class="keyword">static</span> <span class="function">getSpecies</span>() {
+        <span class="keyword">return</span> <span class="keyword">this</span>.species;
+    }
+}
+
+<span class="comment">// Static methods are inherited!</span>
+<span class="function">console</span>.<span class="function">log</span>(Dog.<span class="function">getKingdom</span>());  <span class="comment">// "Animalia" (inherited)</span>
+<span class="function">console</span>.<span class="function">log</span>(Dog.<span class="function">getSpecies</span>());  <span class="comment">// "Canis familiaris"</span>
+
+<span class="comment">// Use for utility functions</span>
+<span class="keyword">const</span> dog1 = <span class="keyword">new</span> <span class="class-name">Dog</span>(); dog1.age = <span class="number">3</span>;
+<span class="keyword">const</span> dog2 = <span class="keyword">new</span> <span class="class-name">Dog</span>(); dog2.age = <span class="number">5</span>;
+
+<span class="keyword">const</span> result = Dog.<span class="function">compareAnimals</span>(dog1, dog2);
+<span class="function">console</span>.<span class="function">log</span>(result);  <span class="comment">// -2 (dog1 is younger)</span></code>
+                </div>
+                
+                <h3>6.2 Factory Pattern with Static Methods</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">class</span> <span class="class-name">User</span> {
+    <span class="function">constructor</span>(name, email, role, verified) {
+        <span class="keyword">this</span>.name = name;
+        <span class="keyword">this</span>.email = email;
+        <span class="keyword">this</span>.role = role;
+        <span class="keyword">this</span>.verified = verified;
+    }
+    
+    <span class="comment">// Static factory methods</span>
+    <span class="keyword">static</span> <span class="function">createAdmin</span>(name, email) {
+        <span class="keyword">return</span> <span class="keyword">new</span> <span class="class-name">User</span>(name, email, <span class="string">"admin"</span>, <span class="keyword">true</span>);
+    }
+    
+    <span class="keyword">static</span> <span class="function">createGuest</span>() {
+        <span class="keyword">return</span> <span class="keyword">new</span> <span class="class-name">User</span>(<span class="string">"Guest"</span>, <span class="string">"guest@example.com"</span>, <span class="string">"guest"</span>, <span class="keyword">false</span>);
+    }
+    
+    <span class="keyword">static</span> <span class="function">createFromJSON</span>(json) {
+        <span class="keyword">const</span> data = <span class="function">JSON</span>.<span class="function">parse</span>(json);
+        <span class="keyword">return</span> <span class="keyword">new</span> <span class="class-name">User</span>(data.name, data.email, data.role, data.verified);
+    }
+}
+
+<span class="comment">// Clean, readable object creation</span>
+<span class="keyword">const</span> admin = User.<span class="function">createAdmin</span>(<span class="string">"Alice"</span>, <span class="string">"alice@admin.com"</span>);
+<span class="keyword">const</span> guest = User.<span class="function">createGuest</span>();
+
+<span class="function">console</span>.<span class="function">log</span>(admin.role);      <span class="comment">// "admin"</span>
+<span class="function">console</span>.<span class="function">log</span>(admin.verified);  <span class="comment">// true</span></code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Static Methods Demo</h4>
+                    <button onclick="demoStatic()">Test Static Methods</button>
+                    <div class="output" id="staticOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 7: Private Fields -->
             <div class="section" id="private-fields">
-                <h2>🔒 6. Private Fields and Methods</h2>
+                <h2>🔒 7. Private Fields and Methods</h2>
                 
                 <p>ES2022 introduced true private fields using the <code>#</code> prefix. They're truly private and cannot be accessed from outside the class.</p>
                 
-                <h3>6.1 Private Fields</h3>
+                <h3>7.1 Private Fields</h3>
                 
                 <div class="code-block">
 <code><span class="keyword">class</span> <span class="class-name">BankAccount</span> {
@@ -1101,21 +1181,404 @@ account.<span class="function">#verifyPin</span>(<span class="string">"1234"</sp
                 </table>
             </div>
 
-            <!-- Section 7: Summary -->
+            <!-- Section 8: Classes vs Constructor Functions -->
+            <div class="section" id="class-vs-constructor">
+                <h2>⚖️ 8. Classes vs Constructor Functions</h2>
+                
+                <h3>8.1 Side-by-Side Comparison</h3>
+                
+                <div class="grid-2">
+                    <div class="example-card">
+                        <h4>ES5 Constructor Function</h4>
+                        <div class="code-block">
+<code><span class="comment">// Constructor</span>
+<span class="keyword">function</span> <span class="function">Person</span>(name, age) {
+    <span class="keyword">this</span>.name = name;
+    <span class="keyword">this</span>.age = age;
+}
+
+<span class="comment">// Instance method</span>
+Person.prototype.greet = <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="string">`Hi, I'm ${<span class="keyword">this</span>.name}`</span>;
+};
+
+<span class="comment">// Static method</span>
+Person.species = <span class="string">"Homo sapiens"</span>;
+
+Person.create = <span class="keyword">function</span>(name) {
+    <span class="keyword">return</span> <span class="keyword">new</span> <span class="function">Person</span>(name, <span class="number">0</span>);
+};
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> p = <span class="keyword">new</span> <span class="function">Person</span>(<span class="string">"Alice"</span>, <span class="number">25</span>);</code>
+                        </div>
+                    </div>
+                    
+                    <div class="example-card">
+                        <h4>ES6 Class</h4>
+                        <div class="code-block">
+<code><span class="comment">// Class</span>
+<span class="keyword">class</span> <span class="class-name">Person</span> {
+    <span class="keyword">static</span> species = <span class="string">"Homo sapiens"</span>;
+    
+    <span class="function">constructor</span>(name, age) {
+        <span class="keyword">this</span>.name = name;
+        <span class="keyword">this</span>.age = age;
+    }
+    
+    <span class="comment">// Instance method</span>
+    <span class="function">greet</span>() {
+        <span class="keyword">return</span> <span class="string">`Hi, I'm ${<span class="keyword">this</span>.name}`</span>;
+    }
+    
+    <span class="comment">// Static method</span>
+    <span class="keyword">static</span> <span class="function">create</span>(name) {
+        <span class="keyword">return</span> <span class="keyword">new</span> <span class="class-name">Person</span>(name, <span class="number">0</span>);
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> p = <span class="keyword">new</span> <span class="class-name">Person</span>(<span class="string">"Alice"</span>, <span class="number">25</span>);</code>
+                        </div>
+                    </div>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Constructor Functions</th>
+                            <th>ES6 Classes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Syntax</strong></td>
+                            <td>function keyword</td>
+                            <td>class keyword</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hoisting</strong></td>
+                            <td>✅ Hoisted</td>
+                            <td>❌ Not hoisted</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Call without new</strong></td>
+                            <td>✅ Possible (dangerous)</td>
+                            <td>❌ TypeError</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Strict mode</strong></td>
+                            <td>Optional</td>
+                            <td>Always strict</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Method enumeration</strong></td>
+                            <td>Enumerable</td>
+                            <td>Non-enumerable</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Readability</strong></td>
+                            <td>Verbose</td>
+                            <td>Clean, concise</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Inheritance</strong></td>
+                            <td>Manual setup</td>
+                            <td>extends keyword</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Private fields</strong></td>
+                            <td>❌ Not supported</td>
+                            <td>✅ Supported (#)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="note">
+                    <strong>💡 Under the Hood:</strong> Classes are compiled to constructor functions. When you write a class, JavaScript transpiles it to the equivalent ES5 code. Classes are just syntactic sugar!
+                </div>
+            </div>
+
+            <!-- Section 9: Best Practices -->
+            <div class="section" id="best-practices">
+                <h2>✨ 9. Best Practices and Patterns</h2>
+                
+                <h3>9.1 Composition over Inheritance</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Prefer composition (combining behaviors) over deep inheritance</span>
+
+<span class="comment">// Instead of deep inheritance:</span>
+<span class="keyword">class</span> <span class="class-name">Animal</span> <span class="keyword">extends</span> <span class="class-name">LivingThing</span> {}
+<span class="keyword">class</span> <span class="class-name">Mammal</span> <span class="keyword">extends</span> <span class="class-name">Animal</span> {}
+<span class="keyword">class</span> <span class="class-name">Dog</span> <span class="keyword">extends</span> <span class="class-name">Mammal</span> {}  <span class="comment">// Deep hierarchy ❌</span>
+
+<span class="comment">// Use composition with mixins:</span>
+<span class="keyword">const</span> canEat = {
+    eat(food) {
+        <span class="keyword">return</span> <span class="string">`${<span class="keyword">this</span>.name} eats ${food}`</span>;
+    }
+};
+
+<span class="keyword">const</span> canWalk = {
+    walk() {
+        <span class="keyword">return</span> <span class="string">`${<span class="keyword">this</span>.name} walks`</span>;
+    }
+};
+
+<span class="keyword">const</span> canSwim = {
+    swim() {
+        <span class="keyword">return</span> <span class="string">`${<span class="keyword">this</span>.name} swims`</span>;
+    }
+};
+
+<span class="keyword">class</span> <span class="class-name">Dog</span> {
+    <span class="function">constructor</span>(name) {
+        <span class="keyword">this</span>.name = name;
+    }
+}
+
+<span class="comment">// Mix in behaviors</span>
+<span class="function">Object</span>.<span class="function">assign</span>(Dog.prototype, canEat, canWalk);
+
+<span class="keyword">const</span> dog = <span class="keyword">new</span> <span class="class-name">Dog</span>(<span class="string">"Buddy"</span>);
+<span class="function">console</span>.<span class="function">log</span>(dog.<span class="function">eat</span>(<span class="string">"kibble"</span>));  <span class="comment">// "Buddy eats kibble"</span>
+<span class="function">console</span>.<span class="function">log</span>(dog.<span class="function">walk</span>());          <span class="comment">// "Buddy walks"</span></code>
+                </div>
+                
+                <h3>9.2 Naming Conventions</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Class names: PascalCase</span>
+<span class="keyword">class</span> <span class="class-name">UserAccount</span> {}
+<span class="keyword">class</span> <span class="class-name">ShoppingCart</span> {}
+
+<span class="comment">// Method names: camelCase</span>
+<span class="keyword">class</span> <span class="class-name">Person</span> {
+    <span class="function">getUserInfo</span>() {}
+    <span class="function">calculateAge</span>() {}
+}
+
+<span class="comment">// Private fields: # prefix</span>
+<span class="keyword">class</span> <span class="class-name">Account</span> {
+    #balance;
+    #transactions;
+}
+
+<span class="comment">// Constants: UPPER_CASE</span>
+<span class="keyword">class</span> <span class="class-name">Config</span> {
+    <span class="keyword">static</span> MAX_USERS = <span class="number">1000</span>;
+    <span class="keyword">static</span> DEFAULT_TIMEOUT = <span class="number">5000</span>;
+}</code>
+                </div>
+                
+                <h3>9.3 Single Responsibility Principle</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// ❌ BAD: Class doing too much</span>
+<span class="keyword">class</span> <span class="class-name">User</span> {
+    <span class="function">login</span>() {}
+    <span class="function">logout</span>() {}
+    <span class="function">validateEmail</span>() {}
+    <span class="function">sendEmail</span>() {}
+    <span class="function">saveToDatabase</span>() {}
+    <span class="function">generateReport</span>() {}
+}
+
+<span class="comment">// ✅ GOOD: Separate concerns</span>
+<span class="keyword">class</span> <span class="class-name">User</span> {
+    <span class="function">constructor</span>(email) {
+        <span class="keyword">this</span>.email = email;
+    }
+}
+
+<span class="keyword">class</span> <span class="class-name">UserValidator</span> {
+    <span class="keyword">static</span> <span class="function">validateEmail</span>(email) {}
+}
+
+<span class="keyword">class</span> <span class="class-name">UserRepository</span> {
+    <span class="function">save</span>(user) {}
+    <span class="function">findById</span>(id) {}
+}
+
+<span class="keyword">class</span> <span class="class-name">EmailService</span> {
+    <span class="function">send</span>(to, subject, body) {}
+}</code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Complete Class Example</h4>
+                    <button onclick="demoCompleteClass()">Run Complete Demo</button>
+                    <div class="output" id="completeClassOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 10: Advanced Class Features -->
+            <div class="section" id="advanced">
+                <h2>🚀 10. Advanced Class Features</h2>
+                
+                <h3>10.1 Computed Method Names</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Dynamic method names using []</span>
+<span class="keyword">const</span> methodName = <span class="string">"greet"</span>;
+<span class="keyword">const</span> prefix = <span class="string">"get"</span>;
+
+<span class="keyword">class</span> <span class="class-name">Person</span> {
+    <span class="function">constructor</span>(name) {
+        <span class="keyword">this</span>.name = name;
+    }
+    
+    <span class="comment">// Computed method name</span>
+    [methodName]() {
+        <span class="keyword">return</span> <span class="string">`Hello, I'm ${<span class="keyword">this</span>.name}`</span>;
+    }
+    
+    [prefix + <span class="string">"Name"</span>]() {
+        <span class="keyword">return</span> <span class="keyword">this</span>.name;
+    }
+}
+
+<span class="keyword">const</span> person = <span class="keyword">new</span> <span class="class-name">Person</span>(<span class="string">"Alice"</span>);
+<span class="function">console</span>.<span class="function">log</span>(person.<span class="function">greet</span>());    <span class="comment">// "Hello, I'm Alice"</span>
+<span class="function">console</span>.<span class="function">log</span>(person.<span class="function">getName</span>());  <span class="comment">// "Alice"</span></code>
+                </div>
+                
+                <h3>10.2 Class Fields (Public)</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Public class fields (ES2022)</span>
+<span class="keyword">class</span> <span class="class-name">Counter</span> {
+    <span class="comment">// Public field (without constructor)</span>
+    count = <span class="number">0</span>;
+    
+    <span class="comment">// Can be initialized with expression</span>
+    id = <span class="function">Math</span>.<span class="function">random</span>();
+    
+    <span class="function">increment</span>() {
+        <span class="keyword">this</span>.count++;
+    }
+}
+
+<span class="keyword">const</span> counter = <span class="keyword">new</span> <span class="class-name">Counter</span>();
+<span class="function">console</span>.<span class="function">log</span>(counter.count);  <span class="comment">// 0</span>
+counter.<span class="function">increment</span>();
+<span class="function">console</span>.<span class="function">log</span>(counter.count);  <span class="comment">// 1</span></code>
+                </div>
+                
+                <h3>10.3 Instance Methods vs Arrow Functions as Properties</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">class</span> <span class="class-name">Component</span> {
+    <span class="function">constructor</span>() {
+        <span class="keyword">this</span>.data = <span class="string">"important"</span>;
+    }
+    
+    <span class="comment">// Regular method (on prototype, shared)</span>
+    <span class="function">regularMethod</span>() {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="keyword">this</span>.data);
+    }
+    
+    <span class="comment">// Arrow function as property (on instance, not shared)</span>
+    arrowMethod = () => {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="keyword">this</span>.data);
+    }
+}
+
+<span class="keyword">const</span> comp1 = <span class="keyword">new</span> <span class="class-name">Component</span>();
+<span class="keyword">const</span> comp2 = <span class="keyword">new</span> <span class="class-name">Component</span>();
+
+<span class="comment">// Regular methods are shared</span>
+<span class="function">console</span>.<span class="function">log</span>(comp1.regularMethod === comp2.regularMethod);  <span class="comment">// true</span>
+
+<span class="comment">// Arrow functions are per-instance</span>
+<span class="function">console</span>.<span class="function">log</span>(comp1.arrowMethod === comp2.arrowMethod);  <span class="comment">// false</span></code>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 When to use Arrow Functions as Properties:</strong>
+                    <ul>
+                        <li>Event handlers (automatically binds <code>this</code>)</li>
+                        <li>Callbacks that need access to instance</li>
+                        <li>React component methods</li>
+                    </ul>
+                    <strong>Trade-off:</strong> Uses more memory (not shared) but avoids binding issues.
+                </div>
+                
+                <h3>10.4 Extending Built-in Classes</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Extend Array to create custom collection</span>
+<span class="keyword">class</span> <span class="class-name">MyArray</span> <span class="keyword">extends</span> <span class="class-name">Array</span> {
+    <span class="comment">// Add custom methods</span>
+    <span class="function">first</span>() {
+        <span class="keyword">return</span> <span class="keyword">this</span>[<span class="number">0</span>];
+    }
+    
+    <span class="function">last</span>() {
+        <span class="keyword">return</span> <span class="keyword">this</span>[<span class="keyword">this</span>.length - <span class="number">1</span>];
+    }
+    
+    <span class="function">sum</span>() {
+        <span class="keyword">return</span> <span class="keyword">this</span>.<span class="function">reduce</span>((a, b) => a + b, <span class="number">0</span>);
+    }
+}
+
+<span class="keyword">const</span> arr = <span class="keyword">new</span> <span class="class-name">MyArray</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>);
+<span class="function">console</span>.<span class="function">log</span>(arr.<span class="function">first</span>());  <span class="comment">// 1</span>
+<span class="function">console</span>.<span class="function">log</span>(arr.<span class="function">last</span>());   <span class="comment">// 5</span>
+<span class="function">console</span>.<span class="function">log</span>(arr.<span class="function">sum</span>());    <span class="comment">// 15</span>
+
+<span class="comment">// Still has all Array methods</span>
+arr.<span class="function">push</span>(<span class="number">6</span>);
+<span class="function">console</span>.<span class="function">log</span>(arr.length);  <span class="comment">// 6</span>
+
+<span class="comment">// Custom Error class</span>
+<span class="keyword">class</span> <span class="class-name">ValidationError</span> <span class="keyword">extends</span> <span class="class-name">Error</span> {
+    <span class="function">constructor</span>(message) {
+        <span class="keyword">super</span>(message);
+        <span class="keyword">this</span>.name = <span class="string">"ValidationError"</span>;
+    }
+}
+
+<span class="keyword">throw</span> <span class="keyword">new</span> <span class="class-name">ValidationError</span>(<span class="string">"Invalid input"</span>);
+<span class="comment">// ValidationError: Invalid input</span></code>
+                </div>
+            </div>
+
+            <!-- Section 11: Summary -->
             <div class="section" id="summary">
                 <h2>📝 Chapter Summary & Interview Questions</h2>
                 
                 <h3>Key Takeaways:</h3>
                 <ol>
                     <li><strong>ES6 Classes</strong> are syntactic sugar over prototypes</li>
-                    <li><strong>Constructor</strong> initializes new instances</li>
+                    <li><strong>Constructor</strong> initializes new instances (only one per class)</li>
                     <li><strong>Methods</strong> are automatically added to prototype (shared)</li>
-                    <li><strong>Getters/Setters</strong> provide controlled property access</li>
-                    <li><strong>Static members</strong> belong to class, not instances</li>
-                    <li><strong>extends</strong> creates inheritance relationship</li>
-                    <li><strong>super()</strong> must be called before using <code>this</code> in child</li>
-                    <li><strong># private fields</strong> are truly private (ES2022)</li>
+                    <li><strong>Getters/Setters</strong> provide controlled property access with validation</li>
+                    <li><strong>Static members</strong> belong to class, called on class not instances</li>
+                    <li><strong>extends</strong> creates clean inheritance (vs manual prototype setup)</li>
+                    <li><strong>super()</strong> must be called before using <code>this</code> in child constructor</li>
+                    <li><strong># private fields</strong> are truly private and enforced (ES2022)</li>
+                    <li><strong>Classes must use new</strong> - can't be called as regular functions</li>
+                    <li><strong>Not hoisted</strong> - declare before use</li>
                 </ol>
+                
+                <h3>ES5 vs ES6 Quick Comparison:</h3>
+                <div class="visual-box">
+                    <strong>Creating an object with methods:</strong><br><br>
+                    <strong>ES5:</strong> function + prototype + manual setup (10+ lines)<br>
+                    <strong>ES6:</strong> class + clean syntax (5 lines)<br><br>
+                    
+                    <strong>Inheritance:</strong><br>
+                    <strong>ES5:</strong> Object.create + call + constructor fix (complex)<br>
+                    <strong>ES6:</strong> extends + super (simple)<br><br>
+                    
+                    <strong>Privacy:</strong><br>
+                    <strong>ES5:</strong> Closures or _ convention (not enforced)<br>
+                    <strong>ES6:</strong> # private fields (enforced)
+                </div>
                 
                 <h3>Class Pattern Template:</h3>
                 <div class="code-block">
@@ -1162,40 +1625,62 @@ account.<span class="function">#verifyPin</span>(<span class="string">"1234"</sp
                 <div class="visual-box">
                     <ol>
                         <li><strong>Q:</strong> Are ES6 classes different from prototypes?<br>
-                            <strong>A:</strong> No, they're syntactic sugar. Classes are converted to constructor functions and prototypes under the hood.</li>
+                            <strong>A:</strong> No, they're syntactic sugar. Classes are converted to constructor functions and prototypes under the hood. JavaScript still uses prototypal inheritance.</li>
                         
                         <li><strong>Q:</strong> What's the difference between static and instance methods?<br>
-                            <strong>A:</strong> Static methods belong to the class itself and are called on the class. Instance methods belong to instances and are called on objects.</li>
+                            <strong>A:</strong> Static methods belong to the class itself and are called on the class (ClassName.method()). Instance methods belong to instances and are called on objects (obj.method()).</li>
                         
                         <li><strong>Q:</strong> Why must super() be called before using this?<br>
-                            <strong>A:</strong> The parent constructor needs to initialize the object first. Child constructor builds on top of parent initialization.</li>
+                            <strong>A:</strong> The parent constructor needs to initialize the object first. In JavaScript, the parent creates the instance, and the child constructor extends it. You can't use <code>this</code> until the parent has set up the object.</li>
                         
                         <li><strong>Q:</strong> What's the difference between getters/setters and regular methods?<br>
-                            <strong>A:</strong> Getters/setters are accessed like properties (no parentheses), enabling validation and computed properties.</li>
+                            <strong>A:</strong> Getters/setters are accessed like properties (no parentheses): <code>obj.prop</code> vs <code>obj.method()</code>. They enable validation, computed properties, and controlled access.</li>
                         
                         <li><strong>Q:</strong> How do private fields (#) differ from _ convention?<br>
-                            <strong>A:</strong> # creates truly private fields (enforced by JavaScript). _ is just naming convention with no enforcement.</li>
+                            <strong>A:</strong> # creates truly private fields enforced by JavaScript (SyntaxError if accessed outside). _ is just a naming convention with no enforcement - still accessible.</li>
                         
                         <li><strong>Q:</strong> Can you call a class without new?<br>
-                            <strong>A:</strong> No, classes must be called with new, or they throw a TypeError.</li>
+                            <strong>A:</strong> No, classes must be called with new, or they throw a TypeError. This prevents accidental global pollution that was possible with constructor functions.</li>
                         
                         <li><strong>Q:</strong> What happens if you don't define a constructor?<br>
-                            <strong>A:</strong> JavaScript provides a default empty constructor. For child classes, default constructor calls super().</li>
+                            <strong>A:</strong> JavaScript provides a default empty constructor. For child classes, the default constructor automatically calls <code>super()</code> with all arguments.</li>
+                        
+                        <li><strong>Q:</strong> Can static methods access instance properties?<br>
+                            <strong>A:</strong> No, static methods can't access instance properties/methods directly because they're called on the class, not on instances. They don't have access to <code>this</code> referring to an instance.</li>
+                        
+                        <li><strong>Q:</strong> What's method chaining and how do you implement it?<br>
+                            <strong>A:</strong> Method chaining allows calling multiple methods in sequence: <code>obj.method1().method2()</code>. Implement by returning <code>this</code> from each method.</li>
+                        
+                        <li><strong>Q:</strong> Why use composition over inheritance?<br>
+                            <strong>A:</strong> Deep inheritance hierarchies become rigid and hard to maintain. Composition (mixing in behaviors) is more flexible and avoids the fragile base class problem.</li>
                     </ol>
                 </div>
                 
                 <div class="success">
                     <strong>💪 Practice Exercises:</strong>
                     <ol>
-                        <li>Create a class with constructor and methods</li>
-                        <li>Implement getters and setters with validation</li>
-                        <li>Create a child class that extends a parent</li>
-                        <li>Use super() to call parent methods</li>
-                        <li>Add static factory methods to a class</li>
-                        <li>Implement private fields for data encapsulation</li>
-                        <li>Build a multi-level inheritance hierarchy</li>
-                        <li>Create a class that uses all features (constructor, methods, getters, setters, static, private)</li>
+                        <li>Create a <code>Book</code> class with title, author, pages, and a read() method</li>
+                        <li>Add getters/setters to validate page number is positive</li>
+                        <li>Create <code>EBook</code> class that extends <code>Book</code> with fileSize property</li>
+                        <li>Override read() method in EBook to include "Reading digitally..."</li>
+                        <li>Add static method <code>Book.compare(book1, book2)</code> to compare pages</li>
+                        <li>Implement private field <code>#currentPage</code> with getter/setter</li>
+                        <li>Create factory methods: <code>Book.createNovel()</code>, <code>Book.createTextbook()</code></li>
+                        <li>Build a complete banking system with Account, SavingsAccount, CheckingAccount</li>
+                        <li>Convert an ES5 constructor function to ES6 class</li>
+                        <li>Implement a mixin pattern to add reusable behaviors</li>
                     </ol>
+                </div>
+                
+                <div class="note">
+                    <strong>🎯 Real-World Applications:</strong>
+                    <ul>
+                        <li><strong>React Components:</strong> class extends React.Component</li>
+                        <li><strong>Custom Error Classes:</strong> class extends Error</li>
+                        <li><strong>Data Models:</strong> User, Product, Order classes</li>
+                        <li><strong>Game Development:</strong> Player, Enemy, Item classes</li>
+                        <li><strong>API Clients:</strong> HTTPClient, AuthService classes</li>
+                    </ul>
                 </div>
                 
                 <div class="tip">
@@ -1207,6 +1692,23 @@ account.<span class="function">#verifyPin</span>(<span class="string">"1234"</sp
                         <li>When you need private state</li>
                         <li>Framework/library development (React components, etc.)</li>
                     </ul>
+                </div>
+                
+                <div class="tip">
+                    <strong>🎯 Mastery Checklist:</strong> You've mastered ES6 Classes when you can:
+                    <ul>
+                        <li>✓ Explain how classes relate to prototypes</li>
+                        <li>✓ Create classes with all features (constructor, methods, getters, setters, static, private)</li>
+                        <li>✓ Build inheritance hierarchies with extends and super</li>
+                        <li>✓ Explain when to use static vs instance methods</li>
+                        <li>✓ Implement true data privacy with # fields</li>
+                        <li>✓ Convert between ES5 and ES6 syntax</li>
+                        <li>✓ Know when to use composition over inheritance</li>
+                    </ul>
+                </div>
+                
+                <div class="warning">
+                    <strong>🔥 Next Chapter Preview:</strong> Chapter 10 covers <strong>Asynchronous JavaScript</strong> (Callbacks, Promises, Async/Await) - arguably the most important topic for modern JavaScript development. Make sure you're comfortable with classes before moving on!
                 </div>
             </div>
         </div>
@@ -1333,6 +1835,163 @@ account.<span class="function">#verifyPin</span>(<span class="string">"1234"</sp
             result += `   dog instanceof Dog: ${dog instanceof Dog}\n`;
             result += `   dog instanceof Animal: ${dog instanceof Animal}\n`;
             result += `   dog instanceof Object: ${dog instanceof Object}`;
+            
+            output.textContent = result;
+        }
+        function demoStatic() {
+            const output = document.getElementById('staticOutput');
+            
+            class User {
+                static userCount = 0;
+                static users = [];
+                
+                constructor(name, email) {
+                    this.name = name;
+                    this.email = email;
+                    this.id = ++User.userCount;
+                    User.users.push(this);
+                }
+                
+                static findByName(name) {
+                    return User.users.find(u => u.name === name);
+                }
+                
+                static getAllUsers() {
+                    return User.users.map(u => u.name);
+                }
+                
+                static createAdmin(name) {
+                    const user = new User(name, `${name}@admin.com`);
+                    user.role = 'admin';
+                    return user;
+                }
+            }
+            
+            let result = '=== Static Methods Demo ===\n\n';
+            
+            result += '1. Creating users:\n';
+            const user1 = new User('Alice', 'alice@test.com');
+            const user2 = new User('Bob', 'bob@test.com');
+            const admin = User.createAdmin('Charlie');
+            
+            result += `   User 1: ${user1.name} (ID: ${user1.id})\n`;
+            result += `   User 2: ${user2.name} (ID: ${user2.id})\n`;
+            result += `   Admin: ${admin.name} (ID: ${admin.id}, Role: ${admin.role})\n\n`;
+            
+            result += '2. Static property:\n';
+            result += `   User.userCount = ${User.userCount}\n\n`;
+            
+            result += '3. Static method - getAllUsers():\n';
+            result += `   ${JSON.stringify(User.getAllUsers())}\n\n`;
+            
+            result += '4. Static method - findByName("Bob"):\n';
+            const found = User.findByName('Bob');
+            result += `   ${found ? found.name + ' (' + found.email + ')' : 'Not found'}\n\n`;
+            
+            result += 'Static members belong to CLASS, not instances!';
+            
+            output.textContent = result;
+        }
+        
+        function demoCompleteClass() {
+            const output = document.getElementById('completeClassOutput');
+            
+            class BankAccount {
+                // Private fields
+                #balance = 0;
+                #accountNumber;
+                #transactions = [];
+                
+                // Static property
+                static bankName = 'MyBank';
+                static accountCount = 0;
+                
+                constructor(accountNumber, initialDeposit) {
+                    this.#accountNumber = accountNumber;
+                    this.#balance = initialDeposit;
+                    BankAccount.accountCount++;
+                    this.#addTransaction('Initial Deposit', initialDeposit);
+                }
+                
+                // Getter
+                get balance() {
+                    return this.#balance;
+                }
+                
+                // Getter for read-only property
+                get accountNumber() {
+                    return this.#accountNumber;
+                }
+                
+                // Public methods
+                deposit(amount) {
+                    if (amount > 0) {
+                        this.#balance += amount;
+                        this.#addTransaction('Deposit', amount);
+                        return true;
+                    }
+                    return false;
+                }
+                
+                withdraw(amount) {
+                    if (amount > 0 && amount <= this.#balance) {
+                        this.#balance -= amount;
+                        this.#addTransaction('Withdrawal', amount);
+                        return true;
+                    }
+                    return false;
+                }
+                
+                getStatement() {
+                    return this.#transactions.slice();
+                }
+                
+                // Private method
+                #addTransaction(type, amount) {
+                    this.#transactions.push({
+                        type,
+                        amount,
+                        date: new Date().toLocaleDateString()
+                    });
+                }
+                
+                // Static method
+                static getTotalAccounts() {
+                    return BankAccount.accountCount;
+                }
+            }
+            
+            let result = '=== Complete Class Demo ===\n\n';
+            
+            const account = new BankAccount('ACC001', 1000);
+            
+            result += `Bank: ${BankAccount.bankName}\n\n`;
+            
+            result += '1. Initial State:\n';
+            result += `   Account: ${account.accountNumber}\n`;
+            result += `   Balance: ${account.balance}\n\n`;
+            
+            result += '2. Deposit $500:\n';
+            account.deposit(500);
+            result += `   New Balance: ${account.balance}\n\n`;
+            
+            result += '3. Withdraw $300:\n';
+            account.withdraw(300);
+            result += `   New Balance: ${account.balance}\n\n`;
+            
+            result += '4. Transaction History:\n';
+            account.getStatement().forEach((t, i) => {
+                result += `   ${i + 1}. ${t.type}: ${t.amount}\n`;
+            });
+            
+            result += `\n5. Total Accounts: ${BankAccount.getTotalAccounts()}\n\n`;
+            
+            result += 'Features used:\n';
+            result += '✓ Private fields (#balance, #accountNumber)\n';
+            result += '✓ Getters (balance, accountNumber)\n';
+            result += '✓ Public methods (deposit, withdraw)\n';
+            result += '✓ Private methods (#addTransaction)\n';
+            result += '✓ Static properties and methods';
             
             output.textContent = result;
         }

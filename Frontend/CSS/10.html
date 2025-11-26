@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 10: Animations - Interactive Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .section-title {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .demo-box {
+            border: 2px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f9f9f9;
+            margin-bottom: 20px;
+        }
+        
+        .demo-label {
+            font-size: 0.9rem;
+            color: #764ba2;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        /* Animation Stage */
+        .animation-stage {
+            background: #f0f0f0;
+            padding: 40px;
+            border-radius: 8px;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .animation-box {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+        
+        /* Keyframe Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        
+        @keyframes slideInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-30px);
+            }
+            60% {
+                transform: translateY(-15px);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes zoomIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes rubberBand {
+            0%, 100% { transform: scale(1); }
+            30% { transform: scaleX(1.25) scaleY(0.75); }
+            40% { transform: scaleX(0.75) scaleY(1.25); }
+            50% { transform: scaleX(1.15) scaleY(0.85); }
+            65% { transform: scaleX(0.95) scaleY(1.05); }
+            75% { transform: scaleX(1.05) scaleY(0.95); }
+        }
+        
+        @keyframes flip {
+            from {
+                transform: perspective(400px) rotateY(0);
+            }
+            to {
+                transform: perspective(400px) rotateY(360deg);
+            }
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            10%, 30% { transform: scale(0.9); }
+            20%, 40% { transform: scale(1.1); }
+        }
+        
+        /* Animation Demo Grid */
+        .animation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        
+        .animation-demo {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .animation-title {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .animation-content {
+            padding: 30px;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9f9f9;
+        }
+        
+        .trigger-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .trigger-button:hover {
+            background: #764ba2;
+        }
+        
+        /* Loading Animations */
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(102, 126, 234, 0.2);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .dots-loader {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: blink 1.4s infinite;
+        }
+        
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes blink {
+            0%, 60%, 100% { opacity: 0; }
+            30% { opacity: 1; }
+        }
+        
+        .pulse-loader {
+            width: 60px;
+            height: 60px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        /* Skeleton Loader */
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+        
+        .skeleton-box {
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(
+                90deg,
+                #f0f0f0 0px,
+                #e0e0e0 40px,
+                #f0f0f0 80px
+            );
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite linear;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        /* Direction Demo */
+        .direction-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .direction-box {
+            background: #e3f2fd;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .direction-item {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 8px;
+            margin: 0 auto;
+        }
+        
+        @keyframes slide {
+            from { transform: translateX(-50px); }
+            to { transform: translateX(50px); }
+        }
+        
+        .normal { animation: slide 2s linear infinite; }
+        .reverse { animation: slide 2s linear infinite reverse; }
+        .alternate { animation: slide 2s linear infinite alternate; }
+        .alternate-reverse { animation: slide 2s linear infinite alternate-reverse; }
+        
+        /* Code Output */
+        .code-output {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        
+        .property { color: #56b6c2; }
+        .value { color: #98c379; }
+        .comment { color: #5c6370; font-style: italic; }
+        .keyword { color: #c678dd; }
+        
+        .info-badge {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .highlight-box {
+            background: #fff3cd;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        /* Prevent animations on reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .section {
+                padding: 20px;
+            }
+            
+            .animation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 Chapter 10: Animations - Interactive Demonstrations</h1>
+        
+        <!-- Basic Animations -->
+        <div class="section">
+            <h2 class="section-title">1. Common Animation Types <span class="info-badge">Click to play!</span></h2>
+            
+            <div class="animation-grid">
+                <div class="animation-demo">
+                    <div class="animation-title">Fade In</div>
+                    <div class="animation-content">
+                        <div class="animation-box" id="fadeIn-box">Fade</div>
+                    </div>
+                    <button class="trigger-button" onclick="playAnimation('fadeIn-box', 'fadeIn 1s ease')">▶️ Play</button>
+                </div>
+                
+                <div class="animation-demo">
+                    <div class="animation-title">Slide In Left</div>
+                    <div class="animation-content">
+                        <div class="animation-box" id="slideLeft-box">Slide</div>
+                    </div>
+                    <button class="trigger-button" onclick="playAnimation('slideLeft-box', 'slideInLeft 0.7s ease')">▶️ Play</button>
+                </div>
+                
+                <div class="animation-demo">
+                    <div class="animation-title">Slide In Right</div>
+                    <div class="animation-content">
+                        <div class="animation-box" id="slideRight-box">Slide</div>
+                    </div>
+                    <button class="trigger-button" onclick="playAnimation('slideRight-box', 'slideInRight 0.7s ease')">▶️ Play</button>
+                </div>
+                
+                <div class="animation-demo">
+                    <div class="animation-title">Bounce</div>
+                    <div class="animation-content">
+                        <div class="animation-box" id="bounce-box">Bounce</div>
+                    </div>
+                    <button class="trigger-button" onclick="playAnimation('bounce-box', 'bounce 1s ease')">▶️ Play</button>
+                </div>
+                
+                <div class="animation-demo">
+                    <div class="animation-title">Pulse</div>
+                    <div class="animation-content">
+                        <div class="animation-box" id="pulse-box">Pulse</div>
+                    </div>
+                    <button class="trigger-button" onclick="playAnimation('pulse-box', 'pulse 1s ease')">▶️ Play</button>
+                </div>
+                
+                <div class="animation-demo">
+                    <div class="animation-title">Shake</div>
+                    <div class="animation-content">
+                        <div class="animation-box" id="shake-box">Shake</div>
+                    </div>
+                    <button class="trigger-button" onclick="playAnimation('shake-box', 'shake 0.5s ease')">▶️ Play</button>
+                </div>
+                
+                <div class="animation-demo">
+                    <div class="animation-title">Zoom In</div>
+                    <div class="animation-content">
+                        <div class="animation-box" id="zoom-box">Zoom</div>
+                    </div>
+                    <button class="trigger-button" onclick="playAnimation('zoom-box', 'zoomIn 0.5s ease')">▶️ Play</button>
+                </div>
+                
+                <div class="animation-demo">
+                    <div class="animation-title">Rubber Band</div>
+                    <div class="animation-content">
+                        <div class="animation-box" id="rubber-box">Rubber</div>
+                    </div>
+                    <button class="trigger-button" onclick="playAnimation('rubber-box', 'rubberBand 0.8s ease')">▶️ Play</button>
+                </div>
+                
+                <div class="animation-demo">
+                    <div class="animation-title">Flip</div>
+                    <div class="animation-content">
+                        <div class="animation-box" id="flip-box">Flip</div>
+                    </div>
+                    <button class="trigger-button" onclick="playAnimation('flip-box', 'flip 1s ease')">▶️ Play</button>
+                </div>
+                
+                <div class="animation-demo">
+                    <div class="animation-title">Heartbeat</div>
+                    <div class="animation-content">
+                        <div class="animation-box" id="heart-box">❤️</div>
+                    </div>
+                    <button class="trigger-button" onclick="playAnimation('heart-box', 'heartbeat 1.3s ease')">▶️ Play</button>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="playAllAnimations()" style="background: #2ecc71; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem;">
+                    ▶️ Play All Animations
+                </button>
+            </div>
+        </div>
+        
+        <!-- Loading Animations -->
+        <div class="section">
+            <h2 class="section-title">2. Loading Animations <span class="info-badge">Always running!</span></h2>
+            
+            <div class="animation-grid">
+                <div class="demo-box">
+                    <div class="demo-label">Spinner</div>
+                    <div class="animation-stage">
+                        <div class="spinner"></div>
+                    </div>
+                    <div class="code-output" style="font-size: 0.75rem;">
+<span class="keyword">@keyframes</span> spin {
+    <span class="value">to</span> { <span class="property">transform</span>: <span class="value">rotate(360deg)</span>; }
+}
+<span class="selector">.spinner</span> {
+    <span class="property">animation</span>: <span class="value">spin 1s linear infinite</span>;
+}
+                    </div>
+                </div>
+                
+                <div class="demo-box">
+                    <div class="demo-label">Dots</div>
+                    <div class="animation-stage">
+                        <div class="dots-loader">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                    </div>
+                    <div class="code-output" style="font-size: 0.75rem;">
+<span class="selector">.dot:nth-child(2)</span> {
+    <span class="property">animation-delay</span>: <span class="value">0.2s</span>;
+}
+                    </div>
+                </div>
+                
+                <div class="demo-box">
+                    <div class="demo-label">Pulse</div>
+                    <div class="animation-stage">
+                        <div class="pulse-loader"></div>
+                    </div>
+                    <div class="code-output" style="font-size: 0.75rem;">
+<span class="property">animation</span>: <span class="value">pulse 1.5s ease-in-out infinite</span>;
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Skeleton Loading -->
+        <div class="section">
+            <h2 class="section-title">3. Skeleton Screen (Shimmer Effect)</h2>
+            
+            <div class="demo-box">
+                <div class="demo-label">Shimmer loading placeholder</div>
+                <div style="padding: 20px; background: white; border-radius: 8px;">
+                    <div class="skeleton-box" style="width: 60%;"></div>
+                    <div class="skeleton-box" style="width: 100%;"></div>
+                    <div class="skeleton-box" style="width: 80%;"></div>
+                    <div class="skeleton-box" style="width: 90%;"></div>
+                </div>
+            </div>
+            
+            <div class="code-output">
+<span class="keyword">@keyframes</span> shimmer {
+    <span class="value">0%</span> { <span class="property">background-position</span>: <span class="value">-1000px 0</span>; }
+    <span class="value">100%</span> { <span class="property">background-position</span>: <span class="value">1000px 0</span>; }
+}
+
+<span class="selector">.skeleton</span> {
+    <span class="property">background</span>: <span class="value">linear-gradient(90deg, #f0f0f0, #e0e0e0, #f0f0f0)</span>;
+    <span class="property">animation</span>: <span class="value">shimmer 2s infinite linear</span>;
+}
+            </div>
+        </div>
+        
+        <!-- Animation Direction -->
+        <div class="section">
+            <h2 class="section-title">4. animation-direction</h2>
+            
+            <div class="direction-demo">
+                <div class="direction-box">
+                    <div class="demo-label">normal</div>
+                    <div class="direction-item normal"></div>
+                    <p style="font-size: 0.8rem; margin-top: 10px; color: #666;">→ → → (forward each time)</p>
+                </div>
+                
+                <div class="direction-box">
+                    <div class="demo-label">reverse</div>
+                    <div class="direction-item reverse"></div>
+                    <p style="font-size: 0.8rem; margin-top: 10px; color: #666;">← ← ← (backward each time)</p>
+                </div>
+                
+                <div class="direction-box">
+                    <div class="demo-label">alternate</div>
+                    <div class="direction-item alternate"></div>
+                    <p style="font-size: 0.8rem; margin-top: 10px; color: #666;">→ ← → (back & forth)</p>
+                </div>
+                
+                <div class="direction-box">
+                    <div class="demo-label">alternate-reverse</div>
+                    <div class="direction-item alternate-reverse"></div>
+                    <p style="font-size: 0.8rem; margin-top: 10px; color: #666;">← → ← (forth & back)</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Interactive Playground -->
+        <div class="section">
+            <h2 class="section-title">5. 🎮 Interactive Animation Playground</h2>
+            
+            <div style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 30px; border-radius: 12px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <label style="font-weight: bold; color: #764ba2; display: block; margin-bottom: 5px;">Animation Type</label>
+                        <select id="anim-type" style="width: 100%; padding: 8px; border: 2px solid #667eea; border-radius: 6px;">
+                            <option value="fadeIn">Fade In</option>
+                            <option value="slideInUp">Slide In Up</option>
+                            <option value="bounce">Bounce</option>
+                            <option value="pulse">Pulse</option>
+                            <option value="shake">Shake</option>
+                            <option value="spin">Spin</option>
+                            <option value="zoomIn">Zoom In</option>
+                            <option value="rubberBand">Rubber Band</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="font-weight: bold; color: #764ba2; display: block; margin-bottom: 5px;">Duration: <span id="dur-display">1s</span></label>
+                        <input type="range" id="anim-duration" min="0.1" max="3" step="0.1" value="1" style="width: 100%;">
+                    </div>
+                    
+                    <div>
+                        <label style="font-weight: bold; color: #764ba2; display: block; margin-bottom: 5px;">Timing Function</label>
+                        <select id="anim-timing" style="width: 100%; padding: 8px; border: 2px solid #667eea; border-radius: 6px;">
+                            <option value="linear">linear</option>
+                            <option value="ease">ease</option>
+                            <option value="ease-in">ease-in</option>
+                            <option value="ease-out">ease-out</option>
+                            <option value="ease-in-out">ease-in-out</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="font-weight: bold; color: #764ba2; display: block; margin-bottom: 5px;">Iteration Count</label>
+                        <select id="anim-iteration" style="width: 100%; padding: 8px; border: 2px solid #667eea; border-radius: 6px;">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="infinite">infinite</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="font-weight: bold; color: #764ba2; display: block; margin-bottom: 5px;">Direction</label>
+                        <select id="anim-direction" style="width: 100%; padding: 8px; border: 2px solid #667eea; border-radius: 6px;">
+                            <option value="normal">normal</option>
+                            <option value="reverse">reverse</option>
+                            <option value="alternate">alternate</option>
+                            <option value="alternate-reverse">alternate-reverse</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="font-weight: bold; color: #764ba2; display: block; margin-bottom: 5px;">Fill Mode</label>
+                        <select id="anim-fill" style="width: 100%; padding: 8px; border: 2px solid #667eea; border-radius: 6px;">
+                            <option value="none">none</option>
+                            <option value="forwards">forwards</option>
+                            <option value="backwards">backwards</option>
+                            <option value="both">both</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <button onclick="playCustomAnimation()" style="background: #667eea; color: white; border: none; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; margin-right: 10px;">
+                        ▶️ Play Animation
+                    </button>
+                    <button onclick="stopAnimation()" style="background: #e74c3c; color: white; border: none; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem;">
+                        ⏹️ Stop
+                    </button>
+                </div>
+                
+                <div class="animation-stage" style="background: white;">
+                    <div class="animation-box" id="playground-box">Animate Me!</div>
+                </div>
+                
+                <div class="code-output" id="animation-code">
+                    <!-- Generated CSS -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Key Takeaways -->
+        <div class="section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h2 class="section-title" style="color: white; border-bottom-color: white;">🎯 Key Takeaways</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>@keyframes:</strong> Define animation steps with percentages (0%, 50%, 100%)
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>animation shorthand:</strong> name duration timing delay iteration direction fill-mode
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>infinite:</strong> animation-iteration-count: infinite for continuous animations
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>alternate:</strong> Smooth back-and-forth with animation-direction: alternate
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>fill-mode: forwards:</strong> Keeps final state after animation ends
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Performance:</strong> Only animate transform and opacity for best performance
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Accessibility:</strong> Always support prefers-reduced-motion!
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Play individual animation
+        function playAnimation(id, animationValue) {
+            const element = document.getElementById(id);
+            element.style.animation = 'none';
+            
+            // Force reflow
+            void element.offsetWidth;
+            
+            element.style.animation = animationValue;
+        }
+        
+        // Play all animations with stagger
+        function playAllAnimations() {
+            const boxes = [
+                'fadeIn-box', 'slideLeft-box', 'slideRight-box', 
+                'bounce-box', 'pulse-box', 'shake-box',
+                'zoom-box', 'rubber-box', 'flip-box', 'heart-box'
+            ];
+            
+            const animations = [
+                'fadeIn 1s ease',
+                'slideInLeft 0.7s ease',
+                'slideInRight 0.7s ease',
+                'bounce 1s ease',
+                'pulse 1s ease',
+                'shake 0.5s ease',
+                'zoomIn 0.5s ease',
+                'rubberBand 0.8s ease',
+                'flip 1s ease',
+                'heartbeat 1.3s ease'
+            ];
+            
+            boxes.forEach((id, index) => {
+                setTimeout(() => {
+                    playAnimation(id, animations[index]);
+                }, index * 200);
+            });
+        }
+        
+        // Custom Animation Playground
+        function playCustomAnimation() {
+            const box = document.getElementById('playground-box');
+            const type = document.getElementById('anim-type').value;
+            const duration = document.getElementById('anim-duration').value;
+            const timing = document.getElementById('anim-timing').value;
+            const iteration = document.getElementById('anim-iteration').value;
+            const direction = document.getElementById('anim-direction').value;
+            const fillMode = document.getElementById('anim-fill').value;
+            
+            box.style.animation = 'none';
+            void box.offsetWidth;
+            
+            box.style.animationName = type;
+            box.style.animationDuration = duration + 's';
+            box.style.animationTimingFunction = timing;
+            box.style.animationIterationCount = iteration;
+            box.style.animationDirection = direction;
+            box.style.animationFillMode = fillMode;
+            
+            updateAnimationCode();
+        }
+        
+        function stopAnimation() {
+            const box = document.getElementById('playground-box');
+            box.style.animation = 'none';
+        }
+        
+        function updateAnimationCode() {
+            const type = document.getElementById('anim-type').value;
+            const duration = document.getElementById('anim-duration').value;
+            const timing = document.getElementById('anim-timing').value;
+            const iteration = document.getElementById('anim-iteration').value;
+            const direction = document.getElementById('anim-direction').value;
+            const fillMode = document.getElementById('anim-fill').value;
+            
+            document.getElementById('dur-display').textContent = duration + 's';
+            
+            const code = document.getElementById('animation-code');
+            
+            code.innerHTML = `<span class="comment">/* Shorthand */</span>
+<span class="selector">.element</span> {
+    <span class="property">animation</span>: <span class="value">${type} ${duration}s ${timing} ${iteration} ${direction} ${fillMode}</span>;
+}
+
+<span class="comment">/* Longhand */</span>
+<span class="selector">.element</span> {
+    <span class="property">animation-name</span>: <span class="value">${type}</span>;
+    <span class="property">animation-duration</span>: <span class="value">${duration}s</span>;
+    <span class="property">animation-timing-function</span>: <span class="value">${timing}</span>;
+    <span class="property">animation-iteration-count</span>: <span class="value">${iteration}</span>;
+    <span class="property">animation-direction</span>: <span class="value">${direction}</span>;
+    <span class="property">animation-fill-mode</span>: <span class="value">${fillMode}</span>;
+}`;
+        }
+        
+        // Event listeners for playground
+        document.getElementById('anim-type').addEventListener('change', updateAnimationCode);
+        document.getElementById('anim-duration').addEventListener('input', updateAnimationCode);
+        document.getElementById('anim-timing').addEventListener('change', updateAnimationCode);
+        document.getElementById('anim-iteration').addEventListener('change', updateAnimationCode);
+        document.getElementById('anim-direction').addEventListener('change', updateAnimationCode);
+        document.getElementById('anim-fill').addEventListener('change', updateAnimationCode);
+        
+        // Initialize
+        updateAnimationCode();
+    </script>
+</body>
+</html>
