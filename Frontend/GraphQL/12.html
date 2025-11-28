@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 12: Code Organization & Architecture</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e4e4e7;
+      line-height: 1.7;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 950px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle { color: #a1a1aa; font-size: 1.1rem; margin-bottom: 40px; }
+    h2 {
+      color: #8b5cf6;
+      font-size: 1.6rem;
+      margin: 40px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #3f3f46;
+    }
+    h3 { color: #a78bfa; font-size: 1.2rem; margin: 25px 0 15px; }
+    h4 { color: #c4b5fd; font-size: 1rem; margin: 20px 0 10px; }
+    p { margin-bottom: 15px; color: #d4d4d8; }
+    .highlight-box {
+      background: linear-gradient(135deg, #4c1d95 0%, #2e1065 100%);
+      border-left: 4px solid #8b5cf6;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .warning-box {
+      background: linear-gradient(135deg, #78350f 0%, #451a03 100%);
+      border-left: 4px solid #f59e0b;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .warning-box::before { content: "⚠️ INTERVIEW HIGHLIGHT: "; font-weight: bold; color: #fbbf24; }
+    .tip-box {
+      background: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+      border-left: 4px solid #10b981;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .tip-box::before { content: "📝 BEST PRACTICE: "; font-weight: bold; color: #34d399; }
+    pre {
+      background: #0a0a15;
+      border: 1px solid #3f3f46;
+      border-radius: 12px;
+      padding: 20px;
+      overflow-x: auto;
+      margin: 15px 0;
+      font-size: 0.85rem;
+    }
+    code { font-family: 'Fira Code', 'Consolas', monospace; }
+    .inline-code {
+      background: #3f3f46;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+    .keyword { color: #c084fc; }
+    .type { color: #38bdf8; }
+    .string { color: #4ade80; }
+    .comment { color: #6b7280; font-style: italic; }
+    .field { color: #fbbf24; }
+    .function { color: #f472b6; }
+    .const { color: #fb923c; }
+    .folder-structure {
+      background: #1f2937;
+      border-radius: 12px;
+      padding: 25px;
+      margin: 20px 0;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+    }
+    .folder { color: #fbbf24; }
+    .file { color: #94a3b8; }
+    .file-highlight { color: #a78bfa; }
+    .file-important { color: #34d399; }
+    .chapter-nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 1px solid #3f3f46;
+    }
+    .nav-btn {
+      padding: 12px 24px;
+      background: linear-gradient(90deg, #7c3aed, #db2777);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .pattern-card {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      border: 1px solid #374151;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+    }
+    .pattern-card h4 { color: #a78bfa; margin-bottom: 10px; }
+    ul { margin: 15px 0 15px 25px; }
+    li { margin: 8px 0; color: #d4d4d8; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Chapter 12</h1>
+    <p class="subtitle">Code Organization & Architecture — Scalable GraphQL Projects</p>
+
+    <!-- Section 12.1 -->
+    <h2>12.1 Project Structure Overview</h2>
+    
+    <p>A well-organized GraphQL project separates concerns clearly: GraphQL operations, custom hooks, components, and generated types.</p>
+
+    <div class="folder-structure">
+<span class="folder">src/</span>
+├── <span class="folder">graphql/</span>                    <span class="comment"># All GraphQL related code</span>
+│   ├── <span class="file-important">client.ts</span>              <span class="comment"># Apollo Client setup</span>
+│   ├── <span class="folder">fragments/</span>             <span class="comment"># Shared fragments</span>
+│   │   ├── <span class="file">user.ts</span>
+│   │   ├── <span class="file">post.ts</span>
+│   │   └── <span class="file">index.ts</span>
+│   ├── <span class="folder">queries/</span>               <span class="comment"># Query documents</span>
+│   │   ├── <span class="file">user.ts</span>
+│   │   ├── <span class="file">posts.ts</span>
+│   │   └── <span class="file">index.ts</span>
+│   ├── <span class="folder">mutations/</span>             <span class="comment"># Mutation documents</span>
+│   │   ├── <span class="file">user.ts</span>
+│   │   ├── <span class="file">posts.ts</span>
+│   │   └── <span class="file">index.ts</span>
+│   ├── <span class="folder">subscriptions/</span>         <span class="comment"># Subscription documents</span>
+│   │   └── <span class="file">messages.ts</span>
+│   └── <span class="folder">generated/</span>             <span class="comment"># Auto-generated types</span>
+│       └── <span class="file-highlight">graphql.ts</span>
+├── <span class="folder">hooks/</span>                     <span class="comment"># Custom hooks wrapping GraphQL</span>
+│   ├── <span class="file">useUser.ts</span>
+│   ├── <span class="file">usePosts.ts</span>
+│   ├── <span class="file">useCreatePost.ts</span>
+│   └── <span class="file">index.ts</span>
+├── <span class="folder">components/</span>               <span class="comment"># React components</span>
+│   ├── <span class="folder">UserCard/</span>
+│   │   ├── <span class="file">UserCard.tsx</span>
+│   │   ├── <span class="file-highlight">UserCard.fragment.ts</span>  <span class="comment"># Colocated fragment</span>
+│   │   └── <span class="file">index.ts</span>
+│   └── <span class="folder">PostList/</span>
+│       ├── <span class="file">PostList.tsx</span>
+│       ├── <span class="file-highlight">PostList.fragment.ts</span>
+│       └── <span class="file">index.ts</span>
+├── <span class="folder">pages/</span>                    <span class="comment"># Page components</span>
+│   ├── <span class="file">Dashboard.tsx</span>
+│   └── <span class="file">Profile.tsx</span>
+├── <span class="folder">lib/</span>                      <span class="comment"># Utilities</span>
+│   └── <span class="file">apollo-client.ts</span>
+└── <span class="file">App.tsx</span>
+    </div>
+
+    <!-- Section 12.2 -->
+    <h2>12.2 Apollo Client Setup File</h2>
+
+    <pre><code><span class="comment">// src/graphql/client.ts</span>
+<span class="keyword">import</span> {
+  <span class="type">ApolloClient</span>,
+  <span class="type">InMemoryCache</span>,
+  <span class="type">HttpLink</span>,
+  <span class="type">from</span>,
+  <span class="type">split</span>,
+} <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+<span class="keyword">import</span> { <span class="type">onError</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/link/error'</span>;
+<span class="keyword">import</span> { <span class="type">setContext</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/link/context'</span>;
+<span class="keyword">import</span> { <span class="type">GraphQLWsLink</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/link/subscriptions'</span>;
+<span class="keyword">import</span> { <span class="type">getMainDefinition</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/utilities'</span>;
+<span class="keyword">import</span> { <span class="type">createClient</span> } <span class="keyword">from</span> <span class="string">'graphql-ws'</span>;
+
+<span class="keyword">import</span> { <span class="const">cacheConfig</span> } <span class="keyword">from</span> <span class="string">'./cache'</span>;
+
+<span class="comment">// Environment variables</span>
+<span class="keyword">const</span> <span class="const">API_URL</span> = process.env.REACT_APP_API_URL!;
+<span class="keyword">const</span> <span class="const">WS_URL</span> = process.env.REACT_APP_WS_URL!;
+
+<span class="comment">// HTTP Link</span>
+<span class="keyword">const</span> <span class="const">httpLink</span> = <span class="keyword">new</span> <span class="function">HttpLink</span>({
+  <span class="field">uri</span>: <span class="const">API_URL</span>,
+  <span class="field">credentials</span>: <span class="string">'include'</span>,
+});
+
+<span class="comment">// Auth Link</span>
+<span class="keyword">const</span> <span class="const">authLink</span> = <span class="function">setContext</span>((_, { headers }) => {
+  <span class="keyword">const</span> token = localStorage.<span class="function">getItem</span>(<span class="string">'token'</span>);
+  <span class="keyword">return</span> {
+    <span class="field">headers</span>: {
+      ...headers,
+      <span class="field">authorization</span>: token ? <span class="string">`Bearer </span>${token}<span class="string">`</span> : <span class="string">''</span>,
+    },
+  };
+});
+
+<span class="comment">// Error Link</span>
+<span class="keyword">const</span> <span class="const">errorLink</span> = <span class="function">onError</span>(({ graphQLErrors, networkError }) => {
+  <span class="keyword">if</span> (graphQLErrors) {
+    graphQLErrors.<span class="function">forEach</span>(({ message, extensions }) => {
+      <span class="keyword">if</span> (extensions?.code === <span class="string">'UNAUTHENTICATED'</span>) {
+        <span class="comment">// Handle auth error</span>
+        window.location.href = <span class="string">'/login'</span>;
+      }
+    });
+  }
+});
+
+<span class="comment">// WebSocket Link</span>
+<span class="keyword">const</span> <span class="const">wsLink</span> = <span class="keyword">new</span> <span class="function">GraphQLWsLink</span>(
+  <span class="function">createClient</span>({
+    <span class="field">url</span>: <span class="const">WS_URL</span>,
+    <span class="field">connectionParams</span>: () => ({
+      <span class="field">authToken</span>: localStorage.<span class="function">getItem</span>(<span class="string">'token'</span>),
+    }),
+  })
+);
+
+<span class="comment">// Split Link</span>
+<span class="keyword">const</span> <span class="const">splitLink</span> = <span class="function">split</span>(
+  ({ query }) => {
+    <span class="keyword">const</span> def = <span class="function">getMainDefinition</span>(query);
+    <span class="keyword">return</span> def.kind === <span class="string">'OperationDefinition'</span> && def.operation === <span class="string">'subscription'</span>;
+  },
+  wsLink,
+  <span class="function">from</span>([errorLink, authLink, httpLink])
+);
+
+<span class="comment">// Create Client</span>
+<span class="keyword">export const</span> <span class="const">client</span> = <span class="keyword">new</span> <span class="function">ApolloClient</span>({
+  <span class="field">link</span>: splitLink,
+  <span class="field">cache</span>: <span class="keyword">new</span> <span class="function">InMemoryCache</span>(cacheConfig),
+  <span class="field">defaultOptions</span>: {
+    <span class="field">watchQuery</span>: {
+      <span class="field">fetchPolicy</span>: <span class="string">'cache-and-network'</span>,
+      <span class="field">errorPolicy</span>: <span class="string">'all'</span>,
+    },
+  },
+  <span class="field">connectToDevTools</span>: process.env.NODE_ENV === <span class="string">'development'</span>,
+});</code></pre>
+
+    <!-- Section 12.3 -->
+    <h2>12.3 Organizing Queries & Mutations</h2>
+
+    <pre><code><span class="comment">// src/graphql/queries/user.ts</span>
+<span class="keyword">import</span> { <span class="type">gql</span> } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+<span class="keyword">import</span> { <span class="const">USER_CORE_FRAGMENT</span>, <span class="const">USER_PROFILE_FRAGMENT</span> } <span class="keyword">from</span> <span class="string">'../fragments/user'</span>;
+
+<span class="keyword">export const</span> <span class="const">GET_CURRENT_USER</span> = <span class="function">gql</span><span class="string">`
+  </span>${<span class="const">USER_CORE_FRAGMENT</span>}<span class="string">
+  query GetCurrentUser {
+    me {
+      ...UserCore
+    }
+  }
+`</span>;
+
+<span class="keyword">export const</span> <span class="const">GET_USER_PROFILE</span> = <span class="function">gql</span><span class="string">`
+  </span>${<span class="const">USER_PROFILE_FRAGMENT</span>}<span class="string">
+  query GetUserProfile($id: ID!) {
+    user(id: $id) {
+      ...UserProfile
+    }
+  }
+`</span>;
+
+<span class="keyword">export const</span> <span class="const">SEARCH_USERS</span> = <span class="function">gql</span><span class="string">`
+  </span>${<span class="const">USER_CORE_FRAGMENT</span>}<span class="string">
+  query SearchUsers($term: String!, $limit: Int) {
+    searchUsers(term: $term, limit: $limit) {
+      ...UserCore
+    }
+  }
+`</span>;</code></pre>
+
+    <pre><code><span class="comment">// src/graphql/mutations/user.ts</span>
+<span class="keyword">import</span> { <span class="type">gql</span> } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+<span class="keyword">import</span> { <span class="const">USER_PROFILE_FRAGMENT</span> } <span class="keyword">from</span> <span class="string">'../fragments/user'</span>;
+
+<span class="keyword">export const</span> <span class="const">UPDATE_PROFILE</span> = <span class="function">gql</span><span class="string">`
+  </span>${<span class="const">USER_PROFILE_FRAGMENT</span>}<span class="string">
+  mutation UpdateProfile($input: UpdateProfileInput!) {
+    updateProfile(input: $input) {
+      ...UserProfile
+    }
+  }
+`</span>;
+
+<span class="keyword">export const</span> <span class="const">UPLOAD_AVATAR</span> = <span class="function">gql</span><span class="string">`
+  mutation UploadAvatar($file: Upload!) {
+    uploadAvatar(file: $file) {
+      id
+      avatar
+    }
+  }
+`</span>;</code></pre>
+
+    <!-- Section 12.4 -->
+    <h2>12.4 Custom Hooks Pattern</h2>
+
+    <div class="pattern-card">
+      <h4>Why Custom Hooks?</h4>
+      <ul>
+        <li>Encapsulate GraphQL logic away from components</li>
+        <li>Provide a cleaner API for components</li>
+        <li>Enable easy testing and mocking</li>
+        <li>Centralize error handling and loading states</li>
+      </ul>
+    </div>
+
+    <pre><code><span class="comment">// src/hooks/useUser.ts</span>
+<span class="keyword">import</span> { <span class="type">useQuery</span> } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+<span class="keyword">import</span> { <span class="const">GET_USER_PROFILE</span> } <span class="keyword">from</span> <span class="string">'@/graphql/queries/user'</span>;
+<span class="keyword">import</span> <span class="keyword">type</span> { <span class="type">GetUserProfileQuery</span>, <span class="type">GetUserProfileQueryVariables</span> } <span class="keyword">from</span> <span class="string">'@/graphql/generated/graphql'</span>;
+
+<span class="keyword">interface</span> <span class="type">UseUserOptions</span> {
+  <span class="field">skip</span>?: <span class="type">boolean</span>;
+}
+
+<span class="keyword">export function</span> <span class="function">useUser</span>(userId: <span class="type">string</span>, options: <span class="type">UseUserOptions</span> = {}) {
+  <span class="keyword">const</span> { data, loading, error, refetch } = <span class="function">useQuery</span>&lt;
+    <span class="type">GetUserProfileQuery</span>,
+    <span class="type">GetUserProfileQueryVariables</span>
+  &gt;(<span class="const">GET_USER_PROFILE</span>, {
+    <span class="field">variables</span>: { <span class="field">id</span>: userId },
+    <span class="field">skip</span>: !userId || options.skip,
+  });
+
+  <span class="keyword">return</span> {
+    <span class="field">user</span>: data?.user ?? <span class="keyword">null</span>,
+    <span class="field">loading</span>,
+    <span class="field">error</span>,
+    <span class="field">refetch</span>,
+    <span class="field">isNotFound</span>: !loading && !error && !data?.user,
+  };
+}
+
+<span class="comment">// Usage in component:</span>
+<span class="comment">// const { user, loading, isNotFound } = useUser(userId);</span></code></pre>
+
+    <pre><code><span class="comment">// src/hooks/useUpdateProfile.ts</span>
+<span class="keyword">import</span> { <span class="type">useMutation</span> } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+<span class="keyword">import</span> { <span class="const">UPDATE_PROFILE</span> } <span class="keyword">from</span> <span class="string">'@/graphql/mutations/user'</span>;
+<span class="keyword">import</span> <span class="keyword">type</span> { <span class="type">UpdateProfileInput</span> } <span class="keyword">from</span> <span class="string">'@/graphql/generated/graphql'</span>;
+
+<span class="keyword">export function</span> <span class="function">useUpdateProfile</span>() {
+  <span class="keyword">const</span> [mutate, { loading, error }] = <span class="function">useMutation</span>(<span class="const">UPDATE_PROFILE</span>);
+
+  <span class="keyword">const</span> <span class="function">updateProfile</span> = <span class="keyword">async</span> (input: <span class="type">UpdateProfileInput</span>) => {
+    <span class="keyword">try</span> {
+      <span class="keyword">const</span> { data } = <span class="keyword">await</span> <span class="function">mutate</span>({
+        <span class="field">variables</span>: { <span class="field">input</span> },
+        <span class="field">optimisticResponse</span>: {
+          <span class="field">updateProfile</span>: {
+            <span class="field">__typename</span>: <span class="string">'User'</span>,
+            ...input,
+          },
+        },
+      });
+      <span class="keyword">return</span> { <span class="field">success</span>: <span class="keyword">true</span>, <span class="field">user</span>: data?.updateProfile };
+    } <span class="keyword">catch</span> (err) {
+      <span class="keyword">return</span> { <span class="field">success</span>: <span class="keyword">false</span>, <span class="field">error</span>: err };
+    }
+  };
+
+  <span class="keyword">return</span> {
+    <span class="field">updateProfile</span>,
+    <span class="field">loading</span>,
+    <span class="field">error</span>,
+  };
+}</code></pre>
+
+    <!-- Section 12.5 -->
+    <h2>12.5 Colocated Fragments Pattern</h2>
+
+    <pre><code><span class="comment">// src/components/UserCard/UserCard.fragment.ts</span>
+<span class="keyword">import</span> { <span class="type">gql</span> } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+
+<span class="keyword">export const</span> <span class="const">USER_CARD_FRAGMENT</span> = <span class="function">gql</span><span class="string">`
+  fragment UserCard_user on User {
+    id
+    name
+    avatar
+    bio
+    isVerified
+  }
+`</span>;
+
+<span class="comment">// TypeScript interface matching the fragment</span>
+<span class="keyword">export interface</span> <span class="type">UserCardFragment</span> {
+  <span class="field">id</span>: <span class="type">string</span>;
+  <span class="field">name</span>: <span class="type">string</span>;
+  <span class="field">avatar</span>: <span class="type">string</span> | <span class="keyword">null</span>;
+  <span class="field">bio</span>: <span class="type">string</span> | <span class="keyword">null</span>;
+  <span class="field">isVerified</span>: <span class="type">boolean</span>;
+}</code></pre>
+
+    <pre><code><span class="comment">// src/components/UserCard/UserCard.tsx</span>
+<span class="keyword">import</span> <span class="keyword">type</span> { <span class="type">UserCardFragment</span> } <span class="keyword">from</span> <span class="string">'./UserCard.fragment'</span>;
+
+<span class="keyword">interface</span> <span class="type">Props</span> {
+  <span class="field">user</span>: <span class="type">UserCardFragment</span>;
+}
+
+<span class="keyword">export function</span> <span class="function">UserCard</span>({ <span class="param">user</span> }: <span class="type">Props</span>) {
+  <span class="keyword">return</span> (
+    <span class="keyword">&lt;</span>div className=<span class="string">"user-card"</span><span class="keyword">&gt;</span>
+      <span class="keyword">&lt;</span>img <span class="field">src</span>={user.avatar || <span class="string">'/default.png'</span>} <span class="field">alt</span>={user.name} <span class="keyword">/&gt;</span>
+      <span class="keyword">&lt;</span>h3<span class="keyword">&gt;</span>
+        {user.name}
+        {user.isVerified && <span class="keyword">&lt;</span>VerifiedBadge <span class="keyword">/&gt;</span>}
+      <span class="keyword">&lt;/</span>h3<span class="keyword">&gt;</span>
+      {user.bio && <span class="keyword">&lt;</span>p<span class="keyword">&gt;</span>{user.bio}<span class="keyword">&lt;/</span>p<span class="keyword">&gt;</span>}
+    <span class="keyword">&lt;/</span>div<span class="keyword">&gt;</span>
+  );
+}</code></pre>
+
+    <pre><code><span class="comment">// src/components/UserCard/index.ts</span>
+<span class="keyword">export</span> { <span class="type">UserCard</span> } <span class="keyword">from</span> <span class="string">'./UserCard'</span>;
+<span class="keyword">export</span> { <span class="const">USER_CARD_FRAGMENT</span> } <span class="keyword">from</span> <span class="string">'./UserCard.fragment'</span>;
+<span class="keyword">export type</span> { <span class="type">UserCardFragment</span> } <span class="keyword">from</span> <span class="string">'./UserCard.fragment'</span>;</code></pre>
+
+    <!-- Section 12.6 -->
+    <h2>12.6 GraphQL Code Generator Setup</h2>
+
+    <pre><code><span class="comment"># codegen.yml</span>
+<span class="field">schema</span>: <span class="string">"http://localhost:4000/graphql"</span>
+<span class="field">documents</span>: <span class="string">"src/**/*.{ts,tsx}"</span>
+<span class="field">generates</span>:
+  <span class="string">src/graphql/generated/graphql.ts</span>:
+    <span class="field">plugins</span>:
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
+    <span class="field">config</span>:
+      <span class="field">withHooks</span>: <span class="keyword">true</span>
+      <span class="field">withComponent</span>: <span class="keyword">false</span>
+      <span class="field">withHOC</span>: <span class="keyword">false</span>
+      <span class="field">skipTypename</span>: <span class="keyword">false</span>
+      <span class="field">dedupeFragments</span>: <span class="keyword">true</span>
+      <span class="field">enumsAsTypes</span>: <span class="keyword">true</span>
+      <span class="field">avoidOptionals</span>:
+        <span class="field">field</span>: <span class="keyword">true</span>
+        <span class="field">inputValue</span>: <span class="keyword">false</span>
+        <span class="field">object</span>: <span class="keyword">false</span></code></pre>
+
+    <pre><code><span class="comment">// package.json scripts</span>
+{
+  <span class="string">"scripts"</span>: {
+    <span class="string">"codegen"</span>: <span class="string">"graphql-codegen --config codegen.yml"</span>,
+    <span class="string">"codegen:watch"</span>: <span class="string">"graphql-codegen --config codegen.yml --watch"</span>
+  }
+}</code></pre>
+
+    <div class="warning-box">
+      GraphQL Code Generator provides <strong>end-to-end type safety</strong>. Your queries, mutations, and fragments get TypeScript types generated from your schema. This catches errors at compile time instead of runtime.
+    </div>
+
+    <!-- Section 12.7 -->
+    <h2>12.7 Feature-Based Organization (Alternative)</h2>
+
+    <div class="folder-structure">
+<span class="folder">src/</span>
+├── <span class="folder">features/</span>
+│   ├── <span class="folder">auth/</span>
+│   │   ├── <span class="folder">components/</span>
+│   │   │   ├── <span class="file">LoginForm.tsx</span>
+│   │   │   └── <span class="file">SignupForm.tsx</span>
+│   │   ├── <span class="folder">graphql/</span>
+│   │   │   ├── <span class="file">queries.ts</span>
+│   │   │   └── <span class="file">mutations.ts</span>
+│   │   ├── <span class="folder">hooks/</span>
+│   │   │   ├── <span class="file">useAuth.ts</span>
+│   │   │   └── <span class="file">useLogin.ts</span>
+│   │   └── <span class="file">index.ts</span>
+│   │
+│   ├── <span class="folder">posts/</span>
+│   │   ├── <span class="folder">components/</span>
+│   │   │   ├── <span class="file">PostCard/</span>
+│   │   │   ├── <span class="file">PostList/</span>
+│   │   │   └── <span class="file">CreatePostForm/</span>
+│   │   ├── <span class="folder">graphql/</span>
+│   │   ├── <span class="folder">hooks/</span>
+│   │   └── <span class="file">index.ts</span>
+│   │
+│   └── <span class="folder">users/</span>
+│       ├── <span class="folder">components/</span>
+│       ├── <span class="folder">graphql/</span>
+│       ├── <span class="folder">hooks/</span>
+│       └── <span class="file">index.ts</span>
+│
+├── <span class="folder">shared/</span>                     <span class="comment"># Shared across features</span>
+│   ├── <span class="folder">components/</span>
+│   ├── <span class="folder">graphql/</span>
+│   │   └── <span class="file">client.ts</span>
+│   └── <span class="folder">hooks/</span>
+│
+└── <span class="file">App.tsx</span>
+    </div>
+
+    <div class="tip-box">
+      Feature-based organization works better for larger applications (10+ developers). It keeps all related code together, making it easier to understand and maintain a specific feature.
+    </div>
+
+    <!-- Section 12.8 -->
+    <h2>12.8 Naming Conventions</h2>
+
+    <table class="comparison-table" style="width: 100%; border-collapse: collapse; margin: 20px 0; background: #1e293b; border-radius: 12px; overflow: hidden;">
+      <tr>
+        <th style="background: linear-gradient(90deg, #7c3aed, #db2777); padding: 14px; text-align: left;">Type</th>
+        <th style="background: linear-gradient(90deg, #7c3aed, #db2777); padding: 14px; text-align: left;">Convention</th>
+        <th style="background: linear-gradient(90deg, #7c3aed, #db2777); padding: 14px; text-align: left;">Example</th>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #334155;">Query</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #334155;"><code>GET_</code> prefix, SCREAMING_SNAKE</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #334155;"><code>GET_USER_PROFILE</code></td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #334155;">Mutation</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #334155;">Action verb, SCREAMING_SNAKE</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #334155;"><code>CREATE_POST</code>, <code>UPDATE_USER</code></td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #334155;">Subscription</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #334155;"><code>ON_</code> prefix, SCREAMING_SNAKE</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #334155;"><code>ON_MESSAGE_ADDED</code></td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #334155;">Fragment</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #334155;"><code>ComponentName_typeName</code></td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #334155;"><code>UserCard_user</code></td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #334155;">Custom Hook</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #334155;"><code>use</code> prefix, camelCase</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #334155;"><code>useUser</code>, <code>useCreatePost</code></td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px;">Operation Name</td>
+        <td style="padding: 12px 14px;">PascalCase, descriptive</td>
+        <td style="padding: 12px 14px;"><code>GetUserProfile</code>, <code>CreatePost</code></td>
+      </tr>
+    </table>
+
+    <div class="chapter-nav">
+      <button class="nav-btn">← Chapter 11: Performance</button>
+      <button class="nav-btn">Next: Chapter 13 — Testing →</button>
+    </div>
+  </div>
+</body>
+</html>

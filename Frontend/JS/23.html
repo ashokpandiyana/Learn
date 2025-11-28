@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing & Debugging - Chapter 23</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #8e54e9 0%, #4776e6 100%);
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        header {
+            background: linear-gradient(135deg, #8e54e9 0%, #4776e6 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .content { padding: 40px; }
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #8e54e9;
+        }
+        .section h2 { color: #8e54e9; margin-bottom: 20px; font-size: 2em; }
+        .section h3 { color: #4776e6; margin: 25px 0 15px 0; font-size: 1.5em; }
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .number { color: #d19a66; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+        .note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .tip { background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .success { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        ul { margin-left: 30px; margin-top: 10px; }
+        li { margin: 8px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧪 Chapter 23: Testing & Debugging</h1>
+            <p>Write Reliable, Bug-Free Code</p>
+        </header>
+        
+        <div class="content">
+            <div class="section">
+                <h2>✅ 1. Unit Testing with Jest</h2>
+                
+                <div class="code-block">
+<code><span class="comment">// test/math.test.js</span>
+<span class="keyword">import</span> { add, subtract } <span class="keyword">from</span> <span class="string">'./math.js'</span>;
+
+<span class="function">describe</span>(<span class="string">'Math utilities'</span>, () => {
+    <span class="function">test</span>(<span class="string">'add function'</span>, () => {
+        <span class="function">expect</span>(<span class="function">add</span>(<span class="number">2</span>, <span class="number">3</span>)).<span class="function">toBe</span>(<span class="number">5</span>);
+        <span class="function">expect</span>(<span class="function">add</span>(-<span class="number">1</span>, <span class="number">1</span>)).<span class="function">toBe</span>(<span class="number">0</span>);
+    });
+    
+    <span class="function">test</span>(<span class="string">'subtract function'</span>, () => {
+        <span class="function">expect</span>(<span class="function">subtract</span>(<span class="number">5</span>, <span class="number">3</span>)).<span class="function">toBe</span>(<span class="number">2</span>);
+    });
+});
+
+<span class="comment">// Testing async functions</span>
+<span class="function">test</span>(<span class="string">'async fetch'</span>, <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> data = <span class="keyword">await</span> <span class="function">fetchUser</span>(<span class="number">1</span>);
+    <span class="function">expect</span>(data.name).<span class="function">toBe</span>(<span class="string">"Alice"</span>);
+});
+
+<span class="comment">// Mocking</span>
+<span class="function">test</span>(<span class="string">'with mock'</span>, () => {
+    <span class="keyword">const</span> mockFn = jest.<span class="function">fn</span>(() => <span class="number">42</span>);
+    <span class="function">expect</span>(<span class="function">mockFn</span>()).<span class="function">toBe</span>(<span class="number">42</span>);
+    <span class="function">expect</span>(mockFn).<span class="function">toHaveBeenCalled</span>();
+});</code>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔍 2. Debugging Techniques</h2>
+                
+                <h3>2.1 Console Methods</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Beyond console.log</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">'Basic log'</span>);
+<span class="function">console</span>.<span class="function">error</span>(<span class="string">'Error message'</span>);
+<span class="function">console</span>.<span class="function">warn</span>(<span class="string">'Warning'</span>);
+<span class="function">console</span>.<span class="function">table</span>([{ name: <span class="string">"Alice"</span>, age: <span class="number">25</span> }]);
+<span class="function">console</span>.<span class="function">group</span>(<span class="string">'Group'</span>);
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">'Nested'</span>);
+<span class="function">console</span>.<span class="function">groupEnd</span>();
+<span class="function">console</span>.<span class="function">time</span>(<span class="string">'timer'</span>);
+<span class="comment">// ... code ...</span>
+<span class="function">console</span>.<span class="function">timeEnd</span>(<span class="string">'timer'</span>);  <span class="comment">// Logs elapsed time</span></code>
+                </div>
+                
+                <h3>2.2 Debugger Statement</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">function</span> <span class="function">complexFunction</span>(x) {
+    <span class="keyword">const</span> result = x * <span class="number">2</span>;
+    <span class="keyword">debugger</span>;  <span class="comment">// Pauses execution here if DevTools open</span>
+    <span class="keyword">return</span> result + <span class="number">10</span>;
+}</code>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🎭 3. Test-Driven Development (TDD)</h2>
+                
+                <div class="code-block">
+<code><span class="comment">// 1. Write test first (it fails)</span>
+<span class="function">test</span>(<span class="string">'validate email'</span>, () => {
+    <span class="function">expect</span>(<span class="function">validateEmail</span>(<span class="string">'user@example.com'</span>)).<span class="function">toBe</span>(<span class="keyword">true</span>);
+    <span class="function">expect</span>(<span class="function">validateEmail</span>(<span class="string">'invalid'</span>)).<span class="function">toBe</span>(<span class="keyword">false</span>);
+});
+
+<span class="comment">// 2. Write minimal code to pass</span>
+<span class="keyword">function</span> <span class="function">validateEmail</span>(email) {
+    <span class="keyword">return</span> <span class="string">/\S+@\S+\.\S+/</span>.<span class="function">test</span>(email);
+}
+
+<span class="comment">// 3. Refactor while keeping tests green</span></code>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📝 Summary</h2>
+                
+                <div class="success">
+                    <strong>Testing Best Practices:</strong>
+                    <ul>
+                        <li>Write tests for critical business logic</li>
+                        <li>Test edge cases and error conditions</li>
+                        <li>Mock external dependencies</li>
+                        <li>Keep tests simple and focused</li>
+                        <li>Use descriptive test names</li>
+                        <li>Aim for high coverage on critical paths</li>
+                        <li>Use debugger and console effectively</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

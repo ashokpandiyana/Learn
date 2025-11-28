@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Advanced Arrays - Chapter 14</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            margin: 25px 0 15px 0;
+            font-size: 1.5em;
+        }
+        
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .number { color: #d19a66; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .tip {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .interactive-demo {
+            background: white;
+            border: 2px solid #764ba2;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .interactive-demo button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .output {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Chapter 14: Advanced Array Methods</h1>
+            <p>Master Modern Array Operations</p>
+        </header>
+        
+        <div class="content">
+            <div class="section">
+                <h2>🔄 1. flat() and flatMap()</h2>
+                
+                <h3>1.1 flat() - Flatten Nested Arrays</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Basic flattening (depth 1)</span>
+<span class="keyword">const</span> nested = [<span class="number">1</span>, [<span class="number">2</span>, <span class="number">3</span>], [<span class="number">4</span>, [<span class="number">5</span>]]];
+<span class="function">console</span>.<span class="function">log</span>(nested.<span class="function">flat</span>());  
+<span class="comment">// [1, 2, 3, 4, [5]]</span>
+
+<span class="comment">// Flatten to depth 2</span>
+<span class="function">console</span>.<span class="function">log</span>(nested.<span class="function">flat</span>(<span class="number">2</span>));  
+<span class="comment">// [1, 2, 3, 4, 5]</span>
+
+<span class="comment">// Flatten completely (Infinity)</span>
+<span class="keyword">const</span> deepNested = [<span class="number">1</span>, [<span class="number">2</span>, [<span class="number">3</span>, [<span class="number">4</span>, [<span class="number">5</span>]]]]];
+<span class="function">console</span>.<span class="function">log</span>(deepNested.<span class="function">flat</span>(<span class="function">Infinity</span>));
+<span class="comment">// [1, 2, 3, 4, 5]</span>
+
+<span class="comment">// Remove empty slots</span>
+<span class="keyword">const</span> sparse = [<span class="number">1</span>, , , <span class="number">2</span>, , <span class="number">3</span>];
+<span class="function">console</span>.<span class="function">log</span>(sparse.<span class="function">flat</span>());  
+<span class="comment">// [1, 2, 3] (removes holes)</span></code>
+                </div>
+                
+                <h3>1.2 flatMap() - Map then Flatten</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// flatMap = map + flat(1)</span>
+<span class="keyword">const</span> words = [<span class="string">"hello world"</span>, <span class="string">"foo bar"</span>];
+
+<span class="comment">// With map + flat</span>
+<span class="keyword">const</span> result1 = words.<span class="function">map</span>(s => s.<span class="function">split</span>(<span class="string">" "</span>)).<span class="function">flat</span>();
+<span class="function">console</span>.<span class="function">log</span>(result1);
+<span class="comment">// ["hello", "world", "foo", "bar"]</span>
+
+<span class="comment">// With flatMap (cleaner)</span>
+<span class="keyword">const</span> result2 = words.<span class="function">flatMap</span>(s => s.<span class="function">split</span>(<span class="string">" "</span>));
+<span class="function">console</span>.<span class="function">log</span>(result2);
+<span class="comment">// ["hello", "world", "foo", "bar"]</span>
+
+<span class="comment">// Practical: Extract all tags from posts</span>
+<span class="keyword">const</span> posts = [
+    { title: <span class="string">"Post 1"</span>, tags: [<span class="string">"js"</span>, <span class="string">"react"</span>] },
+    { title: <span class="string">"Post 2"</span>, tags: [<span class="string">"node"</span>, <span class="string">"js"</span>] }
+];
+
+<span class="keyword">const</span> allTags = posts.<span class="function">flatMap</span>(post => post.tags);
+<span class="function">console</span>.<span class="function">log</span>(allTags);
+<span class="comment">// ["js", "react", "node", "js"]</span></code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 flat/flatMap Demo</h4>
+                    <button onclick="demoFlat()">Test flat()</button>
+                    <button onclick="demoFlatMap()">Test flatMap()</button>
+                    <div class="output" id="flatOutput"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>↩️ 2. reduceRight()</h2>
+                
+                <div class="code-block">
+<code><span class="comment">// Like reduce, but iterates right-to-left</span>
+<span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
+
+<span class="comment">// reduce (left to right)</span>
+<span class="keyword">const</span> result1 = numbers.<span class="function">reduce</span>((acc, n) => <span class="string">`(${acc}+${n})`</span>, <span class="string">"0"</span>);
+<span class="function">console</span>.<span class="function">log</span>(result1);  
+<span class="comment">// "(((0+1)+2)+3)+4)"</span>
+
+<span class="comment">// reduceRight (right to left)</span>
+<span class="keyword">const</span> result2 = numbers.<span class="function">reduceRight</span>((acc, n) => <span class="string">`(${acc}+${n})`</span>, <span class="string">"0"</span>);
+<span class="function">console</span>.<span class="function">log</span>(result2);  
+<span class="comment">// "(((0+4)+3)+2)+1)"</span>
+
+<span class="comment">// Practical: Function composition</span>
+<span class="keyword">const</span> compose = (...fns) => x => 
+    fns.<span class="function">reduceRight</span>((value, fn) => <span class="function">fn</span>(value), x);
+
+<span class="comment">// Practical: Reverse build</span>
+<span class="keyword">const</span> buildPath = parts.<span class="function">reduceRight</span>((path, part) => 
+    part + <span class="string">"/"</span> + path
+);</code>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔗 3. Method Chaining</h2>
+                
+                <div class="code-block">
+<code><span class="comment">// Chain multiple array methods</span>
+<span class="keyword">const</span> users = [
+    { name: <span class="string">"Alice"</span>, age: <span class="number">25</span>, active: <span class="keyword">true</span>, score: <span class="number">85</span> },
+    { name: <span class="string">"Bob"</span>, age: <span class="number">17</span>, active: <span class="keyword">false</span>, score: <span class="number">92</span> },
+    { name: <span class="string">"Charlie"</span>, age: <span class="number">30</span>, active: <span class="keyword">true</span>, score: <span class="number">78</span> },
+    { name: <span class="string">"David"</span>, age: <span class="number">22</span>, active: <span class="keyword">true</span>, score: <span class="number">95</span> }
+];
+
+<span class="comment">// Complex chaining example</span>
+<span class="keyword">const</span> result = users
+    .<span class="function">filter</span>(u => u.active)              <span class="comment">// Active users only</span>
+    .<span class="function">filter</span>(u => u.age >= <span class="number">18</span>)           <span class="comment">// Adults only</span>
+    .<span class="function">map</span>(u => ({ ...u, grade: u.score >= <span class="number">90</span> ? <span class="string">'A'</span> : <span class="string">'B'</span> }))
+    .<span class="function">sort</span>((a, b) => b.score - a.score)  <span class="comment">// Sort by score descending</span>
+    .<span class="function">map</span>(u => u.name);                  <span class="comment">// Extract names</span>
+
+<span class="function">console</span>.<span class="function">log</span>(result);  
+<span class="comment">// ["David", "Alice", "Charlie"]</span></code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Method Chaining Demo</h4>
+                    <button onclick="demoChaining()">Complex Chain</button>
+                    <div class="output" id="chainOutput"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🛠️ 4. Custom Array Method Implementations</h2>
+                
+                <h3>4.1 Implement map()</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Polyfill for Array.prototype.map</span>
+<span class="keyword">Array</span>.prototype.myMap = <span class="keyword">function</span>(callback) {
+    <span class="keyword">const</span> result = [];
+    
+    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="keyword">this</span>.length; i++) {
+        result.<span class="function">push</span>(<span class="function">callback</span>(<span class="keyword">this</span>[i], i, <span class="keyword">this</span>));
+    }
+    
+    <span class="keyword">return</span> result;
+};
+
+<span class="comment">// Test</span>
+<span class="function">console</span>.<span class="function">log</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>].<span class="function">myMap</span>(x => x * <span class="number">2</span>));  
+<span class="comment">// [2, 4, 6]</span></code>
+                </div>
+                
+                <h3>4.2 Implement filter()</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">Array</span>.prototype.myFilter = <span class="keyword">function</span>(callback) {
+    <span class="keyword">const</span> result = [];
+    
+    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="keyword">this</span>.length; i++) {
+        <span class="keyword">if</span> (<span class="function">callback</span>(<span class="keyword">this</span>[i], i, <span class="keyword">this</span>)) {
+            result.<span class="function">push</span>(<span class="keyword">this</span>[i]);
+        }
+    }
+    
+    <span class="keyword">return</span> result;
+};</code>
+                </div>
+                
+                <h3>4.3 Implement reduce()</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">Array</span>.prototype.myReduce = <span class="keyword">function</span>(callback, initialValue) {
+    <span class="keyword">let</span> accumulator = initialValue !== <span class="keyword">undefined</span> ? initialValue : <span class="keyword">this</span>[<span class="number">0</span>];
+    <span class="keyword">let</span> startIndex = initialValue !== <span class="keyword">undefined</span> ? <span class="number">0</span> : <span class="number">1</span>;
+    
+    <span class="keyword">for</span> (<span class="keyword">let</span> i = startIndex; i < <span class="keyword">this</span>.length; i++) {
+        accumulator = <span class="function">callback</span>(accumulator, <span class="keyword">this</span>[i], i, <span class="keyword">this</span>);
+    }
+    
+    <span class="keyword">return</span> accumulator;
+};
+
+<span class="function">console</span>.<span class="function">log</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>].<span class="function">myReduce</span>((a, b) => a + b));  
+<span class="comment">// 10</span></code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Custom Implementation Demo</h4>
+                    <button onclick="testCustom()">Test Custom Methods</button>
+                    <div class="output" id="customOutput"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔢 5. Sorting with Custom Comparators</h2>
+                
+                <div class="code-block">
+<code><span class="comment">// Default sort (converts to strings!)</span>
+<span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">30</span>, <span class="number">4</span>, <span class="number">21</span>, <span class="number">100000</span>];
+<span class="function">console</span>.<span class="function">log</span>(numbers.<span class="function">sort</span>());  
+<span class="comment">// [1, 100000, 21, 30, 4] ❌ Wrong!</span>
+
+<span class="comment">// Numeric sort (ascending)</span>
+numbers.<span class="function">sort</span>((a, b) => a - b);
+<span class="function">console</span>.<span class="function">log</span>(numbers);  
+<span class="comment">// [1, 4, 21, 30, 100000] ✅</span>
+
+<span class="comment">// Descending</span>
+numbers.<span class="function">sort</span>((a, b) => b - a);
+
+<span class="comment">// Sort objects</span>
+<span class="keyword">const</span> users = [
+    { name: <span class="string">"Charlie"</span>, age: <span class="number">30</span> },
+    { name: <span class="string">"Alice"</span>, age: <span class="number">25</span> },
+    { name: <span class="string">"Bob"</span>, age: <span class="number">25</span> }
+];
+
+<span class="comment">// Sort by age, then name</span>
+users.<span class="function">sort</span>((a, b) => {
+    <span class="keyword">if</span> (a.age !== b.age) {
+        <span class="keyword">return</span> a.age - b.age;
+    }
+    <span class="keyword">return</span> a.name.<span class="function">localeCompare</span>(b.name);
+});</code>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Warning:</strong> sort() mutates the original array! Use toSorted() (ES2023) for non-mutating sort.
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Sorting Demo</h4>
+                    <button onclick="demoSort()">Complex Sort</button>
+                    <div class="output" id="sortOutput"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔄 6. Array-like Objects</h2>
+                
+                <div class="code-block">
+<code><span class="comment">// Array-like: has length and indexed elements</span>
+<span class="keyword">const</span> arrayLike = {
+    <span class="number">0</span>: <span class="string">"a"</span>,
+    <span class="number">1</span>: <span class="string">"b"</span>,
+    <span class="number">2</span>: <span class="string">"c"</span>,
+    length: <span class="number">3</span>
+};
+
+<span class="comment">// Convert to real array</span>
+<span class="keyword">const</span> arr1 = <span class="function">Array</span>.<span class="function">from</span>(arrayLike);
+<span class="keyword">const</span> arr2 = [...arrayLike];  <span class="comment">// ❌ Only works with iterables</span>
+<span class="keyword">const</span> arr3 = <span class="function">Array</span>.prototype.slice.<span class="function">call</span>(arrayLike);
+
+<span class="comment">// arguments object</span>
+<span class="keyword">function</span> <span class="function">test</span>() {
+    <span class="keyword">const</span> args = <span class="function">Array</span>.<span class="function">from</span>(arguments);
+    <span class="function">console</span>.<span class="function">log</span>(args);
+}
+
+<span class="function">test</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>);  <span class="comment">// [1, 2, 3]</span></code>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📝 Summary</h2>
+                
+                <div class="success">
+                    <strong>Key Takeaways:</strong>
+                    <ul>
+                        <li>flat() flattens nested arrays to specified depth</li>
+                        <li>flatMap() = map() + flat(1) in one operation</li>
+                        <li>reduceRight() processes array right-to-left</li>
+                        <li>Method chaining creates powerful data pipelines</li>
+                        <li>Custom implementations help understand internals</li>
+                        <li>sort() requires comparator for numbers</li>
+                        <li>Array-like objects can be converted to arrays</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoFlat() {
+            const output = document.getElementById('flatOutput');
+            
+            const nested = [1, [2, 3], [4, [5, 6]]];
+            
+            let result = '=== flat() Demo ===\n\n';
+            result += `Input: ${JSON.stringify(nested)}\n\n`;
+            result += `flat():    ${JSON.stringify(nested.flat())}\n`;
+            result += `flat(2):   ${JSON.stringify(nested.flat(2))}\n`;
+            result += `flat(Infinity): ${JSON.stringify(nested.flat(Infinity))}\n`;
+            
+            output.textContent = result;
+        }
+        
+        function demoFlatMap() {
+            const output = document.getElementById('flatOutput');
+            
+            const words = ["hello world", "foo bar"];
+            
+            let result = '=== flatMap() Demo ===\n\n';
+            result += `Input: ${JSON.stringify(words)}\n\n`;
+            result += 'Split each string into words:\n\n';
+            result += `map + flat: ${JSON.stringify(words.map(s => s.split(' ')).flat())}\n`;
+            result += `flatMap:    ${JSON.stringify(words.flatMap(s => s.split(' ')))}\n\n`;
+            result += 'flatMap is more efficient!';
+            
+            output.textContent = result;
+        }
+        
+        function demoChaining() {
+            const output = document.getElementById('chainOutput');
+            
+            const users = [
+                { name: "Alice", age: 25, active: true, score: 85 },
+                { name: "Bob", age: 17, active: false, score: 92 },
+                { name: "Charlie", age: 30, active: true, score: 78 },
+                { name: "David", age: 22, active: true, score: 95 }
+            ];
+            
+            const result = users
+                .filter(u => u.active)
+                .filter(u => u.age >= 18)
+                .map(u => ({ ...u, grade: u.score >= 90 ? 'A' : 'B' }))
+                .sort((a, b) => b.score - a.score);
+            
+            let output_text = '=== Method Chaining ===\n\n';
+            output_text += 'Pipeline:\n';
+            output_text += '1. filter(active)\n';
+            output_text += '2. filter(age >= 18)\n';
+            output_text += '3. map(add grade)\n';
+            output_text += '4. sort(by score desc)\n\n';
+            output_text += 'Results:\n';
+            result.forEach(u => {
+                output_text += `${u.name}: age ${u.age}, score ${u.score}, grade ${u.grade}\n`;
+            });
+            
+            output.textContent = output_text;
+        }
+        
+        function testCustom() {
+            const output = document.getElementById('customOutput');
+            
+            Array.prototype.myMap = function(callback) {
+                const result = [];
+                for (let i = 0; i < this.length; i++) {
+                    result.push(callback(this[i], i, this));
+                }
+                return result;
+            };
+            
+            const numbers = [1, 2, 3, 4, 5];
+            const doubled = numbers.myMap(x => x * 2);
+            
+            let result = '=== Custom map() Implementation ===\n\n';
+            result += `Input: [${numbers}]\n`;
+            result += `myMap(x => x * 2): [${doubled}]\n\n`;
+            result += 'Custom implementation works!\n';
+            result += 'Understanding how methods work internally\n';
+            result += 'is crucial for interviews.';
+            
+            output.textContent = result;
+        }
+        
+        function demoSort() {
+            const output = document.getElementById('sortOutput');
+            
+            const users = [
+                { name: "Charlie", age: 30, score: 85 },
+                { name: "Alice", age: 25, score: 92 },
+                { name: "Bob", age: 25, score: 88 }
+            ];
+            
+            const sorted = [...users].sort((a, b) => {
+                if (a.age !== b.age) return a.age - b.age;
+                if (a.score !== b.score) return b.score - a.score;
+                return a.name.localeCompare(b.name);
+            });
+            
+            let result = '=== Multi-level Sorting ===\n\n';
+            result += 'Sort by:\n';
+            result += '1. Age (ascending)\n';
+            result += '2. Score (descending)\n';
+            result += '3. Name (alphabetical)\n\n';
+            result += 'Results:\n';
+            sorted.forEach(u => {
+                result += `${u.name}: age ${u.age}, score ${u.score}\n`;
+            });
+            
+            output.textContent = result;
+        }
+    </script>
+</body>
+</html>

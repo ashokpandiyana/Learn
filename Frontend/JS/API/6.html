@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 6: Event Fundamentals</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.7;
+            color: #1a1a2e;
+            background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #c4b5fd;
+        }
+        h2 {
+            font-size: 1.5rem;
+            color: #5b21b6;
+            margin: 35px 0 20px;
+            padding-left: 15px;
+            border-left: 4px solid #8b5cf6;
+        }
+        h3 { font-size: 1.2rem; color: #6d28d9; margin: 25px 0 15px; }
+        h4 { font-size: 1.05rem; color: #7c3aed; margin: 20px 0 12px; }
+        p { margin-bottom: 15px; color: #374151; }
+        .concept-box {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .warning-box {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .warning-box::before {
+            content: "⚠️ Important Warning";
+            font-weight: bold;
+            color: #dc2626;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .key-point {
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            border-left: 4px solid #a855f7;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .key-point::before {
+            content: "🔑 Key Concept";
+            font-weight: bold;
+            color: #7c3aed;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .interview-tip {
+            background: linear-gradient(135deg, #eff6ff 0%, #bfdbfe 100%);
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .interview-tip::before {
+            content: "💼 Interview Essential";
+            font-weight: bold;
+            color: #1d4ed8;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .best-practice {
+            background: linear-gradient(135deg, #ecfdf5 0%, #a7f3d0 100%);
+            border-left: 4px solid #10b981;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .best-practice::before {
+            content: "✅ Best Practice";
+            font-weight: bold;
+            color: #059669;
+            display: block;
+            margin-bottom: 10px;
+        }
+        pre {
+            background: #1e1b4b;
+            color: #e9d5ff;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+        .inline-code {
+            background: #ede9fe;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #6d28d9;
+            font-family: 'Fira Code', monospace;
+        }
+        .keyword { color: #c4b5fd; }
+        .string { color: #86efac; }
+        .comment { color: #a78bfa; font-style: italic; }
+        .function { color: #7dd3fc; }
+        .variable { color: #fcd34d; }
+        .property { color: #fdba74; }
+        .result { color: #86efac; }
+        .diagram {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e9d5ff;
+        }
+        .comparison-table tr:hover { background: #faf5ff; }
+        ul, ol { margin: 15px 0 15px 25px; color: #374151; }
+        li { margin-bottom: 8px; }
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
+            margin: 40px 0;
+        }
+        .phase-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .phase-card.capture { border-left: 4px solid #ef4444; }
+        .phase-card.target { border-left: 4px solid #eab308; }
+        .phase-card.bubble { border-left: 4px solid #10b981; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chapter 6: Event Fundamentals</h1>
+        <p class="subtitle">Understanding How Events Work — The Foundation of Interactive Web Applications</p>
+        
+        <div class="concept-box">
+            <p>Events are the heartbeat of interactive web pages. Every click, keystroke, scroll, and mouse movement triggers events that your JavaScript can respond to. This chapter covers the <strong>fundamentals</strong> that every developer must understand.</p>
+        </div>
+        
+        <!-- Section 6.1 -->
+        <h2>6.1 Adding Event Listeners</h2>
+        
+        <p>There are multiple ways to handle events in JavaScript. Let's see all of them and understand which to use.</p>
+        
+        <h3>Method 1: addEventListener() — The Recommended Way</h3>
+        
+<pre><span class="keyword">const</span> button = <span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'button'</span>);
+
+<span class="comment">// Basic syntax</span>
+button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, <span class="keyword">function</span>(event) {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Button clicked!'</span>);
+});
+
+<span class="comment">// With arrow function</span>
+button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, (e) => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Clicked!'</span>, e.<span class="property">target</span>);
+});
+
+<span class="comment">// With named function (recommended for removal)</span>
+<span class="keyword">function</span> <span class="function">handleClick</span>(event) {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Handled!'</span>);
+}
+button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, handleClick);
+
+<span class="comment">// Multiple listeners on same event - ALL fire!</span>
+button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, handler1);
+button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, handler2);
+button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, handler3);
+<span class="comment">// All three handlers will execute on click!</span></pre>
+
+        <h3>Method 2: Event Handler Properties (Legacy)</h3>
+        
+<pre><span class="comment">// Using on* properties - only ONE handler allowed!</span>
+button.<span class="property">onclick</span> = <span class="keyword">function</span>(event) {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'First handler'</span>);
+};
+
+button.<span class="property">onclick</span> = <span class="keyword">function</span>(event) {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Second handler'</span>);
+};
+<span class="comment">// ⚠️ Only "Second handler" runs! First was overwritten!</span>
+
+<span class="comment">// Remove handler</span>
+button.<span class="property">onclick</span> = <span class="keyword">null</span>;</pre>
+
+        <h3>Method 3: HTML Attribute (Avoid!)</h3>
+        
+<pre><span class="comment">// In HTML - avoid this anti-pattern!</span>
+<span class="comment">// &lt;button onclick="handleClick()"&gt;Click&lt;/button&gt;</span>
+
+<span class="comment">// Problems:</span>
+<span class="comment">// - Mixes HTML and JavaScript</span>
+<span class="comment">// - Only one handler</span>
+<span class="comment">// - Global scope pollution</span>
+<span class="comment">// - Hard to debug</span></pre>
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>addEventListener</th>
+                    <th>onclick property</th>
+                    <th>HTML attribute</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Multiple handlers</td>
+                    <td>✅ Yes</td>
+                    <td>❌ Only one</td>
+                    <td>❌ Only one</td>
+                </tr>
+                <tr>
+                    <td>Capture phase access</td>
+                    <td>✅ Yes</td>
+                    <td>❌ No</td>
+                    <td>❌ No</td>
+                </tr>
+                <tr>
+                    <td>Easy removal</td>
+                    <td>✅ Yes</td>
+                    <td>✅ = null</td>
+                    <td>❌ Awkward</td>
+                </tr>
+                <tr>
+                    <td>Separation of concerns</td>
+                    <td>✅ Clean</td>
+                    <td>✅ Clean</td>
+                    <td>❌ Mixed</td>
+                </tr>
+                <tr>
+                    <td>Recommended</td>
+                    <td>✅ Yes!</td>
+                    <td>⚠️ Sometimes</td>
+                    <td>❌ Never</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 6.2 -->
+        <h2>6.2 Event Listener Options</h2>
+        
+        <p>The third parameter of <span class="inline-code">addEventListener</span> can be an options object with powerful features:</p>
+        
+<pre>element.<span class="function">addEventListener</span>(<span class="string">'click'</span>, handler, {
+    <span class="property">capture</span>: <span class="keyword">false</span>,    <span class="comment">// Use capture phase? (default: false)</span>
+    <span class="property">once</span>: <span class="keyword">false</span>,       <span class="comment">// Remove after first trigger? (default: false)</span>
+    <span class="property">passive</span>: <span class="keyword">false</span>,    <span class="comment">// Never call preventDefault? (default: false)</span>
+    <span class="property">signal</span>: controller.<span class="property">signal</span>  <span class="comment">// AbortController for removal</span>
+});
+
+<span class="comment">// ━━━━━━━━━━ once: true ━━━━━━━━━━</span>
+<span class="comment">// Handler fires only once, then automatically removed</span>
+button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, () => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'This only runs once!'</span>);
+}, { <span class="property">once</span>: <span class="keyword">true</span> });
+
+<span class="comment">// ━━━━━━━━━━ passive: true ━━━━━━━━━━</span>
+<span class="comment">// Promise to never call preventDefault - improves scroll performance</span>
+element.<span class="function">addEventListener</span>(<span class="string">'touchstart'</span>, handler, { <span class="property">passive</span>: <span class="keyword">true</span> });
+element.<span class="function">addEventListener</span>(<span class="string">'wheel'</span>, handler, { <span class="property">passive</span>: <span class="keyword">true</span> });
+
+<span class="comment">// ━━━━━━━━━━ capture: true ━━━━━━━━━━</span>
+<span class="comment">// Handle event during capture phase (top-down)</span>
+element.<span class="function">addEventListener</span>(<span class="string">'click'</span>, handler, { <span class="property">capture</span>: <span class="keyword">true</span> });
+<span class="comment">// Or shorthand:</span>
+element.<span class="function">addEventListener</span>(<span class="string">'click'</span>, handler, <span class="keyword">true</span>);</pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 6.3 -->
+        <h2>6.3 Removing Event Listeners</h2>
+        
+<pre><span class="comment">// ━━━━━━━━━━ Standard removal ━━━━━━━━━━</span>
+<span class="keyword">function</span> <span class="function">handleClick</span>(e) {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Clicked!'</span>);
+}
+
+button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, handleClick);
+button.<span class="function">removeEventListener</span>(<span class="string">'click'</span>, handleClick);  <span class="comment">// Must be SAME function!</span>
+
+<span class="comment">// ⚠️ This WON'T work - different function references!</span>
+button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, () => <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Hi'</span>));
+button.<span class="function">removeEventListener</span>(<span class="string">'click'</span>, () => <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Hi'</span>));  <span class="comment">// Different function!</span>
+
+<span class="comment">// ━━━━━━━━━━ Using AbortController (Modern & Clean!) ━━━━━━━━━━</span>
+<span class="keyword">const</span> controller = <span class="keyword">new</span> <span class="function">AbortController</span>();
+
+button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, handleClick, {
+    <span class="property">signal</span>: controller.<span class="property">signal</span>
+});
+
+<span class="comment">// Later, to remove:</span>
+controller.<span class="function">abort</span>();  <span class="comment">// Removes the listener!</span>
+
+<span class="comment">// POWERFUL: Remove MULTIPLE listeners at once!</span>
+<span class="keyword">const</span> controller = <span class="keyword">new</span> <span class="function">AbortController</span>();
+
+button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, handler1, { <span class="property">signal</span>: controller.<span class="property">signal</span> });
+button.<span class="function">addEventListener</span>(<span class="string">'mouseover'</span>, handler2, { <span class="property">signal</span>: controller.<span class="property">signal</span> });
+input.<span class="function">addEventListener</span>(<span class="string">'change'</span>, handler3, { <span class="property">signal</span>: controller.<span class="property">signal</span> });
+
+<span class="comment">// Remove ALL at once - perfect for component cleanup!</span>
+controller.<span class="function">abort</span>();</pre>
+
+        <div class="best-practice">
+            <strong>Use AbortController for cleanup in:</strong>
+            <ul>
+                <li>Single Page Applications (SPA) - when components unmount</li>
+                <li>Modal dialogs - when they close</li>
+                <li>Dynamic content - when elements are removed</li>
+                <li>Any situation where you add multiple listeners that should be removed together</li>
+            </ul>
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 6.4 -->
+        <h2>6.4 The Event Object</h2>
+        
+        <p>Every event handler receives an <strong>event object</strong> with detailed information about what happened:</p>
+        
+<pre><span class="keyword">function</span> <span class="function">handleClick</span>(event) {
+    <span class="comment">// ━━━━━━━━━━ Basic Properties ━━━━━━━━━━</span>
+    event.<span class="property">type</span>;           <span class="comment">// "click", "keydown", etc.</span>
+    event.<span class="property">target</span>;         <span class="comment">// Element that TRIGGERED the event</span>
+    event.<span class="property">currentTarget</span>;  <span class="comment">// Element the HANDLER is attached to</span>
+    event.<span class="property">timeStamp</span>;      <span class="comment">// When event was created (ms)</span>
+    
+    <span class="comment">// ━━━━━━━━━━ Event Phase ━━━━━━━━━━</span>
+    event.<span class="property">eventPhase</span>;     <span class="comment">// 1=Capture, 2=Target, 3=Bubble</span>
+    event.<span class="property">bubbles</span>;        <span class="comment">// Does this event bubble?</span>
+    event.<span class="property">cancelable</span>;     <span class="comment">// Can default be prevented?</span>
+    
+    <span class="comment">// ━━━━━━━━━━ Propagation Control ━━━━━━━━━━</span>
+    event.<span class="property">defaultPrevented</span>;  <span class="comment">// Was preventDefault() called?</span>
+    
+    <span class="comment">// ━━━━━━━━━━ Trust ━━━━━━━━━━</span>
+    event.<span class="property">isTrusted</span>;      <span class="comment">// true if user-initiated, false if script-created</span>
+}
+
+<span class="comment">// ━━━━━━━━━━ target vs currentTarget ━━━━━━━━━━</span>
+<span class="comment">// This is CRUCIAL to understand!</span>
+
+<span class="comment">// HTML:</span>
+<span class="comment">// &lt;div id="parent"&gt;</span>
+<span class="comment">//   &lt;button id="child"&gt;Click&lt;/button&gt;</span>
+<span class="comment">// &lt;/div&gt;</span>
+
+<span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'parent'</span>).<span class="function">addEventListener</span>(<span class="string">'click'</span>, (e) => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'target:'</span>, e.<span class="property">target</span>.<span class="property">id</span>);         <span class="comment">// "child" (what was clicked)</span>
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'currentTarget:'</span>, e.<span class="property">currentTarget</span>.<span class="property">id</span>); <span class="comment">// "parent" (where handler is)</span>
+});</pre>
+
+        <div class="key-point">
+            <strong>target vs currentTarget:</strong>
+            <ul>
+                <li><span class="inline-code">event.target</span> — The element that <strong>triggered</strong> the event (what was actually clicked/hovered/etc.)</li>
+                <li><span class="inline-code">event.currentTarget</span> — The element the <strong>handler is attached to</strong> (always equals <span class="inline-code">this</span> in regular functions)</li>
+            </ul>
+            These are the same only when you click the exact element that has the listener.
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 6.5 -->
+        <h2>6.5 Event Propagation — The Three Phases</h2>
+        
+        <div class="concept-box">
+            <p>When an event occurs, it doesn't just fire on the target element. It travels through the DOM in <strong>three phases</strong>. Understanding this is essential for advanced event handling!</p>
+        </div>
+        
+        <div class="diagram">
+            <h3 style="margin-bottom: 20px;">Event Propagation Flow</h3>
+            <svg viewBox="0 0 700 400" style="max-width: 700px;">
+                <!-- Background boxes representing DOM hierarchy -->
+                <rect x="50" y="40" width="600" height="320" rx="15" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+                <text x="75" y="65" font-size="12" font-weight="bold" fill="#dc2626">window</text>
+                
+                <rect x="80" y="80" width="540" height="260" rx="12" fill="#fef9c3" stroke="#eab308" stroke-width="2"/>
+                <text x="105" y="105" font-size="12" font-weight="bold" fill="#ca8a04">document</text>
+                
+                <rect x="110" y="120" width="480" height="200" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+                <text x="135" y="145" font-size="12" font-weight="bold" fill="#059669">&lt;html&gt;</text>
+                
+                <rect x="140" y="160" width="420" height="140" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+                <text x="165" y="185" font-size="12" font-weight="bold" fill="#2563eb">&lt;body&gt;</text>
+                
+                <rect x="170" y="200" width="360" height="80" rx="6" fill="#f3e8ff" stroke="#a855f7" stroke-width="2"/>
+                <text x="195" y="225" font-size="12" font-weight="bold" fill="#7c3aed">&lt;div id="parent"&gt;</text>
+                
+                <!-- Target button -->
+                <rect x="270" y="240" width="160" height="30" rx="4" fill="#fcd34d" stroke="#f59e0b" stroke-width="3"/>
+                <text x="350" y="260" text-anchor="middle" font-size="11" font-weight="bold" fill="#78350f">&lt;button&gt; TARGET</text>
+                
+                <!-- Capture arrow (left side, going down) -->
+                <path d="M60 80 L60 260" stroke="#ef4444" stroke-width="3" marker-end="url(#arrowDown)"/>
+                <text x="35" y="170" font-size="10" fill="#dc2626" transform="rotate(-90, 35, 170)">CAPTURE ↓</text>
+                <text x="65" y="85" font-size="10" fill="#dc2626">①</text>
+                
+                <!-- Bubble arrow (right side, going up) -->
+                <path d="M640 260 L640 80" stroke="#10b981" stroke-width="3" marker-end="url(#arrowUp)"/>
+                <text x="660" y="170" font-size="10" fill="#059669" transform="rotate(90, 660, 170)">BUBBLE ↑</text>
+                <text x="645" y="265" font-size="10" fill="#059669">③</text>
+                
+                <!-- Target indicator -->
+                <text x="350" y="295" text-anchor="middle" font-size="11" font-weight="bold" fill="#d97706">② TARGET PHASE</text>
+                
+                <defs>
+                    <marker id="arrowDown" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+                        <path d="M0,0 L10,5 L0,10 z" fill="#ef4444"/>
+                    </marker>
+                    <marker id="arrowUp" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+                        <path d="M10,0 L0,5 L10,10 z" fill="#10b981"/>
+                    </marker>
+                </defs>
+            </svg>
+        </div>
+        
+        <div class="phase-card capture">
+            <h4 style="color: #dc2626;">Phase 1: Capture Phase (Top → Down)</h4>
+            <p>Event travels from <span class="inline-code">window</span> down to the target element. Rarely used, but useful for intercepting events before they reach children.</p>
+<pre><span class="comment">// Listen during capture phase</span>
+element.<span class="function">addEventListener</span>(<span class="string">'click'</span>, handler, { <span class="property">capture</span>: <span class="keyword">true</span> });
+<span class="comment">// Or shorthand:</span>
+element.<span class="function">addEventListener</span>(<span class="string">'click'</span>, handler, <span class="keyword">true</span>);</pre>
+        </div>
+        
+        <div class="phase-card target">
+            <h4 style="color: #ca8a04;">Phase 2: Target Phase</h4>
+            <p>Event reaches the target element (the one that was actually clicked/interacted with). Both capture and bubble handlers fire here.</p>
+        </div>
+        
+        <div class="phase-card bubble">
+            <h4 style="color: #059669;">Phase 3: Bubble Phase (Down → Top)</h4>
+            <p>Event bubbles up from target back to <span class="inline-code">window</span>. This is the <strong>default</strong> phase where most handlers run.</p>
+<pre><span class="comment">// Listen during bubble phase (default)</span>
+element.<span class="function">addEventListener</span>(<span class="string">'click'</span>, handler);
+element.<span class="function">addEventListener</span>(<span class="string">'click'</span>, handler, { <span class="property">capture</span>: <span class="keyword">false</span> });</pre>
+        </div>
+        
+        <h3>See Propagation in Action:</h3>
+        
+<pre><span class="comment">// HTML:</span>
+<span class="comment">// &lt;div id="grandparent"&gt;</span>
+<span class="comment">//   &lt;div id="parent"&gt;</span>
+<span class="comment">//     &lt;button id="child"&gt;Click me&lt;/button&gt;</span>
+<span class="comment">//   &lt;/div&gt;</span>
+<span class="comment">// &lt;/div&gt;</span>
+
+<span class="keyword">const</span> grandparent = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'grandparent'</span>);
+<span class="keyword">const</span> parent = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'parent'</span>);
+<span class="keyword">const</span> child = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'child'</span>);
+
+<span class="comment">// Capture phase handlers (fire first, top-down)</span>
+grandparent.<span class="function">addEventListener</span>(<span class="string">'click'</span>, () => <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'1. Grandparent CAPTURE'</span>), <span class="keyword">true</span>);
+parent.<span class="function">addEventListener</span>(<span class="string">'click'</span>, () => <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'2. Parent CAPTURE'</span>), <span class="keyword">true</span>);
+child.<span class="function">addEventListener</span>(<span class="string">'click'</span>, () => <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'3. Child CAPTURE'</span>), <span class="keyword">true</span>);
+
+<span class="comment">// Bubble phase handlers (fire after, bottom-up)</span>
+child.<span class="function">addEventListener</span>(<span class="string">'click'</span>, () => <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'4. Child BUBBLE'</span>));
+parent.<span class="function">addEventListener</span>(<span class="string">'click'</span>, () => <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'5. Parent BUBBLE'</span>));
+grandparent.<span class="function">addEventListener</span>(<span class="string">'click'</span>, () => <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'6. Grandparent BUBBLE'</span>));
+
+<span class="comment">// Click the button - Output:</span>
+<span class="comment">// 1. Grandparent CAPTURE</span>
+<span class="comment">// 2. Parent CAPTURE</span>
+<span class="comment">// 3. Child CAPTURE</span>
+<span class="comment">// 4. Child BUBBLE</span>
+<span class="comment">// 5. Parent BUBBLE</span>
+<span class="comment">// 6. Grandparent BUBBLE</span></pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 6.6 -->
+        <h2>6.6 Controlling Propagation</h2>
+        
+<pre><span class="keyword">function</span> <span class="function">handleClick</span>(event) {
+    <span class="comment">// ━━━━━━━━━━ stopPropagation() ━━━━━━━━━━</span>
+    <span class="comment">// Stops event from traveling to next elements</span>
+    <span class="comment">// Other handlers on SAME element still fire</span>
+    event.<span class="function">stopPropagation</span>();
+    
+    <span class="comment">// ━━━━━━━━━━ stopImmediatePropagation() ━━━━━━━━━━</span>
+    <span class="comment">// Stops propagation AND prevents other handlers</span>
+    <span class="comment">// on the SAME element from firing</span>
+    event.<span class="function">stopImmediatePropagation</span>();
+    
+    <span class="comment">// ━━━━━━━━━━ preventDefault() ━━━━━━━━━━</span>
+    <span class="comment">// Prevents the browser's DEFAULT action</span>
+    <span class="comment">// Does NOT stop propagation!</span>
+    event.<span class="function">preventDefault</span>();
+}
+
+<span class="comment">// Common preventDefault use cases:</span>
+
+<span class="comment">// Prevent form submission</span>
+form.<span class="function">addEventListener</span>(<span class="string">'submit'</span>, (e) => {
+    e.<span class="function">preventDefault</span>();  <span class="comment">// Stop page reload</span>
+    <span class="comment">// Handle with JavaScript instead</span>
+});
+
+<span class="comment">// Prevent link navigation</span>
+link.<span class="function">addEventListener</span>(<span class="string">'click'</span>, (e) => {
+    e.<span class="function">preventDefault</span>();  <span class="comment">// Don't navigate</span>
+    <span class="comment">// Do something else</span>
+});
+
+<span class="comment">// Prevent context menu</span>
+element.<span class="function">addEventListener</span>(<span class="string">'contextmenu'</span>, (e) => {
+    e.<span class="function">preventDefault</span>();  <span class="comment">// No right-click menu</span>
+    <span class="comment">// Show custom menu</span>
+});</pre>
+
+        <div class="warning-box">
+            <strong>Don't overuse stopPropagation()!</strong>
+            <p>Stopping propagation can break:</p>
+            <ul>
+                <li>Event delegation patterns</li>
+                <li>Analytics tracking (click tracking scripts)</li>
+                <li>Third-party libraries that rely on bubbling</li>
+                <li>Parent component behaviors</li>
+            </ul>
+            <p>Prefer conditional logic in handlers instead of stopping propagation.</p>
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 6.7 -->
+        <h2>6.7 Event Delegation — The Power Pattern</h2>
+        
+        <div class="concept-box">
+            <p><strong>Event delegation</strong> leverages event bubbling to handle events on multiple elements with a single listener on their parent. This is one of the most important patterns in DOM programming!</p>
+        </div>
+        
+        <div class="diagram">
+            <h3 style="margin-bottom: 15px;">Without vs With Event Delegation</h3>
+            <svg viewBox="0 0 700 180" style="max-width: 700px;">
+                <!-- Without delegation -->
+                <rect x="20" y="20" width="300" height="140" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+                <text x="170" y="45" text-anchor="middle" font-size="12" font-weight="bold" fill="#dc2626">❌ Without Delegation</text>
+                <text x="170" y="65" text-anchor="middle" font-size="10" fill="#7f1d1d">100 items = 100 listeners</text>
+                
+                <rect x="40" y="80" width="50" height="25" rx="4" fill="#fecaca"/>
+                <text x="65" y="97" text-anchor="middle" font-size="8" fill="#991b1b">listener</text>
+                <rect x="100" y="80" width="50" height="25" rx="4" fill="#fecaca"/>
+                <text x="125" y="97" text-anchor="middle" font-size="8" fill="#991b1b">listener</text>
+                <rect x="160" y="80" width="50" height="25" rx="4" fill="#fecaca"/>
+                <text x="185" y="97" text-anchor="middle" font-size="8" fill="#991b1b">listener</text>
+                <rect x="220" y="80" width="50" height="25" rx="4" fill="#fecaca"/>
+                <text x="245" y="97" text-anchor="middle" font-size="8" fill="#991b1b">listener</text>
+                <text x="285" y="97" text-anchor="middle" font-size="12" fill="#dc2626">...</text>
+                
+                <text x="170" y="130" text-anchor="middle" font-size="9" fill="#b91c1c">• High memory usage</text>
+                <text x="170" y="145" text-anchor="middle" font-size="9" fill="#b91c1c">• Doesn't work for dynamic items</text>
+                
+                <!-- With delegation -->
+                <rect x="380" y="20" width="300" height="140" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+                <text x="530" y="45" text-anchor="middle" font-size="12" font-weight="bold" fill="#059669">✅ With Delegation</text>
+                <text x="530" y="65" text-anchor="middle" font-size="10" fill="#064e3b">100 items = 1 listener</text>
+                
+                <rect x="400" y="75" width="260" height="50" rx="6" fill="#a7f3d0" stroke="#10b981" stroke-width="2"/>
+                <text x="530" y="95" text-anchor="middle" font-size="10" font-weight="bold" fill="#065f46">Parent (1 listener)</text>
+                <text x="530" y="115" text-anchor="middle" font-size="9" fill="#047857">All children handled!</text>
+                
+                <text x="530" y="145" text-anchor="middle" font-size="9" fill="#065f46">• Low memory • Works for dynamic items!</text>
+            </svg>
+        </div>
+        
+<pre><span class="comment">// ❌ BAD: Adding listener to each item</span>
+<span class="variable">document</span>.<span class="function">querySelectorAll</span>(<span class="string">'.item'</span>).<span class="function">forEach</span>(item => {
+    item.<span class="function">addEventListener</span>(<span class="string">'click'</span>, handleItemClick);
+});
+<span class="comment">// Problems:</span>
+<span class="comment">// - Memory: 1000 items = 1000 listeners</span>
+<span class="comment">// - Dynamic items: New items won't have listeners!</span>
+
+<span class="comment">// ✅ GOOD: Event delegation</span>
+<span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'.item-list'</span>).<span class="function">addEventListener</span>(<span class="string">'click'</span>, (e) => {
+    <span class="comment">// Find the item that was clicked</span>
+    <span class="keyword">const</span> item = e.<span class="property">target</span>.<span class="function">closest</span>(<span class="string">'.item'</span>);
+    
+    <span class="comment">// Guard clauses</span>
+    <span class="keyword">if</span> (!item) <span class="keyword">return</span>;  <span class="comment">// Clicked outside any item</span>
+    
+    <span class="comment">// Handle the click</span>
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Clicked item:'</span>, item.<span class="property">dataset</span>.<span class="property">id</span>);
+});
+<span class="comment">// Benefits:</span>
+<span class="comment">// - Memory: Just 1 listener!</span>
+<span class="comment">// - Dynamic: Works for items added later!</span></pre>
+
+        <h3>Advanced Delegation Pattern:</h3>
+        
+<pre><span class="comment">// Handle multiple actions with data attributes</span>
+<span class="comment">// HTML:</span>
+<span class="comment">// &lt;ul class="todo-list"&gt;</span>
+<span class="comment">//   &lt;li data-id="1"&gt;</span>
+<span class="comment">//     &lt;span&gt;Task text&lt;/span&gt;</span>
+<span class="comment">//     &lt;button data-action="edit"&gt;Edit&lt;/button&gt;</span>
+<span class="comment">//     &lt;button data-action="delete"&gt;Delete&lt;/button&gt;</span>
+<span class="comment">//   &lt;/li&gt;</span>
+<span class="comment">// &lt;/ul&gt;</span>
+
+<span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'.todo-list'</span>).<span class="function">addEventListener</span>(<span class="string">'click'</span>, (e) => {
+    <span class="comment">// Find the action button</span>
+    <span class="keyword">const</span> actionBtn = e.<span class="property">target</span>.<span class="function">closest</span>(<span class="string">'[data-action]'</span>);
+    <span class="keyword">if</span> (!actionBtn) <span class="keyword">return</span>;
+    
+    <span class="comment">// Find the parent item</span>
+    <span class="keyword">const</span> item = actionBtn.<span class="function">closest</span>(<span class="string">'li'</span>);
+    <span class="keyword">const</span> itemId = item.<span class="property">dataset</span>.<span class="property">id</span>;
+    <span class="keyword">const</span> action = actionBtn.<span class="property">dataset</span>.<span class="property">action</span>;
+    
+    <span class="comment">// Route to appropriate handler</span>
+    <span class="keyword">switch</span> (action) {
+        <span class="keyword">case</span> <span class="string">'edit'</span>:
+            <span class="function">editItem</span>(itemId);
+            <span class="keyword">break</span>;
+        <span class="keyword">case</span> <span class="string">'delete'</span>:
+            <span class="function">deleteItem</span>(itemId);
+            <span class="keyword">break</span>;
+    }
+});
+
+<span class="comment">// Even cleaner: action map</span>
+<span class="keyword">const</span> actions = {
+    <span class="function">edit</span>(itemId) { <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Edit'</span>, itemId); },
+    <span class="function">delete</span>(itemId) { <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Delete'</span>, itemId); },
+    <span class="function">toggle</span>(itemId) { <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Toggle'</span>, itemId); }
+};
+
+list.<span class="function">addEventListener</span>(<span class="string">'click'</span>, (e) => {
+    <span class="keyword">const</span> btn = e.<span class="property">target</span>.<span class="function">closest</span>(<span class="string">'[data-action]'</span>);
+    <span class="keyword">if</span> (!btn) <span class="keyword">return</span>;
+    
+    <span class="keyword">const</span> action = btn.<span class="property">dataset</span>.<span class="property">action</span>;
+    <span class="keyword">const</span> id = btn.<span class="function">closest</span>(<span class="string">'li'</span>).<span class="property">dataset</span>.<span class="property">id</span>;
+    
+    actions[action]?.(id);  <span class="comment">// Call if exists</span>
+});</pre>
+
+        <div class="section-divider"></div>
+        
+        <h2>Chapter 6 Summary</h2>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Concept</th>
+                    <th>Key Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>addEventListener</td>
+                    <td>Preferred method, supports options, multiple handlers</td>
+                </tr>
+                <tr>
+                    <td>Event Object</td>
+                    <td>Contains type, target, currentTarget, methods to control propagation</td>
+                </tr>
+                <tr>
+                    <td>target vs currentTarget</td>
+                    <td>target = triggered element; currentTarget = handler's element</td>
+                </tr>
+                <tr>
+                    <td>Propagation</td>
+                    <td>Capture (down) → Target → Bubble (up)</td>
+                </tr>
+                <tr>
+                    <td>stopPropagation()</td>
+                    <td>Stops event from traveling further</td>
+                </tr>
+                <tr>
+                    <td>preventDefault()</td>
+                    <td>Stops browser default action (doesn't affect propagation)</td>
+                </tr>
+                <tr>
+                    <td>Event Delegation</td>
+                    <td>One parent listener handles all children - use closest()</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="interview-tip">
+            <strong>Top Interview Questions:</strong>
+            <ol>
+                <li>What are the three phases of event propagation?</li>
+                <li>What's the difference between target and currentTarget?</li>
+                <li>What's the difference between stopPropagation and preventDefault?</li>
+                <li>What is event delegation and why is it useful?</li>
+                <li>How would you remove an event listener that was added with an arrow function?</li>
+                <li>What does the { once: true } option do?</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

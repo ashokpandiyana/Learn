@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 8: Custom Events</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.7;
+            color: #1a1a2e;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #7dd3fc;
+        }
+        h2 {
+            font-size: 1.5rem;
+            color: #0369a1;
+            margin: 35px 0 20px;
+            padding-left: 15px;
+            border-left: 4px solid #0ea5e9;
+        }
+        h3 { font-size: 1.2rem; color: #0284c7; margin: 25px 0 15px; }
+        h4 { font-size: 1.05rem; color: #0369a1; margin: 20px 0 12px; }
+        p { margin-bottom: 15px; color: #374151; }
+        .concept-box {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .key-point {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            border-left: 4px solid #0ea5e9;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .key-point::before {
+            content: "🔑 Key Point";
+            font-weight: bold;
+            color: #0369a1;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .use-case {
+            background: linear-gradient(135deg, #ecfdf5 0%, #a7f3d0 100%);
+            border-left: 4px solid #10b981;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .use-case::before {
+            content: "💡 Use Case";
+            font-weight: bold;
+            color: #065f46;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .interview-tip {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .interview-tip::before {
+            content: "💼 Interview Question";
+            font-weight: bold;
+            color: #b45309;
+            display: block;
+            margin-bottom: 10px;
+        }
+        pre {
+            background: #0c4a6e;
+            color: #e0f2fe;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+        .inline-code {
+            background: #e0f2fe;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #0369a1;
+            font-family: 'Fira Code', monospace;
+        }
+        .keyword { color: #a5f3fc; }
+        .string { color: #86efac; }
+        .comment { color: #7dd3fc; font-style: italic; }
+        .function { color: #f0abfc; }
+        .variable { color: #fcd34d; }
+        .property { color: #fdba74; }
+        .result { color: #86efac; }
+        .diagram {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0f2fe;
+        }
+        .comparison-table tr:hover { background: #f0f9ff; }
+        ul, ol { margin: 15px 0 15px 25px; color: #374151; }
+        li { margin-bottom: 8px; }
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #0ea5e9, transparent);
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chapter 8: Custom Events</h1>
+        <p class="subtitle">Creating Your Own Events — Building Loosely Coupled, Event-Driven Applications</p>
+        
+        <div class="concept-box">
+            <p>While the browser provides built-in events like <span class="inline-code">click</span> and <span class="inline-code">submit</span>, you can create your own <strong>custom events</strong> to communicate between different parts of your application. This enables loose coupling and better code organization.</p>
+        </div>
+        
+        <!-- Section 8.1 -->
+        <h2>8.1 Creating Custom Events</h2>
+        
+        <p>The <span class="inline-code">CustomEvent</span> constructor allows you to create events with custom names and data.</p>
+        
+<pre><span class="comment">// ━━━━━━━━━━ Basic CustomEvent ━━━━━━━━━━</span>
+<span class="keyword">const</span> event = <span class="keyword">new</span> <span class="function">CustomEvent</span>(<span class="string">'myCustomEvent'</span>);
+
+<span class="comment">// Dispatch it on any element</span>
+element.<span class="function">dispatchEvent</span>(event);
+
+<span class="comment">// ━━━━━━━━━━ CustomEvent with Data ━━━━━━━━━━</span>
+<span class="keyword">const</span> eventWithData = <span class="keyword">new</span> <span class="function">CustomEvent</span>(<span class="string">'userLoggedIn'</span>, {
+    <span class="property">detail</span>: {
+        userId: <span class="variable">123</span>,
+        username: <span class="string">'john_doe'</span>,
+        timestamp: <span class="variable">Date</span>.<span class="function">now</span>()
+    }
+});
+
+<span class="comment">// ━━━━━━━━━━ Full Options ━━━━━━━━━━</span>
+<span class="keyword">const</span> fullEvent = <span class="keyword">new</span> <span class="function">CustomEvent</span>(<span class="string">'itemSelected'</span>, {
+    <span class="property">detail</span>: { itemId: <span class="variable">42</span> },      <span class="comment">// Custom data (access via e.detail)</span>
+    <span class="property">bubbles</span>: <span class="keyword">true</span>,              <span class="comment">// Should it bubble up? (default: false)</span>
+    <span class="property">cancelable</span>: <span class="keyword">true</span>,           <span class="comment">// Can it be cancelled? (default: false)</span>
+    <span class="property">composed</span>: <span class="keyword">true</span>              <span class="comment">// Cross shadow DOM boundary? (default: false)</span>
+});</pre>
+
+        <h3>CustomEvent Options Explained:</h3>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Option</th>
+                    <th>Default</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="inline-code">detail</span></td>
+                    <td>null</td>
+                    <td>Custom data attached to event. Access via <span class="inline-code">event.detail</span></td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">bubbles</span></td>
+                    <td>false</td>
+                    <td>If true, event bubbles up through ancestors</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">cancelable</span></td>
+                    <td>false</td>
+                    <td>If true, <span class="inline-code">preventDefault()</span> can cancel it</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">composed</span></td>
+                    <td>false</td>
+                    <td>If true, event crosses shadow DOM boundaries</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 8.2 -->
+        <h2>8.2 Dispatching and Listening to Custom Events</h2>
+        
+<pre><span class="comment">// ━━━━━━━━━━ Complete Example ━━━━━━━━━━</span>
+
+<span class="comment">// 1. LISTEN for the custom event</span>
+<span class="variable">document</span>.<span class="function">addEventListener</span>(<span class="string">'productAddedToCart'</span>, (e) => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Product added!'</span>);
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Product ID:'</span>, e.<span class="property">detail</span>.<span class="property">productId</span>);
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Quantity:'</span>, e.<span class="property">detail</span>.<span class="property">quantity</span>);
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Price:'</span>, e.<span class="property">detail</span>.<span class="property">price</span>);
+    
+    <span class="comment">// Update cart UI, send analytics, etc.</span>
+});
+
+<span class="comment">// 2. DISPATCH the event somewhere else in your code</span>
+<span class="keyword">function</span> <span class="function">addToCart</span>(product) {
+    <span class="comment">// ... add to cart logic ...</span>
+    
+    <span class="comment">// Notify other parts of the app</span>
+    <span class="keyword">const</span> event = <span class="keyword">new</span> <span class="function">CustomEvent</span>(<span class="string">'productAddedToCart'</span>, {
+        <span class="property">detail</span>: {
+            productId: product.<span class="property">id</span>,
+            quantity: <span class="variable">1</span>,
+            price: product.<span class="property">price</span>
+        },
+        <span class="property">bubbles</span>: <span class="keyword">true</span>  <span class="comment">// So it can be caught by ancestors</span>
+    });
+    
+    <span class="comment">// Dispatch from the button that was clicked</span>
+    <span class="keyword">this</span>.<span class="function">dispatchEvent</span>(event);
+    
+    <span class="comment">// Or dispatch from document for global events</span>
+    <span class="variable">document</span>.<span class="function">dispatchEvent</span>(event);
+}</pre>
+
+        <div class="key-point">
+            <strong>Where to dispatch?</strong>
+            <ul>
+                <li><strong>On the relevant element</strong> — If the event relates to a specific element and should bubble</li>
+                <li><strong>On document</strong> — For app-wide events that any code might need to hear</li>
+                <li><strong>On window</strong> — For events that other windows/iframes might need</li>
+            </ul>
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 8.3 -->
+        <h2>8.3 Making Events Cancelable</h2>
+        
+<pre><span class="comment">// Create a cancelable event</span>
+<span class="keyword">const</span> event = <span class="keyword">new</span> <span class="function">CustomEvent</span>(<span class="string">'itemDelete'</span>, {
+    <span class="property">detail</span>: { itemId: <span class="variable">42</span> },
+    <span class="property">cancelable</span>: <span class="keyword">true</span>,  <span class="comment">// Allow cancellation</span>
+    <span class="property">bubbles</span>: <span class="keyword">true</span>
+});
+
+<span class="comment">// Listener can prevent the action</span>
+element.<span class="function">addEventListener</span>(<span class="string">'itemDelete'</span>, (e) => {
+    <span class="keyword">const</span> confirmed = <span class="function">confirm</span>(<span class="string">'Are you sure?'</span>);
+    <span class="keyword">if</span> (!confirmed) {
+        e.<span class="function">preventDefault</span>();  <span class="comment">// Cancel the event!</span>
+    }
+});
+
+<span class="comment">// Check if event was cancelled</span>
+<span class="keyword">function</span> <span class="function">deleteItem</span>(itemId) {
+    <span class="keyword">const</span> event = <span class="keyword">new</span> <span class="function">CustomEvent</span>(<span class="string">'itemDelete'</span>, {
+        <span class="property">detail</span>: { itemId },
+        <span class="property">cancelable</span>: <span class="keyword">true</span>
+    });
+    
+    <span class="keyword">const</span> notCancelled = element.<span class="function">dispatchEvent</span>(event);
+    
+    <span class="keyword">if</span> (notCancelled) {
+        <span class="comment">// Actually delete the item</span>
+        <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Deleting item...'</span>);
+    } <span class="keyword">else</span> {
+        <span class="comment">// Event was cancelled</span>
+        <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Delete cancelled'</span>);
+    }
+}</pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 8.4 -->
+        <h2>8.4 Practical Use Cases</h2>
+        
+        <div class="use-case">
+            <strong>1. Component Communication</strong>
+            <p>Let independent components communicate without direct references.</p>
+        </div>
+        
+<pre><span class="comment">// Tab Component - dispatches when tab changes</span>
+<span class="keyword">class</span> <span class="function">TabComponent</span> {
+    <span class="function">selectTab</span>(tabId) {
+        <span class="keyword">this</span>.<span class="property">activeTab</span> = tabId;
+        
+        <span class="keyword">this</span>.<span class="property">element</span>.<span class="function">dispatchEvent</span>(<span class="keyword">new</span> <span class="function">CustomEvent</span>(<span class="string">'tabChange'</span>, {
+            <span class="property">detail</span>: { tabId },
+            <span class="property">bubbles</span>: <span class="keyword">true</span>
+        }));
+    }
+}
+
+<span class="comment">// Content Component - listens and responds</span>
+<span class="keyword">class</span> <span class="function">ContentComponent</span> {
+    <span class="function">constructor</span>() {
+        <span class="variable">document</span>.<span class="function">addEventListener</span>(<span class="string">'tabChange'</span>, (e) => {
+            <span class="keyword">this</span>.<span class="function">showContent</span>(e.<span class="property">detail</span>.<span class="property">tabId</span>);
+        });
+    }
+}</pre>
+
+        <div class="use-case">
+            <strong>2. Application State Changes</strong>
+            <p>Notify multiple parts of your app when state changes.</p>
+        </div>
+        
+<pre><span class="comment">// Simple state manager with events</span>
+<span class="keyword">const</span> store = {
+    <span class="property">state</span>: { user: <span class="keyword">null</span>, cart: [] },
+    
+    <span class="function">setState</span>(key, value) {
+        <span class="keyword">const</span> oldValue = <span class="keyword">this</span>.<span class="property">state</span>[key];
+        <span class="keyword">this</span>.<span class="property">state</span>[key] = value;
+        
+        <span class="variable">document</span>.<span class="function">dispatchEvent</span>(<span class="keyword">new</span> <span class="function">CustomEvent</span>(<span class="string">'stateChange'</span>, {
+            <span class="property">detail</span>: { key, oldValue, newValue: value }
+        }));
+    }
+};
+
+<span class="comment">// Any component can listen</span>
+<span class="variable">document</span>.<span class="function">addEventListener</span>(<span class="string">'stateChange'</span>, (e) => {
+    <span class="keyword">if</span> (e.<span class="property">detail</span>.<span class="property">key</span> === <span class="string">'user'</span>) {
+        <span class="function">updateUserUI</span>(e.<span class="property">detail</span>.<span class="property">newValue</span>);
+    }
+});</pre>
+
+        <div class="use-case">
+            <strong>3. Loading States</strong>
+            <p>Coordinate loading indicators across the app.</p>
+        </div>
+        
+<pre><span class="comment">// Dispatch loading events</span>
+<span class="keyword">function</span> <span class="function">fetchData</span>() {
+    <span class="variable">document</span>.<span class="function">dispatchEvent</span>(<span class="keyword">new</span> <span class="function">CustomEvent</span>(<span class="string">'loadingStart'</span>, {
+        <span class="property">detail</span>: { source: <span class="string">'userData'</span> }
+    }));
+    
+    <span class="function">fetch</span>(<span class="string">'/api/data'</span>)
+        .<span class="function">then</span>(response => response.<span class="function">json</span>())
+        .<span class="function">finally</span>(() => {
+            <span class="variable">document</span>.<span class="function">dispatchEvent</span>(<span class="keyword">new</span> <span class="function">CustomEvent</span>(<span class="string">'loadingEnd'</span>, {
+                <span class="property">detail</span>: { source: <span class="string">'userData'</span> }
+            }));
+        });
+}
+
+<span class="comment">// Global loading indicator</span>
+<span class="keyword">let</span> loadingCount = <span class="variable">0</span>;
+<span class="variable">document</span>.<span class="function">addEventListener</span>(<span class="string">'loadingStart'</span>, () => {
+    loadingCount++;
+    spinner.<span class="property">style</span>.<span class="property">display</span> = <span class="string">'block'</span>;
+});
+<span class="variable">document</span>.<span class="function">addEventListener</span>(<span class="string">'loadingEnd'</span>, () => {
+    loadingCount--;
+    <span class="keyword">if</span> (loadingCount === <span class="variable">0</span>) {
+        spinner.<span class="property">style</span>.<span class="property">display</span> = <span class="string">'none'</span>;
+    }
+});</pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 8.5 -->
+        <h2>8.5 Event Bus Pattern</h2>
+        
+        <p>For more complex applications, you might want a dedicated event bus:</p>
+        
+<pre><span class="comment">// Simple Event Bus implementation</span>
+<span class="keyword">const</span> EventBus = {
+    <span class="property">events</span>: {},
+    
+    <span class="function">on</span>(event, callback) {
+        <span class="keyword">if</span> (!<span class="keyword">this</span>.<span class="property">events</span>[event]) {
+            <span class="keyword">this</span>.<span class="property">events</span>[event] = [];
+        }
+        <span class="keyword">this</span>.<span class="property">events</span>[event].<span class="function">push</span>(callback);
+        
+        <span class="comment">// Return unsubscribe function</span>
+        <span class="keyword">return</span> () => <span class="keyword">this</span>.<span class="function">off</span>(event, callback);
+    },
+    
+    <span class="function">off</span>(event, callback) {
+        <span class="keyword">if</span> (!<span class="keyword">this</span>.<span class="property">events</span>[event]) <span class="keyword">return</span>;
+        <span class="keyword">this</span>.<span class="property">events</span>[event] = <span class="keyword">this</span>.<span class="property">events</span>[event]
+            .<span class="function">filter</span>(cb => cb !== callback);
+    },
+    
+    <span class="function">emit</span>(event, data) {
+        <span class="keyword">if</span> (!<span class="keyword">this</span>.<span class="property">events</span>[event]) <span class="keyword">return</span>;
+        <span class="keyword">this</span>.<span class="property">events</span>[event].<span class="function">forEach</span>(callback => {
+            <span class="function">callback</span>(data);
+        });
+    },
+    
+    <span class="comment">// Fire once then auto-remove</span>
+    <span class="function">once</span>(event, callback) {
+        <span class="keyword">const</span> <span class="function">wrapper</span> = (data) => {
+            <span class="function">callback</span>(data);
+            <span class="keyword">this</span>.<span class="function">off</span>(event, wrapper);
+        };
+        <span class="keyword">this</span>.<span class="function">on</span>(event, wrapper);
+    }
+};
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> unsubscribe = EventBus.<span class="function">on</span>(<span class="string">'userLoggedIn'</span>, (user) => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'User logged in:'</span>, user.<span class="property">name</span>);
+});
+
+EventBus.<span class="function">emit</span>(<span class="string">'userLoggedIn'</span>, { id: <span class="variable">1</span>, name: <span class="string">'John'</span> });
+
+<span class="comment">// Later, unsubscribe</span>
+<span class="function">unsubscribe</span>();</pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 8.6 -->
+        <h2>8.6 Built-in Event Constructors</h2>
+        
+        <p>Besides <span class="inline-code">CustomEvent</span>, you can create instances of built-in event types:</p>
+        
+<pre><span class="comment">// Create specific event types programmatically</span>
+
+<span class="comment">// Generic Event</span>
+<span class="keyword">new</span> <span class="function">Event</span>(<span class="string">'click'</span>);
+<span class="keyword">new</span> <span class="function">Event</span>(<span class="string">'submit'</span>, { <span class="property">bubbles</span>: <span class="keyword">true</span>, <span class="property">cancelable</span>: <span class="keyword">true</span> });
+
+<span class="comment">// Mouse Event</span>
+<span class="keyword">new</span> <span class="function">MouseEvent</span>(<span class="string">'click'</span>, {
+    <span class="property">clientX</span>: <span class="variable">100</span>,
+    <span class="property">clientY</span>: <span class="variable">200</span>,
+    <span class="property">button</span>: <span class="variable">0</span>,
+    <span class="property">bubbles</span>: <span class="keyword">true</span>
+});
+
+<span class="comment">// Keyboard Event</span>
+<span class="keyword">new</span> <span class="function">KeyboardEvent</span>(<span class="string">'keydown'</span>, {
+    <span class="property">key</span>: <span class="string">'Enter'</span>,
+    <span class="property">code</span>: <span class="string">'Enter'</span>,
+    <span class="property">ctrlKey</span>: <span class="keyword">true</span>,
+    <span class="property">bubbles</span>: <span class="keyword">true</span>
+});
+
+<span class="comment">// Focus Event</span>
+<span class="keyword">new</span> <span class="function">FocusEvent</span>(<span class="string">'focus'</span>, {
+    <span class="property">relatedTarget</span>: previousElement
+});
+
+<span class="comment">// Input Event</span>
+<span class="keyword">new</span> <span class="function">InputEvent</span>(<span class="string">'input'</span>, {
+    <span class="property">data</span>: <span class="string">'typed text'</span>,
+    <span class="property">inputType</span>: <span class="string">'insertText'</span>,
+    <span class="property">bubbles</span>: <span class="keyword">true</span>
+});
+
+<span class="comment">// Programmatically trigger a click</span>
+button.<span class="function">dispatchEvent</span>(<span class="keyword">new</span> <span class="function">MouseEvent</span>(<span class="string">'click'</span>, { <span class="property">bubbles</span>: <span class="keyword">true</span> }));</pre>
+
+        <div class="interview-tip">
+            <strong>"What's the difference between Event and CustomEvent?"</strong>
+            <p><span class="inline-code">Event</span> is the base event class. <span class="inline-code">CustomEvent</span> extends it and adds the <span class="inline-code">detail</span> property for passing custom data. Use <span class="inline-code">CustomEvent</span> when you need to send data with your event.</p>
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <h2>Chapter 8 Summary</h2>
+        
+        <div class="concept-box">
+            <h3>Quick Reference</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Concept</th>
+                        <th>Code</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Create event</td>
+                        <td><span class="inline-code">new CustomEvent('name', { detail: data })</span></td>
+                    </tr>
+                    <tr>
+                        <td>Dispatch event</td>
+                        <td><span class="inline-code">element.dispatchEvent(event)</span></td>
+                    </tr>
+                    <tr>
+                        <td>Listen for event</td>
+                        <td><span class="inline-code">element.addEventListener('name', handler)</span></td>
+                    </tr>
+                    <tr>
+                        <td>Access data</td>
+                        <td><span class="inline-code">event.detail</span></td>
+                    </tr>
+                    <tr>
+                        <td>Make it bubble</td>
+                        <td><span class="inline-code">{ bubbles: true }</span></td>
+                    </tr>
+                    <tr>
+                        <td>Make it cancelable</td>
+                        <td><span class="inline-code">{ cancelable: true }</span></td>
+                    </tr>
+                    <tr>
+                        <td>Check if cancelled</td>
+                        <td><span class="inline-code">const allowed = element.dispatchEvent(event)</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 17: Server-Sent Events</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        h2 {
+            color: #f5576c;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #f5576c;
+        }
+        
+        h3 {
+            color: #f093fb;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+        
+        .concept-box {
+            background: #f8f9fa;
+            border-left: 4px solid #f5576c;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .key-point {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box {
+            background: #cfe2ff;
+            border-left: 4px solid #0d6efd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .code-block .comment {
+            color: #6272a4;
+        }
+        
+        .code-block .keyword {
+            color: #ff79c6;
+        }
+        
+        .code-block .string {
+            color: #f1fa8c;
+        }
+        
+        .code-block .function {
+            color: #50fa7b;
+        }
+        
+        .code-block .number {
+            color: #bd93f9;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            border: 2px solid #f5576c;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .sse-flow {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .flow-box {
+            background: white;
+            border: 2px solid #f5576c;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .flow-arrow {
+            font-size: 30px;
+            color: #f5576c;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: #f5576c;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .demo-section {
+            background: #ffe0e6;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #f5576c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            background: #f093fb;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        input {
+            padding: 10px;
+            border: 2px solid #f5576c;
+            border-radius: 5px;
+            font-size: 16px;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .output {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            min-height: 100px;
+            border: 2px solid #f5576c;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+        
+        .format-example {
+            background: white;
+            border: 2px solid #f5576c;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .format-example h4 {
+            color: #f5576c;
+            margin-bottom: 10px;
+        }
+        
+        .state-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .state-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #f5576c;
+            text-align: center;
+        }
+        
+        .state-card h4 {
+            color: #f5576c;
+            margin-bottom: 10px;
+        }
+        
+        .state-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #f093fb;
+        }
+        
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .use-case-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #f5576c;
+            transition: transform 0.3s;
+        }
+        
+        .use-case-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .use-case-card h4 {
+            color: #f5576c;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📡 Chapter 17: Server-Sent Events (SSE)</h1>
+            <p>One-Way Server Push over HTTP</p>
+        </div>
+        
+        <div class="content">
+            
+            <!-- Introduction -->
+            <div class="section">
+                <h2>🎯 What are Server-Sent Events?</h2>
+                
+                <div class="concept-box">
+                    <p><strong>Server-Sent Events (SSE)</strong> is a web technology that allows servers to push data to clients over HTTP. Unlike WebSockets, SSE is unidirectional - data flows only from server to client.</p>
+                    
+                    <p style="margin-top: 15px;"><strong>Key Characteristics:</strong></p>
+                    <ul style="margin-left: 25px; margin-top: 10px;">
+                        <li>📤 <strong>One-Way:</strong> Server → Client only</li>
+                        <li>🌐 <strong>HTTP-Based:</strong> Works over standard HTTP/HTTPS</li>
+                        <li>🔄 <strong>Auto-Reconnect:</strong> Automatic reconnection on disconnect</li>
+                        <li>⚡ <strong>Simple:</strong> Easier than WebSockets for server push</li>
+                        <li>📝 <strong>Text-Based:</strong> UTF-8 encoded text data</li>
+                        <li>🎯 <strong>Event-Driven:</strong> Named events support</li>
+                    </ul>
+                </div>
+                
+                <div class="visual-diagram">
+                    <h3>SSE Communication Flow</h3>
+                    <div class="sse-flow">
+                        <div class="flow-box">
+                            <h4>1. 🌐 Client</h4>
+                            <p>Opens connection</p>
+                            <code>EventSource(url)</code>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box">
+                            <h4>2. 🔌 Server</h4>
+                            <p>Keeps connection open</p>
+                            <code>text/event-stream</code>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box">
+                            <h4>3. 📤 Push Data</h4>
+                            <p>Server sends events</p>
+                            <code>data: {...}</code>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box">
+                            <h4>4. 📥 Client</h4>
+                            <p>Receives events</p>
+                            <code>onmessage</code>
+                        </div>
+                    </div>
+                    <p style="margin-top: 20px; text-align: center; color: #666;">
+                        Connection stays open indefinitely. Server can push data anytime.
+                    </p>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 Perfect For:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Live news feeds and updates</li>
+                        <li>Social media timelines</li>
+                        <li>Real-time notifications</li>
+                        <li>Stock price updates</li>
+                        <li>Live sports scores</li>
+                        <li>Server monitoring dashboards</li>
+                        <li>Progress updates for long operations</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Creating EventSource -->
+            <div class="section">
+                <h2>🚀 Creating EventSource Connection</h2>
+                
+                <h3>Basic Connection</h3>
+                <div class="code-block">
+<span class="comment">// Create EventSource connection</span>
+<span class="keyword">const</span> eventSource = <span class="keyword">new</span> <span class="function">EventSource</span>(<span class="string">'/api/events'</span>);
+
+<span class="comment">// Listen for messages</span>
+eventSource.<span class="keyword">onmessage</span> = (event) => {
+    console.<span class="function">log</span>(<span class="string">'New message:'</span>, event.data);
+    
+    <span class="comment">// Parse JSON if needed</span>
+    <span class="keyword">const</span> data = JSON.<span class="function">parse</span>(event.data);
+    console.<span class="function">log</span>(data);
+};
+
+<span class="comment">// Handle connection opened</span>
+eventSource.<span class="keyword">onopen</span> = (event) => {
+    console.<span class="function">log</span>(<span class="string">'Connection opened'</span>);
+};
+
+<span class="comment">// Handle errors</span>
+eventSource.<span class="keyword">onerror</span> = (event) => {
+    <span class="keyword">if</span> (event.target.readyState === EventSource.CLOSED) {
+        console.<span class="function">error</span>(<span class="string">'Connection closed'</span>);
+    } <span class="keyword">else</span> {
+        console.<span class="function">error</span>(<span class="string">'Connection error'</span>);
+    }
+};
+
+<span class="comment">// Close connection</span>
+eventSource.<span class="function">close</span>();
+                </div>
+                
+                <h3>With Credentials (Cookies)</h3>
+                <div class="code-block">
+<span class="comment">// Include credentials (cookies) in requests</span>
+<span class="keyword">const</span> eventSource = <span class="keyword">new</span> <span class="function">EventSource</span>(<span class="string">'/api/events'</span>, {
+    withCredentials: <span class="keyword">true</span>
+});
+
+<span class="comment">// This sends cookies with the connection request</span>
+<span class="comment">// Useful for authenticated endpoints</span>
+                </div>
+                
+                <div class="warning-box">
+                    <strong>⚠️ CORS Note:</strong> When using <code>withCredentials: true</code>, the server must set appropriate CORS headers including <code>Access-Control-Allow-Credentials: true</code>.
+                </div>
+            </div>
+            
+            <!-- Connection States -->
+            <div class="section">
+                <h2>📊 Connection States</h2>
+                
+                <div class="concept-box">
+                    <p>EventSource has 3 ready states that indicate the connection status.</p>
+                </div>
+                
+                <div class="state-grid">
+                    <div class="state-card">
+                        <h4>CONNECTING</h4>
+                        <div class="state-value">0</div>
+                        <p style="margin-top: 10px;">Connection is being established</p>
+                    </div>
+                    <div class="state-card">
+                        <h4>OPEN</h4>
+                        <div class="state-value">1</div>
+                        <p style="margin-top: 10px;">Connection is open and receiving events</p>
+                    </div>
+                    <div class="state-card">
+                        <h4>CLOSED</h4>
+                        <div class="state-value">2</div>
+                        <p style="margin-top: 10px;">Connection is closed</p>
+                    </div>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Check connection state</span>
+console.<span class="function">log</span>(eventSource.readyState);
+
+<span class="keyword">if</span> (eventSource.readyState === EventSource.CONNECTING) {
+    console.<span class="function">log</span>(<span class="string">'Connecting...'</span>);
+}
+
+<span class="keyword">if</span> (eventSource.readyState === EventSource.OPEN) {
+    console.<span class="function">log</span>(<span class="string">'Connected and receiving events'</span>);
+}
+
+<span class="keyword">if</span> (eventSource.readyState === EventSource.CLOSED) {
+    console.<span class="function">log</span>(<span class="string">'Connection closed'</span>);
+}
+
+<span class="comment">// Constants</span>
+EventSource.CONNECTING <span class="comment">// 0</span>
+EventSource.OPEN       <span class="comment">// 1</span>
+EventSource.CLOSED     <span class="comment">// 2</span>
+                </div>
+            </div>
+            
+            <!-- Event Types -->
+            <div class="section">
+                <h2>📬 Receiving Events</h2>
+                
+                <h3>Default Message Event</h3>
+                <div class="code-block">
+<span class="comment">// Listen to all messages (default event)</span>
+eventSource.<span class="keyword">onmessage</span> = (event) => {
+    console.<span class="function">log</span>(<span class="string">'Data:'</span>, event.data);
+    console.<span class="function">log</span>(<span class="string">'ID:'</span>, event.lastEventId);
+    console.<span class="function">log</span>(<span class="string">'Origin:'</span>, event.origin);
+};
+
+<span class="comment">// Event properties</span>
+event.data         <span class="comment">// Message data (string)</span>
+event.lastEventId  <span class="comment">// Last event ID (for reconnection)</span>
+event.origin       <span class="comment">// Origin of event source</span>
+event.type         <span class="comment">// Event type ('message' by default)</span>
+                </div>
+                
+                <h3>Named Events</h3>
+                <div class="code-block">
+<span class="comment">// Listen to specific named events</span>
+eventSource.<span class="function">addEventListener</span>(<span class="string">'userUpdate'</span>, (event) => {
+    <span class="keyword">const</span> user = JSON.<span class="function">parse</span>(event.data);
+    console.<span class="function">log</span>(<span class="string">'User updated:'</span>, user);
+});
+
+eventSource.<span class="function">addEventListener</span>(<span class="string">'notification'</span>, (event) => {
+    <span class="keyword">const</span> notification = JSON.<span class="function">parse</span>(event.data);
+    <span class="function">showNotification</span>(notification.title, notification.body);
+});
+
+eventSource.<span class="function">addEventListener</span>(<span class="string">'stockPrice'</span>, (event) => {
+    <span class="keyword">const</span> price = JSON.<span class="function">parse</span>(event.data);
+    <span class="function">updateStockDisplay</span>(price.symbol, price.value);
+});
+
+<span class="comment">// Can listen to multiple event types on same connection</span>
+                </div>
+                
+                <h3>Error Handling</h3>
+                <div class="code-block">
+<span class="comment">// Handle connection errors</span>
+eventSource.<span class="keyword">onerror</span> = (event) => {
+    console.<span class="function">error</span>(<span class="string">'EventSource error'</span>);
+    
+    <span class="comment">// Check what happened</span>
+    <span class="keyword">if</span> (event.target.readyState === EventSource.CONNECTING) {
+        console.<span class="function">log</span>(<span class="string">'Reconnecting...'</span>);
+    } <span class="keyword">else if</span> (event.target.readyState === EventSource.CLOSED) {
+        console.<span class="function">log</span>(<span class="string">'Connection closed, not reconnecting'</span>);
+    }
+};
+
+<span class="comment">// EventSource automatically reconnects on failure</span>
+<span class="comment">// Unless server responds with HTTP 204 No Content</span>
+                </div>
+            </div>
+            
+            <!-- Server-Side Format -->
+            <div class="section">
+                <h2>📝 Server-Side Event Format</h2>
+                
+                <div class="concept-box">
+                    <p>The server must send events in a specific text format with proper headers.</p>
+                </div>
+                
+                <h3>Required Headers</h3>
+                <div class="code-block">
+<span class="comment">// Server must send these HTTP headers</span>
+Content-Type: text/event-stream
+Cache-Control: no-cache
+Connection: keep-alive
+
+<span class="comment">// Optional but recommended</span>
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: <span class="keyword">true</span>
+                </div>
+                
+                <h3>Event Format</h3>
+                <div class="format-example">
+                    <h4>Basic Message</h4>
+                    <div class="code-block">
+<span class="comment">// Simple message (triggers onmessage)</span>
+data: Hello World
+
+<span class="comment">// Multi-line message</span>
+data: First line
+data: Second line
+data: Third line
+
+<span class="comment">// Must end with double newline</span>
+                    </div>
+                </div>
+                
+                <div class="format-example">
+                    <h4>With Event ID</h4>
+                    <div class="code-block">
+<span class="comment">// ID used for reconnection (Last-Event-ID header)</span>
+id: <span class="number">123</span>
+data: Message with ID
+
+                    </div>
+                </div>
+                
+                <div class="format-example">
+                    <h4>Named Events</h4>
+                    <div class="code-block">
+<span class="comment">// Custom event type</span>
+event: userUpdate
+data: {<span class="string">"id"</span>: <span class="number">1</span>, <span class="string">"name"</span>: <span class="string">"John"</span>}
+
+event: notification
+data: {<span class="string">"title"</span>: <span class="string">"New Message"</span>, <span class="string">"body"</span>: <span class="string">"You have mail"</span>}
+
+                    </div>
+                </div>
+                
+                <div class="format-example">
+                    <h4>With Retry Interval</h4>
+                    <div class="code-block">
+<span class="comment">// Set reconnection delay (milliseconds)</span>
+retry: <span class="number">3000</span>
+data: This sets retry to 3 seconds
+
+                    </div>
+                </div>
+                
+                <div class="format-example">
+                    <h4>Complete Example</h4>
+                    <div class="code-block">
+<span class="comment">// Full-featured event</span>
+id: <span class="number">456</span>
+event: stockUpdate
+retry: <span class="number">5000</span>
+data: {
+data:   <span class="string">"symbol"</span>: <span class="string">"AAPL"</span>,
+data:   <span class="string">"price"</span>: <span class="number">150.25</span>,
+data:   <span class="string">"change"</span>: <span class="number">+2.5</span>
+data: }
+
+                    </div>
+                </div>
+                
+                <div class="key-point">
+                    <strong>💡 Format Rules:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Each field starts with field name, colon, and value</li>
+                        <li>Multi-line data uses multiple <code>data:</code> lines</li>
+                        <li>Comments start with <code>:</code> (ignored by client)</li>
+                        <li>Events must end with double newline (<code>\n\n</code>)</li>
+                        <li>UTF-8 encoding required</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Server Implementation -->
+            <div class="section">
+                <h2>🖥️ Server-Side Implementation Examples</h2>
+                
+                <h3>Node.js (Express)</h3>
+                <div class="code-block">
+<span class="keyword">const</span> express = <span class="function">require</span>(<span class="string">'express'</span>);
+<span class="keyword">const</span> app = <span class="function">express</span>();
+
+app.<span class="function">get</span>(<span class="string">'/events'</span>, (req, res) => {
+    <span class="comment">// Set SSE headers</span>
+    res.<span class="function">setHeader</span>(<span class="string">'Content-Type'</span>, <span class="string">'text/event-stream'</span>);
+    res.<span class="function">setHeader</span>(<span class="string">'Cache-Control'</span>, <span class="string">'no-cache'</span>);
+    res.<span class="function">setHeader</span>(<span class="string">'Connection'</span>, <span class="string">'keep-alive'</span>);
+    res.<span class="function">setHeader</span>(<span class="string">'Access-Control-Allow-Origin'</span>, <span class="string">'*'</span>);
+    
+    <span class="comment">// Send initial message</span>
+    res.<span class="function">write</span>(<span class="string">'data: Connected to event stream\n\n'</span>);
+    
+    <span class="comment">// Send updates every 2 seconds</span>
+    <span class="keyword">const</span> interval = <span class="function">setInterval</span>(() => {
+        <span class="keyword">const</span> data = {
+            time: <span class="keyword">new</span> <span class="function">Date</span>().<span class="function">toISOString</span>(),
+            value: Math.<span class="function">random</span>()
+        };
+        
+        res.<span class="function">write</span>(<span class="string">`data: ${JSON.stringify(data)}\n\n`</span>);
+    }, <span class="number">2000</span>);
+    
+    <span class="comment">// Clean up on client disconnect</span>
+    req.<span class="function">on</span>(<span class="string">'close'</span>, () => {
+        <span class="function">clearInterval</span>(interval);
+        res.<span class="function">end</span>();
+    });
+});
+
+app.<span class="function">listen</span>(<span class="number">3000</span>);
+                </div>
+                
+                <h3>Python (Flask)</h3>
+                <div class="code-block">
+<span class="keyword">from</span> flask <span class="keyword">import</span> Flask, Response
+<span class="keyword">import</span> json
+<span class="keyword">import</span> time
+
+app = <span class="function">Flask</span>(__name__)
+
+<span class="keyword">def</span> <span class="function">event_stream</span>():
+    <span class="keyword">while</span> <span class="keyword">True</span>:
+        data = {
+            <span class="string">'time'</span>: time.<span class="function">time</span>(),
+            <span class="string">'value'</span>: <span class="string">'Hello from Python'</span>
+        }
+        <span class="keyword">yield</span> <span class="string">f"data: {json.dumps(data)}\n\n"</span>
+        time.<span class="function">sleep</span>(<span class="number">2</span>)
+
+<span class="comment">@app.route('/events')</span>
+<span class="keyword">def</span> <span class="function">events</span>():
+    <span class="keyword">return</span> <span class="function">Response</span>(
+        <span class="function">event_stream</span>(),
+        mimetype=<span class="string">'text/event-stream'</span>,
+        headers={
+            <span class="string">'Cache-Control'</span>: <span class="string">'no-cache'</span>,
+            <span class="string">'X-Accel-Buffering'</span>: <span class="string">'no'</span>
+        }
+    )
+                </div>
+            </div>
+            
+            <!-- Practical Patterns -->
+            <div class="section">
+                <h2>🎯 Practical Patterns</h2>
+                
+                <h3>Pattern 1: Reconnection with Last Event ID</h3>
+                <div class="code-block">
+<span class="comment">// Client automatically sends Last-Event-ID header on reconnect</span>
+<span class="keyword">const</span> eventSource = <span class="keyword">new</span> <span class="function">EventSource</span>(<span class="string">'/events'</span>);
+
+eventSource.<span class="keyword">onmessage</span> = (event) => {
+    console.<span class="function">log</span>(<span class="string">'Last ID:'</span>, event.lastEventId);
+    console.<span class="function">log</span>(<span class="string">'Data:'</span>, event.data);
+};
+
+<span class="comment">// Server-side (Node.js)</span>
+app.<span class="function">get</span>(<span class="string">'/events'</span>, (req, res) => {
+    <span class="keyword">const</span> lastEventId = req.headers[<span class="string">'last-event-id'</span>];
+    
+    <span class="keyword">if</span> (lastEventId) {
+        <span class="comment">// Client reconnected, send missed events</span>
+        <span class="keyword">const</span> missedEvents = <span class="function">getEventsSince</span>(lastEventId);
+        missedEvents.<span class="function">forEach</span>(event => {
+            res.<span class="function">write</span>(<span class="string">`id: ${event.id}\n`</span>);
+            res.<span class="function">write</span>(<span class="string">`data: ${JSON.stringify(event.data)}\n\n`</span>);
+        });
+    }
+    
+    <span class="comment">// Continue sending new events...</span>
+});
+                </div>
+                
+                <h3>Pattern 2: Heartbeat/Keep-Alive</h3>
+                <div class="code-block">
+<span class="comment">// Send periodic comments to keep connection alive</span>
+<span class="comment">// (prevents proxy timeout)</span>
+
+<span class="comment">// Server-side</span>
+app.<span class="function">get</span>(<span class="string">'/events'</span>, (req, res) => {
+    <span class="comment">// Set headers...</span>
+    
+    <span class="comment">// Send heartbeat every 15 seconds</span>
+    <span class="keyword">const</span> heartbeat = <span class="function">setInterval</span>(() => {
+        res.<span class="function">write</span>(<span class="string">': heartbeat\n\n'</span>); <span class="comment">// Comment (ignored by client)</span>
+    }, <span class="number">15000</span>);
+    
+    <span class="comment">// Send actual events...</span>
+    
+    req.<span class="function">on</span>(<span class="string">'close'</span>, () => {
+        <span class="function">clearInterval</span>(heartbeat);
+    });
+});
+                </div>
+                
+                <h3>Pattern 3: Graceful Shutdown</h3>
+                <div class="code-block">
+<span class="comment">// Close connection gracefully</span>
+<span class="keyword">const</span> eventSource = <span class="keyword">new</span> <span class="function">EventSource</span>(<span class="string">'/events'</span>);
+
+<span class="comment">// Listen for shutdown event</span>
+eventSource.<span class="function">addEventListener</span>(<span class="string">'shutdown'</span>, (event) => {
+    console.<span class="function">log</span>(<span class="string">'Server shutting down'</span>);
+    eventSource.<span class="function">close</span>();
+});
+
+<span class="comment">// Server sends shutdown event before closing</span>
+<span class="comment">// Server-side</span>
+<span class="keyword">function</span> <span class="function">shutdown</span>() {
+    clients.<span class="function">forEach</span>(client => {
+        client.<span class="function">write</span>(<span class="string">'event: shutdown\n'</span>);
+        client.<span class="function">write</span>(<span class="string">'data: Server maintenance\n\n'</span>);
+        client.<span class="function">end</span>();
+    });
+}
+                </div>
+                
+                <h3>Pattern 4: Wrapper with Auto-Reconnect</h3>
+                <div class="code-block">
+<span class="keyword">class</span> <span class="function">ReconnectingEventSource</span> {
+    <span class="keyword">constructor</span>(url, options = {}) {
+        <span class="keyword">this</span>.url = url;
+        <span class="keyword">this</span>.options = options;
+        <span class="keyword">this</span>.reconnectDelay = options.reconnectDelay || <span class="number">3000</span>;
+        <span class="keyword">this</span>.maxRetries = options.maxRetries || <span class="number">Infinity</span>;
+        <span class="keyword">this</span>.retries = <span class="number">0</span>;
+        <span class="keyword">this</span>.<span class="function">connect</span>();
+    }
+    
+    <span class="function">connect</span>() {
+        <span class="keyword">this</span>.eventSource = <span class="keyword">new</span> <span class="function">EventSource</span>(<span class="keyword">this</span>.url, <span class="keyword">this</span>.options);
+        
+        <span class="keyword">this</span>.eventSource.<span class="keyword">onopen</span> = (e) => {
+            console.<span class="function">log</span>(<span class="string">'Connected'</span>);
+            <span class="keyword">this</span>.retries = <span class="number">0</span>;
+            <span class="keyword">this</span>.<span class="function">onopen</span>?.(e);
+        };
+        
+        <span class="keyword">this</span>.eventSource.<span class="keyword">onmessage</span> = (e) => {
+            <span class="keyword">this</span>.<span class="function">onmessage</span>?.(e);
+        };
+        
+        <span class="keyword">this</span>.eventSource.<span class="keyword">onerror</span> = (e) => {
+            console.<span class="function">error</span>(<span class="string">'Connection error'</span>);
+            <span class="keyword">this</span>.<span class="function">onerror</span>?.(e);
+            
+            <span class="keyword">if</span> (<span class="keyword">this</span>.eventSource.readyState === EventSource.CLOSED) {
+                <span class="keyword">this</span>.<span class="function">reconnect</span>();
+            }
+        };
+    }
+    
+    <span class="function">reconnect</span>() {
+        <span class="keyword">if</span> (<span class="keyword">this</span>.retries >= <span class="keyword">this</span>.maxRetries) {
+            console.<span class="function">error</span>(<span class="string">'Max retries reached'</span>);
+            <span class="keyword">return</span>;
+        }
+        
+        <span class="keyword">this</span>.retries++;
+        console.<span class="function">log</span>(<span class="string">`Reconnecting in ${this.reconnectDelay}ms...`</span>);
+        
+        <span class="function">setTimeout</span>(() => <span class="keyword">this</span>.<span class="function">connect</span>(), <span class="keyword">this</span>.reconnectDelay);
+    }
+    
+    <span class="function">close</span>() {
+        <span class="keyword">this</span>.eventSource.<span class="function">close</span>();
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> sse = <span class="keyword">new</span> <span class="function">ReconnectingEventSource</span>(<span class="string">'/events'</span>, {
+    reconnectDelay: <span class="number">3000</span>,
+    maxRetries: <span class="number">5</span>
+});
+
+sse.onmessage = (e) => console.<span class="function">log</span>(e.data);
+                </div>
+            </div>
+            
+            <!-- Use Cases -->
+            <div class="section">
+                <h2>💼 Real-World Use Cases</h2>
+                
+                <div class="use-case-grid">
+                    <div class="use-case-card">
+                        <h4>📰 News Feed</h4>
+                        <p>Push breaking news and updates to users in real-time without polling.</p>
+                    </div>
+                    
+                    <div class="use-case-card">
+                        <h4>📊 Live Dashboard</h4>
+                        <p>Stream metrics, analytics, and monitoring data continuously.</p>
+                    </div>
+                    
+                    <div class="use-case-card">
+                        <h4>💬 Social Updates</h4>
+                        <p>Push new posts, likes, comments to social media timelines.</p>
+                    </div>
+                    
+                    <div class="use-case-card">
+                        <h4>📈 Stock Ticker</h4>
+                        <p>Real-time stock prices and market data updates.</p>
+                    </div>
+                    
+                    <div class="use-case-card">
+                        <h4>⚙️ Progress Updates</h4>
+                        <p>Show progress of long-running server operations.</p>
+                    </div>
+                    
+                    <div class="use-case-card">
+                        <h4>🔔 Notifications</h4>
+                        <p>Push notifications for new messages, alerts, or system events.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Comparison -->
+            <div class="section">
+                <h2>⚖️ SSE vs WebSockets vs Polling</h2>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Server-Sent Events</th>
+                            <th>WebSockets</th>
+                            <th>HTTP Polling</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Direction</strong></td>
+                            <td>Server → Client</td>
+                            <td>Bidirectional (↔️)</td>
+                            <td>Client → Server</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Protocol</strong></td>
+                            <td>HTTP/HTTPS</td>
+                            <td>WebSocket (ws/wss)</td>
+                            <td>HTTP/HTTPS</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Reconnection</strong></td>
+                            <td>Automatic</td>
+                            <td>Manual</td>
+                            <td>N/A</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Data Format</strong></td>
+                            <td>Text only (UTF-8)</td>
+                            <td>Text & Binary</td>
+                            <td>Any</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Overhead</strong></td>
+                            <td>Low</td>
+                            <td>Very Low</td>
+                            <td>High</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Complexity</strong></td>
+                            <td>Simple</td>
+                            <td>Moderate</td>
+                            <td>Simple</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Browser Support</strong></td>
+                            <td>All modern (not IE)</td>
+                            <td>All modern</td>
+                            <td>All browsers</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best For</strong></td>
+                            <td>Server push only</td>
+                            <td>Real-time bidirectional</td>
+                            <td>Simple updates</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Interactive Demo -->
+            <div class="section">
+                <h2>🎮 Interactive Demo</h2>
+                
+                <div class="demo-section">
+                    <h3>SSE Simulator</h3>
+                    <p style="margin-bottom: 15px;">This demo simulates Server-Sent Events using JavaScript</p>
+                    
+                    <div class="demo-controls">
+                        <button onclick="startSSE()" id="startBtn">Start Event Stream</button>
+                        <button onclick="stopSSE()" id="stopBtn" disabled>Stop Stream</button>
+                        <button onclick="clearOutput()">Clear Output</button>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">Event Stream</h4>
+                    <div class="output" id="output">Click "Start Event Stream" to begin...</div>
+                </div>
+            </div>
+            
+            <!-- Best Practices -->
+            <div class="section">
+                <h2>✅ Best Practices</h2>
+                
+                <div class="key-point">
+                    <h3 style="margin-top: 0;">DO ✓</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Use HTTPS (not HTTP) in production</li>
+                        <li>Set proper Content-Type header (<code>text/event-stream</code>)</li>
+                        <li>Implement event IDs for reliable reconnection</li>
+                        <li>Send periodic heartbeats to prevent timeout</li>
+                        <li>Handle reconnection gracefully</li>
+                        <li>Use named events for different message types</li>
+                        <li>Close connections when no longer needed</li>
+                        <li>Set appropriate retry intervals</li>
+                    </ul>
+                </div>
+                
+                <div class="warning-box">
+                    <h3 style="margin-top: 0;">DON'T ✗</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Use SSE for bidirectional communication (use WebSockets)</li>
+                        <li>Send binary data (SSE is text-only)</li>
+                        <li>Forget to set Cache-Control headers</li>
+                        <li>Open too many connections (browser limit ~6 per domain)</li>
+                        <li>Send huge messages (split large data)</li>
+                        <li>Ignore error handling</li>
+                        <li>Forget to clean up on client disconnect</li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        let simulationInterval = null;
+        let eventCounter = 0;
+        
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'color: #0d6efd;',
+                success: 'color: #28a745;',
+                error: 'color: #dc3545;',
+                event: 'color: #f093fb;'
+            };
+            output.innerHTML += `<div style="${colors[type]}">[${timestamp}] ${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function startSSE() {
+            if (simulationInterval) {
+                log('⚠️ Stream already running', 'error');
+                return;
+            }
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            
+            log('✓ Connection opened', 'success');
+            log('📡 Event stream started', 'info');
+            
+            eventCounter = 0;
+            
+            // Simulate different types of events
+            simulationInterval = setInterval(() => {
+                eventCounter++;
+                
+                const eventTypes = [
+                    { type: 'message', data: { text: 'Default message event', count: eventCounter } },
+                    { type: 'userUpdate', data: { id: eventCounter, name: `User ${eventCounter}` } },
+                    { type: 'notification', data: { title: 'New notification', body: `Event #${eventCounter}` } },
+                    { type: 'stockPrice', data: { symbol: 'AAPL', price: (150 + Math.random() * 10).toFixed(2) } }
+                ];
+                
+                const event = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+                
+                log(`📨 Event: ${event.type}`, 'event');
+                log(`   ID: ${eventCounter}`, 'info');
+                log(`   Data: ${JSON.stringify(event.data)}`, 'info');
+                
+            }, 2000);
+            
+            // Simulate occasional heartbeat
+            setInterval(() => {
+                if (simulationInterval) {
+                    log('💓 Heartbeat', 'info');
+                }
+            }, 10000);
+        }
+        
+        function stopSSE() {
+            if (!simulationInterval) {
+                return;
+            }
+            
+            clearInterval(simulationInterval);
+            simulationInterval = null;
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            
+            log('🔌 Connection closed', 'info');
+            log(`Total events received: ${eventCounter}`, 'success');
+        }
+        
+        function clearOutput() {
+            document.getElementById('output').innerHTML = '';
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            log('👋 Welcome to SSE Demo!', 'success');
+            log('This simulates Server-Sent Events behavior', 'info');
+        });
+        
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+            if (simulationInterval) {
+                clearInterval(simulationInterval);
+            }
+        });
+    </script>
+</body>
+</html>

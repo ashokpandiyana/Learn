@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Objects - Chapter 15</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .content { padding: 40px; }
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #fa709a;
+        }
+        .section h2 { color: #fa709a; margin-bottom: 20px; font-size: 2em; }
+        .section h3 { color: #fe8a71; margin: 25px 0 15px 0; font-size: 1.5em; }
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .number { color: #d19a66; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+        .note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .tip { background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .success { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .interactive-demo {
+            background: white;
+            border: 2px solid #fe8a71;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .interactive-demo button {
+            background: #fa709a;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .output {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .comparison-table th {
+            background: #fa709a;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Chapter 15: Advanced Objects</h1>
+            <p>Master Property Descriptors, Proxy & Reflect</p>
+        </header>
+        
+        <div class="content">
+            <div class="section">
+                <h2>📋 1. Property Descriptors</h2>
+                
+                <h3>1.1 Understanding Descriptors</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Every property has a descriptor</span>
+<span class="keyword">const</span> obj = { name: <span class="string">"Alice"</span> };
+
+<span class="keyword">const</span> descriptor = <span class="function">Object</span>.<span class="function">getOwnPropertyDescriptor</span>(obj, <span class="string">"name"</span>);
+<span class="function">console</span>.<span class="function">log</span>(descriptor);
+<span class="comment">// {
+//   value: "Alice",
+//   writable: true,
+//   enumerable: true,
+//   configurable: true
+// }</span>
+
+<span class="comment">// Define property with custom descriptor</span>
+<span class="function">Object</span>.<span class="function">defineProperty</span>(obj, <span class="string">"age"</span>, {
+    value: <span class="number">25</span>,
+    writable: <span class="keyword">false</span>,      <span class="comment">// Cannot be changed</span>
+    enumerable: <span class="keyword">true</span>,     <span class="comment">// Shows in for...in</span>
+    configurable: <span class="keyword">false</span>   <span class="comment">// Cannot be deleted/reconfigured</span>
+});
+
+obj.age = <span class="number">30</span>;  <span class="comment">// Ignored in non-strict, error in strict</span>
+<span class="function">console</span>.<span class="function">log</span>(obj.age);  <span class="comment">// 25</span></code>
+                </div>
+                
+                <h3>1.2 Getters and Setters</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">const</span> person = {
+    firstName: <span class="string">"John"</span>,
+    lastName: <span class="string">"Doe"</span>
+};
+
+<span class="function">Object</span>.<span class="function">defineProperty</span>(person, <span class="string">"fullName"</span>, {
+    <span class="keyword">get</span>() {
+        <span class="keyword">return</span> <span class="string">`${<span class="keyword">this</span>.firstName} ${<span class="keyword">this</span>.lastName}`</span>;
+    },
+    <span class="keyword">set</span>(value) {
+        [<span class="keyword">this</span>.firstName, <span class="keyword">this</span>.lastName] = value.<span class="function">split</span>(<span class="string">" "</span>);
+    },
+    enumerable: <span class="keyword">true</span>
+});
+
+<span class="function">console</span>.<span class="function">log</span>(person.fullName);  <span class="comment">// "John Doe"</span>
+person.fullName = <span class="string">"Jane Smith"</span>;
+<span class="function">console</span>.<span class="function">log</span>(person.firstName);  <span class="comment">// "Jane"</span></code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Property Descriptors Demo</h4>
+                    <button onclick="demoDescriptors()">Test Descriptors</button>
+                    <div class="output" id="descriptorOutput"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔒 2. Sealing, Freezing & Preventing Extensions</h2>
+                
+                <div class="code-block">
+<code><span class="comment">// Object.preventExtensions() - can't add properties</span>
+<span class="keyword">const</span> obj1 = { name: <span class="string">"Alice"</span> };
+<span class="function">Object</span>.<span class="function">preventExtensions</span>(obj1);
+obj1.age = <span class="number">25</span>;  <span class="comment">// ❌ Ignored</span>
+obj1.name = <span class="string">"Bob"</span>;  <span class="comment">// ✅ Can modify existing</span>
+<span class="keyword">delete</span> obj1.name;  <span class="comment">// ✅ Can delete</span>
+
+<span class="comment">// Object.seal() - can't add/delete, can modify</span>
+<span class="keyword">const</span> obj2 = { name: <span class="string">"Alice"</span> };
+<span class="function">Object</span>.<span class="function">seal</span>(obj2);
+obj2.age = <span class="number">25</span>;  <span class="comment">// ❌ Can't add</span>
+obj2.name = <span class="string">"Bob"</span>;  <span class="comment">// ✅ Can modify</span>
+<span class="keyword">delete</span> obj2.name;  <span class="comment">// ❌ Can't delete</span>
+
+<span class="comment">// Object.freeze() - completely immutable</span>
+<span class="keyword">const</span> obj3 = { name: <span class="string">"Alice"</span> };
+<span class="function">Object</span>.<span class="function">freeze</span>(obj3);
+obj3.age = <span class="number">25</span>;  <span class="comment">// ❌ Can't add</span>
+obj3.name = <span class="string">"Bob"</span>;  <span class="comment">// ❌ Can't modify</span>
+<span class="keyword">delete</span> obj3.name;  <span class="comment">// ❌ Can't delete</span></code>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Add Properties</th>
+                            <th>Modify Properties</th>
+                            <th>Delete Properties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>preventExtensions</strong></td>
+                            <td>❌</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td><strong>seal</strong></td>
+                            <td>❌</td>
+                            <td>✅</td>
+                            <td>❌</td>
+                        </tr>
+                        <tr>
+                            <td><strong>freeze</strong></td>
+                            <td>❌</td>
+                            <td>❌</td>
+                            <td>❌</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>🪞 3. Proxy and Reflect</h2>
+                
+                <h3>3.1 Proxy Basics</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Proxy intercepts object operations</span>
+<span class="keyword">const</span> target = { name: <span class="string">"Alice"</span>, age: <span class="number">25</span> };
+
+<span class="keyword">const</span> handler = {
+    <span class="function">get</span>(obj, prop) {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Reading ${prop}`</span>);
+        <span class="keyword">return</span> obj[prop];
+    },
+    <span class="function">set</span>(obj, prop, value) {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Setting ${prop} to ${value}`</span>);
+        obj[prop] = value;
+        <span class="keyword">return</span> <span class="keyword">true</span>;
+    }
+};
+
+<span class="keyword">const</span> proxy = <span class="keyword">new</span> <span class="function">Proxy</span>(target, handler);
+
+<span class="function">console</span>.<span class="function">log</span>(proxy.name);  <span class="comment">// "Reading name" → "Alice"</span>
+proxy.age = <span class="number">30</span>;          <span class="comment">// "Setting age to 30"</span></code>
+                </div>
+                
+                <h3>3.2 Validation with Proxy</h3>
+                
+                <div class="code-block">
+<code><span class="keyword">const</span> validator = {
+    <span class="function">set</span>(obj, prop, value) {
+        <span class="keyword">if</span> (prop === <span class="string">"age"</span>) {
+            <span class="keyword">if</span> (<span class="keyword">typeof</span> value !== <span class="string">"number"</span>) {
+                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="function">TypeError</span>(<span class="string">"Age must be a number"</span>);
+            }
+            <span class="keyword">if</span> (value < <span class="number">0</span> || value > <span class="number">150</span>) {
+                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="function">RangeError</span>(<span class="string">"Age must be 0-150"</span>);
+            }
+        }
+        obj[prop] = value;
+        <span class="keyword">return</span> <span class="keyword">true</span>;
+    }
+};
+
+<span class="keyword">const</span> person = <span class="keyword">new</span> <span class="function">Proxy</span>({}, validator);
+person.age = <span class="number">25</span>;   <span class="comment">// ✅ Works</span>
+person.age = <span class="string">"25"</span>;  <span class="comment">// ❌ TypeError</span></code>
+                </div>
+                
+                <h3>3.3 Reflect API</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Reflect provides default trap implementations</span>
+<span class="keyword">const</span> handler = {
+    <span class="function">get</span>(target, prop, receiver) {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Getting ${prop}`</span>);
+        <span class="keyword">return</span> <span class="function">Reflect</span>.<span class="function">get</span>(target, prop, receiver);  <span class="comment">// Default behavior</span>
+    },
+    <span class="function">set</span>(target, prop, value, receiver) {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Setting ${prop}`</span>);
+        <span class="keyword">return</span> <span class="function">Reflect</span>.<span class="function">set</span>(target, prop, value, receiver);
+    }
+};
+
+<span class="keyword">const</span> obj = <span class="keyword">new</span> <span class="function">Proxy</span>({ x: <span class="number">1</span> }, handler);</code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Proxy Demo</h4>
+                    <button onclick="demoProxy()">Test Proxy Validation</button>
+                    <div class="output" id="proxyOutput"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📝 Summary</h2>
+                
+                <div class="success">
+                    <strong>Chapter 14 Key Concepts:</strong>
+                    <ul>
+                        <li>Property descriptors control property behavior</li>
+                        <li>seal/freeze/preventExtensions control mutability</li>
+                        <li>Proxy intercepts object operations</li>
+                        <li>Reflect provides default implementations</li>
+                        <li>Use for validation, logging, reactivity</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoDescriptors() {
+            const output = document.getElementById('descriptorOutput');
+            
+            const obj = {};
+            
+            Object.defineProperty(obj, 'readOnly', {
+                value: 'Cannot change me',
+                writable: false,
+                enumerable: true
+            });
+            
+            let result = '=== Property Descriptors ===\n\n';
+            result += 'Created read-only property:\n';
+            result += `obj.readOnly = "${obj.readOnly}"\n\n`;
+            result += 'Trying to modify...\n';
+            obj.readOnly = 'New value';
+            result += `obj.readOnly = "${obj.readOnly}"\n`;
+            result += '(unchanged - writable: false)\n';
+            
+            output.textContent = result;
+        }
+        
+        function demoProxy() {
+            const output = document.getElementById('proxyOutput');
+            
+            const validator = {
+                set(obj, prop, value) {
+                    if (prop === 'age') {
+                        if (typeof value !== 'number') {
+                            throw new TypeError('Age must be number');
+                        }
+                        if (value < 0) {
+                            throw new RangeError('Age must be positive');
+                        }
+                    }
+                    obj[prop] = value;
+                    return true;
+                }
+            };
+            
+            const person = new Proxy({}, validator);
+            
+            let result = '=== Proxy Validation ===\n\n';
+            
+            try {
+                person.age = 25;
+                result += 'person.age = 25 ✓\n';
+                result += `Current age: ${person.age}\n\n`;
+                
+                result += 'Trying invalid: person.age = "25"\n';
+                person.age = "25";
+            } catch (error) {
+                result += `✗ ${error.name}: ${error.message}\n\n`;
+                result += 'Proxy prevented invalid assignment!';
+            }
+            
+            output.textContent = result;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Advanced Functions - Chapter 13</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #f093fb;
+        }
+        
+        .section h2 {
+            color: #f093fb;
+            margin-bottom: 20px;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section h3 {
+            color: #f5576c;
+            margin: 25px 0 15px 0;
+            font-size: 1.5em;
+        }
+        
+        .section h4 {
+            color: #666;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+        
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow-x: auto;
+            position: relative;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+        
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .number { color: #d19a66; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+        .property { color: #e06c75; }
+        
+        .visual-box {
+            background: white;
+            border: 2px solid #f093fb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: #f093fb;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:hover {
+            background: #fff5f7;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .note strong {
+            color: #856404;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .warning strong {
+            color: #721c24;
+        }
+        
+        .tip {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .tip strong {
+            color: #0c5460;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .success strong {
+            color: #155724;
+        }
+        
+        .interactive-demo {
+            background: white;
+            border: 2px solid #f5576c;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .interactive-demo button {
+            background: #f093fb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        
+        .interactive-demo button:hover {
+            background: #f5576c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .interactive-demo input {
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            margin: 5px;
+            width: 200px;
+        }
+        
+        .output {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+        
+        .flow-diagram {
+            background: linear-gradient(135deg, #fff5f7 0%, #ffe5e9 100%);
+            border: 3px solid #f093fb;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .flow-box {
+            background: white;
+            border: 2px solid #f093fb;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px;
+            text-align: center;
+        }
+        
+        .arrow-flow {
+            text-align: center;
+            font-size: 32px;
+            color: #f093fb;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .example-card {
+            background: white;
+            border: 2px solid #f093fb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .example-card h4 {
+            color: #f093fb;
+            margin-bottom: 15px;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Chapter 13: Advanced Functions</h1>
+            <p>Master Functional Programming Techniques</p>
+        </header>
+        
+        <div class="content">
+            <!-- Section 1: Higher-Order Functions -->
+            <div class="section" id="higher-order">
+                <h2>🔝 1. Higher-Order Functions</h2>
+                
+                <p><strong>Higher-order functions</strong> are functions that either take functions as arguments OR return functions as results. They're the foundation of functional programming.</p>
+                
+                <h3>1.1 Functions as Arguments</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Function that takes another function as argument</span>
+<span class="keyword">function</span> <span class="function">repeat</span>(n, action) {
+    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < n; i++) {
+        <span class="function">action</span>(i);
+    }
+}
+
+<span class="function">repeat</span>(<span class="number">3</span>, <span class="function">console</span>.<span class="function">log</span>);
+<span class="comment">// Output: 0, 1, 2</span>
+
+<span class="function">repeat</span>(<span class="number">3</span>, i => <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Iteration ${i}`</span>));
+<span class="comment">// Output: "Iteration 0", "Iteration 1", "Iteration 2"</span>
+
+<span class="comment">// Array methods are higher-order functions!</span>
+<span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];
+
+numbers.<span class="function">forEach</span>(num => <span class="function">console</span>.<span class="function">log</span>(num));
+<span class="keyword">const</span> doubled = numbers.<span class="function">map</span>(num => num * <span class="number">2</span>);
+<span class="keyword">const</span> evens = numbers.<span class="function">filter</span>(num => num % <span class="number">2</span> === <span class="number">0</span>);
+<span class="keyword">const</span> sum = numbers.<span class="function">reduce</span>((acc, num) => acc + num, <span class="number">0</span>);</code>
+                </div>
+                
+                <h3>1.2 Functions Returning Functions</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Function that returns a function</span>
+<span class="keyword">function</span> <span class="function">makeGreeter</span>(greeting) {
+    <span class="keyword">return</span> <span class="keyword">function</span>(name) {
+        <span class="keyword">return</span> <span class="string">`${greeting}, ${name}!`</span>;
+    };
+}
+
+<span class="keyword">const</span> sayHello = <span class="function">makeGreeter</span>(<span class="string">"Hello"</span>);
+<span class="keyword">const</span> sayHi = <span class="function">makeGreeter</span>(<span class="string">"Hi"</span>);
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">sayHello</span>(<span class="string">"Alice"</span>));  <span class="comment">// "Hello, Alice!"</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">sayHi</span>(<span class="string">"Bob"</span>));       <span class="comment">// "Hi, Bob!"</span>
+
+<span class="comment">// Multiplier factory</span>
+<span class="keyword">function</span> <span class="function">makeMultiplier</span>(multiplier) {
+    <span class="keyword">return</span> <span class="keyword">function</span>(number) {
+        <span class="keyword">return</span> number * multiplier;
+    };
+}
+
+<span class="keyword">const</span> double = <span class="function">makeMultiplier</span>(<span class="number">2</span>);
+<span class="keyword">const</span> triple = <span class="function">makeMultiplier</span>(<span class="number">3</span>);
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">double</span>(<span class="number">5</span>));  <span class="comment">// 10</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">triple</span>(<span class="number">5</span>));  <span class="comment">// 15</span></code>
+                </div>
+                
+                <h3>1.3 Practical Higher-Order Functions</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// once() - function that runs only once</span>
+<span class="keyword">function</span> <span class="function">once</span>(fn) {
+    <span class="keyword">let</span> called = <span class="keyword">false</span>;
+    <span class="keyword">let</span> result;
+    
+    <span class="keyword">return</span> <span class="keyword">function</span>(...args) {
+        <span class="keyword">if</span> (!called) {
+            called = <span class="keyword">true</span>;
+            result = <span class="function">fn</span>(...args);
+        }
+        <span class="keyword">return</span> result;
+    };
+}
+
+<span class="keyword">const</span> initialize = <span class="function">once</span>(() => {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Initializing..."</span>);
+    <span class="keyword">return</span> <span class="string">"Initialized"</span>;
+});
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">initialize</span>());  <span class="comment">// "Initializing..." → "Initialized"</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">initialize</span>());  <span class="comment">// "Initialized" (no log)</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">initialize</span>());  <span class="comment">// "Initialized" (no log)</span>
+
+<span class="comment">// after() - runs callback after n calls</span>
+<span class="keyword">function</span> <span class="function">after</span>(n, fn) {
+    <span class="keyword">let</span> count = <span class="number">0</span>;
+    <span class="keyword">return</span> <span class="keyword">function</span>(...args) {
+        count++;
+        <span class="keyword">if</span> (count >= n) {
+            <span class="keyword">return</span> <span class="function">fn</span>(...args);
+        }
+    };
+}
+
+<span class="keyword">const</span> logAfter3 = <span class="function">after</span>(<span class="number">3</span>, () => <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Called 3 times!"</span>));
+
+<span class="function">logAfter3</span>();  <span class="comment">// Nothing</span>
+<span class="function">logAfter3</span>();  <span class="comment">// Nothing</span>
+<span class="function">logAfter3</span>();  <span class="comment">// "Called 3 times!"</span></code>
+                </div>
+                
+                <div class="tip">
+                    <strong>💡 Why Higher-Order Functions?</strong>
+                    <ul>
+                        <li>Code reusability - abstract common patterns</li>
+                        <li>Composition - build complex logic from simple parts</li>
+                        <li>Declarative style - focus on what, not how</li>
+                        <li>Function factories - create specialized functions</li>
+                    </ul>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Higher-Order Functions Demo</h4>
+                    <button onclick="demoOnce()">Test once()</button>
+                    <button onclick="demoFilter()">Custom Filter</button>
+                    <div class="output" id="hofOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 2: Currying -->
+            <div class="section" id="currying">
+                <h2>🍛 2. Currying</h2>
+                
+                <p><strong>Currying</strong> is the technique of transforming a function that takes multiple arguments into a sequence of functions, each taking a single argument.</p>
+                
+                <h3>2.1 Understanding Currying</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Regular function - takes all arguments at once</span>
+<span class="keyword">function</span> <span class="function">add</span>(a, b, c) {
+    <span class="keyword">return</span> a + b + c;
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">add</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>));  <span class="comment">// 6</span>
+
+<span class="comment">// Curried function - one argument at a time</span>
+<span class="keyword">function</span> <span class="function">addCurried</span>(a) {
+    <span class="keyword">return</span> <span class="keyword">function</span>(b) {
+        <span class="keyword">return</span> <span class="keyword">function</span>(c) {
+            <span class="keyword">return</span> a + b + c;
+        };
+    };
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">addCurried</span>(<span class="number">1</span>)(<span class="number">2</span>)(<span class="number">3</span>));  <span class="comment">// 6</span>
+
+<span class="comment">// Arrow function version (cleaner)</span>
+<span class="keyword">const</span> addCurried2 = a => b => c => a + b + c;
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">addCurried2</span>(<span class="number">1</span>)(<span class="number">2</span>)(<span class="number">3</span>));  <span class="comment">// 6</span></code>
+                </div>
+                
+                <div class="flow-diagram">
+                    <h4 style="text-align: center; color: #f093fb; margin-bottom: 20px;">🔗 Currying Transformation</h4>
+                    
+                    <div class="flow-box">
+                        <strong>Regular Function</strong>
+                        <p>add(a, b, c) → result</p>
+                    </div>
+                    
+                    <div class="arrow-flow">↓ Curry</div>
+                    
+                    <div class="flow-box">
+                        <strong>Curried Function</strong>
+                        <p>add(a) → function</p>
+                        <p>→ (b) → function</p>
+                        <p>→ (c) → result</p>
+                    </div>
+                </div>
+                
+                <h3>2.2 Why Curry?</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Create specialized functions from general ones</span>
+<span class="keyword">const</span> multiply = a => b => a * b;
+
+<span class="keyword">const</span> double = <span class="function">multiply</span>(<span class="number">2</span>);
+<span class="keyword">const</span> triple = <span class="function">multiply</span>(<span class="number">3</span>);
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">double</span>(<span class="number">5</span>));  <span class="comment">// 10</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">triple</span>(<span class="number">5</span>));  <span class="comment">// 15</span>
+
+<span class="comment">// Practical example: Event handlers</span>
+<span class="keyword">const</span> handleClick = eventType => element => callback => {
+    element.<span class="function">addEventListener</span>(eventType, callback);
+};
+
+<span class="keyword">const</span> onClick = <span class="function">handleClick</span>(<span class="string">'click'</span>);
+<span class="keyword">const</span> onSubmit = <span class="function">handleClick</span>(<span class="string">'submit'</span>);
+
+<span class="comment">// Now can reuse</span>
+<span class="function">onClick</span>(button1)(() => <span class="function">console</span>.<span class="function">log</span>(<span class="string">'Button 1 clicked'</span>));
+<span class="function">onClick</span>(button2)(() => <span class="function">console</span>.<span class="function">log</span>(<span class="string">'Button 2 clicked'</span>));</code>
+                </div>
+                
+                <h3>2.3 Auto-Curry Function</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Utility to curry any function</span>
+<span class="keyword">function</span> <span class="function">curry</span>(fn) {
+    <span class="keyword">return</span> <span class="keyword">function</span> <span class="function">curried</span>(...args) {
+        <span class="keyword">if</span> (args.length >= fn.length) {
+            <span class="keyword">return</span> <span class="function">fn</span>.<span class="function">apply</span>(<span class="keyword">this</span>, args);
+        } <span class="keyword">else</span> {
+            <span class="keyword">return</span> <span class="keyword">function</span>(...nextArgs) {
+                <span class="keyword">return</span> <span class="function">curried</span>.<span class="function">apply</span>(<span class="keyword">this</span>, args.<span class="function">concat</span>(nextArgs));
+            };
+        }
+    };
+}
+
+<span class="comment">// Use it</span>
+<span class="keyword">function</span> <span class="function">add</span>(a, b, c) {
+    <span class="keyword">return</span> a + b + c;
+}
+
+<span class="keyword">const</span> curriedAdd = <span class="function">curry</span>(add);
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">curriedAdd</span>(<span class="number">1</span>)(<span class="number">2</span>)(<span class="number">3</span>));     <span class="comment">// 6</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">curriedAdd</span>(<span class="number">1</span>, <span class="number">2</span>)(<span class="number">3</span>));    <span class="comment">// 6</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">curriedAdd</span>(<span class="number">1</span>)(<span class="number">2</span>, <span class="number">3</span>));    <span class="comment">// 6</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">curriedAdd</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>));   <span class="comment">// 6 (all at once)</span></code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Currying Demo</h4>
+                    <button onclick="demoCurry()">Test Currying</button>
+                    <div class="output" id="curryOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 3: Partial Application -->
+            <div class="section" id="partial">
+                <h2>🧩 3. Partial Application</h2>
+                
+                <p><strong>Partial application</strong> is fixing a number of arguments to a function, producing another function with fewer arguments.</p>
+                
+                <h3>3.1 Basic Partial Application</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Similar to currying but more flexible</span>
+<span class="keyword">function</span> <span class="function">partial</span>(fn, ...fixedArgs) {
+    <span class="keyword">return</span> <span class="keyword">function</span>(...remainingArgs) {
+        <span class="keyword">return</span> <span class="function">fn</span>(...fixedArgs, ...remainingArgs);
+    };
+}
+
+<span class="comment">// Example: Create specialized functions</span>
+<span class="keyword">function</span> <span class="function">greet</span>(greeting, tone, name) {
+    <span class="keyword">return</span> <span class="string">`${greeting} ${name}, ${tone}!`</span>;
+}
+
+<span class="keyword">const</span> greetFriendly = <span class="function">partial</span>(greet, <span class="string">"Hello"</span>, <span class="string">"nice to meet you"</span>);
+<span class="keyword">const</span> greetFormal = <span class="function">partial</span>(greet, <span class="string">"Good day"</span>, <span class="string">"sir"</span>);
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">greetFriendly</span>(<span class="string">"Alice"</span>));  <span class="comment">// "Hello Alice, nice to meet you!"</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">greetFormal</span>(<span class="string">"Bob"</span>));      <span class="comment">// "Good day Bob, sir!"</span></code>
+                </div>
+                
+                <h3>3.2 Using bind() for Partial Application</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// bind() can be used for partial application</span>
+<span class="keyword">function</span> <span class="function">multiply</span>(a, b, c) {
+    <span class="keyword">return</span> a * b * c;
+}
+
+<span class="comment">// Fix first argument</span>
+<span class="keyword">const</span> multiplyBy2 = multiply.<span class="function">bind</span>(<span class="keyword">null</span>, <span class="number">2</span>);
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">multiplyBy2</span>(<span class="number">3</span>, <span class="number">4</span>));  <span class="comment">// 24 (2 * 3 * 4)</span>
+
+<span class="comment">// Fix first two arguments</span>
+<span class="keyword">const</span> multiplyBy2And3 = multiply.<span class="function">bind</span>(<span class="keyword">null</span>, <span class="number">2</span>, <span class="number">3</span>);
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">multiplyBy2And3</span>(<span class="number">4</span>));  <span class="comment">// 24 (2 * 3 * 4)</span>
+
+<span class="comment">// Real-world: Pre-configure API calls</span>
+<span class="keyword">const</span> apiGet = <span class="function">fetch</span>.<span class="function">bind</span>(<span class="keyword">null</span>, { method: <span class="string">'GET'</span> });</code>
+                </div>
+                
+                <div class="note">
+                    <strong>💡 Currying vs Partial Application:</strong>
+                    <ul>
+                        <li><strong>Currying:</strong> Transform f(a,b,c) into f(a)(b)(c) - one arg at a time</li>
+                        <li><strong>Partial:</strong> Fix some args, leaving others - f(a, b, _)</li>
+                        <li>Both create specialized functions from general ones</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 4: Composition and Piping -->
+            <div class="section" id="composition">
+                <h2>🔗 4. Function Composition and Piping</h2>
+                
+                <p><strong>Composition</strong> combines multiple functions into a single function, where output of one becomes input of the next.</p>
+                
+                <h3>4.1 Basic Composition</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Simple functions</span>
+<span class="keyword">const</span> double = x => x * <span class="number">2</span>;
+<span class="keyword">const</span> square = x => x * x;
+<span class="keyword">const</span> addTen = x => x + <span class="number">10</span>;
+
+<span class="comment">// Without composition - nested calls (hard to read)</span>
+<span class="keyword">const</span> result1 = <span class="function">addTen</span>(<span class="function">square</span>(<span class="function">double</span>(<span class="number">3</span>)));
+<span class="function">console</span>.<span class="function">log</span>(result1);  <span class="comment">// 46 (3 → 6 → 36 → 46)</span>
+
+<span class="comment">// Composition function - right to left</span>
+<span class="keyword">const</span> compose = (...fns) => x => 
+    fns.<span class="function">reduceRight</span>((value, fn) => <span class="function">fn</span>(value), x);
+
+<span class="keyword">const</span> process = <span class="function">compose</span>(addTen, square, double);
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">process</span>(<span class="number">3</span>));  <span class="comment">// 46 (same result, cleaner!)</span></code>
+                </div>
+                
+                <div class="flow-diagram">
+                    <h4 style="text-align: center; color: #f093fb; margin-bottom: 20px;">→ Composition Flow (Right to Left)</h4>
+                    
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <div class="flow-box">Input: 3</div>
+                        <div class="arrow-flow">→</div>
+                        <div class="flow-box">double(3) = 6</div>
+                        <div class="arrow-flow">→</div>
+                        <div class="flow-box">square(6) = 36</div>
+                        <div class="arrow-flow">→</div>
+                        <div class="flow-box">addTen(36) = 46</div>
+                    </div>
+                </div>
+                
+                <h3>4.2 Pipe Function (Left to Right)</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Pipe - left to right (more intuitive)</span>
+<span class="keyword">const</span> pipe = (...fns) => x => 
+    fns.<span class="function">reduce</span>((value, fn) => <span class="function">fn</span>(value), x);
+
+<span class="keyword">const</span> process = <span class="function">pipe</span>(double, square, addTen);
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">process</span>(<span class="number">3</span>));  <span class="comment">// 46 (reads left to right)</span>
+
+<span class="comment">// Real-world example: Data transformation</span>
+<span class="keyword">const</span> users = [
+    { name: <span class="string">"alice"</span>, age: <span class="number">25</span>, active: <span class="keyword">true</span> },
+    { name: <span class="string">"bob"</span>, age: <span class="number">17</span>, active: <span class="keyword">false</span> },
+    { name: <span class="string">"charlie"</span>, age: <span class="number">30</span>, active: <span class="keyword">true</span> }
+];
+
+<span class="keyword">const</span> filterActive = arr => arr.<span class="function">filter</span>(u => u.active);
+<span class="keyword">const</span> filterAdults = arr => arr.<span class="function">filter</span>(u => u.age >= <span class="number">18</span>);
+<span class="keyword">const</span> getNames = arr => arr.<span class="function">map</span>(u => u.name);
+<span class="keyword">const</span> capitalize = arr => arr.<span class="function">map</span>(name => 
+    name.<span class="function">charAt</span>(<span class="number">0</span>).<span class="function">toUpperCase</span>() + name.<span class="function">slice</span>(<span class="number">1</span>)
+);
+
+<span class="keyword">const</span> processUsers = <span class="function">pipe</span>(
+    filterActive,
+    filterAdults,
+    getNames,
+    capitalize
+);
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">processUsers</span>(users));  <span class="comment">// ["Alice", "Charlie"]</span></code>
+                </div>
+                
+                <div class="success">
+                    <strong>✅ Composition Benefits:</strong>
+                    <ul>
+                        <li>Reusable function pipelines</li>
+                        <li>Declarative code - what, not how</li>
+                        <li>Easy to test individual functions</li>
+                        <li>Clear data flow</li>
+                    </ul>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Composition Demo</h4>
+                    <input type="number" id="composeInput" value="3" min="0">
+                    <button onclick="demoCompose()">Test Composition</button>
+                    <button onclick="demoPipe()">Test Pipe</button>
+                    <div class="output" id="composeOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 5: Recursion -->
+            <div class="section" id="recursion">
+                <h2>♻️ 5. Recursion</h2>
+                
+                <p><strong>Recursion</strong> is when a function calls itself. Essential for tree structures, divide-and-conquer algorithms, and functional programming.</p>
+                
+                <h3>5.1 Basic Recursion</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Classic example: Factorial</span>
+<span class="keyword">function</span> <span class="function">factorial</span>(n) {
+    <span class="comment">// Base case - stops recursion</span>
+    <span class="keyword">if</span> (n <= <span class="number">1</span>) <span class="keyword">return</span> <span class="number">1</span>;
+    
+    <span class="comment">// Recursive case - calls itself</span>
+    <span class="keyword">return</span> n * <span class="function">factorial</span>(n - <span class="number">1</span>);
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">factorial</span>(<span class="number">5</span>));  <span class="comment">// 120 (5 * 4 * 3 * 2 * 1)</span>
+
+<span class="comment">// How it works:
+// factorial(5)
+//   = 5 * factorial(4)
+//   = 5 * (4 * factorial(3))
+//   = 5 * (4 * (3 * factorial(2)))
+//   = 5 * (4 * (3 * (2 * factorial(1))))
+//   = 5 * (4 * (3 * (2 * 1)))
+//   = 120</span>
+
+<span class="comment">// Fibonacci sequence</span>
+<span class="keyword">function</span> <span class="function">fibonacci</span>(n) {
+    <span class="keyword">if</span> (n <= <span class="number">1</span>) <span class="keyword">return</span> n;
+    <span class="keyword">return</span> <span class="function">fibonacci</span>(n - <span class="number">1</span>) + <span class="function">fibonacci</span>(n - <span class="number">2</span>);
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">fibonacci</span>(<span class="number">7</span>));  <span class="comment">// 13 (0,1,1,2,3,5,8,13)</span></code>
+                </div>
+                
+                <div class="flow-diagram">
+                    <h4 style="text-align: center; color: #f093fb; margin-bottom: 20px;">🔄 Recursion Call Stack</h4>
+                    
+                    <div style="text-align: center;">
+                        <div class="flow-box">factorial(5) = 5 * factorial(4)</div>
+                        <div class="arrow-flow">↓</div>
+                        <div class="flow-box">factorial(4) = 4 * factorial(3)</div>
+                        <div class="arrow-flow">↓</div>
+                        <div class="flow-box">factorial(3) = 3 * factorial(2)</div>
+                        <div class="arrow-flow">↓</div>
+                        <div class="flow-box">factorial(2) = 2 * factorial(1)</div>
+                        <div class="arrow-flow">↓</div>
+                        <div class="flow-box" style="background: #d4edda;">factorial(1) = 1 (base case)</div>
+                        <div class="arrow-flow">↑ unwind</div>
+                        <div class="flow-box">2 * 1 = 2 → 3 * 2 = 6 → 4 * 6 = 24 → 5 * 24 = 120</div>
+                    </div>
+                </div>
+                
+                <h3>5.2 Recursive Array Operations</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Sum array recursively</span>
+<span class="keyword">function</span> <span class="function">sumArray</span>(arr) {
+    <span class="keyword">if</span> (arr.length === <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;
+    <span class="keyword">return</span> arr[<span class="number">0</span>] + <span class="function">sumArray</span>(arr.<span class="function">slice</span>(<span class="number">1</span>));
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">sumArray</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]));  <span class="comment">// 15</span>
+
+<span class="comment">// Flatten nested arrays</span>
+<span class="keyword">function</span> <span class="function">flatten</span>(arr) {
+    <span class="keyword">let</span> result = [];
+    
+    <span class="keyword">for</span> (<span class="keyword">const</span> item <span class="keyword">of</span> arr) {
+        <span class="keyword">if</span> (<span class="function">Array</span>.<span class="function">isArray</span>(item)) {
+            result = result.<span class="function">concat</span>(<span class="function">flatten</span>(item));  <span class="comment">// Recursive!</span>
+        } <span class="keyword">else</span> {
+            result.<span class="function">push</span>(item);
+        }
+    }
+    
+    <span class="keyword">return</span> result;
+}
+
+<span class="keyword">const</span> nested = [<span class="number">1</span>, [<span class="number">2</span>, [<span class="number">3</span>, [<span class="number">4</span>]], <span class="number">5</span>]];
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">flatten</span>(nested));  <span class="comment">// [1, 2, 3, 4, 5]</span>
+
+<span class="comment">// Deep clone object</span>
+<span class="keyword">function</span> <span class="function">deepClone</span>(obj) {
+    <span class="keyword">if</span> (obj === <span class="keyword">null</span> || <span class="keyword">typeof</span> obj !== <span class="string">'object'</span>) {
+        <span class="keyword">return</span> obj;
+    }
+    
+    <span class="keyword">if</span> (<span class="function">Array</span>.<span class="function">isArray</span>(obj)) {
+        <span class="keyword">return</span> obj.<span class="function">map</span>(item => <span class="function">deepClone</span>(item));
+    }
+    
+    <span class="keyword">const</span> cloned = {};
+    <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> obj) {
+        cloned[key] = <span class="function">deepClone</span>(obj[key]);  <span class="comment">// Recursive!</span>
+    }
+    
+    <span class="keyword">return</span> cloned;
+}</code>
+                </div>
+                
+                <h3>5.3 Tail Call Optimization</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// ❌ Regular recursion - not tail-call optimized</span>
+<span class="keyword">function</span> <span class="function">factorial</span>(n) {
+    <span class="keyword">if</span> (n <= <span class="number">1</span>) <span class="keyword">return</span> <span class="number">1</span>;
+    <span class="keyword">return</span> n * <span class="function">factorial</span>(n - <span class="number">1</span>);  <span class="comment">// Operation after recursive call</span>
+}
+
+<span class="comment">// ✅ Tail-recursive - can be optimized</span>
+<span class="keyword">function</span> <span class="function">factorialTail</span>(n, accumulator = <span class="number">1</span>) {
+    <span class="keyword">if</span> (n <= <span class="number">1</span>) <span class="keyword">return</span> accumulator;
+    <span class="keyword">return</span> <span class="function">factorialTail</span>(n - <span class="number">1</span>, n * accumulator);  <span class="comment">// Tail call!</span>
+}
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">factorialTail</span>(<span class="number">5</span>));  <span class="comment">// 120</span>
+
+<span class="comment">// Tail-recursive sum</span>
+<span class="keyword">function</span> <span class="function">sumTail</span>(arr, total = <span class="number">0</span>) {
+    <span class="keyword">if</span> (arr.length === <span class="number">0</span>) <span class="keyword">return</span> total;
+    <span class="keyword">return</span> <span class="function">sumTail</span>(arr.<span class="function">slice</span>(<span class="number">1</span>), total + arr[<span class="number">0</span>]);
+}</code>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Stack Overflow Risk:</strong> Deep recursion can cause stack overflow. Use tail recursion (if supported) or iterative approach for large datasets.
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Recursion Demo</h4>
+                    <input type="number" id="factInput" value="5" min="0" max="20">
+                    <button onclick="demoFactorial()">Calculate Factorial</button>
+                    <button onclick="demoFibonacci()">Fibonacci</button>
+                    <div class="output" id="recursionOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 6: Memoization -->
+            <div class="section" id="memoization">
+                <h2>💾 6. Memoization</h2>
+                
+                <p><strong>Memoization</strong> is an optimization technique that caches function results, avoiding expensive recalculations for the same inputs.</p>
+                
+                <h3>6.1 Basic Memoization</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Without memoization - slow for large numbers</span>
+<span class="keyword">function</span> <span class="function">fibonacci</span>(n) {
+    <span class="keyword">if</span> (n <= <span class="number">1</span>) <span class="keyword">return</span> n;
+    <span class="keyword">return</span> <span class="function">fibonacci</span>(n - <span class="number">1</span>) + <span class="function">fibonacci</span>(n - <span class="number">2</span>);
+}
+
+<span class="comment">// fibonacci(40) takes several seconds! 😱</span>
+
+<span class="comment">// With memoization - fast!</span>
+<span class="keyword">function</span> <span class="function">memoize</span>(fn) {
+    <span class="keyword">const</span> cache = {};
+    
+    <span class="keyword">return</span> <span class="keyword">function</span>(...args) {
+        <span class="keyword">const</span> key = <span class="function">JSON</span>.<span class="function">stringify</span>(args);
+        
+        <span class="keyword">if</span> (key <span class="keyword">in</span> cache) {
+            <span class="function">console</span>.<span class="function">log</span>(<span class="string">'Cache hit!'</span>);
+            <span class="keyword">return</span> cache[key];
+        }
+        
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">'Computing...'</span>);
+        <span class="keyword">const</span> result = <span class="function">fn</span>.<span class="function">apply</span>(<span class="keyword">this</span>, args);
+        cache[key] = result;
+        <span class="keyword">return</span> result;
+    };
+}
+
+<span class="keyword">const</span> fibMemo = <span class="function">memoize</span>(<span class="keyword">function</span> <span class="function">fib</span>(n) {
+    <span class="keyword">if</span> (n <= <span class="number">1</span>) <span class="keyword">return</span> n;
+    <span class="keyword">return</span> <span class="function">fib</span>(n - <span class="number">1</span>) + <span class="function">fib</span>(n - <span class="number">2</span>);
+});
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">fibMemo</span>(<span class="number">40</span>));  <span class="comment">// Fast! ⚡</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">fibMemo</span>(<span class="number">40</span>));  <span class="comment">// Instant! (from cache)</span></code>
+                </div>
+                
+                <h3>6.2 Advanced Memoization</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Memoize with custom key function</span>
+<span class="keyword">function</span> <span class="function">memoizeWith</span>(fn, keyFn = <span class="function">JSON</span>.<span class="function">stringify</span>) {
+    <span class="keyword">const</span> cache = <span class="keyword">new</span> <span class="function">Map</span>();
+    
+    <span class="keyword">return</span> <span class="keyword">function</span>(...args) {
+        <span class="keyword">const</span> key = <span class="function">keyFn</span>(args);
+        
+        <span class="keyword">if</span> (cache.<span class="function">has</span>(key)) {
+            <span class="keyword">return</span> cache.<span class="function">get</span>(key);
+        }
+        
+        <span class="keyword">const</span> result = <span class="function">fn</span>.<span class="function">apply</span>(<span class="keyword">this</span>, args);
+        cache.<span class="function">set</span>(key, result);
+        <span class="keyword">return</span> result;
+    };
+}
+
+<span class="comment">// Memoize expensive API calls</span>
+<span class="keyword">const</span> fetchUserMemo = <span class="function">memoizeWith</span>(
+    <span class="keyword">async</span> (userId) => {
+        <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">`/api/users/${userId}`</span>);
+        <span class="keyword">return</span> response.<span class="function">json</span>();
+    },
+    args => args[<span class="number">0</span>]  <span class="comment">// Use userId as key</span>
+);
+
+<span class="comment">// First call - fetches from API</span>
+<span class="keyword">const</span> user1 = <span class="keyword">await</span> <span class="function">fetchUserMemo</span>(<span class="number">123</span>);
+
+<span class="comment">// Second call - instant from cache!</span>
+<span class="keyword">const</span> user2 = <span class="keyword">await</span> <span class="function">fetchUserMemo</span>(<span class="number">123</span>);</code>
+                </div>
+                
+                <h3>6.3 Memoization with Time Limit</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Cache expires after certain time</span>
+<span class="keyword">function</span> <span class="function">memoizeWithTTL</span>(fn, ttl = <span class="number">5000</span>) {
+    <span class="keyword">const</span> cache = <span class="keyword">new</span> <span class="function">Map</span>();
+    
+    <span class="keyword">return</span> <span class="keyword">function</span>(...args) {
+        <span class="keyword">const</span> key = <span class="function">JSON</span>.<span class="function">stringify</span>(args);
+        <span class="keyword">const</span> now = <span class="function">Date</span>.<span class="function">now</span>();
+        
+        <span class="keyword">if</span> (cache.<span class="function">has</span>(key)) {
+            <span class="keyword">const</span> { value, timestamp } = cache.<span class="function">get</span>(key);
+            
+            <span class="keyword">if</span> (now - timestamp < ttl) {
+                <span class="function">console</span>.<span class="function">log</span>(<span class="string">'Cache hit (fresh)'</span>);
+                <span class="keyword">return</span> value;
+            }
+            
+            <span class="function">console</span>.<span class="function">log</span>(<span class="string">'Cache expired'</span>);
+        }
+        
+        <span class="keyword">const</span> result = <span class="function">fn</span>.<span class="function">apply</span>(<span class="keyword">this</span>, args);
+        cache.<span class="function">set</span>(key, { value: result, timestamp: now });
+        <span class="keyword">return</span> result;
+    };
+}</code>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Memoization Demo</h4>
+                    <button onclick="demoMemoization()">Test Memoization Speed</button>
+                    <div class="output" id="memoOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 7: Debouncing and Throttling -->
+            <div class="section" id="debounce-throttle">
+                <h2>⏱️ 7. Debouncing and Throttling</h2>
+                
+                <p>Control how often functions execute, crucial for performance with frequent events (scroll, resize, input).</p>
+                
+                <h3>7.1 Debouncing</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Debounce: Execute only after user stops triggering event</span>
+<span class="keyword">function</span> <span class="function">debounce</span>(fn, delay) {
+    <span class="keyword">let</span> timeoutId;
+    
+    <span class="keyword">return</span> <span class="keyword">function</span>(...args) {
+        <span class="comment">// Clear previous timeout</span>
+        <span class="function">clearTimeout</span>(timeoutId);
+        
+        <span class="comment">// Set new timeout</span>
+        timeoutId = <span class="function">setTimeout</span>(() => {
+            <span class="function">fn</span>.<span class="function">apply</span>(<span class="keyword">this</span>, args);
+        }, delay);
+    };
+}
+
+<span class="comment">// Real-world: Search input</span>
+<span class="keyword">const</span> searchAPI = query => {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Searching for: ${query}`</span>);
+    <span class="comment">// Make API call...</span>
+};
+
+<span class="keyword">const</span> debouncedSearch = <span class="function">debounce</span>(searchAPI, <span class="number">500</span>);
+
+<span class="comment">// User types "hello" quickly</span>
+<span class="function">debouncedSearch</span>(<span class="string">'h'</span>);      <span class="comment">// Timeout set</span>
+<span class="function">debouncedSearch</span>(<span class="string">'he'</span>);     <span class="comment">// Previous timeout cleared, new one set</span>
+<span class="function">debouncedSearch</span>(<span class="string">'hel'</span>);    <span class="comment">// Previous timeout cleared, new one set</span>
+<span class="function">debouncedSearch</span>(<span class="string">'hell'</span>);   <span class="comment">// Previous timeout cleared, new one set</span>
+<span class="function">debouncedSearch</span>(<span class="string">'hello'</span>);  <span class="comment">// Previous timeout cleared, new one set</span>
+<span class="comment">// After 500ms of no typing: "Searching for: hello" (only once!)</span>
+
+<span class="comment">// Usage with event listeners</span>
+<span class="keyword">const</span> input = document.<span class="function">querySelector</span>(<span class="string">'input'</span>);
+input.<span class="function">addEventListener</span>(<span class="string">'input'</span>, <span class="function">debounce</span>(e => {
+    <span class="function">searchAPI</span>(e.target.value);
+}, <span class="number">500</span>));</code>
+                </div>
+                
+                <h3>7.2 Throttling</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Throttle: Execute at most once per time period</span>
+<span class="keyword">function</span> <span class="function">throttle</span>(fn, limit) {
+    <span class="keyword">let</span> inThrottle;
+    
+    <span class="keyword">return</span> <span class="keyword">function</span>(...args) {
+        <span class="keyword">if</span> (!inThrottle) {
+            <span class="function">fn</span>.<span class="function">apply</span>(<span class="keyword">this</span>, args);
+            inThrottle = <span class="keyword">true</span>;
+            
+            <span class="function">setTimeout</span>(() => {
+                inThrottle = <span class="keyword">false</span>;
+            }, limit);
+        }
+    };
+}
+
+<span class="comment">// Real-world: Scroll event</span>
+<span class="keyword">const</span> handleScroll = () => {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">'Scroll position:'</span>, window.scrollY);
+};
+
+<span class="keyword">const</span> throttledScroll = <span class="function">throttle</span>(handleScroll, <span class="number">1000</span>);
+
+window.<span class="function">addEventListener</span>(<span class="string">'scroll'</span>, throttledScroll);
+<span class="comment">// Executes at most once per second, even if user scrolls rapidly</span></code>
+                </div>
+                
+                <h3>7.3 Debounce vs Throttle - When to Use</h3>
+                
+                <div class="flow-diagram">
+                    <h4 style="text-align: center; color: #f093fb; margin-bottom: 20px;">⏰ Debounce vs Throttle Visualization</h4>
+                    
+                    <div class="grid-2">
+                        <div>
+                            <h4 style="color: #f093fb; text-align: center;">Debounce</h4>
+                            <div class="flow-box">Events: ||||||||</div>
+                            <div class="arrow-flow">↓ Wait for silence</div>
+                            <div class="flow-box" style="background: #d4edda;">Execute: ... ... 1</div>
+                            <p style="text-align: center; margin-top: 10px;"><strong>Waits until events stop</strong></p>
+                        </div>
+                        
+                        <div>
+                            <h4 style="color: #f5576c; text-align: center;">Throttle</h4>
+                            <div class="flow-box">Events: ||||||||</div>
+                            <div class="arrow-flow">↓ Regular intervals</div>
+                            <div class="flow-box" style="background: #d4edda;">Execute: 1 ... 1 ... 1</div>
+                            <p style="text-align: center; margin-top: 10px;"><strong>At most once per interval</strong></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Debounce</th>
+                            <th>Throttle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>When executes</strong></td>
+                            <td>After events stop</td>
+                            <td>At regular intervals</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use case</strong></td>
+                            <td>Search input, window resize</td>
+                            <td>Scroll events, mouse movement</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Behavior</strong></td>
+                            <td>Waits for "quiet period"</td>
+                            <td>Ensures regular execution</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Example</strong></td>
+                            <td>Wait 500ms after last keystroke</td>
+                            <td>Execute once per 100ms</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="interactive-demo">
+                    <h4>🎮 Debounce vs Throttle Demo</h4>
+                    <button onclick="testDebounce()">Test Debounce (click rapidly)</button>
+                    <button onclick="testThrottle()">Test Throttle (click rapidly)</button>
+                    <div class="output" id="debounceOutput"></div>
+                </div>
+            </div>
+
+            <!-- Section 8: Advanced Patterns -->
+            <div class="section" id="advanced-patterns">
+                <h2>🚀 8. Advanced Function Patterns</h2>
+                
+                <h3>8.1 Function Decorators</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Decorator: Add functionality to existing functions</span>
+<span class="keyword">function</span> <span class="function">log</span>(fn) {
+    <span class="keyword">return</span> <span class="keyword">function</span>(...args) {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Calling ${fn.name} with args:`, args);
+        <span class="keyword">const</span> result = <span class="function">fn</span>(...args);
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Result:`, result);
+        <span class="keyword">return</span> result;
+    };
+}
+
+<span class="keyword">function</span> <span class="function">add</span>(a, b) {
+    <span class="keyword">return</span> a + b;
+}
+
+<span class="keyword">const</span> loggedAdd = <span class="function">log</span>(add);
+<span class="function">loggedAdd</span>(<span class="number">5</span>, <span class="number">3</span>);
+<span class="comment">// Calling add with args: [5, 3]
+// Result: 8</span>
+
+<span class="comment">// Time measurement decorator</span>
+<span class="keyword">function</span> <span class="function">time</span>(fn) {
+    <span class="keyword">return</span> <span class="keyword">function</span>(...args) {
+        <span class="keyword">const</span> start = <span class="function">Date</span>.<span class="function">now</span>();
+        <span class="keyword">const</span> result = <span class="function">fn</span>(...args);
+        <span class="keyword">const</span> end = <span class="function">Date</span>.<span class="function">now</span>();
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">`${fn.name} took ${end - start}ms`</span>);
+        <span class="keyword">return</span> result;
+    };
+}
+
+<span class="comment">// Validation decorator</span>
+<span class="keyword">function</span> <span class="function">validateArgs</span>(validatorFn) {
+    <span class="keyword">return</span> <span class="keyword">function</span>(fn) {
+        <span class="keyword">return</span> <span class="keyword">function</span>(...args) {
+            <span class="keyword">if</span> (!<span class="function">validatorFn</span>(...args)) {
+                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="function">Error</span>(<span class="string">'Invalid arguments'</span>);
+            }
+            <span class="keyword">return</span> <span class="function">fn</span>(...args);
+        };
+    };
+}
+
+<span class="keyword">const</span> onlyPositive = <span class="function">validateArgs</span>((a, b) => a > <span class="number">0</span> && b > <span class="number">0</span>);
+<span class="keyword">const</span> safeAdd = <span class="function">onlyPositive</span>(add);</code>
+                </div>
+                
+                <h3>8.2 Function Pipeline Builder</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Chainable pipeline</span>
+<span class="keyword">class</span> <span class="function">Pipeline</span> {
+    <span class="function">constructor</span>(value) {
+        <span class="keyword">this</span>.value = value;
+    }
+    
+    <span class="function">map</span>(fn) {
+        <span class="keyword">this</span>.value = <span class="function">fn</span>(<span class="keyword">this</span>.value);
+        <span class="keyword">return</span> <span class="keyword">this</span>;
+    }
+    
+    <span class="function">filter</span>(predicate) {
+        <span class="keyword">if</span> (<span class="function">Array</span>.<span class="function">isArray</span>(<span class="keyword">this</span>.value)) {
+            <span class="keyword">this</span>.value = <span class="keyword">this</span>.value.<span class="function">filter</span>(predicate);
+        }
+        <span class="keyword">return</span> <span class="keyword">this</span>;
+    }
+    
+    <span class="function">tap</span>(fn) {
+        <span class="function">fn</span>(<span class="keyword">this</span>.value);  <span class="comment">// Side effect, doesn't change value</span>
+        <span class="keyword">return</span> <span class="keyword">this</span>;
+    }
+    
+    <span class="function">value</span>() {
+        <span class="keyword">return</span> <span class="keyword">this</span>.value;
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> result = <span class="keyword">new</span> <span class="function">Pipeline</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>])
+    .<span class="function">filter</span>(x => x % <span class="number">2</span> === <span class="number">0</span>)
+    .<span class="function">tap</span>(arr => <span class="function">console</span>.<span class="function">log</span>(<span class="string">'After filter:'</span>, arr))
+    .<span class="function">map</span>(x => x * <span class="number">2</span>)
+    .<span class="function">tap</span>(arr => <span class="function">console</span>.<span class="function">log</span>(<span class="string">'After map:'</span>, arr))
+    .<span class="function">value</span>();
+
+<span class="function">console</span>.<span class="function">log</span>(result);  <span class="comment">// [4, 8]</span></code>
+                </div>
+                
+                <h3>8.3 Lazy Evaluation</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Delay computation until needed</span>
+<span class="keyword">function</span> <span class="function">lazy</span>(fn) {
+    <span class="keyword">let</span> cached = <span class="keyword">false</span>;
+    <span class="keyword">let</span> value;
+    
+    <span class="keyword">return</span> <span class="keyword">function</span>() {
+        <span class="keyword">if</span> (!cached) {
+            value = <span class="function">fn</span>();
+            cached = <span class="keyword">true</span>;
+        }
+        <span class="keyword">return</span> value;
+    };
+}
+
+<span class="comment">// Expensive computation</span>
+<span class="keyword">const</span> expensiveValue = <span class="function">lazy</span>(() => {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">'Computing...'</span>);
+    <span class="keyword">let</span> result = <span class="number">0</span>;
+    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">1000000</span>; i++) result += i;
+    <span class="keyword">return</span> result;
+});
+
+<span class="comment">// Computation doesn't happen yet</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">'Created lazy value'</span>);
+
+<span class="comment">// Now it computes</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">expensiveValue</span>());  <span class="comment">// "Computing..." → result</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">expensiveValue</span>());  <span class="comment">// Instant (cached)</span></code>
+                </div>
+            </div>
+
+            <!-- Section 9: Real-World Applications -->
+            <div class="section" id="real-world">
+                <h2>🌟 9. Real-World Applications</h2>
+                
+                <h3>9.1 Event Handler Utilities</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Debounced search</span>
+<span class="keyword">function</span> <span class="function">createSearchHandler</span>(searchFn, delay = <span class="number">500</span>) {
+    <span class="keyword">return</span> <span class="function">debounce</span>(<span class="keyword">function</span>(event) {
+        <span class="keyword">const</span> query = event.target.value;
+        <span class="keyword">if</span> (query.length >= <span class="number">3</span>) {
+            <span class="function">searchFn</span>(query);
+        }
+    }, delay);
+}
+
+<span class="keyword">const</span> searchInput = document.<span class="function">querySelector</span>(<span class="string">'#search'</span>);
+searchInput.<span class="function">addEventListener</span>(<span class="string">'input'</span>, <span class="function">createSearchHandler</span>(<span class="keyword">async</span> query => {
+    <span class="keyword">const</span> results = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">`/api/search?q=${query}`</span>);
+    <span class="comment">// Display results...</span>
+}));
+
+<span class="comment">// Throttled scroll handler</span>
+<span class="keyword">const</span> handleScroll = <span class="function">throttle</span>(() => {
+    <span class="keyword">const</span> scrollPercent = (window.scrollY / document.body.scrollHeight) * <span class="number">100</span>;
+    <span class="function">updateProgressBar</span>(scrollPercent);
+}, <span class="number">100</span>);
+
+window.<span class="function">addEventListener</span>(<span class="string">'scroll'</span>, handleScroll);</code>
+                </div>
+                
+                <h3>9.2 API Request Builder</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Curried API request builder</span>
+<span class="keyword">const</span> apiRequest = baseUrl => method => endpoint => data => {
+    <span class="keyword">return</span> <span class="function">fetch</span>(<span class="string">`${baseUrl}${endpoint}`</span>, {
+        method,
+        headers: { <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span> },
+        body: data ? <span class="function">JSON</span>.<span class="function">stringify</span>(data) : <span class="keyword">undefined</span>
+    });
+};
+
+<span class="comment">// Create specialized API functions</span>
+<span class="keyword">const</span> myApi = <span class="function">apiRequest</span>(<span class="string">'https://api.example.com'</span>);
+<span class="keyword">const</span> get = <span class="function">myApi</span>(<span class="string">'GET'</span>);
+<span class="keyword">const</span> post = <span class="function">myApi</span>(<span class="string">'POST'</span>);
+
+<span class="comment">// Use them</span>
+<span class="keyword">const</span> users = <span class="keyword">await</span> <span class="function">get</span>(<span class="string">'/users'</span>)();
+<span class="keyword">const</span> newUser = <span class="keyword">await</span> <span class="function">post</span>(<span class="string">'/users'</span>)({ name: <span class="string">"Alice"</span> });</code>
+                </div>
+                
+                <h3>9.3 Retry with Exponential Backoff</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Higher-order function for retrying operations</span>
+<span class="keyword">function</span> <span class="function">retry</span>(fn, maxAttempts = <span class="number">3</span>, delay = <span class="number">1000</span>) {
+    <span class="keyword">return</span> <span class="keyword">async</span> <span class="keyword">function</span>(...args) {
+        <span class="keyword">for</span> (<span class="keyword">let</span> attempt = <span class="number">1</span>; attempt <= maxAttempts; attempt++) {
+            <span class="keyword">try</span> {
+                <span class="keyword">return</span> <span class="keyword">await</span> <span class="function">fn</span>(...args);
+            } <span class="keyword">catch</span> (error) {
+                <span class="keyword">if</span> (attempt === maxAttempts) {
+                    <span class="keyword">throw</span> error;
+                }
+                
+                <span class="keyword">const</span> waitTime = delay * <span class="function">Math</span>.<span class="function">pow</span>(<span class="number">2</span>, attempt - <span class="number">1</span>);  <span class="comment">// Exponential backoff</span>
+                <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Attempt ${attempt} failed, retrying in ${waitTime}ms`</span>);
+                <span class="keyword">await</span> <span class="keyword">new</span> <span class="function">Promise</span>(r => <span class="function">setTimeout</span>(r, waitTime));
+            }
+        }
+    };
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> fetchWithRetry = <span class="function">retry</span>(<span class="keyword">async</span> url => {
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(url);
+    <span class="keyword">if</span> (!response.ok) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="function">Error</span>(<span class="string">'Request failed'</span>);
+    <span class="keyword">return</span> response.<span class="function">json</span>();
+}, <span class="number">3</span>, <span class="number">1000</span>);
+
+<span class="keyword">const</span> data = <span class="keyword">await</span> <span class="function">fetchWithRetry</span>(<span class="string">'/api/data'</span>);</code>
+                </div>
+                
+                <h3>9.4 Function Queue</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Execute functions in sequence</span>
+<span class="keyword">class</span> <span class="function">FunctionQueue</span> {
+    <span class="function">constructor</span>() {
+        <span class="keyword">this</span>.queue = [];
+    }
+    
+    <span class="function">add</span>(fn) {
+        <span class="keyword">this</span>.queue.<span class="function">push</span>(fn);
+        <span class="keyword">return</span> <span class="keyword">this</span>;  <span class="comment">// Chainable</span>
+    }
+    
+    <span class="keyword">async</span> <span class="function">run</span>() {
+        <span class="keyword">const</span> results = [];
+        
+        <span class="keyword">for</span> (<span class="keyword">const</span> fn <span class="keyword">of</span> <span class="keyword">this</span>.queue) {
+            results.<span class="function">push</span>(<span class="keyword">await</span> <span class="function">fn</span>());
+        }
+        
+        <span class="keyword">this</span>.queue = [];  <span class="comment">// Clear queue</span>
+        <span class="keyword">return</span> results;
+    }
+}
+
+<span class="comment">// Usage: Sequential task execution</span>
+<span class="keyword">const</span> queue = <span class="keyword">new</span> <span class="function">FunctionQueue</span>();
+
+queue
+    .<span class="function">add</span>(() => <span class="function">fetchUser</span>())
+    .<span class="function">add</span>(() => <span class="function">fetchPosts</span>())
+    .<span class="function">add</span>(() => <span class="function">fetchComments</span>());
+
+<span class="keyword">const</span> results = <span class="keyword">await</span> queue.<span class="function">run</span>();</code>
+                </div>
+            </div>
+
+            <!-- Section 9: Performance Considerations -->
+            <div class="section" id="performance">
+                <h2>⚡ 10. Performance Considerations</h2>
+                
+                <h3>10.1 When NOT to Use Recursion</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// ❌ BAD: Simple loop as recursion (unnecessary)</span>
+<span class="keyword">function</span> <span class="function">sumRecursive</span>(arr) {
+    <span class="keyword">if</span> (arr.length === <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;
+    <span class="keyword">return</span> arr[<span class="number">0</span>] + <span class="function">sumRecursive</span>(arr.<span class="function">slice</span>(<span class="number">1</span>));
+}
+
+<span class="comment">// ✅ GOOD: Simple loop (better performance)</span>
+<span class="keyword">function</span> <span class="function">sumIterative</span>(arr) {
+    <span class="keyword">let</span> total = <span class="number">0</span>;
+    <span class="keyword">for</span> (<span class="keyword">const</span> num <span class="keyword">of</span> arr) {
+        total += num;
+    }
+    <span class="keyword">return</span> total;
+}
+
+<span class="comment">// Use recursion for:
+// - Tree/graph traversal
+// - Divide and conquer algorithms
+// - When structure is naturally recursive</span></code>
+                </div>
+                
+                <h3>10.2 Memoization Trade-offs</h3>
+                
+                <div class="code-block">
+<code><span class="comment">// Memoization uses memory to save time</span>
+
+<span class="comment">// ✅ Good for memoization:</span>
+<span class="comment">// - Pure functions (same input → same output)</span>
+<span class="comment">// - Expensive computations</span>
+<span class="comment">// - Repeated calls with same inputs</span>
+
+<span class="comment">// ❌ Bad for memoization:</span>
+<span class="comment">// - Functions with side effects</span>
+<span class="comment">// - Rarely called with same inputs</span>
+<span class="comment">// - Large or infinite input space</span>
+<span class="comment">// - Functions that return different values for same input</span>
+
+<span class="keyword">function</span> <span class="function">shouldMemoize</span>(fn) {
+    <span class="comment">// Only memoize pure, expensive functions</span>
+    <span class="comment">// that are called repeatedly</span>
+}</code>
+                </div>
+            </div>
+
+            <!-- Section 10: Summary -->
+            <div class="section" id="summary">
+                <h2>📝 Chapter Summary & Interview Questions</h2>
+                
+                <h3>Key Takeaways:</h3>
+                <ol>
+                    <li><strong>Higher-Order Functions</strong> take or return functions - foundation of functional programming</li>
+                    <li><strong>Currying</strong> transforms f(a,b,c) into f(a)(b)(c) - one argument at a time</li>
+                    <li><strong>Partial Application</strong> fixes some arguments, creating specialized functions</li>
+                    <li><strong>Composition</strong> combines functions (right-to-left), pipe (left-to-right)</li>
+                    <li><strong>Recursion</strong> functions calling themselves - need base case to stop</li>
+                    <li><strong>Tail Recursion</strong> recursive call is last operation - can be optimized</li>
+                    <li><strong>Memoization</strong> caches results for performance - trade memory for speed</li>
+                    <li><strong>Debounce</strong> executes after events stop - search inputs</li>
+                    <li><strong>Throttle</strong> executes at most once per interval - scroll events</li>
+                </ol>
+                
+                <h3>Quick Reference Cheatsheet:</h3>
+                <div class="visual-box">
+                    <div class="code-block">
+<code><span class="comment">// ===== HIGHER-ORDER FUNCTIONS =====</span>
+<span class="keyword">const</span> hof = fn => <span class="keyword">function</span>(...args) { <span class="keyword">return</span> <span class="function">fn</span>(...args); };
+
+<span class="comment">// ===== CURRYING =====</span>
+<span class="keyword">const</span> curry = a => b => c => a + b + c;
+<span class="function">curry</span>(<span class="number">1</span>)(<span class="number">2</span>)(<span class="number">3</span>);  <span class="comment">// 6</span>
+
+<span class="comment">// ===== PARTIAL APPLICATION =====</span>
+<span class="keyword">const</span> partial = (fn, ...fixed) => (...rest) => <span class="function">fn</span>(...fixed, ...rest);
+
+<span class="comment">// ===== COMPOSITION =====</span>
+<span class="keyword">const</span> compose = (...fns) => x => fns.<span class="function">reduceRight</span>((v, f) => <span class="function">f</span>(v), x);
+<span class="keyword">const</span> pipe = (...fns) => x => fns.<span class="function">reduce</span>((v, f) => <span class="function">f</span>(v), x);
+
+<span class="comment">// ===== MEMOIZATION =====</span>
+<span class="keyword">const</span> memoize = fn => {
+    <span class="keyword">const</span> cache = {};
+    <span class="keyword">return</span> (...args) => {
+        <span class="keyword">const</span> key = <span class="function">JSON</span>.<span class="function">stringify</span>(args);
+        <span class="keyword">return</span> cache[key] || (cache[key] = <span class="function">fn</span>(...args));
+    };
+};
+
+<span class="comment">// ===== DEBOUNCE =====</span>
+<span class="keyword">const</span> debounce = (fn, delay) => {
+    <span class="keyword">let</span> timer;
+    <span class="keyword">return</span> (...args) => {
+        <span class="function">clearTimeout</span>(timer);
+        timer = <span class="function">setTimeout</span>(() => <span class="function">fn</span>(...args), delay);
+    };
+};
+
+<span class="comment">// ===== THROTTLE =====</span>
+<span class="keyword">const</span> throttle = (fn, limit) => {
+    <span class="keyword">let</span> inThrottle;
+    <span class="keyword">return</span> (...args) => {
+        <span class="keyword">if</span> (!inThrottle) {
+            <span class="function">fn</span>(...args);
+            inThrottle = <span class="keyword">true</span>;
+            <span class="function">setTimeout</span>(() => inThrottle = <span class="keyword">false</span>, limit);
+        }
+    };
+};</code>
+                    </div>
+                </div>
+                <div class="visual-box">
+                    <ol>
+                        <li><strong>Q:</strong> What is a higher-order function?<br>
+                            <strong>A:</strong> A function that takes functions as arguments OR returns a function. Examples: map, filter, reduce.</li>
+                        
+                        <li><strong>Q:</strong> Explain currying with an example.<br>
+                            <strong>A:</strong> Transforming f(a, b, c) into f(a)(b)(c). Each function takes one argument and returns a function for the next, until all arguments are provided.</li>
+                        
+                        <li><strong>Q:</strong> Difference between currying and partial application?<br>
+                            <strong>A:</strong> Currying always returns functions taking one argument. Partial application fixes any number of arguments at once, returning function with remaining parameters.</li>
+                        
+                        <li><strong>Q:</strong> What is function composition?<br>
+                            <strong>A:</strong> Combining multiple functions where output of one becomes input of next. compose() goes right-to-left, pipe() goes left-to-right.</li>
+                        
+                        <li><strong>Q:</strong> When does recursion cause stack overflow?<br>
+                            <strong>A:</strong> When recursion is too deep or missing base case. Each call adds to call stack. Tail recursion can help (if optimized by engine).</li>
+                        
+                        <li><strong>Q:</strong> What is memoization and when to use it?<br>
+                            <strong>A:</strong> Caching function results based on inputs. Use for expensive computations with repeated inputs (fibonacci, API calls, complex calculations).</li>
+                        
+                        <li><strong>Q:</strong> Difference between debounce and throttle?<br>
+                            <strong>A:</strong> Debounce waits for events to stop (search input). Throttle executes at most once per interval (scroll events).</li>
+                        
+                        <li><strong>Q:</strong> Implement a debounce function.<br>
+                            <strong>A:</strong> See section 7.1 above - clear timeout on each call, set new timeout.</li>
+                        
+                        <li><strong>Q:</strong> Why use function composition?<br>
+                            <strong>A:</strong> Creates reusable pipelines, declarative code, easier testing, clear data flow.</li>
+                    </ol>
+                </div>
+                
+                <h3>Common Interview Questions:</h3>
+                <div class="visual-box">
+                    <ol>
+                        <li><strong>Q:</strong> What is a higher-order function? Give examples.<br>
+                            <strong>A:</strong> A function that takes functions as arguments OR returns a function. Examples: map, filter, reduce, setTimeout, addEventListener.</li>
+                        
+                        <li><strong>Q:</strong> Explain currying with an example.<br>
+                            <strong>A:</strong> Transforming f(a, b, c) into f(a)(b)(c). Instead of taking all arguments at once, each function takes one argument and returns a function for the next. Example: <code>const add = a => b => c => a + b + c</code></li>
+                        
+                        <li><strong>Q:</strong> What's the difference between currying and partial application?<br>
+                            <strong>A:</strong> Currying always returns functions taking exactly one argument each. Partial application fixes any number of arguments at once, returning a function with the remaining parameters. Both create specialized functions from general ones.</li>
+                        
+                        <li><strong>Q:</strong> What is function composition? Implement compose().<br>
+                            <strong>A:</strong> Combining multiple functions where output of one becomes input of next. <code>compose = (...fns) => x => fns.reduceRight((v, f) => f(v), x)</code>. Executes right-to-left.</li>
+                        
+                        <li><strong>Q:</strong> What is tail recursion and why does it matter?<br>
+                            <strong>A:</strong> Recursion where the recursive call is the last operation. Some engines can optimize it to not grow the call stack, preventing stack overflow for deep recursion.</li>
+                        
+                        <li><strong>Q:</strong> Implement a memoization function.<br>
+                            <strong>A:</strong> See section 6.1 - create cache object, check if args in cache, if not compute and store, return cached or computed result.</li>
+                        
+                        <li><strong>Q:</strong> What's the difference between debounce and throttle?<br>
+                            <strong>A:</strong> Debounce waits for events to stop before executing (wait for silence). Throttle executes at most once per time interval (regular rate limiting).</li>
+                        
+                        <li><strong>Q:</strong> When would you use debounce?<br>
+                            <strong>A:</strong> Search inputs (wait for user to stop typing), window resize (wait for resizing to finish), auto-save (wait for editing to pause).</li>
+                        
+                        <li><strong>Q:</strong> When would you use throttle?<br>
+                            <strong>A:</strong> Scroll events (update position indicator), mouse movement (track coordinates), button clicks (prevent double-submit).</li>
+                        
+                        <li><strong>Q:</strong> What are the benefits of function composition?<br>
+                            <strong>A:</strong> Creates reusable pipelines, declarative code, easier testing of individual functions, clear data flow, point-free style.</li>
+                        
+                        <li><strong>Q:</strong> Implement a function that only runs once.<br>
+                            <strong>A:</strong> See section 1.3 - use closure to track if function has been called, cache and return first result.</li>
+                        
+                        <li><strong>Q:</strong> What's the trade-off of memoization?<br>
+                            <strong>A:</strong> Memory for speed. Caching results uses memory but saves computation time. Only memoize expensive, pure functions called repeatedly with same inputs.</li>
+                    </ol>
+                </div>
+                
+                <div class="success">
+                    <strong>💪 Comprehensive Practice Exercises:</strong>
+                    <ol>
+                        <li>Create a higher-order function that adds logging to any function</li>
+                        <li>Implement a curry() function that works with any arity</li>
+                        <li>Build partial() for fixing multiple arguments</li>
+                        <li>Create both compose() and pipe() functions</li>
+                        <li>Solve Tower of Hanoi with recursion</li>
+                        <li>Implement memoized factorial and fibonacci</li>
+                        <li>Create debounce from scratch (handle this binding)</li>
+                        <li>Implement throttle with trailing edge option</li>
+                        <li>Build a retry function with exponential backoff</li>
+                        <li>Create function pipeline for data transformation</li>
+                        <li>Implement once(), after(), before() utility functions</li>
+                        <li>Build a function queue with priority levels</li>
+                        <li>Create decorator for timing function execution</li>
+                        <li>Implement lazy evaluation wrapper</li>
+                        <li>Build curried event handler factory</li>
+                    </ol>
+                </div>
+                
+                <div class="tip">
+                    <strong>🎯 Production Usage Guide:</strong>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Technique</th>
+                                <th>Real-World Use Case</th>
+                                <th>Performance Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Higher-Order</strong></td>
+                                <td>Array methods, middleware, decorators</td>
+                                <td>Minimal overhead</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Currying</strong></td>
+                                <td>Event handlers, validators, config builders</td>
+                                <td>Minimal (extra closures)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Composition</strong></td>
+                                <td>Data pipelines, Redux reducers, validators</td>
+                                <td>Minimal</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Recursion</strong></td>
+                                <td>Tree traversal, DOM walking, nested data</td>
+                                <td>⚠️ Stack overflow risk</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Memoization</strong></td>
+                                <td>API caching, expensive calculations</td>
+                                <td>💾 Memory vs ⚡ Speed</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Debounce</strong></td>
+                                <td>Search input, auto-save, window resize</td>
+                                <td>✅ Reduces calls</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Throttle</strong></td>
+                                <td>Scroll, mouse move, analytics tracking</td>
+                                <td>✅ Reduces calls</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="note">
+                    <strong>🎓 Congratulations!</strong> Chapter 13 complete! These advanced function techniques are used extensively in:
+                    <ul>
+                        <li>📚 Libraries like Lodash, Ramda, RxJS</li>
+                        <li>⚛️ React hooks and functional components</li>
+                        <li>🔄 Redux middleware and reducers</li>
+                        <li>🎨 Functional programming paradigms</li>
+                        <li>⚡ Performance optimization</li>
+                        <li>🏗️ Clean, maintainable code architecture</li>
+                    </ul>
+                </div>
+                
+                <div class="warning">
+                    <strong>🔥 Interview Focus Areas:</strong>
+                    <ul>
+                        <li>🎯 <strong>Implement debounce/throttle</strong> - Asked in 60% of interviews!</li>
+                        <li>🎯 <strong>Explain currying</strong> - Common conceptual question</li>
+                        <li>🎯 <strong>Function composition</strong> - Demonstrates FP understanding</li>
+                        <li>🎯 <strong>Memoization implementation</strong> - Shows optimization knowledge</li>
+                        <li>🎯 <strong>Recursion with base case</strong> - Algorithm fundamentals</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoOnce() {
+            const output = document.getElementById('hofOutput');
+            
+            function once(fn) {
+                let called = false;
+                let result;
+                
+                return function(...args) {
+                    if (!called) {
+                        called = true;
+                        result = fn(...args);
+                    }
+                    return result;
+                };
+            }
+            
+            let callCount = 0;
+            const expensiveOperation = () => {
+                callCount++;
+                return `Executed ${callCount} time(s)`;
+            };
+            
+            const onceOp = once(expensiveOperation);
+            
+            let result = '=== once() Demo ===\n\n';
+            result += 'const onceOp = once(expensiveOperation);\n\n';
+            result += `Call 1: ${onceOp()}\n`;
+            result += `Call 2: ${onceOp()}\n`;
+            result += `Call 3: ${onceOp()}\n\n`;
+            result += 'Notice: Function only executed once!\n';
+            result += 'Subsequent calls return cached result.';
+            
+            output.textContent = result;
+        }
+        
+        function demoFilter() {
+            const output = document.getElementById('hofOutput');
+            
+            // Custom filter implementation
+            function customFilter(arr, predicateFn) {
+                const result = [];
+                for (const item of arr) {
+                    if (predicateFn(item)) {
+                        result.push(item);
+                    }
+                }
+                return result;
+            }
+            
+            const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+            
+            let result = '=== Higher-Order Function: filter ===\n\n';
+            result += `Input: [${numbers}]\n\n`;
+            
+            const evens = customFilter(numbers, n => n % 2 === 0);
+            result += 'Filter even numbers:\n';
+            result += `predicateFn: n => n % 2 === 0\n`;
+            result += `Result: [${evens}]\n\n`;
+            
+            const greaterThan5 = customFilter(numbers, n => n > 5);
+            result += 'Filter numbers > 5:\n';
+            result += `predicateFn: n => n > 5\n`;
+            result += `Result: [${greaterThan5}]\n\n`;
+            
+            result += 'Filter is a higher-order function!\n';
+            result += 'It takes a function (predicate) as argument.';
+            
+            output.textContent = result;
+        }
+        
+        function demoCurry() {
+            const output = document.getElementById('curryOutput');
+            
+            // Curried function
+            const add = a => b => c => a + b + c;
+            
+            let result = '=== Currying Demo ===\n\n';
+            result += 'const add = a => b => c => a + b + c;\n\n';
+            
+            result += '1. All at once:\n';
+            result += `   add(1)(2)(3) = ${add(1)(2)(3)}\n\n`;
+            
+            result += '2. Step by step:\n';
+            const step1 = add(1);
+            result += `   const step1 = add(1)\n`;
+            const step2 = step1(2);
+            result += `   const step2 = step1(2)\n`;
+            const step3 = step2(3);
+            result += `   const step3 = step2(3)\n`;
+            result += `   result = ${step3}\n\n`;
+            
+            result += '3. Create specialized functions:\n';
+            const add5 = add(5);
+            const add5And10 = add5(10);
+            result += `   const add5 = add(5)\n`;
+            result += `   const add5And10 = add5(10)\n`;
+            result += `   add5And10(3) = ${add5And10(3)}\n\n`;
+            
+            result += 'Each function remembers previous arguments!';
+            
+            output.textContent = result;
+        }
+        
+        function demoCompose() {
+            const output = document.getElementById('composeOutput');
+            const input = parseInt(document.getElementById('composeInput').value);
+            
+            const double = x => x * 2;
+            const square = x => x * x;
+            const addTen = x => x + 10;
+            
+            const compose = (...fns) => x => 
+                fns.reduceRight((value, fn) => fn(value), x);
+            
+            const process = compose(addTen, square, double);
+            
+            let result = '=== Composition Demo (Right to Left) ===\n\n';
+            result += `Input: ${input}\n\n`;
+            result += 'Functions:\n';
+            result += '- double: x => x * 2\n';
+            result += '- square: x => x * x\n';
+            result += '- addTen: x => x + 10\n\n';
+            result += 'Composition: compose(addTen, square, double)\n\n';
+            result += 'Execution flow:\n';
+            const step1 = double(input);
+            result += `1. double(${input}) = ${step1}\n`;
+            const step2 = square(step1);
+            result += `2. square(${step1}) = ${step2}\n`;
+            const step3 = addTen(step2);
+            result += `3. addTen(${step2}) = ${step3}\n\n`;
+            result += `Final result: ${step3}`;
+            
+            output.textContent = result;
+        }
+        
+        function demoPipe() {
+            const output = document.getElementById('composeOutput');
+            const input = parseInt(document.getElementById('composeInput').value);
+            
+            const double = x => x * 2;
+            const square = x => x * x;
+            const addTen = x => x + 10;
+            
+            const pipe = (...fns) => x => 
+                fns.reduce((value, fn) => fn(value), x);
+            
+            const process = pipe(double, square, addTen);
+            
+            let result = '=== Pipe Demo (Left to Right) ===\n\n';
+            result += `Input: ${input}\n\n`;
+            result += 'Functions:\n';
+            result += '- double: x => x * 2\n';
+            result += '- square: x => x * x\n';
+            result += '- addTen: x => x + 10\n\n';
+            result += 'Pipe: pipe(double, square, addTen)\n\n';
+            result += 'Execution flow:\n';
+            const step1 = double(input);
+            result += `1. double(${input}) = ${step1}\n`;
+            const step2 = square(step1);
+            result += `2. square(${step1}) = ${step2}\n`;
+            const step3 = addTen(step2);
+            result += `3. addTen(${step2}) = ${step3}\n\n`;
+            result += `Final result: ${step3}\n\n`;
+            result += 'Pipe reads left-to-right (more natural!)';
+            
+            output.textContent = result;
+        }
+        
+        function demoFactorial() {
+            const output = document.getElementById('recursionOutput');
+            const n = parseInt(document.getElementById('factInput').value);
+            
+            function factorial(num) {
+                if (num <= 1) return 1;
+                return num * factorial(num - 1);
+            }
+            
+            if (n > 20) {
+                output.textContent = 'Please enter a number ≤ 20 to avoid overflow';
+                return;
+            }
+            
+            let result = '=== Factorial Recursion ===\n\n';
+            result += `Calculating factorial(${n}):\n\n`;
+            
+            let steps = [];
+            function factorialWithSteps(num, depth = 0) {
+                const indent = '  '.repeat(depth);
+                steps.push(`${indent}factorial(${num})`);
+                
+                if (num <= 1) {
+                    steps.push(`${indent}→ return 1`);
+                    return 1;
+                }
+                
+                const res = num * factorialWithSteps(num - 1, depth + 1);
+                steps.push(`${indent}→ return ${num} * ... = ${res}`);
+                return res;
+            }
+            
+            const answer = factorialWithSteps(n);
+            
+            result += 'Recursive calls:\n';
+            result += steps.join('\n') + '\n\n';
+            result += `Final result: ${n}! = ${answer}`;
+            
+            output.textContent = result;
+        }
+        
+        function demoFibonacci() {
+            const output = document.getElementById('recursionOutput');
+            
+            function fibonacci(n) {
+                if (n <= 1) return n;
+                return fibonacci(n - 1) + fibonacci(n - 2);
+            }
+            
+            let result = '=== Fibonacci Sequence ===\n\n';
+            result += 'First 10 Fibonacci numbers:\n\n';
+            
+            for (let i = 0; i < 10; i++) {
+                result += `fib(${i}) = ${fibonacci(i)}\n`;
+            }
+            
+            result += '\nSequence: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34...\n\n';
+            result += 'Each number is sum of previous two!\n';
+            result += 'fib(n) = fib(n-1) + fib(n-2)';
+            
+            output.textContent = result;
+        }
+        
+        function demoMemoization() {
+            const output = document.getElementById('memoOutput');
+            output.textContent = 'Testing memoization performance...\n\n';
+            
+            // Without memoization
+            let callCount1 = 0;
+            function fibSlow(n) {
+                callCount1++;
+                if (n <= 1) return n;
+                return fibSlow(n - 1) + fibSlow(n - 2);
+            }
+            
+            // With memoization
+            function memoize(fn) {
+                const cache = {};
+                return function(n) {
+                    if (n in cache) return cache[n];
+                    const result = fn(n);
+                    cache[n] = result;
+                    return result;
+                };
+            }
+            
+            let callCount2 = 0;
+            const fibFast = memoize(function fib(n) {
+                callCount2++;
+                if (n <= 1) return n;
+                return fibFast(n - 1) + fibFast(n - 2);
+            });
+            
+            const n = 20;
+            
+            const start1 = Date.now();
+            const result1 = fibSlow(n);
+            const time1 = Date.now() - start1;
+            
+            const start2 = Date.now();
+            const result2 = fibFast(n);
+            const time2 = Date.now() - start2;
+            
+            output.textContent += `Computing fibonacci(${n}):\n\n`;
+            output.textContent += `WITHOUT Memoization:\n`;
+            output.textContent += `  Result: ${result1}\n`;
+            output.textContent += `  Function calls: ${callCount1}\n`;
+            output.textContent += `  Time: ${time1}ms\n\n`;
+            output.textContent += `WITH Memoization:\n`;
+            output.textContent += `  Result: ${result2}\n`;
+            output.textContent += `  Function calls: ${callCount2}\n`;
+            output.textContent += `  Time: ${time2}ms\n\n`;
+            output.textContent += `🚀 Speedup: ${Math.round(callCount1 / callCount2)}x faster!\n`;
+            output.textContent += `💾 Cache prevents redundant calculations`;
+        }
+        
+        let debounceCount = 0;
+        let throttleCount = 0;
+        
+        function debounce(fn, delay) {
+            let timeoutId;
+            return function(...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => fn(...args), delay);
+            };
+        }
+        
+        function throttle(fn, limit) {
+            let inThrottle;
+            return function(...args) {
+                if (!inThrottle) {
+                    fn(...args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            };
+        }
+        
+        function testDebounce() {
+            const output = document.getElementById('debounceOutput');
+            debounceCount = 0;
+            
+            output.textContent = 'Click rapidly on this button multiple times...\n\n';
+            
+            const logDebounce = debounce(() => {
+                debounceCount++;
+                output.textContent += `✓ Debounced function executed (${debounceCount} time)\n`;
+                output.textContent += '\nDebounce waits for clicks to stop!\n';
+                output.textContent += 'Perfect for search inputs.';
+            }, 1000);
+            
+            logDebounce();
+            output.textContent += 'Waiting 1 second after last click...\n';
+        }
+        
+        function testThrottle() {
+            const output = document.getElementById('debounceOutput');
+            throttleCount = 0;
+            
+            output.textContent = 'Click this button rapidly...\n\n';
+            
+            const logThrottle = throttle(() => {
+                throttleCount++;
+                output.textContent += `✓ Throttled execution ${throttleCount}\n`;
+            }, 1000);
+            
+            logThrottle();
+            
+            if (throttleCount === 1) {
+                output.textContent += '\nThrottle allows at most 1 call per second!\n';
+                output.textContent += 'Perfect for scroll events.';
+            }
+        }
+    </script>
+</body>
+</html>

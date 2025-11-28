@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 13: Cookies</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        h2 {
+            color: #f5576c;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #f5576c;
+        }
+        
+        h3 {
+            color: #f093fb;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+        
+        .concept-box {
+            background: #f8f9fa;
+            border-left: 4px solid #f5576c;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .key-point {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .danger-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box {
+            background: #cfe2ff;
+            border-left: 4px solid #0d6efd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .code-block .comment {
+            color: #6272a4;
+        }
+        
+        .code-block .keyword {
+            color: #ff79c6;
+        }
+        
+        .code-block .string {
+            color: #f1fa8c;
+        }
+        
+        .code-block .function {
+            color: #50fa7b;
+        }
+        
+        .code-block .number {
+            color: #bd93f9;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: #f5576c;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            border: 2px solid #f5576c;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .cookie-flow {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .flow-box {
+            background: white;
+            border: 2px solid #f5576c;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px;
+            min-width: 150px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .flow-arrow {
+            font-size: 30px;
+            color: #f5576c;
+            margin: 10px;
+        }
+        
+        .attribute-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .attribute-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #f5576c;
+        }
+        
+        .attribute-card h4 {
+            color: #f5576c;
+            margin-bottom: 10px;
+        }
+        
+        .demo-section {
+            background: #ffe0e6;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #f5576c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #f093fb;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        input, select {
+            padding: 10px;
+            border: 2px solid #f5576c;
+            border-radius: 5px;
+            font-size: 16px;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .output {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            min-height: 50px;
+            border: 2px solid #f5576c;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+        
+        .example-box {
+            background: white;
+            border: 2px dashed #f5576c;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        
+        .security-icon {
+            font-size: 40px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍪 Chapter 13: Cookies</h1>
+            <p>Understanding HTTP Cookies for Web Storage & Authentication</p>
+        </div>
+        
+        <div class="content">
+            
+            <!-- Introduction -->
+            <div class="section">
+                <h2>🎯 What are Cookies?</h2>
+                
+                <div class="concept-box">
+                    <p><strong>Cookies</strong> are small pieces of data (max 4KB) stored by the browser and sent with every HTTP request to the server. They're the oldest form of client-side storage.</p>
+                    
+                    <p style="margin-top: 15px;"><strong>Key Characteristics:</strong></p>
+                    <ul style="margin-left: 25px; margin-top: 10px;">
+                        <li>🔄 <strong>Automatic:</strong> Sent with every request to the domain</li>
+                        <li>📏 <strong>Small Size:</strong> Maximum 4KB per cookie</li>
+                        <li>⏰ <strong>Expiration:</strong> Can be set to expire at specific times</li>
+                        <li>🔐 <strong>Server Control:</strong> Can be set by both client and server</li>
+                        <li>🌐 <strong>Domain/Path:</strong> Scoped to specific domains and paths</li>
+                        <li>🔒 <strong>Security Flags:</strong> HttpOnly, Secure, SameSite</li>
+                    </ul>
+                </div>
+                
+                <div class="visual-diagram">
+                    <h3>Cookie Lifecycle</h3>
+                    <div class="cookie-flow">
+                        <div class="flow-box">
+                            <h4>1. 🌐 Server</h4>
+                            <p>Sets cookie in response</p>
+                            <code>Set-Cookie: session=abc123</code>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box">
+                            <h4>2. 💾 Browser</h4>
+                            <p>Stores cookie</p>
+                            <code>session=abc123</code>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box">
+                            <h4>3. 📤 Request</h4>
+                            <p>Sends with every request</p>
+                            <code>Cookie: session=abc123</code>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 Common Use Cases:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Session management (login state)</li>
+                        <li>User preferences (theme, language)</li>
+                        <li>Tracking and analytics</li>
+                        <li>Shopping cart persistence</li>
+                        <li>Authentication tokens</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Reading Cookies -->
+            <div class="section">
+                <h2>📖 Reading Cookies</h2>
+                
+                <div class="concept-box">
+                    <p>JavaScript can access cookies via <code>document.cookie</code>, which returns a string of all cookies separated by semicolons.</p>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Reading document.cookie</span>
+console.<span class="function">log</span>(document.cookie);
+<span class="comment">// Output: "username=john; theme=dark; sessionId=abc123"</span>
+
+<span class="comment">// Parsing cookies into an object</span>
+<span class="keyword">function</span> <span class="function">getCookies</span>() {
+    <span class="keyword">return</span> document.cookie
+        .<span class="function">split</span>(<span class="string">'; '</span>)
+        .<span class="function">reduce</span>((cookies, cookie) => {
+            <span class="keyword">const</span> [name, value] = cookie.<span class="function">split</span>(<span class="string">'='</span>);
+            cookies[<span class="function">decodeURIComponent</span>(name)] = <span class="function">decodeURIComponent</span>(value);
+            <span class="keyword">return</span> cookies;
+        }, {});
+}
+
+<span class="keyword">const</span> cookies = <span class="function">getCookies</span>();
+console.<span class="function">log</span>(cookies);
+<span class="comment">// Output: { username: 'john', theme: 'dark', sessionId: 'abc123' }</span>
+
+<span class="comment">// Get specific cookie</span>
+<span class="keyword">function</span> <span class="function">getCookie</span>(name) {
+    <span class="keyword">const</span> cookies = <span class="function">getCookies</span>();
+    <span class="keyword">return</span> cookies[name] || <span class="keyword">null</span>;
+}
+
+<span class="keyword">const</span> username = <span class="function">getCookie</span>(<span class="string">'username'</span>);
+console.<span class="function">log</span>(username); <span class="comment">// 'john'</span>
+
+<span class="comment">// Alternative regex approach</span>
+<span class="keyword">function</span> <span class="function">getCookieRegex</span>(name) {
+    <span class="keyword">const</span> match = document.cookie.<span class="function">match</span>(
+        <span class="keyword">new</span> <span class="function">RegExp</span>(<span class="string">'(^| )'</span> + name + <span class="string">'=([^;]+)'</span>)
+    );
+    <span class="keyword">return</span> match ? <span class="function">decodeURIComponent</span>(match[<span class="number">2</span>]) : <span class="keyword">null</span>;
+}
+                </div>
+            </div>
+            
+            <!-- Setting Cookies -->
+            <div class="section">
+                <h2>✏️ Setting Cookies</h2>
+                
+                <div class="concept-box">
+                    <p>Setting cookies is done by assigning a formatted string to <code>document.cookie</code>. Unlike other assignments, this <strong>adds</strong> a cookie rather than replacing all cookies.</p>
+                </div>
+                
+                <h3>Basic Cookie Setting</h3>
+                <div class="code-block">
+<span class="comment">// Simple cookie (expires when browser closes)</span>
+document.cookie = <span class="string">'username=john'</span>;
+
+<span class="comment">// With encoding (always encode values!)</span>
+document.cookie = <span class="string">'username='</span> + <span class="function">encodeURIComponent</span>(<span class="string">'John Doe'</span>);
+
+<span class="comment">// Setting multiple cookies (one at a time)</span>
+document.cookie = <span class="string">'theme=dark'</span>;
+document.cookie = <span class="string">'language=en'</span>;
+document.cookie = <span class="string">'fontSize=16'</span>;
+                </div>
+                
+                <h3>Cookie with Expiration</h3>
+                <div class="code-block">
+<span class="comment">// METHOD 1: Using 'expires' (GMT date string)</span>
+<span class="keyword">const</span> expiryDate = <span class="keyword">new</span> <span class="function">Date</span>();
+expiryDate.<span class="function">setTime</span>(expiryDate.<span class="function">getTime</span>() + (<span class="number">7</span> * <span class="number">24</span> * <span class="number">60</span> * <span class="number">60</span> * <span class="number">1000</span>)); <span class="comment">// 7 days</span>
+document.cookie = <span class="string">'sessionToken=abc123; expires='</span> + expiryDate.<span class="function">toUTCString</span>();
+
+<span class="comment">// METHOD 2: Using 'max-age' (seconds) - Preferred!</span>
+document.cookie = <span class="string">'sessionToken=abc123; max-age='</span> + (<span class="number">7</span> * <span class="number">24</span> * <span class="number">60</span> * <span class="number">60</span>);
+<span class="comment">//                                                   ↑ 7 days in seconds</span>
+
+<span class="comment">// Examples of different durations</span>
+document.cookie = <span class="string">'temp=value; max-age=3600'</span>;        <span class="comment">// 1 hour</span>
+document.cookie = <span class="string">'daily=value; max-age=86400'</span>;      <span class="comment">// 1 day</span>
+document.cookie = <span class="string">'weekly=value; max-age=604800'</span>;    <span class="comment">// 7 days</span>
+document.cookie = <span class="string">'monthly=value; max-age=2592000'</span>;  <span class="comment">// 30 days</span>
+document.cookie = <span class="string">'yearly=value; max-age=31536000'</span>;  <span class="comment">// 365 days</span>
+                </div>
+                
+                <h3>Cookie Attributes</h3>
+                <div class="code-block">
+<span class="comment">// Full cookie with all attributes</span>
+document.cookie = 
+    <span class="string">'sessionId=xyz789'</span> +                          <span class="comment">// Name=Value</span>
+    <span class="string">'; max-age='</span> + (<span class="number">30</span> * <span class="number">24</span> * <span class="number">60</span> * <span class="number">60</span>) +          <span class="comment">// 30 days</span>
+    <span class="string">'; path=/'</span> +                                  <span class="comment">// Available on all paths</span>
+    <span class="string">'; domain=.example.com'</span> +                     <span class="comment">// All subdomains</span>
+    <span class="string">'; secure'</span> +                                  <span class="comment">// HTTPS only</span>
+    <span class="string">'; samesite=strict'</span>;                          <span class="comment">// CSRF protection</span>
+
+<span class="comment">// Helper function for setting cookies</span>
+<span class="keyword">function</span> <span class="function">setCookie</span>(name, value, options = {}) {
+    <span class="keyword">let</span> cookie = <span class="function">encodeURIComponent</span>(name) + <span class="string">'='</span> + <span class="function">encodeURIComponent</span>(value);
+    
+    <span class="keyword">if</span> (options.maxAge) {
+        cookie += <span class="string">'; max-age='</span> + options.maxAge;
+    } <span class="keyword">else if</span> (options.expires) {
+        cookie += <span class="string">'; expires='</span> + options.expires.<span class="function">toUTCString</span>();
+    }
+    
+    <span class="keyword">if</span> (options.path) {
+        cookie += <span class="string">'; path='</span> + options.path;
+    } <span class="keyword">else</span> {
+        cookie += <span class="string">'; path=/'</span>; <span class="comment">// Default to root</span>
+    }
+    
+    <span class="keyword">if</span> (options.domain) {
+        cookie += <span class="string">'; domain='</span> + options.domain;
+    }
+    
+    <span class="keyword">if</span> (options.secure) {
+        cookie += <span class="string">'; secure'</span>;
+    }
+    
+    <span class="keyword">if</span> (options.sameSite) {
+        cookie += <span class="string">'; samesite='</span> + options.sameSite;
+    }
+    
+    document.cookie = cookie;
+}
+
+<span class="comment">// Usage examples</span>
+<span class="function">setCookie</span>(<span class="string">'user'</span>, <span class="string">'john'</span>, { maxAge: <span class="number">86400</span> }); <span class="comment">// 1 day</span>
+<span class="function">setCookie</span>(<span class="string">'theme'</span>, <span class="string">'dark'</span>, { maxAge: <span class="number">31536000</span>, path: <span class="string">'/'</span> }); <span class="comment">// 1 year</span>
+<span class="function">setCookie</span>(<span class="string">'token'</span>, <span class="string">'abc'</span>, { 
+    maxAge: <span class="number">3600</span>, 
+    secure: <span class="keyword">true</span>, 
+    sameSite: <span class="string">'strict'</span> 
+});
+                </div>
+            </div>
+            
+            <!-- Cookie Attributes -->
+            <div class="section">
+                <h2>⚙️ Cookie Attributes Explained</h2>
+                
+                <div class="attribute-grid">
+                    <div class="attribute-card">
+                        <h4>expires</h4>
+                        <p><strong>Type:</strong> GMT date string</p>
+                        <p><strong>Purpose:</strong> Absolute expiration date</p>
+                        <p><strong>Example:</strong><br><code>expires=Thu, 31 Dec 2025 23:59:59 GMT</code></p>
+                        <p style="margin-top: 10px;"><em>If not set, cookie is deleted when browser closes (session cookie)</em></p>
+                    </div>
+                    
+                    <div class="attribute-card">
+                        <h4>max-age</h4>
+                        <p><strong>Type:</strong> Seconds (integer)</p>
+                        <p><strong>Purpose:</strong> Relative expiration time</p>
+                        <p><strong>Example:</strong><br><code>max-age=3600</code> (1 hour)</p>
+                        <p style="margin-top: 10px;"><em>Preferred over expires. Takes precedence if both are set.</em></p>
+                    </div>
+                    
+                    <div class="attribute-card">
+                        <h4>path</h4>
+                        <p><strong>Type:</strong> URL path</p>
+                        <p><strong>Purpose:</strong> Restrict cookie to specific paths</p>
+                        <p><strong>Example:</strong><br><code>path=/admin</code></p>
+                        <p style="margin-top: 10px;"><em>Default: Current document path. Use <code>/</code> for entire site.</em></p>
+                    </div>
+                    
+                    <div class="attribute-card">
+                        <h4>domain</h4>
+                        <p><strong>Type:</strong> Domain name</p>
+                        <p><strong>Purpose:</strong> Allow cookie on subdomains</p>
+                        <p><strong>Example:</strong><br><code>domain=.example.com</code></p>
+                        <p style="margin-top: 10px;"><em>Default: Current domain only. Prefix with <code>.</code> for subdomains.</em></p>
+                    </div>
+                    
+                    <div class="attribute-card">
+                        <h4>secure</h4>
+                        <p><strong>Type:</strong> Boolean flag</p>
+                        <p><strong>Purpose:</strong> HTTPS-only transmission</p>
+                        <p><strong>Example:</strong><br><code>secure</code></p>
+                        <p style="margin-top: 10px;"><em>⚠️ Required for sensitive data. Cookie won't be sent over HTTP.</em></p>
+                    </div>
+                    
+                    <div class="attribute-card">
+                        <h4>httponly</h4>
+                        <p><strong>Type:</strong> Boolean flag</p>
+                        <p><strong>Purpose:</strong> JavaScript cannot access</p>
+                        <p><strong>Example:</strong><br><code>httponly</code></p>
+                        <p style="margin-top: 10px;"><em>🔒 Can only be set by server. Protects against XSS attacks.</em></p>
+                    </div>
+                    
+                    <div class="attribute-card">
+                        <h4>samesite</h4>
+                        <p><strong>Type:</strong> strict | lax | none</p>
+                        <p><strong>Purpose:</strong> CSRF protection</p>
+                        <p><strong>Example:</strong><br><code>samesite=strict</code></p>
+                        <p style="margin-top: 10px;">
+                            <strong>strict:</strong> Never sent cross-site<br>
+                            <strong>lax:</strong> Sent on top-level navigation (default)<br>
+                            <strong>none:</strong> Always sent (requires <code>secure</code>)
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="example-box">
+                    <h3>SameSite Attribute Examples</h3>
+                    <div class="code-block">
+<span class="comment">// STRICT - Most secure, but may break functionality</span>
+<span class="comment">// Not sent when user clicks link from another site</span>
+document.cookie = <span class="string">'session=xyz; samesite=strict; secure'</span>;
+
+<span class="comment">// LAX - Balanced security (Default in modern browsers)</span>
+<span class="comment">// Sent on top-level navigation (clicking links)</span>
+<span class="comment">// Not sent on cross-site subrequests (images, iframes)</span>
+document.cookie = <span class="string">'preferences=value; samesite=lax'</span>;
+
+<span class="comment">// NONE - Allow cross-site (e.g., embedded content)</span>
+<span class="comment">// MUST use 'secure' flag</span>
+document.cookie = <span class="string">'tracking=abc; samesite=none; secure'</span>;
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Deleting Cookies -->
+            <div class="section">
+                <h2>🗑️ Deleting Cookies</h2>
+                
+                <div class="concept-box">
+                    <p>To delete a cookie, set its expiration to a past date. You must match the <code>path</code> and <code>domain</code> exactly!</p>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// METHOD 1: Set expiration to past date</span>
+document.cookie = <span class="string">'username=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'</span>;
+
+<span class="comment">// METHOD 2: Set max-age to 0 or negative</span>
+document.cookie = <span class="string">'username=; max-age=0; path=/'</span>;
+document.cookie = <span class="string">'username=; max-age=-1; path=/'</span>;
+
+<span class="comment">// Helper function</span>
+<span class="keyword">function</span> <span class="function">deleteCookie</span>(name, path = <span class="string">'/'</span>, domain = <span class="string">''</span>) {
+    <span class="keyword">let</span> cookie = <span class="function">encodeURIComponent</span>(name) + <span class="string">'='</span> +
+        <span class="string">'; max-age=0'</span> +
+        <span class="string">'; path='</span> + path;
+    
+    <span class="keyword">if</span> (domain) {
+        cookie += <span class="string">'; domain='</span> + domain;
+    }
+    
+    document.cookie = cookie;
+}
+
+<span class="comment">// Usage</span>
+<span class="function">deleteCookie</span>(<span class="string">'username'</span>);
+<span class="function">deleteCookie</span>(<span class="string">'sessionId'</span>, <span class="string">'/admin'</span>);
+<span class="function">deleteCookie</span>(<span class="string">'tracking'</span>, <span class="string">'/'</span>, <span class="string">'.example.com'</span>);
+
+<span class="comment">// Delete all cookies (careful!)</span>
+<span class="keyword">function</span> <span class="function">deleteAllCookies</span>() {
+    <span class="keyword">const</span> cookies = document.cookie.<span class="function">split</span>(<span class="string">'; '</span>);
+    <span class="keyword">for</span> (<span class="keyword">const</span> cookie <span class="keyword">of</span> cookies) {
+        <span class="keyword">const</span> [name] = cookie.<span class="function">split</span>(<span class="string">'='</span>);
+        <span class="function">deleteCookie</span>(name);
+    }
+}
+                </div>
+                
+                <div class="warning-box">
+                    <strong>⚠️ Important:</strong> To delete a cookie, you must specify the same <code>path</code> and <code>domain</code> that were used when creating it. Otherwise, you'll create a new cookie instead of deleting the old one!
+                </div>
+            </div>
+            
+            <!-- Security -->
+            <div class="section">
+                <h2>🔐 Security Best Practices</h2>
+                
+                <div class="danger-box">
+                    <div class="security-icon">⚠️</div>
+                    <h3 style="margin-top: 0;">Security Concerns</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>XSS (Cross-Site Scripting):</strong> Malicious scripts can steal cookies</li>
+                        <li><strong>CSRF (Cross-Site Request Forgery):</strong> Cookies sent automatically with requests</li>
+                        <li><strong>Man-in-the-Middle:</strong> Cookies transmitted in plain text over HTTP</li>
+                        <li><strong>Cookie Theft:</strong> Stealing session cookies to impersonate users</li>
+                    </ul>
+                </div>
+                
+                <h3>Security Checklist</h3>
+                <div class="key-point">
+                    <strong>✅ Essential Security Measures:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>✓ Use <code>Secure</code> flag for all sensitive cookies (HTTPS only)</li>
+                        <li>✓ Use <code>HttpOnly</code> for session/auth tokens (set by server)</li>
+                        <li>✓ Use <code>SameSite=Strict</code> or <code>Lax</code> for CSRF protection</li>
+                        <li>✓ Set shortest possible expiration time</li>
+                        <li>✓ Never store sensitive data (passwords, credit cards)</li>
+                        <li>✓ Encode/decode values properly</li>
+                        <li>✓ Use specific <code>path</code> to limit cookie scope</li>
+                        <li>✓ Validate and sanitize cookie values</li>
+                    </ul>
+                </div>
+                
+                <h3>Secure Cookie Examples</h3>
+                <div class="code-block">
+<span class="comment">// ❌ INSECURE - Don't do this!</span>
+document.cookie = <span class="string">'sessionToken=abc123'</span>;
+
+<span class="comment">// ✅ SECURE - Production-ready</span>
+<span class="keyword">function</span> <span class="function">setSecureCookie</span>(name, value, maxAge) {
+    document.cookie = 
+        <span class="function">encodeURIComponent</span>(name) + <span class="string">'='</span> + <span class="function">encodeURIComponent</span>(value) +
+        <span class="string">'; max-age='</span> + maxAge +
+        <span class="string">'; path=/'</span> +
+        <span class="string">'; secure'</span> +                    <span class="comment">// HTTPS only</span>
+        <span class="string">'; samesite=strict'</span>;             <span class="comment">// CSRF protection</span>
+}
+
+<span class="comment">// For authentication (server should set httponly)</span>
+<span class="comment">// Server: Set-Cookie: authToken=xyz; HttpOnly; Secure; SameSite=Strict</span>
+
+<span class="comment">// For preferences (client-side)</span>
+<span class="function">setSecureCookie</span>(<span class="string">'theme'</span>, <span class="string">'dark'</span>, <span class="number">31536000</span>); <span class="comment">// 1 year</span>
+<span class="function">setSecureCookie</span>(<span class="string">'language'</span>, <span class="string">'en'</span>, <span class="number">31536000</span>);
+                </div>
+            </div>
+            
+            <!-- Complete Cookie Manager -->
+            <div class="section">
+                <h2>🛠️ Complete Cookie Manager</h2>
+                
+                <div class="code-block">
+<span class="comment">// Production-ready cookie management class</span>
+<span class="keyword">class</span> <span class="function">CookieManager</span> {
+    <span class="keyword">static</span> <span class="function">set</span>(name, value, options = {}) {
+        <span class="keyword">let</span> cookie = <span class="function">encodeURIComponent</span>(name) + <span class="string">'='</span> + 
+                      <span class="function">encodeURIComponent</span>(value);
+        
+        <span class="comment">// Expiration</span>
+        <span class="keyword">if</span> (options.maxAge) {
+            cookie += <span class="string">'; max-age='</span> + options.maxAge;
+        } <span class="keyword">else if</span> (options.expires) {
+            cookie += <span class="string">'; expires='</span> + options.expires.<span class="function">toUTCString</span>();
+        } <span class="keyword">else if</span> (options.days) {
+            <span class="keyword">const</span> maxAge = options.days * <span class="number">24</span> * <span class="number">60</span> * <span class="number">60</span>;
+            cookie += <span class="string">'; max-age='</span> + maxAge;
+        }
+        
+        <span class="comment">// Path (default to root)</span>
+        cookie += <span class="string">'; path='</span> + (options.path || <span class="string">'/'</span>);
+        
+        <span class="comment">// Domain</span>
+        <span class="keyword">if</span> (options.domain) {
+            cookie += <span class="string">'; domain='</span> + options.domain;
+        }
+        
+        <span class="comment">// Security flags</span>
+        <span class="keyword">if</span> (options.secure || window.location.protocol === <span class="string">'https:'</span>) {
+            cookie += <span class="string">'; secure'</span>;
+        }
+        
+        <span class="keyword">if</span> (options.sameSite) {
+            cookie += <span class="string">'; samesite='</span> + options.sameSite;
+        } <span class="keyword">else</span> {
+            cookie += <span class="string">'; samesite=lax'</span>; <span class="comment">// Default</span>
+        }
+        
+        document.cookie = cookie;
+    }
+    
+    <span class="keyword">static</span> <span class="function">get</span>(name) {
+        <span class="keyword">const</span> cookies = <span class="keyword">this</span>.<span class="function">getAll</span>();
+        <span class="keyword">return</span> cookies[name] || <span class="keyword">null</span>;
+    }
+    
+    <span class="keyword">static</span> <span class="function">getAll</span>() {
+        <span class="keyword">return</span> document.cookie
+            .<span class="function">split</span>(<span class="string">'; '</span>)
+            .<span class="function">reduce</span>((cookies, cookie) => {
+                <span class="keyword">const</span> [name, value] = cookie.<span class="function">split</span>(<span class="string">'='</span>);
+                <span class="keyword">if</span> (name && value) {
+                    cookies[<span class="function">decodeURIComponent</span>(name)] = 
+                        <span class="function">decodeURIComponent</span>(value);
+                }
+                <span class="keyword">return</span> cookies;
+            }, {});
+    }
+    
+    <span class="keyword">static</span> <span class="function">delete</span>(name, options = {}) {
+        <span class="keyword">this</span>.<span class="function">set</span>(name, <span class="string">''</span>, {
+            ...options,
+            maxAge: <span class="number">-1</span>
+        });
+    }
+    
+    <span class="keyword">static</span> <span class="function">has</span>(name) {
+        <span class="keyword">return this</span>.<span class="function">get</span>(name) !== <span class="keyword">null</span>;
+    }
+    
+    <span class="keyword">static</span> <span class="function">clear</span>() {
+        <span class="keyword">const</span> cookies = <span class="keyword">this</span>.<span class="function">getAll</span>();
+        <span class="keyword">for</span> (<span class="keyword">const</span> name <span class="keyword">in</span> cookies) {
+            <span class="keyword">this</span>.<span class="function">delete</span>(name);
+        }
+    }
+}
+
+<span class="comment">// Usage examples</span>
+CookieManager.<span class="function">set</span>(<span class="string">'username'</span>, <span class="string">'john'</span>, { days: <span class="number">7</span> });
+CookieManager.<span class="function">set</span>(<span class="string">'theme'</span>, <span class="string">'dark'</span>, { days: <span class="number">365</span>, sameSite: <span class="string">'strict'</span> });
+
+<span class="keyword">const</span> username = CookieManager.<span class="function">get</span>(<span class="string">'username'</span>);
+<span class="keyword">const</span> allCookies = CookieManager.<span class="function">getAll</span>();
+
+<span class="keyword">if</span> (CookieManager.<span class="function">has</span>(<span class="string">'theme'</span>)) {
+    console.<span class="function">log</span>(<span class="string">'Theme is set'</span>);
+}
+
+CookieManager.<span class="function">delete</span>(<span class="string">'username'</span>);
+CookieManager.<span class="function">clear</span>(); <span class="comment">// Delete all</span>
+                </div>
+            </div>
+            
+            <!-- Comparison -->
+            <div class="section">
+                <h2>⚖️ Storage Comparison</h2>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Cookies</th>
+                            <th>localStorage</th>
+                            <th>sessionStorage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Size Limit</strong></td>
+                            <td>~4 KB</td>
+                            <td>~5-10 MB</td>
+                            <td>~5-10 MB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sent to Server</strong></td>
+                            <td>Yes (every request)</td>
+                            <td>No</td>
+                            <td>No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Expiration</strong></td>
+                            <td>Manual (configurable)</td>
+                            <td>Never</td>
+                            <td>Tab close</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scope</strong></td>
+                            <td>Domain + Path</td>
+                            <td>Origin</td>
+                            <td>Origin + Tab</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Server Access</strong></td>
+                            <td>Yes (automatic)</td>
+                            <td>No (JavaScript only)</td>
+                            <td>No (JavaScript only)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Security</strong></td>
+                            <td>HttpOnly, Secure, SameSite</td>
+                            <td>JavaScript only</td>
+                            <td>JavaScript only</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Case</strong></td>
+                            <td>Authentication, tracking</td>
+                            <td>Persistent preferences</td>
+                            <td>Temporary session data</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Interactive Demo -->
+            <div class="section">
+                <h2>🎮 Interactive Demo</h2>
+                
+                <div class="demo-section">
+                    <h3>Try Cookies Now!</h3>
+                    
+                    <h4 style="margin-top: 20px;">Set Cookie</h4>
+                    <div class="demo-controls">
+                        <input type="text" id="cookieName" placeholder="Cookie Name">
+                        <input type="text" id="cookieValue" placeholder="Cookie Value">
+                        <input type="number" id="cookieDays" placeholder="Days (optional)">
+                        <button onclick="setCookieDemo()">Set Cookie</button>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">Get Cookie</h4>
+                    <div class="demo-controls">
+                        <input type="text" id="getName" placeholder="Cookie Name">
+                        <button onclick="getCookieDemo()">Get Cookie</button>
+                        <button onclick="getAllCookiesDemo()">Get All</button>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">Delete Cookie</h4>
+                    <div class="demo-controls">
+                        <input type="text" id="deleteName" placeholder="Cookie Name">
+                        <button onclick="deleteCookieDemo()">Delete Cookie</button>
+                        <button onclick="clearAllCookiesDemo()">Clear All</button>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">Quick Actions</h4>
+                    <div class="demo-controls">
+                        <button onclick="setDemoCookies()">Set Demo Cookies</button>
+                        <button onclick="showRawCookies()">Show Raw Cookies</button>
+                    </div>
+                    
+                    <div class="output" id="output">Output will appear here...</div>
+                </div>
+            </div>
+            
+            <!-- Best Practices -->
+            <div class="section">
+                <h2>✅ Best Practices Summary</h2>
+                
+                <div class="key-point">
+                    <h3 style="margin-top: 0;">DO ✓</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Use <code>Secure</code> flag in production (HTTPS)</li>
+                        <li>Use <code>HttpOnly</code> for sensitive tokens (server-side)</li>
+                        <li>Use <code>SameSite</code> for CSRF protection</li>
+                        <li>Set shortest expiration needed</li>
+                        <li>Encode values with <code>encodeURIComponent()</code></li>
+                        <li>Use specific paths to limit scope</li>
+                        <li>Validate cookie values before using</li>
+                    </ul>
+                </div>
+                
+                <div class="danger-box">
+                    <h3 style="margin-top: 0;">DON'T ✗</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Store passwords or sensitive data</li>
+                        <li>Store large amounts of data (use localStorage/IndexedDB)</li>
+                        <li>Forget to set expiration (creates session cookies)</li>
+                        <li>Use cookies without <code>Secure</code> in production</li>
+                        <li>Trust cookie values without validation</li>
+                        <li>Forget to encode special characters</li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        // Cookie Manager Class
+        class CookieManager {
+            static set(name, value, options = {}) {
+                let cookie = encodeURIComponent(name) + '=' + encodeURIComponent(value);
+                
+                if (options.maxAge) {
+                    cookie += '; max-age=' + options.maxAge;
+                } else if (options.days) {
+                    const maxAge = options.days * 24 * 60 * 60;
+                    cookie += '; max-age=' + maxAge;
+                }
+                
+                cookie += '; path=' + (options.path || '/');
+                
+                if (options.domain) {
+                    cookie += '; domain=' + options.domain;
+                }
+                
+                if (options.secure) {
+                    cookie += '; secure';
+                }
+                
+                if (options.sameSite) {
+                    cookie += '; samesite=' + options.sameSite;
+                }
+                
+                document.cookie = cookie;
+            }
+            
+            static get(name) {
+                const cookies = this.getAll();
+                return cookies[name] || null;
+            }
+            
+            static getAll() {
+                return document.cookie
+                    .split('; ')
+                    .reduce((cookies, cookie) => {
+                        const [name, value] = cookie.split('=');
+                        if (name && value) {
+                            cookies[decodeURIComponent(name)] = decodeURIComponent(value);
+                        }
+                        return cookies;
+                    }, {});
+            }
+            
+            static delete(name, options = {}) {
+                this.set(name, '', { ...options, maxAge: -1 });
+            }
+            
+            static clear() {
+                const cookies = this.getAll();
+                for (const name in cookies) {
+                    this.delete(name);
+                }
+            }
+        }
+        
+        // Demo Functions
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'color: #0d6efd;',
+                success: 'color: #28a745;',
+                error: 'color: #dc3545;',
+                warning: 'color: #ffc107;'
+            };
+            output.innerHTML += `<div style="${colors[type]}">[${timestamp}] ${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function setCookieDemo() {
+            const name = document.getElementById('cookieName').value;
+            const value = document.getElementById('cookieValue').value;
+            const days = document.getElementById('cookieDays').value;
+            
+            if (!name || !value) {
+                log('❌ Please enter both name and value', 'error');
+                return;
+            }
+            
+            const options = days ? { days: parseInt(days) } : {};
+            CookieManager.set(name, value, options);
+            log(`✓ Cookie set: ${name} = ${value}${days ? ' (expires in ' + days + ' days)' : ''}`, 'success');
+            
+            document.getElementById('cookieName').value = '';
+            document.getElementById('cookieValue').value = '';
+            document.getElementById('cookieDays').value = '';
+        }
+        
+        function getCookieDemo() {
+            const name = document.getElementById('getName').value;
+            if (!name) {
+                log('❌ Please enter cookie name', 'error');
+                return;
+            }
+            
+            const value = CookieManager.get(name);
+            if (value) {
+                log(`✓ ${name} = ${value}`, 'success');
+            } else {
+                log(`❌ Cookie "${name}" not found`, 'error');
+            }
+        }
+        
+        function getAllCookiesDemo() {
+            const cookies = CookieManager.getAll();
+            const count = Object.keys(cookies).length;
+            
+            if (count === 0) {
+                log('No cookies found', 'warning');
+                return;
+            }
+            
+            log(`📊 Found ${count} cookie(s):`, 'info');
+            for (const [name, value] of Object.entries(cookies)) {
+                log(`  • ${name} = ${value}`, 'info');
+            }
+        }
+        
+        function deleteCookieDemo() {
+            const name = document.getElementById('deleteName').value;
+            if (!name) {
+                log('❌ Please enter cookie name', 'error');
+                return;
+            }
+            
+            CookieManager.delete(name);
+            log(`✓ Cookie "${name}" deleted`, 'success');
+            document.getElementById('deleteName').value = '';
+        }
+        
+        function clearAllCookiesDemo() {
+            const count = Object.keys(CookieManager.getAll()).length;
+            CookieManager.clear();
+            log(`✓ Deleted ${count} cookie(s)`, 'success');
+        }
+        
+        function setDemoCookies() {
+            CookieManager.set('username', 'john_doe', { days: 7 });
+            CookieManager.set('theme', 'dark', { days: 365 });
+            CookieManager.set('language', 'en', { days: 365 });
+            CookieManager.set('fontSize', '16', { days: 30 });
+            log('✓ Demo cookies created!', 'success');
+            log('  • username=john_doe (7 days)', 'info');
+            log('  • theme=dark (365 days)', 'info');
+            log('  • language=en (365 days)', 'info');
+            log('  • fontSize=16 (30 days)', 'info');
+        }
+        
+        function showRawCookies() {
+            const raw = document.cookie;
+            if (raw) {
+                log('Raw cookie string:', 'info');
+                log(raw, 'warning');
+            } else {
+                log('No cookies set', 'warning');
+            }
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            log('👋 Welcome to Cookies Demo!', 'success');
+            log('Try setting, getting, and deleting cookies above.', 'info');
+        });
+    </script>
+</body>
+</html>

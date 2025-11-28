@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 14: Cache API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+        
+        .concept-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .key-point {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box {
+            background: #cfe2ff;
+            border-left: 4px solid #0d6efd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .code-block .comment {
+            color: #6272a4;
+        }
+        
+        .code-block .keyword {
+            color: #ff79c6;
+        }
+        
+        .code-block .string {
+            color: #f1fa8c;
+        }
+        
+        .code-block .function {
+            color: #50fa7b;
+        }
+        
+        .code-block .number {
+            color: #bd93f9;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .cache-flow {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .flow-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .flow-arrow {
+            font-size: 30px;
+            color: #667eea;
+        }
+        
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .strategy-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+            transition: transform 0.3s;
+        }
+        
+        .strategy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .strategy-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .demo-section {
+            background: #e7f3ff;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        input {
+            padding: 10px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            font-size: 16px;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .output {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            min-height: 50px;
+            border: 2px solid #667eea;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .method-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .method-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .method-signature {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Chapter 14: Cache API</h1>
+            <p>Powerful Browser Caching for Offline-First Web Applications</p>
+        </div>
+        
+        <div class="content">
+            
+            <!-- Introduction -->
+            <div class="section">
+                <h2>🎯 What is the Cache API?</h2>
+                
+                <div class="concept-box">
+                    <p><strong>Cache API</strong> provides a persistent storage mechanism for HTTP request/response pairs. It's designed specifically for caching network resources to enable offline functionality and improve performance.</p>
+                    
+                    <p style="margin-top: 15px;"><strong>Key Characteristics:</strong></p>
+                    <ul style="margin-left: 25px; margin-top: 10px;">
+                        <li>🌐 <strong>Request/Response Storage:</strong> Stores complete HTTP responses</li>
+                        <li>⚡ <strong>Fast Access:</strong> Instant retrieval without network requests</li>
+                        <li>📦 <strong>Multiple Caches:</strong> Create separate caches for different purposes</li>
+                        <li>🔄 <strong>Versioning:</strong> Easy to manage cache versions</li>
+                        <li>🎯 <strong>Service Worker Integration:</strong> Works seamlessly with Service Workers</li>
+                        <li>💾 <strong>Large Storage:</strong> No strict size limits (depends on available storage)</li>
+                    </ul>
+                </div>
+                
+                <div class="visual-diagram">
+                    <h3>Cache API Architecture</h3>
+                    <div class="cache-flow">
+                        <div class="flow-box">
+                            <h4>🌐 Network Request</h4>
+                            <p>GET /api/data</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box">
+                            <h4>🔍 Check Cache</h4>
+                            <p>cache.match()</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box">
+                            <h4>✅ Cached?</h4>
+                            <p>Return cached<br>response</p>
+                        </div>
+                    </div>
+                    <div class="cache-flow">
+                        <div class="flow-box">
+                            <h4>❌ Not Cached?</h4>
+                            <p>Fetch from network</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box">
+                            <h4>💾 Store</h4>
+                            <p>cache.put()</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box">
+                            <h4>📤 Return</h4>
+                            <p>Response to app</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 Perfect For:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Progressive Web Apps (PWAs)</li>
+                        <li>Offline-first applications</li>
+                        <li>Reducing network requests</li>
+                        <li>Improving page load performance</li>
+                        <li>Caching API responses</li>
+                        <li>Storing static assets (CSS, JS, images)</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Opening Cache -->
+            <div class="section">
+                <h2>🔓 Opening & Creating Caches</h2>
+                
+                <div class="concept-box">
+                    <p>The Cache API is accessed through the global <code>caches</code> object. You can create and manage multiple named caches.</p>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Open or create a cache</span>
+<span class="keyword">const</span> cache = <span class="keyword">await</span> caches.<span class="function">open</span>(<span class="string">'my-cache-v1'</span>);
+<span class="comment">// If cache doesn't exist, it's created automatically</span>
+
+<span class="comment">// Multiple caches for different purposes</span>
+<span class="keyword">const</span> staticCache = <span class="keyword">await</span> caches.<span class="function">open</span>(<span class="string">'static-v1'</span>);
+<span class="keyword">const</span> apiCache = <span class="keyword">await</span> caches.<span class="function">open</span>(<span class="string">'api-v1'</span>);
+<span class="keyword">const</span> imagesCache = <span class="keyword">await</span> caches.<span class="function">open</span>(<span class="string">'images-v1'</span>);
+
+<span class="comment">// Best practice: Include version in cache name</span>
+<span class="keyword">const</span> CACHE_VERSION = <span class="string">'v2'</span>;
+<span class="keyword">const</span> CACHE_NAME = <span class="string">`my-app-${CACHE_VERSION}`</span>;
+<span class="keyword">const</span> cache = <span class="keyword">await</span> caches.<span class="function">open</span>(CACHE_NAME);
+                </div>
+                
+                <div class="key-point">
+                    <strong>💡 Cache Naming Convention:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Include version numbers: <code>my-cache-v1</code>, <code>my-cache-v2</code></li>
+                        <li>Use descriptive names: <code>static-assets-v1</code>, <code>api-cache-v1</code></li>
+                        <li>This makes cache invalidation and updates easier</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Adding to Cache -->
+            <div class="section">
+                <h2>➕ Adding Items to Cache</h2>
+                
+                <h3>Method 1: cache.add() - Single URL</h3>
+                <div class="method-card">
+                    <h4>cache.add(request)</h4>
+                    <div class="method-signature">cache.add(url | Request) → Promise</div>
+                    <p>Fetches the URL and stores the response in the cache.</p>
+                </div>
+                
+                <div class="code-block">
+<span class="keyword">const</span> cache = <span class="keyword">await</span> caches.<span class="function">open</span>(<span class="string">'my-cache-v1'</span>);
+
+<span class="comment">// Add single URL</span>
+<span class="keyword">await</span> cache.<span class="function">add</span>(<span class="string">'/api/data'</span>);
+<span class="comment">// Internally: fetch('/api/data') then cache the response</span>
+
+<span class="comment">// Add with full URL</span>
+<span class="keyword">await</span> cache.<span class="function">add</span>(<span class="string">'https://api.example.com/users'</span>);
+
+<span class="comment">// Add with Request object</span>
+<span class="keyword">const</span> request = <span class="keyword">new</span> <span class="function">Request</span>(<span class="string">'/api/products'</span>, {
+    method: <span class="string">'GET'</span>,
+    headers: { <span class="string">'Authorization'</span>: <span class="string">'Bearer token'</span> }
+});
+<span class="keyword">await</span> cache.<span class="function">add</span>(request);
+                </div>
+                
+                <h3>Method 2: cache.addAll() - Multiple URLs</h3>
+                <div class="method-card">
+                    <h4>cache.addAll(requests)</h4>
+                    <div class="method-signature">cache.addAll(Array&lt;url | Request&gt;) → Promise</div>
+                    <p>Fetches multiple URLs and stores all responses. <strong>Atomic operation</strong> - if any fail, none are cached.</p>
+                </div>
+                
+                <div class="code-block">
+<span class="keyword">const</span> cache = <span class="keyword">await</span> caches.<span class="function">open</span>(<span class="string">'static-v1'</span>);
+
+<span class="comment">// Cache multiple assets at once</span>
+<span class="keyword">await</span> cache.<span class="function">addAll</span>([
+    <span class="string">'/'</span>,
+    <span class="string">'/index.html'</span>,
+    <span class="string">'/styles.css'</span>,
+    <span class="string">'/app.js'</span>,
+    <span class="string">'/logo.png'</span>,
+    <span class="string">'/offline.html'</span>
+]);
+
+<span class="comment">// Common pattern: Cache app shell on install</span>
+<span class="keyword">const</span> APP_SHELL = [
+    <span class="string">'/'</span>,
+    <span class="string">'/css/main.css'</span>,
+    <span class="string">'/js/app.js'</span>,
+    <span class="string">'/images/logo.svg'</span>,
+    <span class="string">'/fonts/roboto.woff2'</span>
+];
+
+<span class="keyword">try</span> {
+    <span class="keyword">await</span> cache.<span class="function">addAll</span>(APP_SHELL);
+    console.<span class="function">log</span>(<span class="string">'App shell cached!'</span>);
+} <span class="keyword">catch</span> (error) {
+    console.<span class="function">error</span>(<span class="string">'Failed to cache app shell:'</span>, error);
+}
+                </div>
+                
+                <div class="warning-box">
+                    <strong>⚠️ Important:</strong> <code>addAll()</code> is atomic - if ANY request fails, NONE are cached. Use error handling!
+                </div>
+                
+                <h3>Method 3: cache.put() - Custom Response</h3>
+                <div class="method-card">
+                    <h4>cache.put(request, response)</h4>
+                    <div class="method-signature">cache.put(Request | url, Response) → Promise</div>
+                    <p>Stores a custom request/response pair. Most flexible method.</p>
+                </div>
+                
+                <div class="code-block">
+<span class="keyword">const</span> cache = <span class="keyword">await</span> caches.<span class="function">open</span>(<span class="string">'api-v1'</span>);
+
+<span class="comment">// Cache a fetched response</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/api/data'</span>);
+<span class="keyword">await</span> cache.<span class="function">put</span>(<span class="string">'/api/data'</span>, response);
+
+<span class="comment">// Cache custom data</span>
+<span class="keyword">const</span> data = { users: [{ id: <span class="number">1</span>, name: <span class="string">'John'</span> }] };
+<span class="keyword">const</span> customResponse = <span class="keyword">new</span> <span class="function">Response</span>(
+    JSON.<span class="function">stringify</span>(data),
+    {
+        headers: { <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span> }
+    }
+);
+<span class="keyword">await</span> cache.<span class="function">put</span>(<span class="string">'/api/users'</span>, customResponse);
+
+<span class="comment">// Cache with cloned response (response body can only be read once)</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/api/products'</span>);
+<span class="keyword">await</span> cache.<span class="function">put</span>(<span class="string">'/api/products'</span>, response.<span class="function">clone</span>());
+<span class="keyword">return</span> response; <span class="comment">// Original still usable</span>
+
+<span class="comment">// Common pattern: Fetch and cache</span>
+<span class="keyword">async function</span> <span class="function">fetchAndCache</span>(url, cacheName) {
+    <span class="keyword">const</span> cache = <span class="keyword">await</span> caches.<span class="function">open</span>(cacheName);
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(url);
+    
+    <span class="keyword">if</span> (response.ok) {
+        <span class="keyword">await</span> cache.<span class="function">put</span>(url, response.<span class="function">clone</span>());
+    }
+    
+    <span class="keyword">return</span> response;
+}
+                </div>
+            </div>
+            
+            <!-- Retrieving from Cache -->
+            <div class="section">
+                <h2>🔍 Retrieving from Cache</h2>
+                
+                <h3>cache.match() - Single Match</h3>
+                <div class="code-block">
+<span class="keyword">const</span> cache = <span class="keyword">await</span> caches.<span class="function">open</span>(<span class="string">'my-cache-v1'</span>);
+
+<span class="comment">// Try to get cached response</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> cache.<span class="function">match</span>(<span class="string">'/api/data'</span>);
+
+<span class="keyword">if</span> (response) {
+    <span class="comment">// Found in cache!</span>
+    <span class="keyword">const</span> data = <span class="keyword">await</span> response.<span class="function">json</span>();
+    console.<span class="function">log</span>(<span class="string">'From cache:'</span>, data);
+} <span class="keyword">else</span> {
+    <span class="comment">// Not in cache, fetch from network</span>
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/api/data'</span>);
+}
+
+<span class="comment">// With Request object</span>
+<span class="keyword">const</span> request = <span class="keyword">new</span> <span class="function">Request</span>(<span class="string">'/api/users'</span>);
+<span class="keyword">const</span> cached = <span class="keyword">await</span> cache.<span class="function">match</span>(request);
+                </div>
+                
+                <h3>Match Options</h3>
+                <div class="code-block">
+<span class="comment">// Ignore query string</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> cache.<span class="function">match</span>(<span class="string">'/api/data?page=1'</span>, {
+    ignoreSearch: <span class="keyword">true</span>  <span class="comment">// Matches '/api/data' regardless of query</span>
+});
+
+<span class="comment">// Ignore HTTP method</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> cache.<span class="function">match</span>(<span class="string">'/api/data'</span>, {
+    ignoreMethod: <span class="keyword">true</span>  <span class="comment">// POST request can match cached GET</span>
+});
+
+<span class="comment">// Ignore Vary header</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> cache.<span class="function">match</span>(<span class="string">'/api/data'</span>, {
+    ignoreVary: <span class="keyword">true</span>  <span class="comment">// Ignore content negotiation headers</span>
+});
+
+<span class="comment">// Combine options</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> cache.<span class="function">match</span>(<span class="string">'/api/products?category=electronics'</span>, {
+    ignoreSearch: <span class="keyword">true</span>,
+    ignoreMethod: <span class="keyword">true</span>
+});
+                </div>
+                
+                <h3>caches.match() - Search All Caches</h3>
+                <div class="code-block">
+<span class="comment">// Search across ALL caches (not just one)</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> caches.<span class="function">match</span>(<span class="string">'/api/data'</span>);
+<span class="comment">// Searches all caches in order they were opened</span>
+
+<span class="keyword">if</span> (response) {
+    console.<span class="function">log</span>(<span class="string">'Found in some cache!'</span>);
+} <span class="keyword">else</span> {
+    console.<span class="function">log</span>(<span class="string">'Not found in any cache'</span>);
+}
+
+<span class="comment">// Specify which cache to search</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> caches.<span class="function">match</span>(<span class="string">'/api/data'</span>, {
+    cacheName: <span class="string">'api-v1'</span>  <span class="comment">// Only search this cache</span>
+});
+                </div>
+            </div>
+            
+            <!-- Cache Management -->
+            <div class="section">
+                <h2>🗑️ Cache Management</h2>
+                
+                <h3>Deleting Cache Entries</h3>
+                <div class="code-block">
+<span class="keyword">const</span> cache = <span class="keyword">await</span> caches.<span class="function">open</span>(<span class="string">'my-cache-v1'</span>);
+
+<span class="comment">// Delete single entry</span>
+<span class="keyword">const</span> deleted = <span class="keyword">await</span> cache.<span class="function">delete</span>(<span class="string">'/api/old-data'</span>);
+console.<span class="function">log</span>(deleted ? <span class="string">'Deleted'</span> : <span class="string">'Not found'</span>);
+
+<span class="comment">// Delete with options</span>
+<span class="keyword">await</span> cache.<span class="function">delete</span>(<span class="string">'/api/data'</span>, {
+    ignoreSearch: <span class="keyword">true</span>  <span class="comment">// Delete regardless of query string</span>
+});
+
+<span class="comment">// Delete multiple entries</span>
+<span class="keyword">const</span> urlsToDelete = [<span class="string">'/old1'</span>, <span class="string">'/old2'</span>, <span class="string">'/old3'</span>];
+<span class="keyword">for</span> (<span class="keyword">const</span> url <span class="keyword">of</span> urlsToDelete) {
+    <span class="keyword">await</span> cache.<span class="function">delete</span>(url);
+}
+                </div>
+                
+                <h3>Getting Cache Keys</h3>
+                <div class="code-block">
+<span class="keyword">const</span> cache = <span class="keyword">await</span> caches.<span class="function">open</span>(<span class="string">'my-cache-v1'</span>);
+
+<span class="comment">// Get all cached requests</span>
+<span class="keyword">const</span> requests = <span class="keyword">await</span> cache.<span class="function">keys</span>();
+
+console.<span class="function">log</span>(<span class="string">'Cached URLs:'</span>);
+requests.<span class="function">forEach</span>(request => {
+    console.<span class="function">log</span>(request.url);
+});
+
+<span class="comment">// Filter specific URLs</span>
+<span class="keyword">const</span> apiRequests = requests.<span class="function">filter</span>(req => 
+    req.url.<span class="function">includes</span>(<span class="string">'/api/'</span>)
+);
+
+<span class="comment">// Count cached items</span>
+console.<span class="function">log</span>(<span class="string">`Total cached: ${requests.length}`</span>);
+                </div>
+                
+                <h3>Deleting Entire Caches</h3>
+                <div class="code-block">
+<span class="comment">// Delete a specific cache</span>
+<span class="keyword">const</span> deleted = <span class="keyword">await</span> caches.<span class="function">delete</span>(<span class="string">'old-cache-v1'</span>);
+console.<span class="function">log</span>(deleted ? <span class="string">'Cache deleted'</span> : <span class="string">'Cache not found'</span>);
+
+<span class="comment">// List all caches</span>
+<span class="keyword">const</span> cacheNames = <span class="keyword">await</span> caches.<span class="function">keys</span>();
+console.<span class="function">log</span>(<span class="string">'All caches:'</span>, cacheNames);
+
+<span class="comment">// Delete old versions</span>
+<span class="keyword">const</span> CURRENT_CACHE = <span class="string">'my-app-v2'</span>;
+
+<span class="keyword">const</span> cacheNames = <span class="keyword">await</span> caches.<span class="function">keys</span>();
+<span class="keyword">const</span> oldCaches = cacheNames.<span class="function">filter</span>(name => 
+    name.<span class="function">startsWith</span>(<span class="string">'my-app-'</span>) && name !== CURRENT_CACHE
+);
+
+<span class="keyword">await</span> Promise.<span class="function">all</span>(
+    oldCaches.<span class="function">map</span>(cache => caches.<span class="function">delete</span>(cache))
+);
+
+console.<span class="function">log</span>(<span class="string">'Old caches deleted:'</span>, oldCaches);
+
+<span class="comment">// Delete all caches (use with caution!)</span>
+<span class="keyword">const</span> allCaches = <span class="keyword">await</span> caches.<span class="function">keys</span>();
+<span class="keyword">await</span> Promise.<span class="function">all</span>(
+    allCaches.<span class="function">map</span>(cache => caches.<span class="function">delete</span>(cache))
+);
+                </div>
+            </div>
+            
+            <!-- Caching Strategies -->
+            <div class="section">
+                <h2>🎯 Caching Strategies</h2>
+                
+                <div class="concept-box">
+                    <p>Different strategies for different use cases. Choose based on your needs for speed, freshness, and reliability.</p>
+                </div>
+                
+                <div class="strategy-grid">
+                    <div class="strategy-card">
+                        <h4>1. Cache First</h4>
+                        <p><strong>Use for:</strong> Static assets that rarely change</p>
+                        <p><strong>Speed:</strong> ⚡⚡⚡ Fastest</p>
+                        <p><strong>Freshness:</strong> 🔄 Stale until cache cleared</p>
+                    </div>
+                    
+                    <div class="strategy-card">
+                        <h4>2. Network First</h4>
+                        <p><strong>Use for:</strong> Frequently updated data</p>
+                        <p><strong>Speed:</strong> ⚡ Network dependent</p>
+                        <p><strong>Freshness:</strong> 🔄🔄🔄 Always fresh</p>
+                    </div>
+                    
+                    <div class="strategy-card">
+                        <h4>3. Cache Only</h4>
+                        <p><strong>Use for:</strong> Offline-only apps</p>
+                        <p><strong>Speed:</strong> ⚡⚡⚡ Instant</p>
+                        <p><strong>Freshness:</strong> 🔄 Never updates</p>
+                    </div>
+                    
+                    <div class="strategy-card">
+                        <h4>4. Network Only</h4>
+                        <p><strong>Use for:</strong> Always-fresh data required</p>
+                        <p><strong>Speed:</strong> ⚡ Network speed</p>
+                        <p><strong>Freshness:</strong> 🔄🔄🔄 Always fresh</p>
+                    </div>
+                    
+                    <div class="strategy-card">
+                        <h4>5. Stale While Revalidate</h4>
+                        <p><strong>Use for:</strong> Balance speed & freshness</p>
+                        <p><strong>Speed:</strong> ⚡⚡⚡ Instant</p>
+                        <p><strong>Freshness:</strong> 🔄🔄 Updates in background</p>
+                    </div>
+                    
+                    <div class="strategy-card">
+                        <h4>6. Network Falling Back to Cache</h4>
+                        <p><strong>Use for:</strong> Fresh preferred, offline fallback</p>
+                        <p><strong>Speed:</strong> ⚡⚡ Network + fallback</p>
+                        <p><strong>Freshness:</strong> 🔄🔄 Fresh when online</p>
+                    </div>
+                </div>
+                
+                <h3>Strategy Implementations</h3>
+                
+                <h4>1. Cache First Strategy</h4>
+                <div class="code-block">
+<span class="keyword">async function</span> <span class="function">cacheFirst</span>(request) {
+    <span class="comment">// Try cache first</span>
+    <span class="keyword">const</span> cached = <span class="keyword">await</span> caches.<span class="function">match</span>(request);
+    
+    <span class="keyword">if</span> (cached) {
+        <span class="keyword">return</span> cached; <span class="comment">// Return immediately if found</span>
+    }
+    
+    <span class="comment">// Not in cache, fetch from network</span>
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(request);
+    
+    <span class="comment">// Cache for next time</span>
+    <span class="keyword">const</span> cache = <span class="keyword">await</span> caches.<span class="function">open</span>(<span class="string">'my-cache-v1'</span>);
+    <span class="keyword">await</span> cache.<span class="function">put</span>(request, response.<span class="function">clone</span>());
+    
+    <span class="keyword">return</span> response;
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">cacheFirst</span>(<span class="string">'/styles.css'</span>);
+                </div>
+                
+                <h4>2. Network First Strategy</h4>
+                <div class="code-block">
+<span class="keyword">async function</span> <span class="function">networkFirst</span>(request, cacheName = <span class="string">'api-v1'</span>) {
+    <span class="keyword">try</span> {
+        <span class="comment">// Try network first</span>
+        <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(request);
+        
+        <span class="comment">// Update cache with fresh data</span>
+        <span class="keyword">const</span> cache = <span class="keyword">await</span> caches.<span class="function">open</span>(cacheName);
+        <span class="keyword">await</span> cache.<span class="function">put</span>(request, response.<span class="function">clone</span>());
+        
+        <span class="keyword">return</span> response;
+    } <span class="keyword">catch</span> (error) {
+        <span class="comment">// Network failed, try cache</span>
+        <span class="keyword">const</span> cached = <span class="keyword">await</span> caches.<span class="function">match</span>(request);
+        
+        <span class="keyword">if</span> (cached) {
+            <span class="keyword">return</span> cached; <span class="comment">// Return stale data</span>
+        }
+        
+        <span class="comment">// No cache either, throw error</span>
+        <span class="keyword">throw</span> error;
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">networkFirst</span>(<span class="string">'/api/users'</span>);
+                </div>
+                
+                <h4>3. Stale While Revalidate</h4>
+                <div class="code-block">
+<span class="keyword">async function</span> <span class="function">staleWhileRevalidate</span>(request, cacheName = <span class="string">'swi-v1'</span>) {
+    <span class="keyword">const</span> cache = <span class="keyword">await</span> caches.<span class="function">open</span>(cacheName);
+    
+    <span class="comment">// Get cached response</span>
+    <span class="keyword">const</span> cached = <span class="keyword">await</span> cache.<span class="function">match</span>(request);
+    
+    <span class="comment">// Fetch fresh data in background</span>
+    <span class="keyword">const</span> fetchPromise = <span class="function">fetch</span>(request).<span class="function">then</span>(<span class="keyword">async</span> (response) => {
+        <span class="comment">// Update cache with fresh response</span>
+        <span class="keyword">await</span> cache.<span class="function">put</span>(request, response.<span class="function">clone</span>());
+        <span class="keyword">return</span> response;
+    });
+    
+    <span class="comment">// Return cached immediately, or wait for network</span>
+    <span class="keyword">return</span> cached || fetchPromise;
+}
+
+<span class="comment">// Usage - returns cached instantly, updates in background</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">staleWhileRevalidate</span>(<span class="string">'/api/products'</span>);
+                </div>
+                
+                <h4>4. Cache Only Strategy</h4>
+                <div class="code-block">
+<span class="keyword">async function</span> <span class="function">cacheOnly</span>(request) {
+    <span class="keyword">const</span> cached = <span class="keyword">await</span> caches.<span class="function">match</span>(request);
+    
+    <span class="keyword">if</span> (!cached) {
+        <span class="keyword">throw new</span> <span class="function">Error</span>(<span class="string">'No cached response found'</span>);
+    }
+    
+    <span class="keyword">return</span> cached;
+}
+
+<span class="comment">// Usage - only returns if cached</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">cacheOnly</span>(<span class="string">'/offline.html'</span>);
+                </div>
+            </div>
+            
+            <!-- Practical Examples -->
+            <div class="section">
+                <h2>💼 Practical Examples</h2>
+                
+                <h3>Example 1: Complete PWA Caching</h3>
+                <div class="code-block">
+<span class="comment">// Service Worker with Cache API</span>
+<span class="keyword">const</span> CACHE_VERSION = <span class="string">'v1'</span>;
+<span class="keyword">const</span> STATIC_CACHE = <span class="string">`static-${CACHE_VERSION}`</span>;
+<span class="keyword">const</span> DYNAMIC_CACHE = <span class="string">`dynamic-${CACHE_VERSION}`</span>;
+
+<span class="keyword">const</span> STATIC_ASSETS = [
+    <span class="string">'/'</span>,
+    <span class="string">'/index.html'</span>,
+    <span class="string">'/styles.css'</span>,
+    <span class="string">'/app.js'</span>,
+    <span class="string">'/offline.html'</span>
+];
+
+<span class="comment">// Install - cache static assets</span>
+self.<span class="function">addEventListener</span>(<span class="string">'install'</span>, (event) => {
+    event.<span class="function">waitUntil</span>(
+        caches.<span class="function">open</span>(STATIC_CACHE)
+            .<span class="function">then</span>(cache => cache.<span class="function">addAll</span>(STATIC_ASSETS))
+    );
+});
+
+<span class="comment">// Activate - clean old caches</span>
+self.<span class="function">addEventListener</span>(<span class="string">'activate'</span>, (event) => {
+    event.<span class="function">waitUntil</span>(
+        caches.<span class="function">keys</span>().<span class="function">then</span>(names => {
+            <span class="keyword">return</span> Promise.<span class="function">all</span>(
+                names
+                    .<span class="function">filter</span>(name => name !== STATIC_CACHE && name !== DYNAMIC_CACHE)
+                    .<span class="function">map</span>(name => caches.<span class="function">delete</span>(name))
+            );
+        })
+    );
+});
+
+<span class="comment">// Fetch - serve from cache with fallback</span>
+self.<span class="function">addEventListener</span>(<span class="string">'fetch'</span>, (event) => {
+    event.<span class="function">respondWith</span>(
+        caches.<span class="function">match</span>(event.request).<span class="function">then</span>(cached => {
+            <span class="keyword">if</span> (cached) <span class="keyword">return</span> cached;
+            
+            <span class="keyword">return</span> <span class="function">fetch</span>(event.request).<span class="function">then</span>(response => {
+                <span class="keyword">return</span> caches.<span class="function">open</span>(DYNAMIC_CACHE).<span class="function">then</span>(cache => {
+                    cache.<span class="function">put</span>(event.request, response.<span class="function">clone</span>());
+                    <span class="keyword">return</span> response;
+                });
+            }).<span class="function">catch</span>(() => caches.<span class="function">match</span>(<span class="string">'/offline.html'</span>));
+        })
+    );
+});
+                </div>
+                
+                <h3>Example 2: API Response Caching with TTL</h3>
+                <div class="code-block">
+<span class="comment">// Cache API responses with time-to-live</span>
+<span class="keyword">class</span> <span class="function">CacheWithTTL</span> {
+    <span class="keyword">constructor</span>(cacheName, ttlMinutes = <span class="number">5</span>) {
+        <span class="keyword">this</span>.cacheName = cacheName;
+        <span class="keyword">this</span>.ttl = ttlMinutes * <span class="number">60</span> * <span class="number">1000</span>;
+    }
+    
+    <span class="keyword">async</span> <span class="function">set</span>(request, response) {
+        <span class="keyword">const</span> cache = <span class="keyword">await</span> caches.<span class="function">open</span>(<span class="keyword">this</span>.cacheName);
+        
+        <span class="comment">// Add timestamp header</span>
+        <span class="keyword">const</span> headers = <span class="keyword">new</span> <span class="function">Headers</span>(response.headers);
+        headers.<span class="function">set</span>(<span class="string">'x-cache-time'</span>, Date.<span class="function">now</span>().<span class="function">toString</span>());
+        
+        <span class="keyword">const</span> body = <span class="keyword">await</span> response.<span class="function">blob</span>();
+        <span class="keyword">const</span> newResponse = <span class="keyword">new</span> <span class="function">Response</span>(body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers
+        });
+        
+        <span class="keyword">await</span> cache.<span class="function">put</span>(request, newResponse);
+    }
+    
+    <span class="keyword">async</span> <span class="function">get</span>(request) {
+        <span class="keyword">const</span> cached = <span class="keyword">await</span> caches.<span class="function">match</span>(request);
+        
+        <span class="keyword">if</span> (!cached) <span class="keyword">return null</span>;
+        
+        <span class="comment">// Check if expired</span>
+        <span class="keyword">const</span> cacheTime = cached.headers.<span class="function">get</span>(<span class="string">'x-cache-time'</span>);
+        <span class="keyword">const</span> age = Date.<span class="function">now</span>() - <span class="function">parseInt</span>(cacheTime);
+        
+        <span class="keyword">if</span> (age > <span class="keyword">this</span>.ttl) {
+            <span class="comment">// Expired, delete from cache</span>
+            <span class="keyword">const</span> cache = <span class="keyword">await</span> caches.<span class="function">open</span>(<span class="keyword">this</span>.cacheName);
+            <span class="keyword">await</span> cache.<span class="function">delete</span>(request);
+            <span class="keyword">return null</span>;
+        }
+        
+        <span class="keyword">return</span> cached;
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> apiCache = <span class="keyword">new</span> <span class="function">CacheWithTTL</span>(<span class="string">'api-cache'</span>, <span class="number">5</span>); <span class="comment">// 5 min TTL</span>
+
+<span class="keyword">async function</span> <span class="function">fetchAPI</span>(url) {
+    <span class="comment">// Check cache</span>
+    <span class="keyword">const</span> cached = <span class="keyword">await</span> apiCache.<span class="function">get</span>(url);
+    <span class="keyword">if</span> (cached) <span class="keyword">return</span> cached;
+    
+    <span class="comment">// Fetch fresh</span>
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(url);
+    <span class="keyword">await</span> apiCache.<span class="function">set</span>(url, response.<span class="function">clone</span>());
+    
+    <span class="keyword">return</span> response;
+}
+                </div>
+            </div>
+            
+            <!-- Comparison -->
+            <div class="section">
+                <h2>⚖️ Cache API vs Other Storage</h2>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Cache API</th>
+                            <th>localStorage</th>
+                            <th>IndexedDB</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Purpose</strong></td>
+                            <td>HTTP request/response caching</td>
+                            <td>Simple key-value storage</td>
+                            <td>Structured data storage</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Storage Type</strong></td>
+                            <td>Response objects</td>
+                            <td>Strings only</td>
+                            <td>Objects, blobs, files</td>
+                        </tr>
+                        <tr>
+                            <td><strong>API Style</strong></td>
+                            <td>Promise-based</td>
+                            <td>Synchronous</td>
+                            <td>Callback/Promise</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Size Limit</strong></td>
+                            <td>Large (browser dependent)</td>
+                            <td>~5-10 MB</td>
+                            <td>Hundreds of MB to GBs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Service Worker</strong></td>
+                            <td>Yes ✓</td>
+                            <td>No ✗</td>
+                            <td>No ✗</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Case</strong></td>
+                            <td>Offline apps, PWAs, asset caching</td>
+                            <td>Settings, preferences</td>
+                            <td>Large datasets, files</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Interactive Demo -->
+            <div class="section">
+                <h2>🎮 Interactive Demo</h2>
+                
+                <div class="demo-section">
+                    <h3>Try Cache API Now!</h3>
+                    
+                    <h4 style="margin-top: 20px;">Cache Operations</h4>
+                    <div class="demo-controls">
+                        <input type="text" id="cacheUrl" placeholder="URL to cache" value="https://jsonplaceholder.typicode.com/users/1">
+                        <button onclick="addToCache()">Cache URL</button>
+                        <button onclick="checkCache()">Check Cache</button>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">Cache Management</h4>
+                    <div class="demo-controls">
+                        <button onclick="listCaches()">List All Caches</button>
+                        <button onclick="listCacheEntries()">View Cache Contents</button>
+                        <button onclick="clearCache()">Clear Cache</button>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">Test Strategies</h4>
+                    <div class="demo-controls">
+                        <button onclick="testCacheFirst()">Test Cache First</button>
+                        <button onclick="testNetworkFirst()">Test Network First</button>
+                        <button onclick="testSWR()">Test Stale While Revalidate</button>
+                    </div>
+                    
+                    <div class="output" id="output">Output will appear here...</div>
+                </div>
+            </div>
+            
+            <!-- Best Practices -->
+            <div class="section">
+                <h2>✅ Best Practices</h2>
+                
+                <div class="key-point">
+                    <h3 style="margin-top: 0;">DO ✓</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Version your cache names for easy updates</li>
+                        <li>Clean up old caches on activation</li>
+                        <li>Use appropriate strategies for different resources</li>
+                        <li>Clone responses before caching</li>
+                        <li>Handle cache failures gracefully</li>
+                        <li>Set reasonable cache limits</li>
+                        <li>Cache static assets aggressively</li>
+                    </ul>
+                </div>
+                
+                <div class="warning-box">
+                    <h3 style="margin-top: 0;">DON'T ✗</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Cache sensitive data without encryption</li>
+                        <li>Cache everything indiscriminately</li>
+                        <li>Forget to update caches</li>
+                        <li>Use Cache API for structured data (use IndexedDB)</li>
+                        <li>Cache POST/PUT/DELETE requests</li>
+                        <li>Ignore cache size limits</li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        const DEMO_CACHE = 'demo-cache-v1';
+        
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'color: #0d6efd;',
+                success: 'color: #28a745;',
+                error: 'color: #dc3545;',
+                warning: 'color: #ffc107;'
+            };
+            output.innerHTML += `<div style="${colors[type]}">[${timestamp}] ${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        async function addToCache() {
+            const url = document.getElementById('cacheUrl').value;
+            if (!url) {
+                log('❌ Please enter a URL', 'error');
+                return;
+            }
+            
+            try {
+                log(`Fetching ${url}...`, 'info');
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const cache = await caches.open(DEMO_CACHE);
+                await cache.put(url, response.clone());
+                
+                const data = await response.json();
+                log(`✓ Cached successfully!`, 'success');
+                log(`Data: ${JSON.stringify(data).substring(0, 100)}...`, 'info');
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function checkCache() {
+            const url = document.getElementById('cacheUrl').value;
+            if (!url) {
+                log('❌ Please enter a URL', 'error');
+                return;
+            }
+            
+            try {
+                const cached = await caches.match(url);
+                
+                if (cached) {
+                    const data = await cached.json();
+                    log(`✓ Found in cache!`, 'success');
+                    log(`Data: ${JSON.stringify(data).substring(0, 100)}...`, 'info');
+                } else {
+                    log(`❌ Not found in cache`, 'warning');
+                }
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function listCaches() {
+            try {
+                const cacheNames = await caches.keys();
+                
+                if (cacheNames.length === 0) {
+                    log('No caches found', 'warning');
+                    return;
+                }
+                
+                log(`📊 Found ${cacheNames.length} cache(s):`, 'info');
+                cacheNames.forEach(name => {
+                    log(`  • ${name}`, 'info');
+                });
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function listCacheEntries() {
+            try {
+                const cache = await caches.open(DEMO_CACHE);
+                const requests = await cache.keys();
+                
+                if (requests.length === 0) {
+                    log('Cache is empty', 'warning');
+                    return;
+                }
+                
+                log(`📊 Cache contains ${requests.length} entry(ies):`, 'info');
+                requests.forEach(request => {
+                    log(`  • ${request.url}`, 'info');
+                });
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function clearCache() {
+            try {
+                const deleted = await caches.delete(DEMO_CACHE);
+                if (deleted) {
+                    log('✓ Cache cleared successfully', 'success');
+                } else {
+                    log('Cache not found', 'warning');
+                }
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCacheFirst() {
+            const url = 'https://jsonplaceholder.typicode.com/users/2';
+            log('Testing Cache First strategy...', 'info');
+            
+            try {
+                const start = performance.now();
+                
+                // Check cache
+                const cached = await caches.match(url);
+                if (cached) {
+                    const time = (performance.now() - start).toFixed(2);
+                    log(`✓ Returned from cache (${time}ms)`, 'success');
+                    return;
+                }
+                
+                // Fetch from network
+                const response = await fetch(url);
+                const cache = await caches.open(DEMO_CACHE);
+                await cache.put(url, response.clone());
+                
+                const time = (performance.now() - start).toFixed(2);
+                log(`✓ Fetched from network and cached (${time}ms)`, 'success');
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testNetworkFirst() {
+            const url = 'https://jsonplaceholder.typicode.com/users/3';
+            log('Testing Network First strategy...', 'info');
+            
+            try {
+                const start = performance.now();
+                
+                // Try network
+                const response = await fetch(url);
+                const cache = await caches.open(DEMO_CACHE);
+                await cache.put(url, response.clone());
+                
+                const time = (performance.now() - start).toFixed(2);
+                log(`✓ Fetched from network (${time}ms)`, 'success');
+            } catch (error) {
+                // Try cache
+                const cached = await caches.match(url);
+                if (cached) {
+                    log(`⚠️ Network failed, returned from cache`, 'warning');
+                } else {
+                    log(`❌ Error: ${error.message}`, 'error');
+                }
+            }
+        }
+        
+        async function testSWR() {
+            const url = 'https://jsonplaceholder.typicode.com/users/4';
+            log('Testing Stale While Revalidate...', 'info');
+            
+            try {
+                const cache = await caches.open(DEMO_CACHE);
+                
+                // Get cached
+                const cached = await cache.match(url);
+                
+                // Fetch fresh in background
+                fetch(url).then(async response => {
+                    await cache.put(url, response.clone());
+                    log('✓ Cache updated in background', 'info');
+                });
+                
+                if (cached) {
+                    log('✓ Returned cached immediately', 'success');
+                } else {
+                    log('⚠️ No cache, waiting for network...', 'warning');
+                }
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            log('👋 Welcome to Cache API Demo!', 'success');
+            log('Try caching a URL and testing different strategies.', 'info');
+            
+            // Check if Cache API is supported
+            if ('caches' in window) {
+                log('✓ Cache API is supported', 'success');
+            } else {
+                log('❌ Cache API not supported in this browser', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 9: Form Handling</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.7;
+            color: #1a1a2e;
+            background: linear-gradient(135deg, #fef9c3 0%, #fde047 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #ca8a04 0%, #a16207 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #fcd34d;
+        }
+        h2 {
+            font-size: 1.5rem;
+            color: #a16207;
+            margin: 35px 0 20px;
+            padding-left: 15px;
+            border-left: 4px solid #eab308;
+        }
+        h3 { font-size: 1.2rem; color: #ca8a04; margin: 25px 0 15px; }
+        h4 { font-size: 1.05rem; color: #a16207; margin: 20px 0 12px; }
+        p { margin-bottom: 15px; color: #374151; }
+        .concept-box {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .key-point {
+            background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+            border-left: 4px solid #eab308;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .key-point::before {
+            content: "🔑 Key Point";
+            font-weight: bold;
+            color: #a16207;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .warning-box {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .warning-box::before {
+            content: "⚠️ Important";
+            font-weight: bold;
+            color: #dc2626;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .interview-tip {
+            background: linear-gradient(135deg, #eff6ff 0%, #bfdbfe 100%);
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .interview-tip::before {
+            content: "💼 Interview Question";
+            font-weight: bold;
+            color: #1d4ed8;
+            display: block;
+            margin-bottom: 10px;
+        }
+        pre {
+            background: #713f12;
+            color: #fef9c3;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+        .inline-code {
+            background: #fef9c3;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #a16207;
+            font-family: 'Fira Code', monospace;
+        }
+        .keyword { color: #fde047; }
+        .string { color: #86efac; }
+        .comment { color: #fcd34d; font-style: italic; }
+        .function { color: #7dd3fc; }
+        .variable { color: #f0abfc; }
+        .property { color: #fdba74; }
+        .result { color: #86efac; }
+        .diagram {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            font-size: 0.9rem;
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, #ca8a04 0%, #a16207 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        .comparison-table td {
+            padding: 12px;
+            border-bottom: 1px solid #fef9c3;
+        }
+        .comparison-table tr:hover { background: #fefce8; }
+        ul, ol { margin: 15px 0 15px 25px; color: #374151; }
+        li { margin-bottom: 8px; }
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #eab308, transparent);
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chapter 9: Form Handling</h1>
+        <p class="subtitle">Working with Forms, Form Elements, and FormData API</p>
+        
+        <div class="concept-box">
+            <p>Forms are fundamental to web applications. This chapter covers how to access form elements, read and write values, and use the powerful <span class="inline-code">FormData</span> API for form processing.</p>
+        </div>
+        
+        <!-- Section 9.1 -->
+        <h2>9.1 Accessing Forms and Form Elements</h2>
+        
+<pre><span class="comment">// ━━━━━━━━━━ Accessing Forms ━━━━━━━━━━</span>
+
+<span class="comment">// All forms on the page</span>
+<span class="variable">document</span>.<span class="property">forms</span>                    <span class="comment">// HTMLCollection of all forms</span>
+<span class="variable">document</span>.<span class="property">forms</span>.<span class="property">length</span>             <span class="comment">// Number of forms</span>
+
+<span class="comment">// Access by index</span>
+<span class="variable">document</span>.<span class="property">forms</span>[<span class="variable">0</span>]                 <span class="comment">// First form</span>
+
+<span class="comment">// Access by name attribute</span>
+<span class="comment">// &lt;form name="loginForm"&gt;</span>
+<span class="variable">document</span>.<span class="property">forms</span>[<span class="string">'loginForm'</span>]       <span class="comment">// Access by name</span>
+<span class="variable">document</span>.<span class="property">forms</span>.<span class="property">loginForm</span>          <span class="comment">// Also works</span>
+
+<span class="comment">// Or use standard selection</span>
+<span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'#myForm'</span>);
+<span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'form[name="login"]'</span>);</pre>
+
+<pre><span class="comment">// ━━━━━━━━━━ Accessing Form Elements ━━━━━━━━━━</span>
+
+<span class="keyword">const</span> form = <span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'#myForm'</span>);
+
+<span class="comment">// form.elements - Collection of all form controls</span>
+form.<span class="property">elements</span>                      <span class="comment">// HTMLFormControlsCollection</span>
+form.<span class="property">elements</span>.<span class="property">length</span>               <span class="comment">// Number of controls</span>
+
+<span class="comment">// Access by index</span>
+form.<span class="property">elements</span>[<span class="variable">0</span>]                   <span class="comment">// First form element</span>
+
+<span class="comment">// Access by name attribute (recommended)</span>
+<span class="comment">// &lt;input name="email" type="email"&gt;</span>
+form.<span class="property">elements</span>[<span class="string">'email'</span>]            <span class="comment">// The email input</span>
+form.<span class="property">elements</span>.<span class="property">email</span>               <span class="comment">// Also works</span>
+form.<span class="property">elements</span>.<span class="function">namedItem</span>(<span class="string">'email'</span>)  <span class="comment">// Explicit method</span>
+
+<span class="comment">// For radio buttons with same name, returns RadioNodeList</span>
+<span class="comment">// &lt;input type="radio" name="gender" value="male"&gt;</span>
+<span class="comment">// &lt;input type="radio" name="gender" value="female"&gt;</span>
+form.<span class="property">elements</span>.<span class="property">gender</span>               <span class="comment">// RadioNodeList of all gender radios</span>
+form.<span class="property">elements</span>.<span class="property">gender</span>.<span class="property">value</span>         <span class="comment">// Value of selected radio</span></pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 9.2 -->
+        <h2>9.2 Input Types and Their Properties</h2>
+        
+        <h3>Text Inputs</h3>
+        
+<pre><span class="comment">// &lt;input type="text" id="username" value="john" placeholder="Enter name"&gt;</span>
+
+<span class="keyword">const</span> input = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'username'</span>);
+
+<span class="comment">// Reading values</span>
+input.<span class="property">value</span>              <span class="comment">// Current value: "john"</span>
+input.<span class="property">defaultValue</span>       <span class="comment">// Initial HTML value</span>
+input.<span class="property">placeholder</span>        <span class="comment">// "Enter name"</span>
+
+<span class="comment">// Setting values</span>
+input.<span class="property">value</span> = <span class="string">'Jane'</span>;    <span class="comment">// Change the value</span>
+
+<span class="comment">// Other properties</span>
+input.<span class="property">type</span>               <span class="comment">// "text"</span>
+input.<span class="property">name</span>               <span class="comment">// name attribute</span>
+input.<span class="property">id</span>                 <span class="comment">// id attribute</span>
+input.<span class="property">maxLength</span>          <span class="comment">// max characters allowed</span>
+input.<span class="property">minLength</span>          <span class="comment">// min characters required</span>
+input.<span class="property">readOnly</span>           <span class="comment">// is it read-only?</span>
+input.<span class="property">disabled</span>           <span class="comment">// is it disabled?</span>
+input.<span class="property">required</span>           <span class="comment">// is it required?</span>
+
+<span class="comment">// Selection (for text inputs)</span>
+input.<span class="function">select</span>();          <span class="comment">// Select all text</span>
+input.<span class="function">setSelectionRange</span>(<span class="variable">0</span>, <span class="variable">5</span>);  <span class="comment">// Select characters 0-5</span>
+input.<span class="property">selectionStart</span>     <span class="comment">// Start of selection</span>
+input.<span class="property">selectionEnd</span>       <span class="comment">// End of selection</span></pre>
+
+        <h3>Checkbox and Radio Buttons</h3>
+        
+<pre><span class="comment">// ━━━━━━━━━━ Checkbox ━━━━━━━━━━</span>
+<span class="comment">// &lt;input type="checkbox" id="agree" checked&gt;</span>
+
+<span class="keyword">const</span> checkbox = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'agree'</span>);
+
+checkbox.<span class="property">checked</span>          <span class="comment">// true or false (BOOLEAN, not string!)</span>
+checkbox.<span class="property">defaultChecked</span>   <span class="comment">// Initial checked state from HTML</span>
+checkbox.<span class="property">value</span>            <span class="comment">// The value attribute (often "on" if not set)</span>
+
+<span class="comment">// Toggle checkbox</span>
+checkbox.<span class="property">checked</span> = !checkbox.<span class="property">checked</span>;
+
+<span class="comment">// ━━━━━━━━━━ Radio Buttons ━━━━━━━━━━</span>
+<span class="comment">// &lt;input type="radio" name="color" value="red"&gt;</span>
+<span class="comment">// &lt;input type="radio" name="color" value="blue" checked&gt;</span>
+<span class="comment">// &lt;input type="radio" name="color" value="green"&gt;</span>
+
+<span class="comment">// Get selected value from radio group</span>
+<span class="keyword">const</span> selectedColor = form.<span class="property">elements</span>.<span class="property">color</span>.<span class="property">value</span>;  <span class="comment">// "blue"</span>
+
+<span class="comment">// Or find the checked one manually</span>
+<span class="keyword">const</span> radios = <span class="variable">document</span>.<span class="function">querySelectorAll</span>(<span class="string">'input[name="color"]'</span>);
+<span class="keyword">let</span> selected;
+radios.<span class="function">forEach</span>(radio => {
+    <span class="keyword">if</span> (radio.<span class="property">checked</span>) selected = radio.<span class="property">value</span>;
+});
+
+<span class="comment">// Set a radio as checked</span>
+<span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'input[value="green"]'</span>).<span class="property">checked</span> = <span class="keyword">true</span>;</pre>
+
+        <h3>Select Dropdown</h3>
+        
+<pre><span class="comment">// &lt;select id="country"&gt;</span>
+<span class="comment">//   &lt;option value=""&gt;Choose...&lt;/option&gt;</span>
+<span class="comment">//   &lt;option value="us"&gt;United States&lt;/option&gt;</span>
+<span class="comment">//   &lt;option value="uk" selected&gt;United Kingdom&lt;/option&gt;</span>
+<span class="comment">//   &lt;option value="ca"&gt;Canada&lt;/option&gt;</span>
+<span class="comment">// &lt;/select&gt;</span>
+
+<span class="keyword">const</span> select = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'country'</span>);
+
+<span class="comment">// Get selected value</span>
+select.<span class="property">value</span>               <span class="comment">// "uk"</span>
+select.<span class="property">selectedIndex</span>       <span class="comment">// 2 (index of selected option)</span>
+
+<span class="comment">// Access options</span>
+select.<span class="property">options</span>             <span class="comment">// HTMLOptionsCollection</span>
+select.<span class="property">options</span>.<span class="property">length</span>      <span class="comment">// 4</span>
+select.<span class="property">options</span>[<span class="variable">2</span>]          <span class="comment">// Third option element</span>
+select.<span class="property">options</span>[<span class="variable">2</span>].<span class="property">value</span>    <span class="comment">// "uk"</span>
+select.<span class="property">options</span>[<span class="variable">2</span>].<span class="property">text</span>     <span class="comment">// "United Kingdom"</span>
+select.<span class="property">options</span>[<span class="variable">2</span>].<span class="property">selected</span> <span class="comment">// true</span>
+
+<span class="comment">// Get selected option element</span>
+select.<span class="property">selectedOptions</span>     <span class="comment">// HTMLCollection of selected options</span>
+select.<span class="property">selectedOptions</span>[<span class="variable">0</span>]  <span class="comment">// First selected option</span>
+
+<span class="comment">// Set value</span>
+select.<span class="property">value</span> = <span class="string">'ca'</span>;       <span class="comment">// Select Canada</span>
+
+<span class="comment">// Add new option</span>
+<span class="keyword">const</span> newOption = <span class="keyword">new</span> <span class="function">Option</span>(<span class="string">'Australia'</span>, <span class="string">'au'</span>);
+select.<span class="function">add</span>(newOption);
+
+<span class="comment">// Remove option</span>
+select.<span class="function">remove</span>(<span class="variable">0</span>);           <span class="comment">// Remove first option</span>
+
+<span class="comment">// ━━━━━━━━━━ Multi-select ━━━━━━━━━━</span>
+<span class="comment">// &lt;select multiple&gt;</span>
+select.<span class="property">multiple</span>            <span class="comment">// true if multi-select</span>
+
+<span class="comment">// Get ALL selected values from multi-select</span>
+<span class="keyword">const</span> selectedValues = [...select.<span class="property">selectedOptions</span>].<span class="function">map</span>(opt => opt.<span class="property">value</span>);</pre>
+
+        <h3>Number, Range, and Date Inputs</h3>
+        
+<pre><span class="comment">// ━━━━━━━━━━ Number Input ━━━━━━━━━━</span>
+<span class="comment">// &lt;input type="number" id="age" min="0" max="120" step="1" value="25"&gt;</span>
+
+<span class="keyword">const</span> numberInput = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'age'</span>);
+
+numberInput.<span class="property">value</span>          <span class="comment">// "25" (string!)</span>
+numberInput.<span class="property">valueAsNumber</span>  <span class="comment">// 25 (number!)</span>
+numberInput.<span class="property">min</span>            <span class="comment">// "0"</span>
+numberInput.<span class="property">max</span>            <span class="comment">// "120"</span>
+numberInput.<span class="property">step</span>           <span class="comment">// "1"</span>
+
+<span class="comment">// Step up/down</span>
+numberInput.<span class="function">stepUp</span>();      <span class="comment">// Increment by step</span>
+numberInput.<span class="function">stepDown</span>(<span class="variable">5</span>);   <span class="comment">// Decrement by 5</span>
+
+<span class="comment">// ━━━━━━━━━━ Date Input ━━━━━━━━━━</span>
+<span class="comment">// &lt;input type="date" id="birthday"&gt;</span>
+
+<span class="keyword">const</span> dateInput = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'birthday'</span>);
+
+dateInput.<span class="property">value</span>            <span class="comment">// "2024-01-15" (YYYY-MM-DD string)</span>
+dateInput.<span class="property">valueAsDate</span>      <span class="comment">// Date object!</span>
+dateInput.<span class="property">valueAsNumber</span>    <span class="comment">// Timestamp in milliseconds</span>
+
+<span class="comment">// Set date</span>
+dateInput.<span class="property">valueAsDate</span> = <span class="keyword">new</span> <span class="function">Date</span>();  <span class="comment">// Set to today</span>
+
+<span class="comment">// ━━━━━━━━━━ Range (Slider) ━━━━━━━━━━</span>
+<span class="comment">// &lt;input type="range" min="0" max="100" value="50"&gt;</span>
+
+rangeInput.<span class="property">value</span>           <span class="comment">// "50" (string)</span>
+rangeInput.<span class="property">valueAsNumber</span>   <span class="comment">// 50 (number)</span></pre>
+
+        <h3>File Input</h3>
+        
+<pre><span class="comment">// &lt;input type="file" id="avatar" accept="image/*" multiple&gt;</span>
+
+<span class="keyword">const</span> fileInput = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'avatar'</span>);
+
+fileInput.<span class="property">files</span>            <span class="comment">// FileList of selected files</span>
+fileInput.<span class="property">files</span>.<span class="property">length</span>     <span class="comment">// Number of files</span>
+fileInput.<span class="property">files</span>[<span class="variable">0</span>]         <span class="comment">// First File object</span>
+
+<span class="comment">// File object properties</span>
+<span class="keyword">const</span> file = fileInput.<span class="property">files</span>[<span class="variable">0</span>];
+file.<span class="property">name</span>                  <span class="comment">// "photo.jpg"</span>
+file.<span class="property">size</span>                  <span class="comment">// Size in bytes</span>
+file.<span class="property">type</span>                  <span class="comment">// "image/jpeg"</span>
+file.<span class="property">lastModified</span>          <span class="comment">// Timestamp</span>
+
+<span class="comment">// Clear file input</span>
+fileInput.<span class="property">value</span> = <span class="string">''</span>;
+
+<span class="comment">// Handle file selection</span>
+fileInput.<span class="function">addEventListener</span>(<span class="string">'change'</span>, (e) => {
+    <span class="keyword">const</span> files = e.<span class="property">target</span>.<span class="property">files</span>;
+    <span class="keyword">for</span> (<span class="keyword">const</span> file <span class="keyword">of</span> files) {
+        <span class="variable">console</span>.<span class="function">log</span>(file.<span class="property">name</span>, file.<span class="property">size</span>);
+    }
+});</pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 9.3 -->
+        <h2>9.3 FormData API</h2>
+        
+        <div class="concept-box">
+            <p>The <span class="inline-code">FormData</span> API provides an easy way to construct and manipulate form data. It automatically handles all input types including files!</p>
+        </div>
+        
+<pre><span class="comment">// ━━━━━━━━━━ Create FormData from a form ━━━━━━━━━━</span>
+<span class="keyword">const</span> form = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'myForm'</span>);
+<span class="keyword">const</span> formData = <span class="keyword">new</span> <span class="function">FormData</span>(form);
+
+<span class="comment">// ━━━━━━━━━━ Reading data ━━━━━━━━━━</span>
+formData.<span class="function">get</span>(<span class="string">'email'</span>)        <span class="comment">// Get single value</span>
+formData.<span class="function">getAll</span>(<span class="string">'hobbies'</span>)   <span class="comment">// Get all values (for multi-select/checkboxes)</span>
+formData.<span class="function">has</span>(<span class="string">'email'</span>)        <span class="comment">// Check if field exists</span>
+
+<span class="comment">// Iterate over all entries</span>
+<span class="keyword">for</span> (<span class="keyword">const</span> [key, value] <span class="keyword">of</span> formData.<span class="function">entries</span>()) {
+    <span class="variable">console</span>.<span class="function">log</span>(key, value);
+}
+
+<span class="comment">// Get all keys or values</span>
+[...formData.<span class="function">keys</span>()]        <span class="comment">// Array of all field names</span>
+[...formData.<span class="function">values</span>()]      <span class="comment">// Array of all values</span>
+
+<span class="comment">// ━━━━━━━━━━ Modifying data ━━━━━━━━━━</span>
+formData.<span class="function">set</span>(<span class="string">'email'</span>, <span class="string">'new@example.com'</span>);  <span class="comment">// Set/replace</span>
+formData.<span class="function">append</span>(<span class="string">'tag'</span>, <span class="string">'javascript'</span>);      <span class="comment">// Add (allows multiple)</span>
+formData.<span class="function">append</span>(<span class="string">'tag'</span>, <span class="string">'dom'</span>);             <span class="comment">// Add another</span>
+formData.<span class="function">delete</span>(<span class="string">'email'</span>);                 <span class="comment">// Remove field</span>
+
+<span class="comment">// ━━━━━━━━━━ Convert to plain object ━━━━━━━━━━</span>
+<span class="keyword">const</span> dataObject = <span class="variable">Object</span>.<span class="function">fromEntries</span>(formData);
+
+<span class="comment">// ⚠️ Warning: fromEntries only keeps last value for duplicate keys!</span>
+<span class="comment">// For multi-value fields, handle separately:</span>
+<span class="keyword">const</span> data = {};
+<span class="keyword">for</span> (<span class="keyword">const</span> [key, value] <span class="keyword">of</span> formData.<span class="function">entries</span>()) {
+    <span class="keyword">if</span> (data[key]) {
+        <span class="comment">// Convert to array if multiple values</span>
+        data[key] = [].concat(data[key], value);
+    } <span class="keyword">else</span> {
+        data[key] = value;
+    }
+}</pre>
+
+        <h3>Using FormData with Fetch</h3>
+        
+<pre><span class="comment">// Submit form via fetch</span>
+form.<span class="function">addEventListener</span>(<span class="string">'submit'</span>, <span class="keyword">async</span> (e) => {
+    e.<span class="function">preventDefault</span>();
+    
+    <span class="keyword">const</span> formData = <span class="keyword">new</span> <span class="function">FormData</span>(form);
+    
+    <span class="comment">// Send as multipart/form-data (works with files!)</span>
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/api/submit'</span>, {
+        <span class="property">method</span>: <span class="string">'POST'</span>,
+        <span class="property">body</span>: formData  <span class="comment">// Don't set Content-Type header!</span>
+    });
+    
+    <span class="comment">// Or convert to JSON</span>
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/api/submit'</span>, {
+        <span class="property">method</span>: <span class="string">'POST'</span>,
+        <span class="property">headers</span>: { <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span> },
+        <span class="property">body</span>: <span class="variable">JSON</span>.<span class="function">stringify</span>(<span class="variable">Object</span>.<span class="function">fromEntries</span>(formData))
+    });
+});
+
+<span class="comment">// Convert to URL parameters</span>
+<span class="keyword">const</span> params = <span class="keyword">new</span> <span class="function">URLSearchParams</span>(formData);
+<span class="variable">console</span>.<span class="function">log</span>(params.<span class="function">toString</span>());  <span class="comment">// "email=test%40example.com&name=John"</span></pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 9.4 -->
+        <h2>9.4 Form Methods</h2>
+        
+<pre><span class="keyword">const</span> form = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'myForm'</span>);
+
+<span class="comment">// ━━━━━━━━━━ Submit form ━━━━━━━━━━</span>
+form.<span class="function">submit</span>();          <span class="comment">// Submit WITHOUT triggering submit event!</span>
+form.<span class="function">requestSubmit</span>();   <span class="comment">// Submit WITH triggering submit event (recommended)</span>
+
+<span class="comment">// ━━━━━━━━━━ Reset form ━━━━━━━━━━</span>
+form.<span class="function">reset</span>();           <span class="comment">// Reset all fields to default values</span>
+
+<span class="comment">// ━━━━━━━━━━ Validation ━━━━━━━━━━</span>
+form.<span class="function">checkValidity</span>();   <span class="comment">// Returns true if all fields are valid</span>
+form.<span class="function">reportValidity</span>();  <span class="comment">// Check + show validation UI</span>
+
+<span class="comment">// Individual input methods</span>
+input.<span class="function">focus</span>();          <span class="comment">// Focus the input</span>
+input.<span class="function">blur</span>();           <span class="comment">// Remove focus</span>
+input.<span class="function">select</span>();         <span class="comment">// Select all text (text inputs)</span>
+input.<span class="function">click</span>();          <span class="comment">// Programmatic click</span></pre>
+
+        <div class="warning-box">
+            <strong>form.submit() vs form.requestSubmit()</strong>
+            <p><span class="inline-code">submit()</span> submits the form immediately WITHOUT firing the <span class="inline-code">submit</span> event or running validation. Use <span class="inline-code">requestSubmit()</span> to trigger the normal submit flow including validation and event handlers.</p>
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 9.5 -->
+        <h2>9.5 Form Submission Handling Pattern</h2>
+        
+<pre><span class="comment">// Complete form handling pattern</span>
+<span class="keyword">const</span> form = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'registrationForm'</span>);
+<span class="keyword">const</span> submitBtn = form.<span class="function">querySelector</span>(<span class="string">'button[type="submit"]'</span>);
+
+form.<span class="function">addEventListener</span>(<span class="string">'submit'</span>, <span class="keyword">async</span> (e) => {
+    e.<span class="function">preventDefault</span>();  <span class="comment">// Prevent default form submission</span>
+    
+    <span class="comment">// Disable submit button to prevent double-submit</span>
+    submitBtn.<span class="property">disabled</span> = <span class="keyword">true</span>;
+    submitBtn.<span class="property">textContent</span> = <span class="string">'Submitting...'</span>;
+    
+    <span class="keyword">try</span> {
+        <span class="comment">// Collect form data</span>
+        <span class="keyword">const</span> formData = <span class="keyword">new</span> <span class="function">FormData</span>(form);
+        <span class="keyword">const</span> data = <span class="variable">Object</span>.<span class="function">fromEntries</span>(formData);
+        
+        <span class="comment">// Submit to server</span>
+        <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/api/register'</span>, {
+            <span class="property">method</span>: <span class="string">'POST'</span>,
+            <span class="property">headers</span>: { <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span> },
+            <span class="property">body</span>: <span class="variable">JSON</span>.<span class="function">stringify</span>(data)
+        });
+        
+        <span class="keyword">if</span> (!response.<span class="property">ok</span>) {
+            <span class="keyword">throw new</span> <span class="function">Error</span>(<span class="string">'Submission failed'</span>);
+        }
+        
+        <span class="keyword">const</span> result = <span class="keyword">await</span> response.<span class="function">json</span>();
+        
+        <span class="comment">// Success!</span>
+        <span class="function">showMessage</span>(<span class="string">'Registration successful!'</span>, <span class="string">'success'</span>);
+        form.<span class="function">reset</span>();  <span class="comment">// Clear the form</span>
+        
+    } <span class="keyword">catch</span> (error) {
+        <span class="function">showMessage</span>(error.<span class="property">message</span>, <span class="string">'error'</span>);
+    } <span class="keyword">finally</span> {
+        <span class="comment">// Re-enable submit button</span>
+        submitBtn.<span class="property">disabled</span> = <span class="keyword">false</span>;
+        submitBtn.<span class="property">textContent</span> = <span class="string">'Register'</span>;
+    }
+});</pre>
+
+        <div class="section-divider"></div>
+        
+        <h2>Chapter 9 Summary</h2>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Input Type</th>
+                    <th>Get Value</th>
+                    <th>Set Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Text, Email, Password</td>
+                    <td><span class="inline-code">input.value</span></td>
+                    <td><span class="inline-code">input.value = 'text'</span></td>
+                </tr>
+                <tr>
+                    <td>Checkbox</td>
+                    <td><span class="inline-code">input.checked</span></td>
+                    <td><span class="inline-code">input.checked = true</span></td>
+                </tr>
+                <tr>
+                    <td>Radio Group</td>
+                    <td><span class="inline-code">form.elements.name.value</span></td>
+                    <td><span class="inline-code">radio.checked = true</span></td>
+                </tr>
+                <tr>
+                    <td>Select</td>
+                    <td><span class="inline-code">select.value</span></td>
+                    <td><span class="inline-code">select.value = 'opt'</span></td>
+                </tr>
+                <tr>
+                    <td>Number</td>
+                    <td><span class="inline-code">input.valueAsNumber</span></td>
+                    <td><span class="inline-code">input.value = 42</span></td>
+                </tr>
+                <tr>
+                    <td>Date</td>
+                    <td><span class="inline-code">input.valueAsDate</span></td>
+                    <td><span class="inline-code">input.valueAsDate = new Date()</span></td>
+                </tr>
+                <tr>
+                    <td>File</td>
+                    <td><span class="inline-code">input.files</span></td>
+                    <td>Cannot set programmatically</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="interview-tip">
+            <strong>Interview Questions:</strong>
+            <ol>
+                <li>How do you get all values from a multi-select?</li>
+                <li>What's the difference between <span class="inline-code">value</span> and <span class="inline-code">valueAsNumber</span>?</li>
+                <li>How do you prevent form double-submission?</li>
+                <li>What's the difference between <span class="inline-code">submit()</span> and <span class="inline-code">requestSubmit()</span>?</li>
+                <li>How do you handle file uploads with FormData?</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

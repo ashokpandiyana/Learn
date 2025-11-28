@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 2: Functions in TypeScript</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e4e4e7;
+      line-height: 1.7;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #f59e0b, #ef4444);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle { color: #94a3b8; font-size: 1.1rem; margin-bottom: 40px; }
+    .section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    h2 {
+      color: #fbbf24;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, #f59e0b, #ef4444);
+      border-radius: 2px;
+    }
+    h3 {
+      color: #fb923c;
+      font-size: 1.2rem;
+      margin: 25px 0 15px;
+    }
+    h4 { color: #fdba74; margin: 15px 0 10px; }
+    p { margin-bottom: 15px; color: #cbd5e1; }
+    .code-block {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+      overflow-x: auto;
+      border: 1px solid #334155;
+    }
+    pre {
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .keyword { color: #c678dd; }
+    .type { color: #e5c07b; }
+    .string { color: #98c379; }
+    .number { color: #d19a66; }
+    .comment { color: #5c6370; font-style: italic; }
+    .function { color: #61afef; }
+    .variable { color: #e06c75; }
+    .operator { color: #56b6c2; }
+    .alert {
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+    }
+    .alert-interview {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .alert-tip {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    .alert-note {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    .alert-icon { font-size: 1.5rem; }
+    .alert-content h4 { color: #f87171; margin-bottom: 5px; }
+    .alert-tip .alert-content h4 { color: #4ade80; }
+    .alert-note .alert-content h4 { color: #60a5fa; }
+    .type-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      background: rgba(251, 146, 60, 0.2);
+      color: #fb923c;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+    .visual-box {
+      background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(239,68,68,0.1));
+      border-radius: 12px;
+      padding: 25px;
+      margin: 20px 0;
+      border: 1px solid rgba(251,146,60,0.3);
+    }
+    .visual-title {
+      color: #fbbf24;
+      font-weight: 600;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .flow-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      padding: 20px;
+    }
+    .flow-box {
+      padding: 15px 20px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      border: 2px solid #f59e0b;
+      text-align: center;
+    }
+    .flow-arrow { color: #64748b; font-size: 1.5rem; }
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .comparison-box {
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .comparison-box.good { border: 2px solid #22c55e; }
+    .comparison-box.bad { border: 2px solid #ef4444; }
+    .comparison-box.neutral { border: 2px solid #3b82f6; }
+    .comparison-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .comparison-box.good .comparison-label { color: #4ade80; }
+    .comparison-box.bad .comparison-label { color: #f87171; }
+    .comparison-box.neutral .comparison-label { color: #60a5fa; }
+    ul { padding-left: 25px; margin: 10px 0; }
+    li { margin: 8px 0; color: #cbd5e1; }
+    .nav-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 40px;
+    }
+    .nav-btn {
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .concept-card {
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+      border-left: 4px solid #f59e0b;
+    }
+    .concept-card h4 {
+      color: #fbbf24;
+      margin-bottom: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #334155;
+    }
+    th { background: rgba(245,158,11,0.2); color: #fbbf24; }
+    code {
+      background: rgba(0,0,0,0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Chapter 2: Functions in TypeScript</h1>
+    <p class="subtitle">Mastering function types, overloads, and generics</p>
+
+    <!-- Section 2.1 -->
+    <div class="section">
+      <h2>2.1 Function Type Annotations</h2>
+      
+      <p>In TypeScript, you can specify types for function parameters and return values. This helps catch errors at compile time and improves code documentation.</p>
+
+      <h3>Basic Parameter and Return Types</h3>
+      <div class="code-block">
+<pre><span class="comment">// Function declaration with types</span>
+<span class="keyword">function</span> <span class="function">add</span>(<span class="variable">a</span>: <span class="type">number</span>, <span class="variable">b</span>: <span class="type">number</span>): <span class="type">number</span> {
+  <span class="keyword">return</span> <span class="variable">a</span> + <span class="variable">b</span>;
+}
+
+<span class="comment">// Arrow function with types</span>
+<span class="keyword">const</span> <span class="function">multiply</span> = (<span class="variable">a</span>: <span class="type">number</span>, <span class="variable">b</span>: <span class="type">number</span>): <span class="type">number</span> => <span class="variable">a</span> * <span class="variable">b</span>;
+
+<span class="comment">// Return type inference - TypeScript can infer the return type</span>
+<span class="keyword">function</span> <span class="function">greet</span>(<span class="variable">name</span>: <span class="type">string</span>) {
+  <span class="keyword">return</span> <span class="string">`Hello, </span>${<span class="variable">name</span>}<span class="string">!`</span>; <span class="comment">// TypeScript infers return type as string</span>
+}
+
+<span class="comment">// Void return type - function doesn't return anything</span>
+<span class="keyword">function</span> <span class="function">logMessage</span>(<span class="variable">message</span>: <span class="type">string</span>): <span class="type">void</span> {
+  console.<span class="function">log</span>(<span class="variable">message</span>);
+}
+
+<span class="comment">// Never return type - function never returns (throws or infinite loop)</span>
+<span class="keyword">function</span> <span class="function">throwError</span>(<span class="variable">message</span>: <span class="type">string</span>): <span class="type">never</span> {
+  <span class="keyword">throw new</span> <span class="type">Error</span>(<span class="variable">message</span>);
+}</pre>
+      </div>
+
+      <div class="alert alert-note">
+        <span class="alert-icon">📝</span>
+        <div class="alert-content">
+          <h4>When to Explicitly Type Return Values</h4>
+          <p>While TypeScript can infer return types, explicitly typing them is recommended when:</p>
+          <ul>
+            <li>The function is part of a public API</li>
+            <li>The function is complex with multiple return paths</li>
+            <li>You want to ensure you return the correct type</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Optional Parameters</h3>
+      <p>Use <code>?</code> to mark a parameter as optional. Optional parameters must come after required parameters.</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Optional parameter with ?</span>
+<span class="keyword">function</span> <span class="function">greet</span>(<span class="variable">name</span>: <span class="type">string</span>, <span class="variable">greeting</span>?: <span class="type">string</span>): <span class="type">string</span> {
+  <span class="keyword">if</span> (<span class="variable">greeting</span>) {
+    <span class="keyword">return</span> <span class="string">`</span>${<span class="variable">greeting</span>}<span class="string">, </span>${<span class="variable">name</span>}<span class="string">!`</span>;
+  }
+  <span class="keyword">return</span> <span class="string">`Hello, </span>${<span class="variable">name</span>}<span class="string">!`</span>;
+}
+
+<span class="function">greet</span>(<span class="string">"Alice"</span>);              <span class="comment">// "Hello, Alice!"</span>
+<span class="function">greet</span>(<span class="string">"Alice"</span>, <span class="string">"Good morning"</span>); <span class="comment">// "Good morning, Alice!"</span>
+
+<span class="comment">// ❌ Error: Optional parameter cannot precede required</span>
+<span class="comment">// function badFunction(a?: string, b: number) { }</span></pre>
+      </div>
+
+      <h3>Default Parameters</h3>
+      <p>Default parameters automatically make the parameter optional and provide a fallback value:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Default parameter value</span>
+<span class="keyword">function</span> <span class="function">greet</span>(<span class="variable">name</span>: <span class="type">string</span>, <span class="variable">greeting</span>: <span class="type">string</span> = <span class="string">"Hello"</span>): <span class="type">string</span> {
+  <span class="keyword">return</span> <span class="string">`</span>${<span class="variable">greeting</span>}<span class="string">, </span>${<span class="variable">name</span>}<span class="string">!`</span>;
+}
+
+<span class="function">greet</span>(<span class="string">"Alice"</span>);              <span class="comment">// "Hello, Alice!"</span>
+<span class="function">greet</span>(<span class="string">"Alice"</span>, <span class="string">"Hi"</span>);        <span class="comment">// "Hi, Alice!"</span>
+
+<span class="comment">// Default with computed value</span>
+<span class="keyword">function</span> <span class="function">createUser</span>(
+  <span class="variable">name</span>: <span class="type">string</span>,
+  <span class="variable">role</span>: <span class="type">string</span> = <span class="string">"user"</span>,
+  <span class="variable">createdAt</span>: <span class="type">Date</span> = <span class="keyword">new</span> <span class="type">Date</span>()
+) {
+  <span class="keyword">return</span> { <span class="variable">name</span>, <span class="variable">role</span>, <span class="variable">createdAt</span> };
+}
+
+<span class="comment">// Default parameters can be in any position (but not recommended)</span>
+<span class="keyword">function</span> <span class="function">example</span>(<span class="variable">a</span>: <span class="type">number</span> = <span class="number">10</span>, <span class="variable">b</span>: <span class="type">number</span>): <span class="type">number</span> {
+  <span class="keyword">return</span> <span class="variable">a</span> + <span class="variable">b</span>;
+}
+<span class="function">example</span>(<span class="keyword">undefined</span>, <span class="number">5</span>); <span class="comment">// Pass undefined to use default</span></pre>
+      </div>
+
+      <h3>Rest Parameters</h3>
+      <p>Rest parameters allow functions to accept any number of arguments as an array:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Rest parameter - collects remaining arguments</span>
+<span class="keyword">function</span> <span class="function">sum</span>(...<span class="variable">numbers</span>: <span class="type">number</span>[]): <span class="type">number</span> {
+  <span class="keyword">return</span> <span class="variable">numbers</span>.<span class="function">reduce</span>((<span class="variable">total</span>, <span class="variable">n</span>) => <span class="variable">total</span> + <span class="variable">n</span>, <span class="number">0</span>);
+}
+
+<span class="function">sum</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>);           <span class="comment">// 6</span>
+<span class="function">sum</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>);     <span class="comment">// 15</span>
+
+<span class="comment">// Combining regular and rest parameters</span>
+<span class="keyword">function</span> <span class="function">buildName</span>(<span class="variable">firstName</span>: <span class="type">string</span>, ...<span class="variable">middleNames</span>: <span class="type">string</span>[]): <span class="type">string</span> {
+  <span class="keyword">return</span> <span class="variable">firstName</span> + <span class="string">" "</span> + <span class="variable">middleNames</span>.<span class="function">join</span>(<span class="string">" "</span>);
+}
+
+<span class="function">buildName</span>(<span class="string">"John"</span>);                     <span class="comment">// "John "</span>
+<span class="function">buildName</span>(<span class="string">"John"</span>, <span class="string">"Paul"</span>);             <span class="comment">// "John Paul"</span>
+<span class="function">buildName</span>(<span class="string">"John"</span>, <span class="string">"Paul"</span>, <span class="string">"George"</span>);  <span class="comment">// "John Paul George"</span>
+
+<span class="comment">// Rest parameter with tuple type for specific structure</span>
+<span class="keyword">function</span> <span class="function">processData</span>(...<span class="variable">args</span>: [<span class="type">string</span>, <span class="type">number</span>, ...<span class="type">boolean</span>[]]): <span class="type">void</span> {
+  <span class="keyword">const</span> [<span class="variable">name</span>, <span class="variable">age</span>, ...<span class="variable">flags</span>] = <span class="variable">args</span>;
+  console.<span class="function">log</span>(<span class="variable">name</span>, <span class="variable">age</span>, <span class="variable">flags</span>);
+}
+
+<span class="function">processData</span>(<span class="string">"Alice"</span>, <span class="number">25</span>, <span class="keyword">true</span>, <span class="keyword">false</span>);</pre>
+      </div>
+    </div>
+
+    <!-- Section 2.2 -->
+    <div class="section">
+      <h2>2.2 Function Overloads</h2>
+      
+      <p>Function overloads allow you to define multiple function signatures for the same function. This is useful when a function can accept different types of arguments and return different types.</p>
+
+      <div class="visual-box">
+        <div class="visual-title">🔄 How Function Overloads Work</div>
+        <div class="flow-diagram">
+          <div class="flow-box">
+            <strong>Overload Signature 1</strong><br>
+            <code>function fn(x: string): string</code>
+          </div>
+          <div class="flow-box">
+            <strong>Overload Signature 2</strong><br>
+            <code>function fn(x: number): number</code>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-box" style="border-color: #22c55e; width: 100%;">
+            <strong>Implementation Signature</strong><br>
+            <code>function fn(x: string | number): string | number</code><br>
+            <small style="color: #64748b;">Must be compatible with ALL overloads</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-block">
+<pre><span class="comment">// Overload signatures (public API)</span>
+<span class="keyword">function</span> <span class="function">process</span>(<span class="variable">x</span>: <span class="type">string</span>): <span class="type">string</span>;
+<span class="keyword">function</span> <span class="function">process</span>(<span class="variable">x</span>: <span class="type">number</span>): <span class="type">number</span>;
+<span class="keyword">function</span> <span class="function">process</span>(<span class="variable">x</span>: <span class="type">string</span>[]): <span class="type">string</span>[];
+
+<span class="comment">// Implementation signature (must handle ALL overloads)</span>
+<span class="keyword">function</span> <span class="function">process</span>(<span class="variable">x</span>: <span class="type">string</span> | <span class="type">number</span> | <span class="type">string</span>[]): <span class="type">string</span> | <span class="type">number</span> | <span class="type">string</span>[] {
+  <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">x</span> === <span class="string">"string"</span>) {
+    <span class="keyword">return</span> <span class="variable">x</span>.<span class="function">toUpperCase</span>();
+  } <span class="keyword">else if</span> (<span class="keyword">typeof</span> <span class="variable">x</span> === <span class="string">"number"</span>) {
+    <span class="keyword">return</span> <span class="variable">x</span> * <span class="number">2</span>;
+  } <span class="keyword">else</span> {
+    <span class="keyword">return</span> <span class="variable">x</span>.<span class="function">map</span>(<span class="variable">s</span> => <span class="variable">s</span>.<span class="function">toUpperCase</span>());
+  }
+}
+
+<span class="comment">// Usage - TypeScript picks the correct overload</span>
+<span class="keyword">const</span> <span class="variable">str</span> = <span class="function">process</span>(<span class="string">"hello"</span>);    <span class="comment">// type: string</span>
+<span class="keyword">const</span> <span class="variable">num</span> = <span class="function">process</span>(<span class="number">42</span>);          <span class="comment">// type: number</span>
+<span class="keyword">const</span> <span class="variable">arr</span> = <span class="function">process</span>([<span class="string">"a"</span>, <span class="string">"b"</span>]); <span class="comment">// type: string[]</span></pre>
+      </div>
+
+      <h3>Real-World Example: createElement</h3>
+      <div class="code-block">
+<pre><span class="comment">// Practical overload example</span>
+<span class="keyword">function</span> <span class="function">createElement</span>(<span class="variable">tag</span>: <span class="string">"div"</span>): <span class="type">HTMLDivElement</span>;
+<span class="keyword">function</span> <span class="function">createElement</span>(<span class="variable">tag</span>: <span class="string">"span"</span>): <span class="type">HTMLSpanElement</span>;
+<span class="keyword">function</span> <span class="function">createElement</span>(<span class="variable">tag</span>: <span class="string">"input"</span>): <span class="type">HTMLInputElement</span>;
+<span class="keyword">function</span> <span class="function">createElement</span>(<span class="variable">tag</span>: <span class="type">string</span>): <span class="type">HTMLElement</span>;
+
+<span class="keyword">function</span> <span class="function">createElement</span>(<span class="variable">tag</span>: <span class="type">string</span>): <span class="type">HTMLElement</span> {
+  <span class="keyword">return</span> document.<span class="function">createElement</span>(<span class="variable">tag</span>);
+}
+
+<span class="comment">// TypeScript knows the exact return type!</span>
+<span class="keyword">const</span> <span class="variable">div</span> = <span class="function">createElement</span>(<span class="string">"div"</span>);     <span class="comment">// HTMLDivElement</span>
+<span class="keyword">const</span> <span class="variable">input</span> = <span class="function">createElement</span>(<span class="string">"input"</span>); <span class="comment">// HTMLInputElement</span>
+<span class="keyword">const</span> <span class="variable">custom</span> = <span class="function">createElement</span>(<span class="string">"custom"</span>); <span class="comment">// HTMLElement</span></pre>
+      </div>
+
+      <div class="alert alert-interview">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+          <h4>Interview Alert: Overloads vs Union Types</h4>
+          <p><strong>Use overloads when:</strong> Different input types produce different output types, and you want TypeScript to track the relationship.</p>
+          <p><strong>Use union types when:</strong> The return type is the same regardless of input, or the relationship between input and output isn't important.</p>
+        </div>
+      </div>
+
+      <h3>When to Use Overloads vs Union Types</h3>
+      <div class="comparison-grid">
+        <div class="comparison-box good">
+          <div class="comparison-label">✅ Use Overloads</div>
+          <div class="code-block" style="margin: 0;">
+<pre><span class="comment">// Return type depends on input</span>
+<span class="keyword">function</span> <span class="function">parse</span>(<span class="variable">x</span>: <span class="type">string</span>): <span class="type">string</span>;
+<span class="keyword">function</span> <span class="function">parse</span>(<span class="variable">x</span>: <span class="type">number</span>): <span class="type">number</span>;</pre>
+          </div>
+        </div>
+        <div class="comparison-box neutral">
+          <div class="comparison-label">💡 Use Union</div>
+          <div class="code-block" style="margin: 0;">
+<pre><span class="comment">// Same return type</span>
+<span class="keyword">function</span> <span class="function">format</span>(
+  <span class="variable">x</span>: <span class="type">string</span> | <span class="type">number</span>
+): <span class="type">string</span>;</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2.3 -->
+    <div class="section">
+      <h2>2.3 Generic Functions</h2>
+      
+      <p>Generics allow you to create reusable functions that work with multiple types while maintaining type safety. Think of generics as "type variables" that get filled in when the function is called.</p>
+
+      <div class="visual-box">
+        <div class="visual-title">🧬 Understanding Generics</div>
+        <div class="flow-diagram">
+          <div class="flow-box">
+            <strong>Definition</strong><br>
+            <code>function identity&lt;T&gt;(arg: T): T</code>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box">
+            <strong>Call with string</strong><br>
+            <code>identity("hello")</code><br>
+            <small>T = string</small>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box" style="border-color: #22c55e;">
+            <strong>Result</strong><br>
+            <code>string</code>
+          </div>
+        </div>
+      </div>
+
+      <h3>Basic Generic Functions</h3>
+      <div class="code-block">
+<pre><span class="comment">// Basic generic function</span>
+<span class="keyword">function</span> <span class="function">identity</span>&lt;<span class="type">T</span>&gt;(<span class="variable">arg</span>: <span class="type">T</span>): <span class="type">T</span> {
+  <span class="keyword">return</span> <span class="variable">arg</span>;
+}
+
+<span class="comment">// TypeScript infers T from the argument</span>
+<span class="keyword">const</span> <span class="variable">str</span> = <span class="function">identity</span>(<span class="string">"hello"</span>);  <span class="comment">// T inferred as string, returns string</span>
+<span class="keyword">const</span> <span class="variable">num</span> = <span class="function">identity</span>(<span class="number">42</span>);        <span class="comment">// T inferred as number, returns number</span>
+
+<span class="comment">// Explicitly specifying the type</span>
+<span class="keyword">const</span> <span class="variable">result</span> = <span class="function">identity</span>&lt;<span class="type">string</span>&gt;(<span class="string">"hello"</span>);
+
+<span class="comment">// Generic with arrays</span>
+<span class="keyword">function</span> <span class="function">firstElement</span>&lt;<span class="type">T</span>&gt;(<span class="variable">arr</span>: <span class="type">T</span>[]): <span class="type">T</span> | <span class="type">undefined</span> {
+  <span class="keyword">return</span> <span class="variable">arr</span>[<span class="number">0</span>];
+}
+
+<span class="keyword">const</span> <span class="variable">first</span> = <span class="function">firstElement</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);     <span class="comment">// number | undefined</span>
+<span class="keyword">const</span> <span class="variable">firstStr</span> = <span class="function">firstElement</span>([<span class="string">"a"</span>, <span class="string">"b"</span>]); <span class="comment">// string | undefined</span></pre>
+      </div>
+
+      <h3>Multiple Type Parameters</h3>
+      <div class="code-block">
+<pre><span class="comment">// Two type parameters</span>
+<span class="keyword">function</span> <span class="function">pair</span>&lt;<span class="type">T</span>, <span class="type">U</span>&gt;(<span class="variable">first</span>: <span class="type">T</span>, <span class="variable">second</span>: <span class="type">U</span>): [<span class="type">T</span>, <span class="type">U</span>] {
+  <span class="keyword">return</span> [<span class="variable">first</span>, <span class="variable">second</span>];
+}
+
+<span class="keyword">const</span> <span class="variable">p1</span> = <span class="function">pair</span>(<span class="string">"hello"</span>, <span class="number">42</span>);      <span class="comment">// [string, number]</span>
+<span class="keyword">const</span> <span class="variable">p2</span> = <span class="function">pair</span>(<span class="keyword">true</span>, { <span class="variable">x</span>: <span class="number">1</span> });   <span class="comment">// [boolean, { x: number }]</span>
+
+<span class="comment">// Map function example</span>
+<span class="keyword">function</span> <span class="function">map</span>&lt;<span class="type">T</span>, <span class="type">U</span>&gt;(<span class="variable">arr</span>: <span class="type">T</span>[], <span class="variable">fn</span>: (<span class="variable">item</span>: <span class="type">T</span>) => <span class="type">U</span>): <span class="type">U</span>[] {
+  <span class="keyword">return</span> <span class="variable">arr</span>.<span class="function">map</span>(<span class="variable">fn</span>);
+}
+
+<span class="keyword">const</span> <span class="variable">lengths</span> = <span class="function">map</span>([<span class="string">"hello"</span>, <span class="string">"world"</span>], <span class="variable">s</span> => <span class="variable">s</span>.<span class="variable">length</span>); <span class="comment">// number[]</span>
+<span class="keyword">const</span> <span class="variable">doubled</span> = <span class="function">map</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], <span class="variable">n</span> => <span class="variable">n</span> * <span class="number">2</span>);           <span class="comment">// number[]</span></pre>
+      </div>
+
+      <h3>Generic Constraints</h3>
+      <p>Use <code>extends</code> to constrain what types can be used with a generic:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Constraint: T must have a 'length' property</span>
+<span class="keyword">interface</span> <span class="type">HasLength</span> {
+  <span class="variable">length</span>: <span class="type">number</span>;
+}
+
+<span class="keyword">function</span> <span class="function">logLength</span>&lt;<span class="type">T</span> <span class="keyword">extends</span> <span class="type">HasLength</span>&gt;(<span class="variable">arg</span>: <span class="type">T</span>): <span class="type">T</span> {
+  console.<span class="function">log</span>(<span class="variable">arg</span>.<span class="variable">length</span>); <span class="comment">// ✅ OK - we know T has length</span>
+  <span class="keyword">return</span> <span class="variable">arg</span>;
+}
+
+<span class="function">logLength</span>(<span class="string">"hello"</span>);        <span class="comment">// ✅ string has length</span>
+<span class="function">logLength</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);      <span class="comment">// ✅ array has length</span>
+<span class="function">logLength</span>({ <span class="variable">length</span>: <span class="number">10</span> }); <span class="comment">// ✅ object has length property</span>
+<span class="comment">// logLength(42);          // ❌ Error: number doesn't have length</span>
+
+<span class="comment">// Constraint with keyof</span>
+<span class="keyword">function</span> <span class="function">getProperty</span>&lt;<span class="type">T</span>, <span class="type">K</span> <span class="keyword">extends</span> <span class="keyword">keyof</span> <span class="type">T</span>&gt;(<span class="variable">obj</span>: <span class="type">T</span>, <span class="variable">key</span>: <span class="type">K</span>): <span class="type">T</span>[<span class="type">K</span>] {
+  <span class="keyword">return</span> <span class="variable">obj</span>[<span class="variable">key</span>];
+}
+
+<span class="keyword">const</span> <span class="variable">user</span> = { <span class="variable">name</span>: <span class="string">"Alice"</span>, <span class="variable">age</span>: <span class="number">25</span> };
+<span class="keyword">const</span> <span class="variable">name</span> = <span class="function">getProperty</span>(<span class="variable">user</span>, <span class="string">"name"</span>);  <span class="comment">// string</span>
+<span class="keyword">const</span> <span class="variable">age</span> = <span class="function">getProperty</span>(<span class="variable">user</span>, <span class="string">"age"</span>);    <span class="comment">// number</span>
+<span class="comment">// getProperty(user, "email");            // ❌ Error: "email" is not a key of user</span></pre>
+      </div>
+
+      <h3>Default Type Parameters</h3>
+      <div class="code-block">
+<pre><span class="comment">// Default type parameter</span>
+<span class="keyword">function</span> <span class="function">createArray</span>&lt;<span class="type">T</span> = <span class="type">string</span>&gt;(<span class="variable">length</span>: <span class="type">number</span>, <span class="variable">value</span>: <span class="type">T</span>): <span class="type">T</span>[] {
+  <span class="keyword">return</span> <span class="type">Array</span>(<span class="variable">length</span>).<span class="function">fill</span>(<span class="variable">value</span>);
+}
+
+<span class="comment">// Without explicit type, uses default (string)</span>
+<span class="keyword">const</span> <span class="variable">strings</span> = <span class="function">createArray</span>(<span class="number">3</span>, <span class="string">"x"</span>); <span class="comment">// string[]</span>
+
+<span class="comment">// With explicit type</span>
+<span class="keyword">const</span> <span class="variable">numbers</span> = <span class="function">createArray</span>&lt;<span class="type">number</span>&gt;(<span class="number">3</span>, <span class="number">0</span>); <span class="comment">// number[]</span>
+
+<span class="comment">// Multiple defaults</span>
+<span class="keyword">interface</span> <span class="type">ApiResponse</span>&lt;<span class="type">T</span> = <span class="type">unknown</span>, <span class="type">E</span> = <span class="type">Error</span>&gt; {
+  <span class="variable">data</span>?: <span class="type">T</span>;
+  <span class="variable">error</span>?: <span class="type">E</span>;
+}</pre>
+      </div>
+
+      <div class="alert alert-tip">
+        <span class="alert-icon">💡</span>
+        <div class="alert-content">
+          <h4>Production Tip: Generic Naming Conventions</h4>
+          <ul>
+            <li><code>T</code> - Type (general purpose)</li>
+            <li><code>K</code> - Key</li>
+            <li><code>V</code> - Value</li>
+            <li><code>E</code> - Element or Error</li>
+            <li><code>P</code> - Props (React)</li>
+            <li><code>R</code> - Return type</li>
+          </ul>
+          <p>For complex generics, use descriptive names like <code>TInput</code>, <code>TOutput</code>, <code>TData</code>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2.4 -->
+    <div class="section">
+      <h2>2.4 Function Types</h2>
+      
+      <p>In TypeScript, functions are first-class citizens. You can define types for functions, pass them as arguments, and return them from other functions.</p>
+
+      <h3>Arrow Function Types</h3>
+      <div class="code-block">
+<pre><span class="comment">// Type alias for a function</span>
+<span class="keyword">type</span> <span class="type">MathOperation</span> = (<span class="variable">a</span>: <span class="type">number</span>, <span class="variable">b</span>: <span class="type">number</span>) => <span class="type">number</span>;
+
+<span class="keyword">const</span> <span class="variable">add</span>: <span class="type">MathOperation</span> = (<span class="variable">a</span>, <span class="variable">b</span>) => <span class="variable">a</span> + <span class="variable">b</span>;
+<span class="keyword">const</span> <span class="variable">subtract</span>: <span class="type">MathOperation</span> = (<span class="variable">a</span>, <span class="variable">b</span>) => <span class="variable">a</span> - <span class="variable">b</span>;
+<span class="keyword">const</span> <span class="variable">multiply</span>: <span class="type">MathOperation</span> = (<span class="variable">a</span>, <span class="variable">b</span>) => <span class="variable">a</span> * <span class="variable">b</span>;
+
+<span class="comment">// Using function types as parameters</span>
+<span class="keyword">function</span> <span class="function">calculate</span>(
+  <span class="variable">a</span>: <span class="type">number</span>,
+  <span class="variable">b</span>: <span class="type">number</span>,
+  <span class="variable">operation</span>: <span class="type">MathOperation</span>
+): <span class="type">number</span> {
+  <span class="keyword">return</span> <span class="function">operation</span>(<span class="variable">a</span>, <span class="variable">b</span>);
+}
+
+<span class="function">calculate</span>(<span class="number">5</span>, <span class="number">3</span>, <span class="variable">add</span>);      <span class="comment">// 8</span>
+<span class="function">calculate</span>(<span class="number">5</span>, <span class="number">3</span>, <span class="variable">subtract</span>); <span class="comment">// 2</span>
+
+<span class="comment">// Inline function type</span>
+<span class="keyword">function</span> <span class="function">processArray</span>(
+  <span class="variable">arr</span>: <span class="type">number</span>[],
+  <span class="variable">callback</span>: (<span class="variable">item</span>: <span class="type">number</span>, <span class="variable">index</span>: <span class="type">number</span>) => <span class="type">boolean</span>
+): <span class="type">number</span>[] {
+  <span class="keyword">return</span> <span class="variable">arr</span>.<span class="function">filter</span>(<span class="variable">callback</span>);
+}</pre>
+      </div>
+
+      <h3>Call Signatures in Object Types</h3>
+      <p>You can define callable objects using call signatures:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Object with call signature</span>
+<span class="keyword">interface</span> <span class="type">Logger</span> {
+  (<span class="variable">message</span>: <span class="type">string</span>): <span class="type">void</span>;  <span class="comment">// Call signature</span>
+  <span class="variable">level</span>: <span class="string">"info"</span> | <span class="string">"warn"</span> | <span class="string">"error"</span>;  <span class="comment">// Property</span>
+  <span class="function">setLevel</span>(<span class="variable">level</span>: <span class="type">string</span>): <span class="type">void</span>;      <span class="comment">// Method</span>
+}
+
+<span class="comment">// Creating a callable object</span>
+<span class="keyword">const</span> <span class="variable">logger</span>: <span class="type">Logger</span> = <span class="type">Object</span>.<span class="function">assign</span>(
+  (<span class="variable">message</span>: <span class="type">string</span>) => console.<span class="function">log</span>(<span class="variable">message</span>),
+  {
+    <span class="variable">level</span>: <span class="string">"info"</span> <span class="keyword">as</span> <span class="keyword">const</span>,
+    <span class="function">setLevel</span>(<span class="variable">level</span>: <span class="type">string</span>) { <span class="keyword">this</span>.<span class="variable">level</span> = <span class="variable">level</span> <span class="keyword">as</span> <span class="keyword">any</span>; }
+  }
+);
+
+<span class="function">logger</span>(<span class="string">"Hello!"</span>);     <span class="comment">// Call as function</span>
+console.<span class="function">log</span>(<span class="variable">logger</span>.<span class="variable">level</span>); <span class="comment">// Access property</span></pre>
+      </div>
+
+      <h3>Construct Signatures</h3>
+      <p>Construct signatures describe constructor functions:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Interface with construct signature</span>
+<span class="keyword">interface</span> <span class="type">Constructor</span>&lt;<span class="type">T</span>&gt; {
+  <span class="keyword">new</span> (...<span class="variable">args</span>: <span class="type">any</span>[]): <span class="type">T</span>;
+}
+
+<span class="comment">// Using construct signature</span>
+<span class="keyword">class</span> <span class="type">Person</span> {
+  <span class="keyword">constructor</span>(<span class="keyword">public</span> <span class="variable">name</span>: <span class="type">string</span>) {}
+}
+
+<span class="keyword">function</span> <span class="function">createInstance</span>&lt;<span class="type">T</span>&gt;(
+  <span class="variable">ctor</span>: <span class="type">Constructor</span>&lt;<span class="type">T</span>&gt;,
+  ...<span class="variable">args</span>: <span class="type">any</span>[]
+): <span class="type">T</span> {
+  <span class="keyword">return new</span> <span class="variable">ctor</span>(...<span class="variable">args</span>);
+}
+
+<span class="keyword">const</span> <span class="variable">person</span> = <span class="function">createInstance</span>(<span class="type">Person</span>, <span class="string">"Alice"</span>); <span class="comment">// Person</span>
+
+<span class="comment">// Combined call and construct signature</span>
+<span class="keyword">interface</span> <span class="type">DateConstructor</span> {
+  <span class="keyword">new</span> (): <span class="type">Date</span>;                    <span class="comment">// new Date()</span>
+  <span class="keyword">new</span> (<span class="variable">value</span>: <span class="type">number</span>): <span class="type">Date</span>;        <span class="comment">// new Date(timestamp)</span>
+  (): <span class="type">string</span>;                        <span class="comment">// Date() - call without new</span>
+  <span class="function">now</span>(): <span class="type">number</span>;                     <span class="comment">// Date.now()</span>
+}</pre>
+      </div>
+
+      <h3>Generic Function Types</h3>
+      <div class="code-block">
+<pre><span class="comment">// Generic function type</span>
+<span class="keyword">type</span> <span class="type">Mapper</span>&lt;<span class="type">T</span>, <span class="type">U</span>&gt; = (<span class="variable">item</span>: <span class="type">T</span>) => <span class="type">U</span>;
+
+<span class="comment">// Using generic function types</span>
+<span class="keyword">const</span> <span class="variable">toLength</span>: <span class="type">Mapper</span>&lt;<span class="type">string</span>, <span class="type">number</span>&gt; = (<span class="variable">s</span>) => <span class="variable">s</span>.<span class="variable">length</span>;
+<span class="keyword">const</span> <span class="variable">toString</span>: <span class="type">Mapper</span>&lt;<span class="type">number</span>, <span class="type">string</span>&gt; = (<span class="variable">n</span>) => <span class="variable">n</span>.<span class="function">toString</span>();
+
+<span class="comment">// Generic function type with constraints</span>
+<span class="keyword">type</span> <span class="type">Filter</span>&lt;<span class="type">T</span>&gt; = (<span class="variable">item</span>: <span class="type">T</span>) => <span class="type">boolean</span>;
+
+<span class="keyword">const</span> <span class="variable">isPositive</span>: <span class="type">Filter</span>&lt;<span class="type">number</span>&gt; = (<span class="variable">n</span>) => <span class="variable">n</span> > <span class="number">0</span>;
+<span class="keyword">const</span> <span class="variable">isLong</span>: <span class="type">Filter</span>&lt;<span class="type">string</span>&gt; = (<span class="variable">s</span>) => <span class="variable">s</span>.<span class="variable">length</span> > <span class="number">10</span>;</pre>
+      </div>
+
+      <div class="concept-card">
+        <h4>📚 Summary: Function Type Syntax</h4>
+        <table>
+          <tr>
+            <th>Type</th>
+            <th>Syntax</th>
+          </tr>
+          <tr>
+            <td>Arrow function type</td>
+            <td><code>(param: Type) => ReturnType</code></td>
+          </tr>
+          <tr>
+            <td>Call signature</td>
+            <td><code>{ (param: Type): ReturnType }</code></td>
+          </tr>
+          <tr>
+            <td>Construct signature</td>
+            <td><code>{ new (param: Type): InstanceType }</code></td>
+          </tr>
+          <tr>
+            <td>Generic function</td>
+            <td><code>&lt;T&gt;(param: T) => T</code></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="nav-btn">← Chapter 1</button>
+      <button class="nav-btn">Chapter 3: Advanced Types →</button>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 21: Build & Deployment - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            background: #e9ecef;
+        }
+
+        .nav-tab.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .topic-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .topic-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .topic-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .topic-card p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .code-block .keyword { color: #ff79c6; }
+        .code-block .string { color: #50fa7b; }
+        .code-block .comment { color: #6272a4; }
+        .code-block .function { color: #8be9fd; }
+
+        .interactive-demo {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .output-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            min-height: 100px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 10px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+        }
+
+        .checklist li:before {
+            content: "✓";
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: #28a745;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            margin-right: 12px;
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .env-simulator {
+            background: #2d2d2d;
+            border-radius: 8px;
+            padding: 20px;
+            color: #f8f8f2;
+            font-family: 'Courier New', monospace;
+        }
+
+        .env-line {
+            padding: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .env-key {
+            color: #50fa7b;
+            margin-right: 10px;
+        }
+
+        .env-value {
+            color: #f1fa8c;
+        }
+
+        input[type="text"], input[type="number"], select {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .build-progress {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .build-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .deployment-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 10px;
+            position: relative;
+        }
+
+        .flow-step:not(:last-child):after {
+            content: "→";
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: #667eea;
+        }
+
+        .flow-step.active {
+            background: #667eea;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+
+            .nav-tab {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+
+            .flow-step:not(:last-child):after {
+                content: "↓";
+                right: auto;
+                top: auto;
+                bottom: -30px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 Chapter 21: Build & Deployment</h1>
+            <p>Interactive Guide to Production-Ready React Applications</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('optimization')">Build Optimization</button>
+            <button class="nav-tab" onclick="switchTab('deployment')">Deployment</button>
+            <button class="nav-tab" onclick="switchTab('cicd')">CI/CD</button>
+            <button class="nav-tab" onclick="switchTab('monitoring')">Monitoring</button>
+        </div>
+
+        <div class="content">
+            <!-- Build Optimization Section -->
+            <div id="optimization" class="section active">
+                <h2>21.1 Build Optimization</h2>
+                
+                <div class="topic-card">
+                    <h3>Environment Variables Demo</h3>
+                    <p>Simulate how environment variables work in different environments</p>
+                    
+                    <div class="interactive-demo">
+                        <div class="demo-controls">
+                            <select id="envSelect" onchange="updateEnvironment()">
+                                <option value="development">Development</option>
+                                <option value="staging">Staging</option>
+                                <option value="production">Production</option>
+                            </select>
+                        </div>
+                        
+                        <div class="env-simulator" id="envOutput">
+                            <div class="env-line">
+                                <span class="env-key">VITE_API_URL</span>=<span class="env-value">"http://localhost:3001/api"</span>
+                            </div>
+                            <div class="env-line">
+                                <span class="env-key">VITE_API_KEY</span>=<span class="env-value">"dev_key_12345"</span>
+                            </div>
+                            <div class="env-line">
+                                <span class="env-key">VITE_ENABLE_ANALYTICS</span>=<span class="env-value">false</span>
+                            </div>
+                            <div class="env-line">
+                                <span class="env-key">VITE_DEBUG_MODE</span>=<span class="env-value">true</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topic-card">
+                    <h3>Build Process Simulator</h3>
+                    <p>Watch how a production build processes your code</p>
+                    
+                    <div class="interactive-demo">
+                        <button class="btn btn-primary" onclick="startBuild()">Start Build</button>
+                        <button class="btn btn-secondary" onclick="resetBuild()">Reset</button>
+                        
+                        <div class="build-progress">
+                            <div class="build-progress-bar" id="buildProgress">0%</div>
+                        </div>
+                        
+                        <div class="output-box" id="buildOutput">
+                            Click "Start Build" to begin...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topic-card">
+                    <h3>Bundle Size Optimization</h3>
+                    <span class="badge badge-info">Performance</span>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Technique</th>
+                                <th>Before</th>
+                                <th>After</th>
+                                <th>Savings</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Tree Shaking</td>
+                                <td>250 KB</td>
+                                <td>180 KB</td>
+                                <td>28%</td>
+                            </tr>
+                            <tr>
+                                <td>Code Splitting</td>
+                                <td>450 KB</td>
+                                <td>120 KB (initial)</td>
+                                <td>73%</td>
+                            </tr>
+                            <tr>
+                                <td>Minification</td>
+                                <td>350 KB</td>
+                                <td>210 KB</td>
+                                <td>40%</td>
+                            </tr>
+                            <tr>
+                                <td>Compression (gzip)</td>
+                                <td>210 KB</td>
+                                <td>65 KB</td>
+                                <td>69%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="topic-card">
+                    <h3>Optimization Checklist</h3>
+                    <ul class="checklist">
+                        <li>Use production builds for deployment</li>
+                        <li>Implement code splitting for routes</li>
+                        <li>Enable tree shaking</li>
+                        <li>Analyze bundle size regularly</li>
+                        <li>Lazy load heavy components</li>
+                        <li>Optimize images (WebP, lazy loading)</li>
+                        <li>Use environment variables correctly</li>
+                        <li>Enable compression (gzip/brotli)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Deployment Section -->
+            <div id="deployment" class="section">
+                <h2>21.2 Deployment Strategies</h2>
+                
+                <div class="topic-card">
+                    <h3>Deployment Flow</h3>
+                    <div class="deployment-flow">
+                        <div class="flow-step active">
+                            <h4>1. Build</h4>
+                            <p>npm run build</p>
+                        </div>
+                        <div class="flow-step">
+                            <h4>2. Test</h4>
+                            <p>Run tests</p>
+                        </div>
+                        <div class="flow-step">
+                            <h4>3. Stage</h4>
+                            <p>Deploy to staging</p>
+                        </div>
+                        <div class="flow-step">
+                            <h4>4. Verify</h4>
+                            <p>QA testing</p>
+                        </div>
+                        <div class="flow-step">
+                            <h4>5. Production</h4>
+                            <p>Go live!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topic-card">
+                    <h3>Platform Comparison</h3>
+                    <span class="badge badge-info">Choose Wisely</span>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Platform</th>
+                                <th>Best For</th>
+                                <th>Pros</th>
+                                <th>Pricing</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Vercel</strong></td>
+                                <td>Next.js apps</td>
+                                <td>Zero config, fast CDN</td>
+                                <td>Free tier available</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Netlify</strong></td>
+                                <td>Static sites, SPAs</td>
+                                <td>Easy setup, great DX</td>
+                                <td>Generous free tier</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS Amplify</strong></td>
+                                <td>AWS ecosystem</td>
+                                <td>Full AWS integration</td>
+                                <td>Pay as you go</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Docker</strong></td>
+                                <td>Any environment</td>
+                                <td>Consistent, portable</td>
+                                <td>Infrastructure cost</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="topic-card">
+                    <h3>Deployment Checklist</h3>
+                    <ul class="checklist">
+                        <li>Set up HTTPS/SSL certificates</li>
+                        <li>Configure security headers</li>
+                        <li>Set up CDN for static assets</li>
+                        <li>Configure caching strategies</li>
+                        <li>Set up error pages (404, 500)</li>
+                        <li>Enable SPA routing redirects</li>
+                        <li>Configure environment variables</li>
+                        <li>Set up domain and DNS</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- CI/CD Section -->
+            <div id="cicd" class="section">
+                <h2>21.3 CI/CD Pipeline</h2>
+                
+                <div class="topic-card">
+                    <h3>Pipeline Simulator</h3>
+                    <p>Simulate a CI/CD pipeline execution</p>
+                    
+                    <div class="interactive-demo">
+                        <button class="btn btn-primary" onclick="runPipeline()">Run Pipeline</button>
+                        <button class="btn btn-secondary" onclick="resetPipeline()">Reset</button>
+                        
+                        <div id="pipelineSteps" style="margin-top: 20px;">
+                            <div class="flow-step" id="step1">
+                                <h4>Checkout Code</h4>
+                                <p>⏳ Waiting...</p>
+                            </div>
+                            <div class="flow-step" id="step2">
+                                <h4>Install Dependencies</h4>
+                                <p>⏳ Waiting...</p>
+                            </div>
+                            <div class="flow-step" id="step3">
+                                <h4>Run Tests</h4>
+                                <p>⏳ Waiting...</p>
+                            </div>
+                            <div class="flow-step" id="step4">
+                                <h4>Build</h4>
+                                <p>⏳ Waiting...</p>
+                            </div>
+                            <div class="flow-step" id="step5">
+                                <h4>Deploy</h4>
+                                <p>⏳ Waiting...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topic-card">
+                    <h3>CI/CD Benefits</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        <div style="padding: 15px; background: #d4edda; border-radius: 8px;">
+                            <h4>✅ Automated Testing</h4>
+                            <p>Catch bugs before production</p>
+                        </div>
+                        <div style="padding: 15px; background: #d1ecf1; border-radius: 8px;">
+                            <h4>🚀 Faster Deployment</h4>
+                            <p>Deploy in minutes, not hours</p>
+                        </div>
+                        <div style="padding: 15px; background: #fff3cd; border-radius: 8px;">
+                            <h4>🔄 Consistency</h4>
+                            <p>Same process every time</p>
+                        </div>
+                        <div style="padding: 15px; background: #f8d7da; border-radius: 8px;">
+                            <h4>🛡️ Quality Gates</h4>
+                            <p>Prevent bad code from deploying</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monitoring Section -->
+            <div id="monitoring" class="section">
+                <h2>21.4 Monitoring & Analytics</h2>
+                
+                <div class="topic-card">
+                    <h3>Web Vitals Tracker</h3>
+                    <p>Core Web Vitals are essential metrics for user experience</p>
+                    
+                    <div class="interactive-demo">
+                        <button class="btn btn-primary" onclick="simulateMetrics()">Simulate Metrics</button>
+                        
+                        <div id="metricsOutput" style="margin-top: 20px;">
+                            <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin: 10px 0;">
+                                <strong>LCP (Largest Contentful Paint):</strong>
+                                <div style="margin-top: 5px;">
+                                    <span id="lcpValue">-</span>
+                                    <span id="lcpStatus"></span>
+                                </div>
+                            </div>
+                            <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin: 10px 0;">
+                                <strong>FID (First Input Delay):</strong>
+                                <div style="margin-top: 5px;">
+                                    <span id="fidValue">-</span>
+                                    <span id="fidStatus"></span>
+                                </div>
+                            </div>
+                            <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin: 10px 0;">
+                                <strong>CLS (Cumulative Layout Shift):</strong>
+                                <div style="margin-top: 5px;">
+                                    <span id="clsValue">-</span>
+                                    <span id="clsStatus"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topic-card">
+                    <h3>Monitoring Tools</h3>
+                    <span class="badge badge-warning">Essential</span>
+                    
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 6px;">
+                            <strong>🔍 Sentry:</strong> Error tracking and performance monitoring
+                        </li>
+                        <li style="padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 6px;">
+                            <strong>📊 Google Analytics:</strong> User behavior and traffic analysis
+                        </li>
+                        <li style="padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 6px;">
+                            <strong>⚡ Lighthouse:</strong> Performance, accessibility, SEO audits
+                        </li>
+                        <li style="padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 6px;">
+                            <strong>📹 LogRocket:</strong> Session replay and debugging
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="topic-card">
+                    <h3>Monitoring Checklist</h3>
+                    <ul class="checklist">
+                        <li>Track Core Web Vitals (LCP, FID, CLS)</li>
+                        <li>Set up error tracking (Sentry)</li>
+                        <li>Monitor API response times</li>
+                        <li>Track user flows and conversions</li>
+                        <li>Set up alerts for critical issues</li>
+                        <li>Monitor bundle size over time</li>
+                        <li>Track deployment success rates</li>
+                        <li>Monitor uptime and availability</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.nav-tab');
+            const sections = document.querySelectorAll('.section');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            sections.forEach(section => section.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Environment variables demo
+        const envConfigs = {
+            development: {
+                VITE_API_URL: 'http://localhost:3001/api',
+                VITE_API_KEY: 'dev_key_12345',
+                VITE_ENABLE_ANALYTICS: false,
+                VITE_DEBUG_MODE: true
+            },
+            staging: {
+                VITE_API_URL: 'https://api.staging.com/api',
+                VITE_API_KEY: 'staging_key_54321',
+                VITE_ENABLE_ANALYTICS: true,
+                VITE_DEBUG_MODE: true
+            },
+            production: {
+                VITE_API_URL: 'https://api.production.com/api',
+                VITE_API_KEY: 'prod_key_67890',
+                VITE_ENABLE_ANALYTICS: true,
+                VITE_DEBUG_MODE: false
+            }
+        };
+
+        function updateEnvironment() {
+            const env = document.getElementById('envSelect').value;
+            const config = envConfigs[env];
+            
+            const output = document.getElementById('envOutput');
+            output.innerHTML = Object.entries(config)
+                .map(([key, value]) => `
+                    <div class="env-line">
+                        <span class="env-key">${key}</span>=<span class="env-value">${typeof value === 'string' ? `"${value}"` : value}</span>
+                    </div>
+                `).join('');
+        }
+
+        // Build simulator
+        let buildInterval;
+        
+        function startBuild() {
+            const steps = [
+                { progress: 10, message: '🔍 Analyzing dependencies...' },
+                { progress: 25, message: '📦 Installing packages...' },
+                { progress: 40, message: '🔨 Compiling TypeScript...' },
+                { progress: 55, message: '🎨 Processing CSS...' },
+                { progress: 70, message: '⚡ Tree shaking and minification...' },
+                { progress: 85, message: '📝 Generating source maps...' },
+                { progress: 95, message: '✅ Optimizing assets...' },
+                { progress: 100, message: '🎉 Build complete! Bundle size: 180KB (gzipped: 65KB)' }
+            ];
+            
+            let currentStep = 0;
+            const progressBar = document.getElementById('buildProgress');
+            const output = document.getElementById('buildOutput');
+            
+            buildInterval = setInterval(() => {
+                if (currentStep < steps.length) {
+                    const step = steps[currentStep];
+                    progressBar.style.width = step.progress + '%';
+                    progressBar.textContent = step.progress + '%';
+                    output.innerHTML += `<div>${step.message}</div>`;
+                    output.scrollTop = output.scrollHeight;
+                    currentStep++;
+                } else {
+                    clearInterval(buildInterval);
+                }
+            }, 800);
+        }
+
+        function resetBuild() {
+            clearInterval(buildInterval);
+            document.getElementById('buildProgress').style.width = '0%';
+            document.getElementById('buildProgress').textContent = '0%';
+            document.getElementById('buildOutput').innerHTML = 'Click "Start Build" to begin...';
+        }
+
+        // Pipeline simulator
+        let pipelineTimeout;
+        
+        function runPipeline() {
+            const steps = [
+                { id: 'step1', name: 'Checkout Code', duration: 1000 },
+                { id: 'step2', name: 'Install Dependencies', duration: 1500 },
+                { id: 'step3', name: 'Run Tests', duration: 2000 },
+                { id: 'step4', name: 'Build', duration: 2000 },
+                { id: 'step5', name: 'Deploy', duration: 1500 }
+            ];
+            
+            let delay = 0;
+            steps.forEach((step, index) => {
+                setTimeout(() => {
+                    const element = document.getElementById(step.id);
+                    element.classList.add('active');
+                    element.querySelector('p').innerHTML = '⏳ Running...';
+                    
+                    setTimeout(() => {
+                        element.querySelector('p').innerHTML = '✅ Complete';
+                        
+                        if (index === steps.length - 1) {
+                            setTimeout(() => {
+                                alert('🎉 Pipeline completed successfully!');
+                            }, 500);
+                        }
+                    }, step.duration);
+                }, delay);
+                delay += step.duration;
+            });
+        }
+
+        function resetPipeline() {
+            const steps = document.querySelectorAll('#pipelineSteps .flow-step');
+            steps.forEach(step => {
+                step.classList.remove('active');
+                step.querySelector('p').innerHTML = '⏳ Waiting...';
+            });
+        }
+
+        // Web Vitals simulator
+        function simulateMetrics() {
+            const lcp = (Math.random() * 3 + 1).toFixed(2);
+            const fid = (Math.random() * 150 + 50).toFixed(0);
+            const cls = (Math.random() * 0.2).toFixed(3);
+            
+            document.getElementById('lcpValue').textContent = lcp + 's';
+            document.getElementById('fidValue').textContent = fid + 'ms';
+            document.getElementById('clsValue').textContent = cls;
+            
+            // LCP status
+            const lcpStatus = lcp < 2.5 ? 
+                '<span class="badge badge-success">Good</span>' :
+                lcp < 4 ? 
+                '<span class="badge badge-warning">Needs Improvement</span>' :
+                '<span class="badge badge-danger">Poor</span>';
+            document.getElementById('lcpStatus').innerHTML = lcpStatus;
+            
+            // FID status
+            const fidStatus = fid < 100 ?
+                '<span class="badge badge-success">Good</span>' :
+                fid < 300 ?
+                '<span class="badge badge-warning">Needs Improvement</span>' :
+                '<span class="badge badge-danger">Poor</span>';
+            document.getElementById('fidStatus').innerHTML = fidStatus;
+            
+            // CLS status
+            const clsStatus = cls < 0.1 ?
+                '<span class="badge badge-success">Good</span>' :
+                cls < 0.25 ?
+                '<span class="badge badge-warning">Needs Improvement</span>' :
+                '<span class="badge badge-danger">Poor</span>';
+            document.getElementById('clsStatus').innerHTML = clsStatus;
+        }
+    </script>
+</body>
+</html>

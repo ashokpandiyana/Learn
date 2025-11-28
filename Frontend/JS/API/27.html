@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 27: Clipboard API</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .header p { font-size: 1.2em; opacity: 0.95; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 40px; }
+        h2 { color: #38f9d7; font-size: 2em; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid #38f9d7; }
+        h3 { color: #43e97b; font-size: 1.5em; margin: 30px 0 15px 0; }
+        .concept-box { background: #f8f9fa; border-left: 4px solid #38f9d7; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .key-point { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .warning-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .info-box { background: #cfe2ff; border-left: 4px solid #0d6efd; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .code-block .comment { color: #6272a4; }
+        .code-block .keyword { color: #ff79c6; }
+        .code-block .string { color: #f1fa8c; }
+        .code-block .function { color: #50fa7b; }
+        .code-block .number { color: #bd93f9; }
+        .demo-section { background: #e0f9f4; padding: 30px; border-radius: 10px; margin: 30px 0; }
+        .demo-controls { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+        button {
+            background: #38f9d7;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        button:hover { background: #43e97b; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        button:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        input, textarea {
+            padding: 10px;
+            border: 2px solid #38f9d7;
+            border-radius: 5px;
+            font-size: 16px;
+            flex: 1;
+            min-width: 200px;
+            font-family: 'Courier New', monospace;
+        }
+        textarea { min-height: 100px; resize: vertical; }
+        .output { background: white; padding: 15px; border-radius: 5px; margin-top: 15px; min-height: 100px; border: 2px solid #38f9d7; max-height: 400px; overflow-y: auto; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; color: #d63384; }
+        .comparison-table { width: 100%; border-collapse: collapse; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .comparison-table th { background: #38f9d7; color: white; padding: 15px; text-align: left; }
+        .comparison-table td { padding: 15px; border-bottom: 1px solid #ddd; }
+        .comparison-table tr:hover { background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Chapter 27: Clipboard API</h1>
+            <p>Modern Copy & Paste Operations</p>
+        </div>
+        
+        <div class="content">
+            
+            <div class="section">
+                <h2>🎯 What is the Clipboard API?</h2>
+                
+                <div class="concept-box">
+                    <p><strong>Clipboard API</strong> provides modern, asynchronous access to the system clipboard for reading and writing text and other data types. It's the successor to <code>document.execCommand()</code>.</p>
+                    
+                    <p style="margin-top: 15px;"><strong>Key Features:</strong></p>
+                    <ul style="margin-left: 25px; margin-top: 10px;">
+                        <li>⚡ <strong>Async:</strong> Promise-based, non-blocking</li>
+                        <li>📝 <strong>Rich Content:</strong> Text, HTML, images</li>
+                        <li>🔒 <strong>Secure:</strong> Requires user permission</li>
+                        <li>🎯 <strong>Modern:</strong> Replaces document.execCommand</li>
+                        <li>🌐 <strong>Cross-Platform:</strong> Works consistently</li>
+                    </ul>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 Common Use Cases:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Copy code snippets</li>
+                        <li>Copy formatted text</li>
+                        <li>Copy images</li>
+                        <li>Paste rich content</li>
+                        <li>"Copy link" buttons</li>
+                        <li>Copy table data</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>✍️ Writing to Clipboard</h2>
+                
+                <h3>Write Text</h3>
+                <div class="code-block">
+<span class="comment">// Modern Clipboard API - Write text</span>
+<span class="keyword">async function</span> <span class="function">copyText</span>(text) {
+    <span class="keyword">try</span> {
+        <span class="keyword">await</span> navigator.clipboard.<span class="function">writeText</span>(text);
+        console.<span class="function">log</span>(<span class="string">'Text copied!'</span>);
+    } <span class="keyword">catch</span> (error) {
+        console.<span class="function">error</span>(<span class="string">'Failed to copy:'</span>, error);
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">await</span> <span class="function">copyText</span>(<span class="string">'Hello World!'</span>);
+                </div>
+                
+                <h3>Write Rich Content (HTML, Images)</h3>
+                <div class="code-block">
+<span class="comment">// Copy HTML and plain text</span>
+<span class="keyword">async function</span> <span class="function">copyRichText</span>(html, plainText) {
+    <span class="keyword">const</span> htmlBlob = <span class="keyword">new</span> <span class="function">Blob</span>([html], { type: <span class="string">'text/html'</span> });
+    <span class="keyword">const</span> textBlob = <span class="keyword">new</span> <span class="function">Blob</span>([plainText], { type: <span class="string">'text/plain'</span> });
+    
+    <span class="keyword">const</span> item = <span class="keyword">new</span> <span class="function">ClipboardItem</span>({
+        <span class="string">'text/html'</span>: htmlBlob,
+        <span class="string">'text/plain'</span>: textBlob
+    });
+    
+    <span class="keyword">try</span> {
+        <span class="keyword">await</span> navigator.clipboard.<span class="function">write</span>([item]);
+        console.<span class="function">log</span>(<span class="string">'Rich content copied!'</span>);
+    } <span class="keyword">catch</span> (error) {
+        console.<span class="function">error</span>(<span class="string">'Failed to copy:'</span>, error);
+    }
+}
+
+<span class="comment">// Copy image</span>
+<span class="keyword">async function</span> <span class="function">copyImage</span>(imageUrl) {
+    <span class="keyword">try</span> {
+        <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(imageUrl);
+        <span class="keyword">const</span> blob = <span class="keyword">await</span> response.<span class="function">blob</span>();
+        
+        <span class="keyword">const</span> item = <span class="keyword">new</span> <span class="function">ClipboardItem</span>({ [blob.type]: blob });
+        
+        <span class="keyword">await</span> navigator.clipboard.<span class="function">write</span>([item]);
+        console.<span class="function">log</span>(<span class="string">'Image copied!'</span>);
+    } <span class="keyword">catch</span> (error) {
+        console.<span class="function">error</span>(<span class="string">'Failed to copy image:'</span>, error);
+    }
+}
+                </div>
+                
+                <div class="warning-box">
+                    <strong>⚠️ Browser Support:</strong> <code>ClipboardItem</code> for images and rich content is not supported in all browsers. Always check support and provide fallbacks.
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📖 Reading from Clipboard</h2>
+                
+                <h3>Read Text</h3>
+                <div class="code-block">
+<span class="comment">// Read text from clipboard</span>
+<span class="keyword">async function</span> <span class="function">pasteText</span>() {
+    <span class="keyword">try</span> {
+        <span class="keyword">const</span> text = <span class="keyword">await</span> navigator.clipboard.<span class="function">readText</span>();
+        console.<span class="function">log</span>(<span class="string">'Pasted text:'</span>, text);
+        <span class="keyword">return</span> text;
+    } <span class="keyword">catch</span> (error) {
+        console.<span class="function">error</span>(<span class="string">'Failed to read:'</span>, error);
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> pastedText = <span class="keyword">await</span> <span class="function">pasteText</span>();
+                </div>
+                
+                <h3>Read Rich Content</h3>
+                <div class="code-block">
+<span class="comment">// Read all clipboard items</span>
+<span class="keyword">async function</span> <span class="function">pasteContent</span>() {
+    <span class="keyword">try</span> {
+        <span class="keyword">const</span> items = <span class="keyword">await</span> navigator.clipboard.<span class="function">read</span>();
+        
+        <span class="keyword">for</span> (<span class="keyword">const</span> item <span class="keyword">of</span> items) {
+            console.<span class="function">log</span>(<span class="string">'Available types:'</span>, item.types);
+            
+            <span class="comment">// Check for text</span>
+            <span class="keyword">if</span> (item.types.<span class="function">includes</span>(<span class="string">'text/plain'</span>)) {
+                <span class="keyword">const</span> blob = <span class="keyword">await</span> item.<span class="function">getType</span>(<span class="string">'text/plain'</span>);
+                <span class="keyword">const</span> text = <span class="keyword">await</span> blob.<span class="function">text</span>();
+                console.<span class="function">log</span>(<span class="string">'Plain text:'</span>, text);
+            }
+            
+            <span class="comment">// Check for HTML</span>
+            <span class="keyword">if</span> (item.types.<span class="function">includes</span>(<span class="string">'text/html'</span>)) {
+                <span class="keyword">const</span> blob = <span class="keyword">await</span> item.<span class="function">getType</span>(<span class="string">'text/html'</span>);
+                <span class="keyword">const</span> html = <span class="keyword">await</span> blob.<span class="function">text</span>();
+                console.<span class="function">log</span>(<span class="string">'HTML:'</span>, html);
+            }
+            
+            <span class="comment">// Check for image</span>
+            <span class="keyword">const</span> imageType = item.types.<span class="function">find</span>(type => 
+                type.<span class="function">startsWith</span>(<span class="string">'image/'</span>)
+            );
+            
+            <span class="keyword">if</span> (imageType) {
+                <span class="keyword">const</span> blob = <span class="keyword">await</span> item.<span class="function">getType</span>(imageType);
+                <span class="keyword">const</span> url = URL.<span class="function">createObjectURL</span>(blob);
+                console.<span class="function">log</span>(<span class="string">'Image URL:'</span>, url);
+            }
+        }
+    } <span class="keyword">catch</span> (error) {
+        console.<span class="function">error</span>(<span class="string">'Failed to read:'</span>, error);
+    }
+}
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🔧 Legacy Clipboard API</h2>
+                
+                <div class="concept-box">
+                    <p>For older browsers or as fallback, use <code>document.execCommand()</code> (deprecated but widely supported).</p>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Fallback copy function</span>
+<span class="keyword">function</span> <span class="function">copyTextFallback</span>(text) {
+    <span class="keyword">const</span> textarea = document.<span class="function">createElement</span>(<span class="string">'textarea'</span>);
+    textarea.value = text;
+    textarea.style.position = <span class="string">'fixed'</span>;
+    textarea.style.opacity = <span class="string">'0'</span>;
+    document.body.<span class="function">appendChild</span>(textarea);
+    
+    textarea.<span class="function">select</span>();
+    
+    <span class="keyword">try</span> {
+        <span class="keyword">const</span> success = document.<span class="function">execCommand</span>(<span class="string">'copy'</span>);
+        console.<span class="function">log</span>(success ? <span class="string">'Copied!'</span> : <span class="string">'Failed'</span>);
+    } <span class="keyword">catch</span> (error) {
+        console.<span class="function">error</span>(<span class="string">'Copy failed:'</span>, error);
+    } <span class="keyword">finally</span> {
+        document.body.<span class="function">removeChild</span>(textarea);
+    }
+}
+
+<span class="comment">// Universal copy function with fallback</span>
+<span class="keyword">async function</span> <span class="function">copyWithFallback</span>(text) {
+    <span class="keyword">if</span> (navigator.clipboard) {
+        <span class="keyword">try</span> {
+            <span class="keyword">await</span> navigator.clipboard.<span class="function">writeText</span>(text);
+            <span class="keyword">return true</span>;
+        } <span class="keyword">catch</span> (error) {
+            console.<span class="function">warn</span>(<span class="string">'Clipboard API failed, using fallback'</span>);
+        }
+    }
+    
+    <span class="function">copyTextFallback</span>(text);
+    <span class="keyword">return true</span>;
+}
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>💼 Practical Examples</h2>
+                
+                <h3>1. Copy Button</h3>
+                <div class="code-block">
+<span class="comment">// Copy button with feedback</span>
+<span class="keyword">async function</span> <span class="function">handleCopyButton</span>(button, text) {
+    <span class="keyword">const</span> originalText = button.textContent;
+    
+    <span class="keyword">try</span> {
+        <span class="keyword">await</span> navigator.clipboard.<span class="function">writeText</span>(text);
+        
+        <span class="comment">// Show success</span>
+        button.textContent = <span class="string">'✓ Copied!'</span>;
+        button.style.background = <span class="string">'#28a745'</span>;
+        
+        <span class="comment">// Reset after 2 seconds</span>
+        <span class="function">setTimeout</span>(() => {
+            button.textContent = originalText;
+            button.style.background = <span class="string">''</span>;
+        }, <span class="number">2000</span>);
+    } <span class="keyword">catch</span> (error) {
+        button.textContent = <span class="string">'✗ Failed'</span>;
+        button.style.background = <span class="string">'#dc3545'</span>;
+        
+        <span class="function">setTimeout</span>(() => {
+            button.textContent = originalText;
+            button.style.background = <span class="string">''</span>;
+        }, <span class="number">2000</span>);
+    }
+}
+
+<span class="comment">// HTML: &lt;button onclick="handleCopyButton(this, 'text to copy')"&gt;Copy&lt;/button&gt;</span>
+                </div>
+                
+                <h3>2. Copy Code Block</h3>
+                <div class="code-block">
+<span class="comment">// Add copy button to code blocks</span>
+document.<span class="function">querySelectorAll</span>(<span class="string">'pre code'</span>).<span class="function">forEach</span>(codeBlock => {
+    <span class="keyword">const</span> button = document.<span class="function">createElement</span>(<span class="string">'button'</span>);
+    button.textContent = <span class="string">'Copy'</span>;
+    button.className = <span class="string">'copy-code-btn'</span>;
+    
+    button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, <span class="keyword">async</span> () => {
+        <span class="keyword">const</span> code = codeBlock.textContent;
+        
+        <span class="keyword">try</span> {
+            <span class="keyword">await</span> navigator.clipboard.<span class="function">writeText</span>(code);
+            button.textContent = <span class="string">'Copied!'</span>;
+            <span class="function">setTimeout</span>(() => button.textContent = <span class="string">'Copy'</span>, <span class="number">2000</span>);
+        } <span class="keyword">catch</span> (error) {
+            console.<span class="function">error</span>(<span class="string">'Copy failed:'</span>, error);
+        }
+    });
+    
+    codeBlock.parentNode.<span class="function">insertBefore</span>(button, codeBlock);
+});
+                </div>
+                
+                <h3>3. Copy Formatted Table</h3>
+                <div class="code-block">
+<span class="comment">// Copy HTML table as both HTML and plain text</span>
+<span class="keyword">async function</span> <span class="function">copyTable</span>(tableElement) {
+    <span class="comment">// Get HTML</span>
+    <span class="keyword">const</span> html = tableElement.outerHTML;
+    
+    <span class="comment">// Convert to plain text (TSV)</span>
+    <span class="keyword">const</span> rows = Array.<span class="function">from</span>(tableElement.<span class="function">querySelectorAll</span>(<span class="string">'tr'</span>));
+    <span class="keyword">const</span> plainText = rows
+        .<span class="function">map</span>(row => {
+            <span class="keyword">const</span> cells = Array.<span class="function">from</span>(row.<span class="function">querySelectorAll</span>(<span class="string">'td, th'</span>));
+            <span class="keyword">return</span> cells.<span class="function">map</span>(cell => cell.textContent).<span class="function">join</span>(<span class="string">'\t'</span>);
+        })
+        .<span class="function">join</span>(<span class="string">'\n'</span>);
+    
+    <span class="keyword">const</span> htmlBlob = <span class="keyword">new</span> <span class="function">Blob</span>([html], { type: <span class="string">'text/html'</span> });
+    <span class="keyword">const</span> textBlob = <span class="keyword">new</span> <span class="function">Blob</span>([plainText], { type: <span class="string">'text/plain'</span> });
+    
+    <span class="keyword">const</span> item = <span class="keyword">new</span> <span class="function">ClipboardItem</span>({
+        <span class="string">'text/html'</span>: htmlBlob,
+        <span class="string">'text/plain'</span>: textBlob
+    });
+    
+    <span class="keyword">await</span> navigator.clipboard.<span class="function">write</span>([item]);
+}
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>⚖️ API Comparison</h2>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Clipboard API</th>
+                            <th>execCommand</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>API Style</strong></td>
+                            <td>Promise-based (async)</td>
+                            <td>Synchronous</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Browser Support</strong></td>
+                            <td>Modern browsers</td>
+                            <td>All browsers</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Rich Content</strong></td>
+                            <td>Yes (HTML, images)</td>
+                            <td>Limited</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Read Clipboard</strong></td>
+                            <td>Yes (with permission)</td>
+                            <td>Very limited</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status</strong></td>
+                            <td>Modern standard</td>
+                            <td>Deprecated</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>🎮 Interactive Demo</h2>
+                
+                <div class="demo-section">
+                    <h3>Try Clipboard API</h3>
+                    
+                    <h4 style="margin-top: 20px;">Copy Text</h4>
+                    <div class="demo-controls">
+                        <input type="text" id="copyInput" placeholder="Enter text to copy" value="Hello Clipboard!">
+                        <button onclick="doCopy()">Copy</button>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">Paste Text</h4>
+                    <div class="demo-controls">
+                        <button onclick="doPaste()">Paste from Clipboard</button>
+                        <input type="text" id="pasteOutput" placeholder="Pasted text will appear here" readonly>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">Copy Formatted Text</h4>
+                    <div class="demo-controls">
+                        <textarea id="htmlInput" placeholder="Enter HTML to copy"><b>Bold</b> and <i>italic</i> text!</textarea>
+                        <button onclick="copyHTML()">Copy as HTML</button>
+                    </div>
+                    
+                    <div class="output" id="output">Click buttons above to test clipboard operations...</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>✅ Best Practices</h2>
+                
+                <div class="key-point">
+                    <h3 style="margin-top: 0;">DO ✓</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Provide visual feedback on copy/paste</li>
+                        <li>Handle errors gracefully</li>
+                        <li>Provide fallback for older browsers</li>
+                        <li>Request permission when reading clipboard</li>
+                        <li>Copy both HTML and plain text formats</li>
+                        <li>Test across different browsers</li>
+                        <li>Use HTTPS in production</li>
+                    </ul>
+                </div>
+                
+                <div class="warning-box">
+                    <h3 style="margin-top: 0;">DON'T ✗</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Copy without user action</li>
+                        <li>Read clipboard without permission</li>
+                        <li>Assume clipboard API is available</li>
+                        <li>Copy sensitive data automatically</li>
+                        <li>Forget error handling</li>
+                        <li>Spam clipboard operations</li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'color: #0d6efd;',
+                success: 'color: #28a745;',
+                error: 'color: #dc3545;',
+            };
+            output.innerHTML += `<div style="${colors[type]}">[${timestamp}] ${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        async function doCopy() {
+            const input = document.getElementById('copyInput');
+            const text = input.value;
+            
+            if (!text) {
+                log('❌ No text to copy', 'error');
+                return;
+            }
+            
+            try {
+                await navigator.clipboard.writeText(text);
+                log(`✓ Copied: "${text}"`, 'success');
+            } catch (error) {
+                log(`❌ Failed to copy: ${error.message}`, 'error');
+            }
+        }
+        
+        async function doPaste() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('pasteOutput').value = text;
+                log(`✓ Pasted: "${text}"`, 'success');
+            } catch (error) {
+                log(`❌ Failed to paste: ${error.message}`, 'error');
+                log('Note: Reading clipboard requires user permission', 'info');
+            }
+        }
+        
+        async function copyHTML() {
+            const textarea = document.getElementById('htmlInput');
+            const html = textarea.value;
+            
+            if (!html) {
+                log('❌ No HTML to copy', 'error');
+                return;
+            }
+            
+            try {
+                const htmlBlob = new Blob([html], { type: 'text/html' });
+                const textBlob = new Blob([html.replace(/<[^>]*>/g, '')], { type: 'text/plain' });
+                
+                const item = new ClipboardItem({
+                    'text/html': htmlBlob,
+                    'text/plain': textBlob
+                });
+                
+                await navigator.clipboard.write([item]);
+                log('✓ Copied as HTML (paste into a rich text editor)', 'success');
+            } catch (error) {
+                log(`❌ Failed: ${error.message}`, 'error');
+            }
+        }
+        
+        window.addEventListener('load', () => {
+            if (navigator.clipboard) {
+                log('✓ Clipboard API is supported', 'success');
+            } else {
+                log('❌ Clipboard API not supported', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

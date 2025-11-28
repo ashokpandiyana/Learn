@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 10: Form Validation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.7;
+            color: #1a1a2e;
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #c2185b 0%, #ad1457 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f48fb1;
+        }
+        h2 {
+            font-size: 1.5rem;
+            color: #ad1457;
+            margin: 35px 0 20px;
+            padding-left: 15px;
+            border-left: 4px solid #e91e63;
+        }
+        h3 { font-size: 1.2rem; color: #c2185b; margin: 25px 0 15px; }
+        h4 { font-size: 1.05rem; color: #ad1457; margin: 20px 0 12px; }
+        p { margin-bottom: 15px; color: #374151; }
+        .concept-box {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .key-point {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+            border-left: 4px solid #e91e63;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .key-point::before {
+            content: "🔑 Key Point";
+            font-weight: bold;
+            color: #ad1457;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .warning-box {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .warning-box::before {
+            content: "⚠️ Important";
+            font-weight: bold;
+            color: #e65100;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .interview-tip {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .interview-tip::before {
+            content: "💼 Interview Question";
+            font-weight: bold;
+            color: #2e7d32;
+            display: block;
+            margin-bottom: 10px;
+        }
+        pre {
+            background: #880e4f;
+            color: #fce4ec;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+        .inline-code {
+            background: #fce4ec;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #ad1457;
+            font-family: 'Fira Code', monospace;
+        }
+        .keyword { color: #f8bbd9; }
+        .string { color: #a5d6a7; }
+        .comment { color: #f48fb1; font-style: italic; }
+        .function { color: #81d4fa; }
+        .variable { color: #fff59d; }
+        .property { color: #ffcc80; }
+        .result { color: #a5d6a7; }
+        .diagram {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            font-size: 0.85rem;
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, #c2185b 0%, #ad1457 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        .comparison-table td {
+            padding: 12px;
+            border-bottom: 1px solid #fce4ec;
+        }
+        .comparison-table tr:hover { background: #fce4ec; }
+        ul, ol { margin: 15px 0 15px 25px; color: #374151; }
+        li { margin-bottom: 8px; }
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #e91e63, transparent);
+            margin: 40px 0;
+        }
+        .validity-state {
+            display: inline-block;
+            background: #fce4ec;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin: 2px;
+            font-family: 'Fira Code', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chapter 10: Form Validation</h1>
+        <p class="subtitle">HTML5 Validation API & Custom Validation — Building Robust Form Experiences</p>
+        
+        <div class="concept-box">
+            <p>Form validation ensures users provide correct data before submission. Modern browsers provide a powerful <strong>Constraint Validation API</strong> that you can use directly or customize. This chapter covers both built-in HTML5 validation and creating custom validation logic.</p>
+        </div>
+        
+        <!-- Section 10.1 -->
+        <h2>10.1 HTML5 Validation Attributes</h2>
+        
+        <p>HTML5 provides declarative validation through attributes. The browser handles validation automatically!</p>
+        
+<pre><span class="comment">&lt;!-- Built-in validation attributes --&gt;</span>
+
+<span class="comment">&lt;!-- Required field --&gt;</span>
+<span class="string">&lt;input type="text" required&gt;</span>
+
+<span class="comment">&lt;!-- Email format --&gt;</span>
+<span class="string">&lt;input type="email" required&gt;</span>
+
+<span class="comment">&lt;!-- URL format --&gt;</span>
+<span class="string">&lt;input type="url"&gt;</span>
+
+<span class="comment">&lt;!-- Number with range --&gt;</span>
+<span class="string">&lt;input type="number" min="0" max="100" step="5"&gt;</span>
+
+<span class="comment">&lt;!-- Text length constraints --&gt;</span>
+<span class="string">&lt;input type="text" minlength="3" maxlength="20"&gt;</span>
+
+<span class="comment">&lt;!-- Pattern (regex) validation --&gt;</span>
+<span class="string">&lt;input type="text" pattern="[A-Za-z]{3,}" 
+       title="At least 3 letters"&gt;</span>
+
+<span class="comment">&lt;!-- Date range --&gt;</span>
+<span class="string">&lt;input type="date" min="2024-01-01" max="2024-12-31"&gt;</span>
+
+<span class="comment">&lt;!-- Telephone (pattern needed for format) --&gt;</span>
+<span class="string">&lt;input type="tel" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+       placeholder="123-456-7890"&gt;</span></pre>
+
+        <h3>Common Validation Attributes:</h3>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Attribute</th>
+                    <th>Description</th>
+                    <th>Validity Property</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="inline-code">required</span></td>
+                    <td>Field must have a value</td>
+                    <td><span class="validity-state">valueMissing</span></td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">type="email"</span></td>
+                    <td>Must be valid email format</td>
+                    <td><span class="validity-state">typeMismatch</span></td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">type="url"</span></td>
+                    <td>Must be valid URL format</td>
+                    <td><span class="validity-state">typeMismatch</span></td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">minlength</span></td>
+                    <td>Minimum character length</td>
+                    <td><span class="validity-state">tooShort</span></td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">maxlength</span></td>
+                    <td>Maximum character length</td>
+                    <td><span class="validity-state">tooLong</span></td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">min</span></td>
+                    <td>Minimum numeric value</td>
+                    <td><span class="validity-state">rangeUnderflow</span></td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">max</span></td>
+                    <td>Maximum numeric value</td>
+                    <td><span class="validity-state">rangeOverflow</span></td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">step</span></td>
+                    <td>Valid number increments</td>
+                    <td><span class="validity-state">stepMismatch</span></td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">pattern</span></td>
+                    <td>Regex pattern to match</td>
+                    <td><span class="validity-state">patternMismatch</span></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 10.2 -->
+        <h2>10.2 ValidityState API</h2>
+        
+        <div class="concept-box">
+            <p>Every form control has a <span class="inline-code">validity</span> property that returns a <span class="inline-code">ValidityState</span> object. This object contains boolean flags indicating which validation constraints have failed.</p>
+        </div>
+        
+<pre><span class="keyword">const</span> input = <span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'#email'</span>);
+
+<span class="comment">// Access the ValidityState object</span>
+<span class="keyword">const</span> validity = input.<span class="property">validity</span>;
+
+<span class="comment">// ━━━━━━━━━━ ValidityState Properties ━━━━━━━━━━</span>
+
+validity.<span class="property">valid</span>            <span class="comment">// true if ALL constraints pass</span>
+
+<span class="comment">// Specific constraint failures:</span>
+validity.<span class="property">valueMissing</span>     <span class="comment">// required but empty</span>
+validity.<span class="property">typeMismatch</span>     <span class="comment">// wrong type (email, url)</span>
+validity.<span class="property">patternMismatch</span>  <span class="comment">// doesn't match pattern regex</span>
+validity.<span class="property">tooLong</span>         <span class="comment">// exceeds maxlength</span>
+validity.<span class="property">tooShort</span>        <span class="comment">// below minlength</span>
+validity.<span class="property">rangeUnderflow</span>  <span class="comment">// below min value</span>
+validity.<span class="property">rangeOverflow</span>   <span class="comment">// above max value</span>
+validity.<span class="property">stepMismatch</span>    <span class="comment">// doesn't match step</span>
+validity.<span class="property">badInput</span>        <span class="comment">// browser can't parse (e.g., text in number field)</span>
+validity.<span class="property">customError</span>     <span class="comment">// setCustomValidity() was called</span>
+
+<span class="comment">// ━━━━━━━━━━ Other Validation Properties ━━━━━━━━━━</span>
+
+input.<span class="property">validationMessage</span>  <span class="comment">// Browser's error message string</span>
+input.<span class="property">willValidate</span>       <span class="comment">// true if element will be validated</span></pre>
+
+        <h3>Practical Example — Checking Validity:</h3>
+        
+<pre><span class="keyword">const</span> emailInput = <span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'#email'</span>);
+
+emailInput.<span class="function">addEventListener</span>(<span class="string">'input'</span>, () => {
+    <span class="keyword">const</span> { validity, validationMessage } = emailInput;
+    
+    <span class="keyword">if</span> (validity.<span class="property">valid</span>) {
+        <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'✓ Email is valid'</span>);
+    } <span class="keyword">else</span> {
+        <span class="comment">// Check specific errors</span>
+        <span class="keyword">if</span> (validity.<span class="property">valueMissing</span>) {
+            <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Email is required'</span>);
+        }
+        <span class="keyword">if</span> (validity.<span class="property">typeMismatch</span>) {
+            <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Please enter a valid email'</span>);
+        }
+        
+        <span class="comment">// Or use browser's message</span>
+        <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Error:'</span>, validationMessage);
+    }
+});</pre>
+
+        <div class="diagram">
+            <h3 style="margin-bottom: 20px;">ValidityState Flow</h3>
+            <svg viewBox="0 0 700 200" style="max-width: 700px;">
+                <!-- Input -->
+                <rect x="20" y="70" width="120" height="60" rx="8" fill="#fce4ec" stroke="#e91e63" stroke-width="2"/>
+                <text x="80" y="95" text-anchor="middle" font-size="12" font-weight="bold" fill="#880e4f">User Input</text>
+                <text x="80" y="115" text-anchor="middle" font-size="10" fill="#ad1457">"test@"</text>
+                
+                <!-- Arrow -->
+                <path d="M145 100 L195 100" stroke="#e91e63" stroke-width="2" marker-end="url(#arrowPink)"/>
+                
+                <!-- Validation -->
+                <rect x="200" y="50" width="180" height="100" rx="8" fill="#f3e5f5" stroke="#9c27b0" stroke-width="2"/>
+                <text x="290" y="80" text-anchor="middle" font-size="12" font-weight="bold" fill="#6a1b9a">Browser Validates</text>
+                <text x="290" y="100" text-anchor="middle" font-size="10" fill="#7b1fa2">type="email"</text>
+                <text x="290" y="115" text-anchor="middle" font-size="10" fill="#7b1fa2">required</text>
+                <text x="290" y="130" text-anchor="middle" font-size="10" fill="#7b1fa2">pattern</text>
+                
+                <!-- Arrow -->
+                <path d="M385 100 L435 100" stroke="#9c27b0" stroke-width="2" marker-end="url(#arrowPurple)"/>
+                
+                <!-- ValidityState -->
+                <rect x="440" y="50" width="240" height="100" rx="8" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+                <text x="560" y="75" text-anchor="middle" font-size="12" font-weight="bold" fill="#2e7d32">ValidityState</text>
+                <text x="560" y="95" text-anchor="middle" font-size="10" font-family="monospace" fill="#388e3c">valid: false</text>
+                <text x="560" y="110" text-anchor="middle" font-size="10" font-family="monospace" fill="#388e3c">typeMismatch: true</text>
+                <text x="560" y="125" text-anchor="middle" font-size="10" font-family="monospace" fill="#388e3c">valueMissing: false</text>
+                <text x="560" y="140" text-anchor="middle" font-size="10" font-family="monospace" fill="#388e3c">...</text>
+                
+                <defs>
+                    <marker id="arrowPink" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#e91e63"/>
+                    </marker>
+                    <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#9c27b0"/>
+                    </marker>
+                </defs>
+            </svg>
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 10.3 -->
+        <h2>10.3 Validation Methods</h2>
+        
+<pre><span class="keyword">const</span> form = <span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'#myForm'</span>);
+<span class="keyword">const</span> input = <span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'#email'</span>);
+
+<span class="comment">// ━━━━━━━━━━ checkValidity() ━━━━━━━━━━</span>
+<span class="comment">// Returns true/false, triggers 'invalid' event if invalid</span>
+input.<span class="function">checkValidity</span>();     <span class="comment">// Check single input</span>
+form.<span class="function">checkValidity</span>();      <span class="comment">// Check entire form</span>
+
+<span class="comment">// ━━━━━━━━━━ reportValidity() ━━━━━━━━━━</span>
+<span class="comment">// Same as checkValidity() + shows browser's validation UI</span>
+input.<span class="function">reportValidity</span>();    <span class="comment">// Shows tooltip/message if invalid</span>
+form.<span class="function">reportValidity</span>();     <span class="comment">// Shows first error in form</span>
+
+<span class="comment">// ━━━━━━━━━━ setCustomValidity() ━━━━━━━━━━</span>
+<span class="comment">// Set custom error message (empty string = valid)</span>
+input.<span class="function">setCustomValidity</span>(<span class="string">'This email is already taken'</span>);
+input.<span class="function">setCustomValidity</span>(<span class="string">''</span>);  <span class="comment">// Clear error, mark as valid</span>
+
+<span class="comment">// Using with checkValidity</span>
+<span class="keyword">if</span> (!input.<span class="function">checkValidity</span>()) {
+    <span class="comment">// Input is invalid</span>
+    <span class="variable">console</span>.<span class="function">log</span>(input.<span class="property">validationMessage</span>);
+}</pre>
+
+        <h3>The 'invalid' Event:</h3>
+        
+<pre><span class="comment">// Fires when checkValidity() finds invalid input</span>
+input.<span class="function">addEventListener</span>(<span class="string">'invalid'</span>, (e) => {
+    e.<span class="function">preventDefault</span>();  <span class="comment">// Prevent browser's default tooltip</span>
+    
+    <span class="comment">// Show custom error UI</span>
+    <span class="function">showError</span>(input, input.<span class="property">validationMessage</span>);
+});
+
+<span class="comment">// Form-level invalid handling</span>
+form.<span class="function">addEventListener</span>(<span class="string">'invalid'</span>, (e) => {
+    <span class="comment">// This fires for EACH invalid field</span>
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Invalid field:'</span>, e.<span class="property">target</span>.<span class="property">name</span>);
+}, <span class="keyword">true</span>);  <span class="comment">// Note: must use capture phase!</span></pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 10.4 -->
+        <h2>10.4 Custom Validation</h2>
+        
+        <p>Sometimes HTML5 validation isn't enough. Use <span class="inline-code">setCustomValidity()</span> for custom rules:</p>
+        
+<pre><span class="comment">// ━━━━━━━━━━ Custom validation example ━━━━━━━━━━</span>
+
+<span class="keyword">const</span> passwordInput = <span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'#password'</span>);
+<span class="keyword">const</span> confirmInput = <span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'#confirmPassword'</span>);
+
+<span class="comment">// Password strength validation</span>
+passwordInput.<span class="function">addEventListener</span>(<span class="string">'input'</span>, () => {
+    <span class="keyword">const</span> password = passwordInput.<span class="property">value</span>;
+    
+    <span class="keyword">if</span> (password.<span class="property">length</span> < <span class="variable">8</span>) {
+        passwordInput.<span class="function">setCustomValidity</span>(<span class="string">'Password must be at least 8 characters'</span>);
+    } <span class="keyword">else if</span> (!/[A-Z]/.<span class="function">test</span>(password)) {
+        passwordInput.<span class="function">setCustomValidity</span>(<span class="string">'Password must contain uppercase letter'</span>);
+    } <span class="keyword">else if</span> (!/[0-9]/.<span class="function">test</span>(password)) {
+        passwordInput.<span class="function">setCustomValidity</span>(<span class="string">'Password must contain a number'</span>);
+    } <span class="keyword">else</span> {
+        passwordInput.<span class="function">setCustomValidity</span>(<span class="string">''</span>);  <span class="comment">// Valid!</span>
+    }
+});
+
+<span class="comment">// Password confirmation match</span>
+confirmInput.<span class="function">addEventListener</span>(<span class="string">'input'</span>, () => {
+    <span class="keyword">if</span> (confirmInput.<span class="property">value</span> !== passwordInput.<span class="property">value</span>) {
+        confirmInput.<span class="function">setCustomValidity</span>(<span class="string">'Passwords do not match'</span>);
+    } <span class="keyword">else</span> {
+        confirmInput.<span class="function">setCustomValidity</span>(<span class="string">''</span>);
+    }
+});</pre>
+
+        <div class="warning-box">
+            <strong>Always clear custom validity!</strong>
+            <p>When using <span class="inline-code">setCustomValidity()</span>, you MUST call it with an empty string <span class="inline-code">''</span> when the field becomes valid. Otherwise, the field stays invalid even if it meets all criteria.</p>
+        </div>
+        
+        <h3>Async Validation (e.g., checking if username exists):</h3>
+        
+<pre><span class="keyword">const</span> usernameInput = <span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'#username'</span>);
+<span class="keyword">let</span> debounceTimer;
+
+usernameInput.<span class="function">addEventListener</span>(<span class="string">'input'</span>, () => {
+    <span class="comment">// Clear previous timer</span>
+    <span class="function">clearTimeout</span>(debounceTimer);
+    
+    <span class="keyword">const</span> username = usernameInput.<span class="property">value</span>;
+    
+    <span class="keyword">if</span> (username.<span class="property">length</span> < <span class="variable">3</span>) {
+        usernameInput.<span class="function">setCustomValidity</span>(<span class="string">'Username must be at least 3 characters'</span>);
+        <span class="keyword">return</span>;
+    }
+    
+    <span class="comment">// Debounce async check</span>
+    debounceTimer = <span class="function">setTimeout</span>(<span class="keyword">async</span> () => {
+        <span class="keyword">try</span> {
+            <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">`/api/check-username?u=</span>${username}<span class="string">`</span>);
+            <span class="keyword">const</span> { available } = <span class="keyword">await</span> response.<span class="function">json</span>();
+            
+            <span class="keyword">if</span> (!available) {
+                usernameInput.<span class="function">setCustomValidity</span>(<span class="string">'Username is already taken'</span>);
+            } <span class="keyword">else</span> {
+                usernameInput.<span class="function">setCustomValidity</span>(<span class="string">''</span>);
+            }
+        } <span class="keyword">catch</span> (error) {
+            <span class="comment">// Don't block validation on network error</span>
+            usernameInput.<span class="function">setCustomValidity</span>(<span class="string">''</span>);
+        }
+    }, <span class="variable">500</span>);  <span class="comment">// Wait 500ms after typing stops</span>
+});</pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 10.5 -->
+        <h2>10.5 Custom Validation UI</h2>
+        
+        <p>Browser validation UI is limited. Here's how to build your own:</p>
+        
+<pre><span class="comment">// Disable browser's default validation UI</span>
+form.<span class="property">noValidate</span> = <span class="keyword">true</span>;
+<span class="comment">// Or in HTML: &lt;form novalidate&gt;</span>
+
+<span class="comment">// Custom validation handler</span>
+form.<span class="function">addEventListener</span>(<span class="string">'submit'</span>, (e) => {
+    e.<span class="function">preventDefault</span>();
+    
+    <span class="comment">// Clear previous errors</span>
+    <span class="function">clearErrors</span>();
+    
+    <span class="comment">// Check validity and show custom errors</span>
+    <span class="keyword">let</span> isValid = <span class="keyword">true</span>;
+    
+    <span class="keyword">for</span> (<span class="keyword">const</span> input <span class="keyword">of</span> form.<span class="property">elements</span>) {
+        <span class="keyword">if</span> (!input.<span class="property">willValidate</span>) <span class="keyword">continue</span>;  <span class="comment">// Skip buttons, etc.</span>
+        
+        <span class="keyword">if</span> (!input.<span class="function">checkValidity</span>()) {
+            isValid = <span class="keyword">false</span>;
+            <span class="function">showError</span>(input, input.<span class="property">validationMessage</span>);
+        }
+    }
+    
+    <span class="keyword">if</span> (isValid) {
+        <span class="comment">// Form is valid, submit it</span>
+        <span class="function">submitForm</span>(form);
+    }
+});
+
+<span class="comment">// Show error message for a field</span>
+<span class="keyword">function</span> <span class="function">showError</span>(input, message) {
+    <span class="keyword">const</span> field = input.<span class="function">closest</span>(<span class="string">'.form-field'</span>);
+    field.<span class="property">classList</span>.<span class="function">add</span>(<span class="string">'has-error'</span>);
+    
+    <span class="keyword">const</span> errorEl = field.<span class="function">querySelector</span>(<span class="string">'.error-message'</span>);
+    errorEl.<span class="property">textContent</span> = message;
+    errorEl.<span class="property">hidden</span> = <span class="keyword">false</span>;
+    
+    <span class="comment">// Focus first error</span>
+    <span class="keyword">if</span> (<span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'.has-error input'</span>) === input) {
+        input.<span class="function">focus</span>();
+    }
+}
+
+<span class="comment">// Clear all errors</span>
+<span class="keyword">function</span> <span class="function">clearErrors</span>() {
+    form.<span class="function">querySelectorAll</span>(<span class="string">'.has-error'</span>).<span class="function">forEach</span>(field => {
+        field.<span class="property">classList</span>.<span class="function">remove</span>(<span class="string">'has-error'</span>);
+        field.<span class="function">querySelector</span>(<span class="string">'.error-message'</span>).<span class="property">hidden</span> = <span class="keyword">true</span>;
+    });
+}
+
+<span class="comment">// Real-time validation on input</span>
+form.<span class="function">addEventListener</span>(<span class="string">'input'</span>, (e) => {
+    <span class="keyword">const</span> input = e.<span class="property">target</span>;
+    <span class="keyword">const</span> field = input.<span class="function">closest</span>(<span class="string">'.form-field'</span>);
+    
+    <span class="keyword">if</span> (input.<span class="property">validity</span>.<span class="property">valid</span>) {
+        field.<span class="property">classList</span>.<span class="function">remove</span>(<span class="string">'has-error'</span>);
+        field.<span class="property">classList</span>.<span class="function">add</span>(<span class="string">'is-valid'</span>);
+    }
+});</pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 10.6 -->
+        <h2>10.6 Complete Validation Pattern</h2>
+        
+<pre><span class="comment">// Complete form validation class</span>
+<span class="keyword">class</span> <span class="function">FormValidator</span> {
+    <span class="function">constructor</span>(form) {
+        <span class="keyword">this</span>.<span class="property">form</span> = form;
+        <span class="keyword">this</span>.<span class="property">form</span>.<span class="property">noValidate</span> = <span class="keyword">true</span>;
+        <span class="keyword">this</span>.<span class="function">bindEvents</span>();
+    }
+    
+    <span class="function">bindEvents</span>() {
+        <span class="keyword">this</span>.<span class="property">form</span>.<span class="function">addEventListener</span>(<span class="string">'submit'</span>, (e) => <span class="keyword">this</span>.<span class="function">handleSubmit</span>(e));
+        <span class="keyword">this</span>.<span class="property">form</span>.<span class="function">addEventListener</span>(<span class="string">'input'</span>, (e) => <span class="keyword">this</span>.<span class="function">validateField</span>(e.<span class="property">target</span>));
+        <span class="keyword">this</span>.<span class="property">form</span>.<span class="function">addEventListener</span>(<span class="string">'blur'</span>, (e) => <span class="keyword">this</span>.<span class="function">validateField</span>(e.<span class="property">target</span>), <span class="keyword">true</span>);
+    }
+    
+    <span class="function">validateField</span>(input) {
+        <span class="keyword">if</span> (!input.<span class="property">willValidate</span>) <span class="keyword">return</span> <span class="keyword">true</span>;
+        
+        <span class="keyword">const</span> isValid = input.<span class="function">checkValidity</span>();
+        <span class="keyword">this</span>.<span class="function">toggleError</span>(input, !isValid, input.<span class="property">validationMessage</span>);
+        <span class="keyword">return</span> isValid;
+    }
+    
+    <span class="function">toggleError</span>(input, show, message = <span class="string">''</span>) {
+        <span class="keyword">const</span> field = input.<span class="function">closest</span>(<span class="string">'.form-field'</span>);
+        <span class="keyword">if</span> (!field) <span class="keyword">return</span>;
+        
+        <span class="keyword">const</span> errorEl = field.<span class="function">querySelector</span>(<span class="string">'.error-message'</span>);
+        
+        field.<span class="property">classList</span>.<span class="function">toggle</span>(<span class="string">'has-error'</span>, show);
+        field.<span class="property">classList</span>.<span class="function">toggle</span>(<span class="string">'is-valid'</span>, !show && input.<span class="property">value</span>);
+        
+        <span class="keyword">if</span> (errorEl) {
+            errorEl.<span class="property">textContent</span> = message;
+            errorEl.<span class="property">hidden</span> = !show;
+        }
+    }
+    
+    <span class="function">handleSubmit</span>(e) {
+        e.<span class="function">preventDefault</span>();
+        
+        <span class="keyword">let</span> firstInvalid = <span class="keyword">null</span>;
+        
+        <span class="keyword">for</span> (<span class="keyword">const</span> input <span class="keyword">of</span> <span class="keyword">this</span>.<span class="property">form</span>.<span class="property">elements</span>) {
+            <span class="keyword">if</span> (!<span class="keyword">this</span>.<span class="function">validateField</span>(input) && !firstInvalid) {
+                firstInvalid = input;
+            }
+        }
+        
+        <span class="keyword">if</span> (firstInvalid) {
+            firstInvalid.<span class="function">focus</span>();
+            <span class="keyword">return</span>;
+        }
+        
+        <span class="comment">// Form is valid!</span>
+        <span class="keyword">this</span>.<span class="function">onValid</span>(<span class="keyword">new</span> <span class="function">FormData</span>(<span class="keyword">this</span>.<span class="property">form</span>));
+    }
+    
+    <span class="function">onValid</span>(formData) {
+        <span class="comment">// Override this method to handle valid form</span>
+        <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Form valid!'</span>, <span class="variable">Object</span>.<span class="function">fromEntries</span>(formData));
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> validator = <span class="keyword">new</span> <span class="function">FormValidator</span>(<span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'#myForm'</span>));
+validator.<span class="property">onValid</span> = (data) => {
+    <span class="function">fetch</span>(<span class="string">'/api/submit'</span>, {
+        <span class="property">method</span>: <span class="string">'POST'</span>,
+        <span class="property">body</span>: data
+    });
+};</pre>
+
+        <div class="section-divider"></div>
+        
+        <h2>Chapter 10 Summary</h2>
+        
+        <div class="key-point">
+            <strong>Validation Best Practices:</strong>
+            <ul>
+                <li>Use HTML5 attributes for basic validation</li>
+                <li>Use <span class="inline-code">ValidityState</span> to check specific errors</li>
+                <li>Use <span class="inline-code">setCustomValidity()</span> for custom rules</li>
+                <li>Always show clear, helpful error messages</li>
+                <li>Validate in real-time as user types (on blur or input)</li>
+                <li>Focus the first invalid field on submit</li>
+                <li>Don't forget server-side validation!</li>
+            </ul>
+        </div>
+        
+        <div class="interview-tip">
+            <strong>Interview Questions:</strong>
+            <ol>
+                <li>What is the ValidityState API?</li>
+                <li>How do you implement custom validation?</li>
+                <li>What's the difference between <span class="inline-code">checkValidity()</span> and <span class="inline-code">reportValidity()</span>?</li>
+                <li>How do you handle async validation (like checking username availability)?</li>
+                <li>Why should you always validate on the server too?</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

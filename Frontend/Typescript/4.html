@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 4: Classes and OOP in TypeScript</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e4e4e7;
+      line-height: 1.7;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #ec4899, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle { color: #94a3b8; font-size: 1.1rem; margin-bottom: 40px; }
+    .section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    h2 {
+      color: #f472b6;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, #ec4899, #8b5cf6);
+      border-radius: 2px;
+    }
+    h3 { color: #e879f9; font-size: 1.2rem; margin: 25px 0 15px; }
+    h4 { color: #d946ef; margin: 15px 0 10px; }
+    p { margin-bottom: 15px; color: #cbd5e1; }
+    .code-block {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+      overflow-x: auto;
+      border: 1px solid #334155;
+    }
+    pre { font-family: 'Fira Code', 'Consolas', monospace; font-size: 14px; line-height: 1.6; }
+    .keyword { color: #c678dd; }
+    .type { color: #e5c07b; }
+    .string { color: #98c379; }
+    .number { color: #d19a66; }
+    .comment { color: #5c6370; font-style: italic; }
+    .function { color: #61afef; }
+    .variable { color: #e06c75; }
+    .decorator { color: #f472b6; }
+    .alert {
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+    }
+    .alert-interview { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .alert-tip { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); }
+    .alert-note { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); }
+    .alert-icon { font-size: 1.5rem; }
+    .alert-content h4 { color: #f87171; margin-bottom: 5px; }
+    .alert-tip .alert-content h4 { color: #4ade80; }
+    .alert-note .alert-content h4 { color: #60a5fa; }
+    .visual-box {
+      background: linear-gradient(135deg, rgba(236,72,153,0.1), rgba(139,92,246,0.1));
+      border-radius: 12px;
+      padding: 25px;
+      margin: 20px 0;
+      border: 1px solid rgba(244,114,182,0.3);
+    }
+    .visual-title { color: #f472b6; font-weight: 600; margin-bottom: 15px; text-align: center; }
+    .modifier-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .modifier-card {
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      padding: 20px;
+      border: 2px solid;
+      text-align: center;
+    }
+    .modifier-card.public { border-color: #22c55e; }
+    .modifier-card.private { border-color: #ef4444; }
+    .modifier-card.protected { border-color: #f59e0b; }
+    .modifier-card h5 { margin-bottom: 10px; font-family: monospace; font-size: 1.1rem; }
+    .modifier-card.public h5 { color: #4ade80; }
+    .modifier-card.private h5 { color: #f87171; }
+    .modifier-card.protected h5 { color: #fbbf24; }
+    .modifier-card p { font-size: 0.85rem; margin: 0; color: #94a3b8; }
+    .hierarchy-diagram {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 20px;
+    }
+    .hierarchy-box {
+      padding: 15px 30px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      border: 2px solid #ec4899;
+      font-family: monospace;
+    }
+    .hierarchy-arrow { color: #64748b; font-size: 1.5rem; }
+    .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+    .comparison-box { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 20px; }
+    .comparison-box.good { border: 2px solid #22c55e; }
+    .comparison-box.neutral { border: 2px solid #3b82f6; }
+    .comparison-label { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-weight: 600; }
+    .comparison-box.good .comparison-label { color: #4ade80; }
+    .comparison-box.neutral .comparison-label { color: #60a5fa; }
+    ul { padding-left: 25px; margin: 10px 0; }
+    li { margin: 8px 0; color: #cbd5e1; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
+    th { background: rgba(236,72,153,0.2); color: #f472b6; }
+    code { background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+    .nav-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
+    .nav-btn {
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #ec4899, #8b5cf6);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .access-table { margin: 20px 0; }
+    .access-table td:not(:first-child), .access-table th:not(:first-child) { text-align: center; }
+    .check { color: #4ade80; }
+    .cross { color: #f87171; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Chapter 4: Classes and OOP</h1>
+    <p class="subtitle">Object-Oriented Programming with TypeScript's powerful class system</p>
+
+    <!-- Section 4.1 -->
+    <div class="section">
+      <h2>4.1 Class Basics</h2>
+      
+      <p>TypeScript enhances JavaScript classes with static typing, access modifiers, and additional OOP features. Classes are blueprints for creating objects with specific properties and methods.</p>
+
+      <h3>Basic Class Declaration</h3>
+      <div class="code-block">
+<pre><span class="keyword">class</span> <span class="type">Person</span> {
+  <span class="comment">// Property declarations with types</span>
+  <span class="variable">name</span>: <span class="type">string</span>;
+  <span class="variable">age</span>: <span class="type">number</span>;
+  
+  <span class="comment">// Constructor</span>
+  <span class="keyword">constructor</span>(<span class="variable">name</span>: <span class="type">string</span>, <span class="variable">age</span>: <span class="type">number</span>) {
+    <span class="keyword">this</span>.<span class="variable">name</span> = <span class="variable">name</span>;
+    <span class="keyword">this</span>.<span class="variable">age</span> = <span class="variable">age</span>;
+  }
+  
+  <span class="comment">// Method with return type</span>
+  <span class="function">greet</span>(): <span class="type">string</span> {
+    <span class="keyword">return</span> <span class="string">`Hello, I'm </span>${<span class="keyword">this</span>.<span class="variable">name</span>}<span class="string">`</span>;
+  }
+  
+  <span class="comment">// Method with parameter</span>
+  <span class="function">celebrateBirthday</span>(): <span class="type">void</span> {
+    <span class="keyword">this</span>.<span class="variable">age</span>++;
+    console.<span class="function">log</span>(<span class="string">`Happy birthday! Now </span>${<span class="keyword">this</span>.<span class="variable">age</span>}<span class="string"> years old.`</span>);
+  }
+}
+
+<span class="comment">// Creating instances</span>
+<span class="keyword">const</span> <span class="variable">person</span> = <span class="keyword">new</span> <span class="type">Person</span>(<span class="string">"Alice"</span>, <span class="number">25</span>);
+console.<span class="function">log</span>(<span class="variable">person</span>.<span class="function">greet</span>()); <span class="comment">// "Hello, I'm Alice"</span></pre>
+      </div>
+
+      <h3>Constructor Parameter Properties (Shorthand)</h3>
+      <p>TypeScript provides a shorthand for declaring and initializing properties directly in the constructor:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Long form (verbose)</span>
+<span class="keyword">class</span> <span class="type">PersonVerbose</span> {
+  <span class="variable">name</span>: <span class="type">string</span>;
+  <span class="variable">age</span>: <span class="type">number</span>;
+  
+  <span class="keyword">constructor</span>(<span class="variable">name</span>: <span class="type">string</span>, <span class="variable">age</span>: <span class="type">number</span>) {
+    <span class="keyword">this</span>.<span class="variable">name</span> = <span class="variable">name</span>;
+    <span class="keyword">this</span>.<span class="variable">age</span> = <span class="variable">age</span>;
+  }
+}
+
+<span class="comment">// Short form (using parameter properties)</span>
+<span class="keyword">class</span> <span class="type">PersonShort</span> {
+  <span class="keyword">constructor</span>(
+    <span class="keyword">public</span> <span class="variable">name</span>: <span class="type">string</span>,    <span class="comment">// Automatically creates and assigns this.name</span>
+    <span class="keyword">public</span> <span class="variable">age</span>: <span class="type">number</span>      <span class="comment">// Automatically creates and assigns this.age</span>
+  ) {}
+}
+
+<span class="comment">// Both produce identical results!</span>
+<span class="keyword">const</span> <span class="variable">p1</span> = <span class="keyword">new</span> <span class="type">PersonVerbose</span>(<span class="string">"Alice"</span>, <span class="number">25</span>);
+<span class="keyword">const</span> <span class="variable">p2</span> = <span class="keyword">new</span> <span class="type">PersonShort</span>(<span class="string">"Alice"</span>, <span class="number">25</span>);</pre>
+      </div>
+
+      <div class="alert alert-tip">
+        <span class="alert-icon">💡</span>
+        <div class="alert-content">
+          <h4>Production Tip</h4>
+          <p>Use parameter properties to reduce boilerplate. Add <code>public</code>, <code>private</code>, <code>protected</code>, or <code>readonly</code> before constructor parameters to auto-create properties.</p>
+        </div>
+      </div>
+
+      <h3>Access Modifiers</h3>
+      <p>TypeScript provides three access modifiers to control visibility of class members:</p>
+
+      <div class="modifier-grid">
+        <div class="modifier-card public">
+          <h5>public</h5>
+          <p>Accessible from anywhere. This is the default if no modifier is specified.</p>
+        </div>
+        <div class="modifier-card private">
+          <h5>private</h5>
+          <p>Only accessible within the same class. Not even subclasses can access.</p>
+        </div>
+        <div class="modifier-card protected">
+          <h5>protected</h5>
+          <p>Accessible within the class and its subclasses, but not from outside.</p>
+        </div>
+      </div>
+
+      <div class="code-block">
+<pre><span class="keyword">class</span> <span class="type">BankAccount</span> {
+  <span class="keyword">public</span> <span class="variable">accountNumber</span>: <span class="type">string</span>;      <span class="comment">// Accessible everywhere</span>
+  <span class="keyword">private</span> <span class="variable">balance</span>: <span class="type">number</span>;            <span class="comment">// Only in this class</span>
+  <span class="keyword">protected</span> <span class="variable">ownerName</span>: <span class="type">string</span>;        <span class="comment">// This class + subclasses</span>
+  
+  <span class="keyword">constructor</span>(<span class="variable">accountNumber</span>: <span class="type">string</span>, <span class="variable">ownerName</span>: <span class="type">string</span>) {
+    <span class="keyword">this</span>.<span class="variable">accountNumber</span> = <span class="variable">accountNumber</span>;
+    <span class="keyword">this</span>.<span class="variable">ownerName</span> = <span class="variable">ownerName</span>;
+    <span class="keyword">this</span>.<span class="variable">balance</span> = <span class="number">0</span>;
+  }
+  
+  <span class="comment">// Public method to interact with private data</span>
+  <span class="keyword">public</span> <span class="function">deposit</span>(<span class="variable">amount</span>: <span class="type">number</span>): <span class="type">void</span> {
+    <span class="keyword">if</span> (<span class="variable">amount</span> > <span class="number">0</span>) {
+      <span class="keyword">this</span>.<span class="variable">balance</span> += <span class="variable">amount</span>;
+    }
+  }
+  
+  <span class="keyword">public</span> <span class="function">getBalance</span>(): <span class="type">number</span> {
+    <span class="keyword">return</span> <span class="keyword">this</span>.<span class="variable">balance</span>;
+  }
+  
+  <span class="comment">// Private method - internal use only</span>
+  <span class="keyword">private</span> <span class="function">validateTransaction</span>(<span class="variable">amount</span>: <span class="type">number</span>): <span class="type">boolean</span> {
+    <span class="keyword">return</span> <span class="variable">amount</span> > <span class="number">0</span> && <span class="variable">amount</span> <= <span class="keyword">this</span>.<span class="variable">balance</span>;
+  }
+}
+
+<span class="keyword">const</span> <span class="variable">account</span> = <span class="keyword">new</span> <span class="type">BankAccount</span>(<span class="string">"123456"</span>, <span class="string">"Alice"</span>);
+<span class="variable">account</span>.<span class="function">deposit</span>(<span class="number">100</span>);
+console.<span class="function">log</span>(<span class="variable">account</span>.<span class="variable">accountNumber</span>);  <span class="comment">// ✅ OK - public</span>
+<span class="comment">// console.log(account.balance);      // ❌ Error - private</span>
+<span class="comment">// console.log(account.ownerName);    // ❌ Error - protected</span>
+console.<span class="function">log</span>(<span class="variable">account</span>.<span class="function">getBalance</span>());   <span class="comment">// ✅ OK - public method</span></pre>
+      </div>
+
+      <h3>Access Modifier Visibility Table</h3>
+      <table class="access-table">
+        <tr>
+          <th>Modifier</th>
+          <th>Class</th>
+          <th>Subclass</th>
+          <th>Outside</th>
+        </tr>
+        <tr>
+          <td><code>public</code></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td><code>protected</code></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+        <tr>
+          <td><code>private</code></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+      </table>
+
+      <h3>Readonly Properties</h3>
+      <div class="code-block">
+<pre><span class="keyword">class</span> <span class="type">User</span> {
+  <span class="keyword">readonly</span> <span class="variable">id</span>: <span class="type">string</span>;              <span class="comment">// Can only be set in constructor</span>
+  <span class="keyword">readonly</span> <span class="variable">createdAt</span>: <span class="type">Date</span>;
+  <span class="variable">name</span>: <span class="type">string</span>;
+  
+  <span class="keyword">constructor</span>(<span class="variable">id</span>: <span class="type">string</span>, <span class="variable">name</span>: <span class="type">string</span>) {
+    <span class="keyword">this</span>.<span class="variable">id</span> = <span class="variable">id</span>;                    <span class="comment">// ✅ OK in constructor</span>
+    <span class="keyword">this</span>.<span class="variable">createdAt</span> = <span class="keyword">new</span> <span class="type">Date</span>();
+    <span class="keyword">this</span>.<span class="variable">name</span> = <span class="variable">name</span>;
+  }
+  
+  <span class="function">updateName</span>(<span class="variable">newName</span>: <span class="type">string</span>): <span class="type">void</span> {
+    <span class="keyword">this</span>.<span class="variable">name</span> = <span class="variable">newName</span>;             <span class="comment">// ✅ OK - name is not readonly</span>
+    <span class="comment">// this.id = "new-id";           // ❌ Error - id is readonly</span>
+  }
+}
+
+<span class="comment">// Combining readonly with access modifiers</span>
+<span class="keyword">class</span> <span class="type">Config</span> {
+  <span class="keyword">constructor</span>(
+    <span class="keyword">public</span> <span class="keyword">readonly</span> <span class="variable">apiUrl</span>: <span class="type">string</span>,
+    <span class="keyword">private</span> <span class="keyword">readonly</span> <span class="variable">apiKey</span>: <span class="type">string</span>
+  ) {}
+}</pre>
+      </div>
+
+      <h3>Static Members</h3>
+      <p>Static members belong to the class itself, not instances:</p>
+
+      <div class="code-block">
+<pre><span class="keyword">class</span> <span class="type">MathUtils</span> {
+  <span class="comment">// Static property</span>
+  <span class="keyword">static</span> <span class="keyword">readonly</span> <span class="variable">PI</span>: <span class="type">number</span> = <span class="number">3.14159</span>;
+  
+  <span class="comment">// Static method</span>
+  <span class="keyword">static</span> <span class="function">add</span>(<span class="variable">a</span>: <span class="type">number</span>, <span class="variable">b</span>: <span class="type">number</span>): <span class="type">number</span> {
+    <span class="keyword">return</span> <span class="variable">a</span> + <span class="variable">b</span>;
+  }
+  
+  <span class="keyword">static</span> <span class="function">circleArea</span>(<span class="variable">radius</span>: <span class="type">number</span>): <span class="type">number</span> {
+    <span class="keyword">return</span> <span class="type">MathUtils</span>.<span class="variable">PI</span> * <span class="variable">radius</span> * <span class="variable">radius</span>;
+  }
+}
+
+<span class="comment">// Access without instantiation</span>
+console.<span class="function">log</span>(<span class="type">MathUtils</span>.<span class="variable">PI</span>);              <span class="comment">// 3.14159</span>
+console.<span class="function">log</span>(<span class="type">MathUtils</span>.<span class="function">add</span>(<span class="number">5</span>, <span class="number">3</span>));       <span class="comment">// 8</span>
+console.<span class="function">log</span>(<span class="type">MathUtils</span>.<span class="function">circleArea</span>(<span class="number">10</span>)); <span class="comment">// 314.159</span>
+
+<span class="comment">// Static counter pattern</span>
+<span class="keyword">class</span> <span class="type">Entity</span> {
+  <span class="keyword">private</span> <span class="keyword">static</span> <span class="variable">nextId</span>: <span class="type">number</span> = <span class="number">1</span>;
+  <span class="keyword">public</span> <span class="keyword">readonly</span> <span class="variable">id</span>: <span class="type">number</span>;
+  
+  <span class="keyword">constructor</span>() {
+    <span class="keyword">this</span>.<span class="variable">id</span> = <span class="type">Entity</span>.<span class="variable">nextId</span>++;
+  }
+}
+
+<span class="keyword">const</span> <span class="variable">e1</span> = <span class="keyword">new</span> <span class="type">Entity</span>(); <span class="comment">// id: 1</span>
+<span class="keyword">const</span> <span class="variable">e2</span> = <span class="keyword">new</span> <span class="type">Entity</span>(); <span class="comment">// id: 2</span>
+<span class="keyword">const</span> <span class="variable">e3</span> = <span class="keyword">new</span> <span class="type">Entity</span>(); <span class="comment">// id: 3</span></pre>
+      </div>
+
+      <h3>Getters and Setters</h3>
+      <div class="code-block">
+<pre><span class="keyword">class</span> <span class="type">Temperature</span> {
+  <span class="keyword">private</span> <span class="variable">_celsius</span>: <span class="type">number</span> = <span class="number">0</span>;
+  
+  <span class="comment">// Getter - accessed like a property</span>
+  <span class="keyword">get</span> <span class="function">celsius</span>(): <span class="type">number</span> {
+    <span class="keyword">return</span> <span class="keyword">this</span>.<span class="variable">_celsius</span>;
+  }
+  
+  <span class="comment">// Setter - with validation</span>
+  <span class="keyword">set</span> <span class="function">celsius</span>(<span class="variable">value</span>: <span class="type">number</span>) {
+    <span class="keyword">if</span> (<span class="variable">value</span> < -<span class="number">273.15</span>) {
+      <span class="keyword">throw new</span> <span class="type">Error</span>(<span class="string">"Temperature below absolute zero!"</span>);
+    }
+    <span class="keyword">this</span>.<span class="variable">_celsius</span> = <span class="variable">value</span>;
+  }
+  
+  <span class="comment">// Computed getter for Fahrenheit</span>
+  <span class="keyword">get</span> <span class="function">fahrenheit</span>(): <span class="type">number</span> {
+    <span class="keyword">return</span> (<span class="keyword">this</span>.<span class="variable">_celsius</span> * <span class="number">9</span>/<span class="number">5</span>) + <span class="number">32</span>;
+  }
+  
+  <span class="keyword">set</span> <span class="function">fahrenheit</span>(<span class="variable">value</span>: <span class="type">number</span>) {
+    <span class="keyword">this</span>.<span class="variable">celsius</span> = (<span class="variable">value</span> - <span class="number">32</span>) * <span class="number">5</span>/<span class="number">9</span>;
+  }
+}
+
+<span class="keyword">const</span> <span class="variable">temp</span> = <span class="keyword">new</span> <span class="type">Temperature</span>();
+<span class="variable">temp</span>.<span class="variable">celsius</span> = <span class="number">25</span>;           <span class="comment">// Uses setter</span>
+console.<span class="function">log</span>(<span class="variable">temp</span>.<span class="variable">celsius</span>);    <span class="comment">// 25 - Uses getter</span>
+console.<span class="function">log</span>(<span class="variable">temp</span>.<span class="variable">fahrenheit</span>); <span class="comment">// 77 - Computed property</span>
+
+<span class="variable">temp</span>.<span class="variable">fahrenheit</span> = <span class="number">98.6</span>;
+console.<span class="function">log</span>(<span class="variable">temp</span>.<span class="variable">celsius</span>);    <span class="comment">// 37</span></pre>
+      </div>
+    </div>
+
+    <!-- Section 4.2 -->
+    <div class="section">
+      <h2>4.2 Abstract Classes</h2>
+      
+      <p>Abstract classes are base classes that cannot be instantiated directly. They can contain abstract methods (without implementation) that must be implemented by subclasses.</p>
+
+      <div class="visual-box">
+        <div class="visual-title">🏗️ Abstract Class Hierarchy</div>
+        <div class="hierarchy-diagram">
+          <div class="hierarchy-box" style="border-style: dashed;">
+            <span style="color: #f472b6;">abstract</span> Shape
+            <br><small style="color: #94a3b8;">Cannot instantiate directly</small>
+          </div>
+          <div class="hierarchy-arrow">↓ extends</div>
+          <div style="display: flex; gap: 20px;">
+            <div class="hierarchy-box">Circle</div>
+            <div class="hierarchy-box">Rectangle</div>
+            <div class="hierarchy-box">Triangle</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-block">
+<pre><span class="comment">// Abstract class - blueprint for shapes</span>
+<span class="keyword">abstract</span> <span class="keyword">class</span> <span class="type">Shape</span> {
+  <span class="comment">// Regular property</span>
+  <span class="variable">color</span>: <span class="type">string</span>;
+  
+  <span class="keyword">constructor</span>(<span class="variable">color</span>: <span class="type">string</span>) {
+    <span class="keyword">this</span>.<span class="variable">color</span> = <span class="variable">color</span>;
+  }
+  
+  <span class="comment">// Abstract method - MUST be implemented by subclasses</span>
+  <span class="keyword">abstract</span> <span class="function">getArea</span>(): <span class="type">number</span>;
+  <span class="keyword">abstract</span> <span class="function">getPerimeter</span>(): <span class="type">number</span>;
+  
+  <span class="comment">// Concrete method - inherited by all subclasses</span>
+  <span class="function">describe</span>(): <span class="type">string</span> {
+    <span class="keyword">return</span> <span class="string">`A </span>${<span class="keyword">this</span>.<span class="variable">color</span>}<span class="string"> shape with area </span>${<span class="keyword">this</span>.<span class="function">getArea</span>()}<span class="string">`</span>;
+  }
+}
+
+<span class="comment">// Concrete class - MUST implement all abstract methods</span>
+<span class="keyword">class</span> <span class="type">Circle</span> <span class="keyword">extends</span> <span class="type">Shape</span> {
+  <span class="keyword">constructor</span>(
+    <span class="variable">color</span>: <span class="type">string</span>,
+    <span class="keyword">public</span> <span class="variable">radius</span>: <span class="type">number</span>
+  ) {
+    <span class="keyword">super</span>(<span class="variable">color</span>);
+  }
+  
+  <span class="function">getArea</span>(): <span class="type">number</span> {
+    <span class="keyword">return</span> Math.<span class="variable">PI</span> * <span class="keyword">this</span>.<span class="variable">radius</span> ** <span class="number">2</span>;
+  }
+  
+  <span class="function">getPerimeter</span>(): <span class="type">number</span> {
+    <span class="keyword">return</span> <span class="number">2</span> * Math.<span class="variable">PI</span> * <span class="keyword">this</span>.<span class="variable">radius</span>;
+  }
+}
+
+<span class="keyword">class</span> <span class="type">Rectangle</span> <span class="keyword">extends</span> <span class="type">Shape</span> {
+  <span class="keyword">constructor</span>(
+    <span class="variable">color</span>: <span class="type">string</span>,
+    <span class="keyword">public</span> <span class="variable">width</span>: <span class="type">number</span>,
+    <span class="keyword">public</span> <span class="variable">height</span>: <span class="type">number</span>
+  ) {
+    <span class="keyword">super</span>(<span class="variable">color</span>);
+  }
+  
+  <span class="function">getArea</span>(): <span class="type">number</span> {
+    <span class="keyword">return</span> <span class="keyword">this</span>.<span class="variable">width</span> * <span class="keyword">this</span>.<span class="variable">height</span>;
+  }
+  
+  <span class="function">getPerimeter</span>(): <span class="type">number</span> {
+    <span class="keyword">return</span> <span class="number">2</span> * (<span class="keyword">this</span>.<span class="variable">width</span> + <span class="keyword">this</span>.<span class="variable">height</span>);
+  }
+}
+
+<span class="comment">// Usage</span>
+<span class="comment">// const shape = new Shape("red"); // ❌ Error: Cannot create instance of abstract class</span>
+
+<span class="keyword">const</span> <span class="variable">circle</span> = <span class="keyword">new</span> <span class="type">Circle</span>(<span class="string">"red"</span>, <span class="number">10</span>);
+<span class="keyword">const</span> <span class="variable">rect</span> = <span class="keyword">new</span> <span class="type">Rectangle</span>(<span class="string">"blue"</span>, <span class="number">5</span>, <span class="number">10</span>);
+
+console.<span class="function">log</span>(<span class="variable">circle</span>.<span class="function">describe</span>()); <span class="comment">// "A red shape with area 314.159..."</span>
+console.<span class="function">log</span>(<span class="variable">rect</span>.<span class="function">describe</span>());   <span class="comment">// "A blue shape with area 50"</span>
+
+<span class="comment">// Polymorphism - treating different shapes uniformly</span>
+<span class="keyword">function</span> <span class="function">printShapeInfo</span>(<span class="variable">shape</span>: <span class="type">Shape</span>): <span class="type">void</span> {
+  console.<span class="function">log</span>(<span class="string">`Area: </span>${<span class="variable">shape</span>.<span class="function">getArea</span>()}<span class="string">`</span>);
+  console.<span class="function">log</span>(<span class="string">`Perimeter: </span>${<span class="variable">shape</span>.<span class="function">getPerimeter</span>()}<span class="string">`</span>);
+}
+
+<span class="function">printShapeInfo</span>(<span class="variable">circle</span>); <span class="comment">// Works with Circle</span>
+<span class="function">printShapeInfo</span>(<span class="variable">rect</span>);   <span class="comment">// Works with Rectangle</span></pre>
+      </div>
+
+      <div class="alert alert-interview">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+          <h4>Interview: Abstract Class vs Interface</h4>
+          <p><strong>Abstract Class:</strong> Can have implementation, constructor, state (properties). Use when sharing code between related classes.</p>
+          <p><strong>Interface:</strong> Only type definitions, no implementation. Use for defining contracts that unrelated classes can implement.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4.3 -->
+    <div class="section">
+      <h2>4.3 Class Type Compatibility</h2>
+      
+      <p>TypeScript uses structural typing for classes - two classes are compatible if they have the same structure, regardless of their inheritance relationship.</p>
+
+      <div class="code-block">
+<pre><span class="keyword">class</span> <span class="type">Point</span> {
+  <span class="variable">x</span>: <span class="type">number</span>;
+  <span class="variable">y</span>: <span class="type">number</span>;
+  
+  <span class="keyword">constructor</span>(<span class="variable">x</span>: <span class="type">number</span>, <span class="variable">y</span>: <span class="type">number</span>) {
+    <span class="keyword">this</span>.<span class="variable">x</span> = <span class="variable">x</span>;
+    <span class="keyword">this</span>.<span class="variable">y</span> = <span class="variable">y</span>;
+  }
+}
+
+<span class="keyword">class</span> <span class="type">Coordinate</span> {
+  <span class="variable">x</span>: <span class="type">number</span>;
+  <span class="variable">y</span>: <span class="type">number</span>;
+  
+  <span class="keyword">constructor</span>(<span class="variable">x</span>: <span class="type">number</span>, <span class="variable">y</span>: <span class="type">number</span>) {
+    <span class="keyword">this</span>.<span class="variable">x</span> = <span class="variable">x</span>;
+    <span class="keyword">this</span>.<span class="variable">y</span> = <span class="variable">y</span>;
+  }
+}
+
+<span class="comment">// Structural compatibility - same shape = compatible</span>
+<span class="keyword">const</span> <span class="variable">point</span>: <span class="type">Point</span> = <span class="keyword">new</span> <span class="type">Coordinate</span>(<span class="number">1</span>, <span class="number">2</span>); <span class="comment">// ✅ OK!</span>
+<span class="keyword">const</span> <span class="variable">coord</span>: <span class="type">Coordinate</span> = <span class="keyword">new</span> <span class="type">Point</span>(<span class="number">3</span>, <span class="number">4</span>); <span class="comment">// ✅ OK!</span>
+
+<span class="comment">// Even plain objects work if structure matches</span>
+<span class="keyword">const</span> <span class="variable">plainPoint</span>: <span class="type">Point</span> = { <span class="variable">x</span>: <span class="number">5</span>, <span class="variable">y</span>: <span class="number">6</span> }; <span class="comment">// ✅ OK!</span></pre>
+      </div>
+
+      <h3>implements vs extends</h3>
+      <div class="code-block">
+<pre><span class="comment">// Interface - defines a contract</span>
+<span class="keyword">interface</span> <span class="type">Printable</span> {
+  <span class="function">print</span>(): <span class="type">void</span>;
+}
+
+<span class="keyword">interface</span> <span class="type">Loggable</span> {
+  <span class="function">log</span>(<span class="variable">message</span>: <span class="type">string</span>): <span class="type">void</span>;
+}
+
+<span class="comment">// extends - inherit from a class (single inheritance)</span>
+<span class="keyword">class</span> <span class="type">Animal</span> {
+  <span class="function">breathe</span>(): <span class="type">void</span> {
+    console.<span class="function">log</span>(<span class="string">"Breathing..."</span>);
+  }
+}
+
+<span class="comment">// implements - fulfill interface contracts (multiple allowed)</span>
+<span class="keyword">class</span> <span class="type">Dog</span> <span class="keyword">extends</span> <span class="type">Animal</span> <span class="keyword">implements</span> <span class="type">Printable</span>, <span class="type">Loggable</span> {
+  <span class="function">print</span>(): <span class="type">void</span> {
+    console.<span class="function">log</span>(<span class="string">"Dog info printed"</span>);
+  }
+  
+  <span class="function">log</span>(<span class="variable">message</span>: <span class="type">string</span>): <span class="type">void</span> {
+    console.<span class="function">log</span>(<span class="string">`[Dog]: </span>${<span class="variable">message</span>}<span class="string">`</span>);
+  }
+  
+  <span class="function">bark</span>(): <span class="type">void</span> {
+    console.<span class="function">log</span>(<span class="string">"Woof!"</span>);
+  }
+}
+
+<span class="keyword">const</span> <span class="variable">dog</span> = <span class="keyword">new</span> <span class="type">Dog</span>();
+<span class="variable">dog</span>.<span class="function">breathe</span>(); <span class="comment">// Inherited from Animal</span>
+<span class="variable">dog</span>.<span class="function">print</span>();   <span class="comment">// Implemented from Printable</span>
+<span class="variable">dog</span>.<span class="function">log</span>(<span class="string">"Hello"</span>); <span class="comment">// Implemented from Loggable</span>
+<span class="variable">dog</span>.<span class="function">bark</span>();    <span class="comment">// Own method</span></pre>
+      </div>
+
+      <div class="comparison-grid">
+        <div class="comparison-box neutral">
+          <div class="comparison-label">extends (Inheritance)</div>
+          <ul style="font-size: 0.9rem;">
+            <li>Single inheritance only</li>
+            <li>Inherits implementation</li>
+            <li>Creates "is-a" relationship</li>
+            <li>Can override methods</li>
+          </ul>
+        </div>
+        <div class="comparison-box neutral">
+          <div class="comparison-label">implements (Interface)</div>
+          <ul style="font-size: 0.9rem;">
+            <li>Multiple interfaces allowed</li>
+            <li>No implementation inherited</li>
+            <li>Creates "can-do" relationship</li>
+            <li>Must implement all members</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4.4 -->
+    <div class="section">
+      <h2>4.4 Advanced Class Patterns</h2>
+
+      <h3>Mixins Pattern</h3>
+      <p>Mixins allow you to compose classes from reusable components:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Mixin constructor type</span>
+<span class="keyword">type</span> <span class="type">Constructor</span>&lt;<span class="type">T</span> = {}&gt; = <span class="keyword">new</span> (...<span class="variable">args</span>: <span class="type">any</span>[]) => <span class="type">T</span>;
+
+<span class="comment">// Mixin: adds timestamp functionality</span>
+<span class="keyword">function</span> <span class="function">Timestamped</span>&lt;<span class="type">TBase</span> <span class="keyword">extends</span> <span class="type">Constructor</span>&gt;(<span class="variable">Base</span>: <span class="type">TBase</span>) {
+  <span class="keyword">return</span> <span class="keyword">class</span> <span class="keyword">extends</span> <span class="variable">Base</span> {
+    <span class="variable">timestamp</span> = <span class="keyword">new</span> <span class="type">Date</span>();
+    
+    <span class="function">getTimestamp</span>(): <span class="type">Date</span> {
+      <span class="keyword">return</span> <span class="keyword">this</span>.<span class="variable">timestamp</span>;
+    }
+  };
+}
+
+<span class="comment">// Mixin: adds activation functionality</span>
+<span class="keyword">function</span> <span class="function">Activatable</span>&lt;<span class="type">TBase</span> <span class="keyword">extends</span> <span class="type">Constructor</span>&gt;(<span class="variable">Base</span>: <span class="type">TBase</span>) {
+  <span class="keyword">return</span> <span class="keyword">class</span> <span class="keyword">extends</span> <span class="variable">Base</span> {
+    <span class="variable">isActive</span> = <span class="keyword">false</span>;
+    
+    <span class="function">activate</span>(): <span class="type">void</span> {
+      <span class="keyword">this</span>.<span class="variable">isActive</span> = <span class="keyword">true</span>;
+    }
+    
+    <span class="function">deactivate</span>(): <span class="type">void</span> {
+      <span class="keyword">this</span>.<span class="variable">isActive</span> = <span class="keyword">false</span>;
+    }
+  };
+}
+
+<span class="comment">// Base class</span>
+<span class="keyword">class</span> <span class="type">User</span> {
+  <span class="keyword">constructor</span>(<span class="keyword">public</span> <span class="variable">name</span>: <span class="type">string</span>) {}
+}
+
+<span class="comment">// Apply mixins</span>
+<span class="keyword">const</span> <span class="type">TimestampedActivatableUser</span> = <span class="function">Timestamped</span>(<span class="function">Activatable</span>(<span class="type">User</span>));
+
+<span class="keyword">const</span> <span class="variable">user</span> = <span class="keyword">new</span> <span class="type">TimestampedActivatableUser</span>(<span class="string">"Alice"</span>);
+console.<span class="function">log</span>(<span class="variable">user</span>.<span class="variable">name</span>);          <span class="comment">// "Alice" - from User</span>
+console.<span class="function">log</span>(<span class="variable">user</span>.<span class="variable">timestamp</span>);     <span class="comment">// Date - from Timestamped</span>
+<span class="variable">user</span>.<span class="function">activate</span>();
+console.<span class="function">log</span>(<span class="variable">user</span>.<span class="variable">isActive</span>);      <span class="comment">// true - from Activatable</span></pre>
+      </div>
+
+      <h3>Generic Classes</h3>
+      <div class="code-block">
+<pre><span class="comment">// Generic class for type-safe containers</span>
+<span class="keyword">class</span> <span class="type">Stack</span>&lt;<span class="type">T</span>&gt; {
+  <span class="keyword">private</span> <span class="variable">items</span>: <span class="type">T</span>[] = [];
+  
+  <span class="function">push</span>(<span class="variable">item</span>: <span class="type">T</span>): <span class="type">void</span> {
+    <span class="keyword">this</span>.<span class="variable">items</span>.<span class="function">push</span>(<span class="variable">item</span>);
+  }
+  
+  <span class="function">pop</span>(): <span class="type">T</span> | <span class="type">undefined</span> {
+    <span class="keyword">return</span> <span class="keyword">this</span>.<span class="variable">items</span>.<span class="function">pop</span>();
+  }
+  
+  <span class="function">peek</span>(): <span class="type">T</span> | <span class="type">undefined</span> {
+    <span class="keyword">return</span> <span class="keyword">this</span>.<span class="variable">items</span>[<span class="keyword">this</span>.<span class="variable">items</span>.<span class="variable">length</span> - <span class="number">1</span>];
+  }
+  
+  <span class="function">isEmpty</span>(): <span class="type">boolean</span> {
+    <span class="keyword">return</span> <span class="keyword">this</span>.<span class="variable">items</span>.<span class="variable">length</span> === <span class="number">0</span>;
+  }
+}
+
+<span class="comment">// Type-safe usage</span>
+<span class="keyword">const</span> <span class="variable">numberStack</span> = <span class="keyword">new</span> <span class="type">Stack</span>&lt;<span class="type">number</span>&gt;();
+<span class="variable">numberStack</span>.<span class="function">push</span>(<span class="number">1</span>);
+<span class="variable">numberStack</span>.<span class="function">push</span>(<span class="number">2</span>);
+<span class="comment">// numberStack.push("3"); // ❌ Error: string not assignable to number</span>
+
+<span class="keyword">const</span> <span class="variable">stringStack</span> = <span class="keyword">new</span> <span class="type">Stack</span>&lt;<span class="type">string</span>&gt;();
+<span class="variable">stringStack</span>.<span class="function">push</span>(<span class="string">"hello"</span>);
+<span class="variable">stringStack</span>.<span class="function">push</span>(<span class="string">"world"</span>);
+
+<span class="comment">// Generic class with constraints</span>
+<span class="keyword">interface</span> <span class="type">HasId</span> {
+  <span class="variable">id</span>: <span class="type">string</span> | <span class="type">number</span>;
+}
+
+<span class="keyword">class</span> <span class="type">Repository</span>&lt;<span class="type">T</span> <span class="keyword">extends</span> <span class="type">HasId</span>&gt; {
+  <span class="keyword">private</span> <span class="variable">items</span>: <span class="type">Map</span>&lt;<span class="type">string</span> | <span class="type">number</span>, <span class="type">T</span>&gt; = <span class="keyword">new</span> <span class="type">Map</span>();
+  
+  <span class="function">add</span>(<span class="variable">item</span>: <span class="type">T</span>): <span class="type">void</span> {
+    <span class="keyword">this</span>.<span class="variable">items</span>.<span class="function">set</span>(<span class="variable">item</span>.<span class="variable">id</span>, <span class="variable">item</span>);
+  }
+  
+  <span class="function">get</span>(<span class="variable">id</span>: <span class="type">string</span> | <span class="type">number</span>): <span class="type">T</span> | <span class="type">undefined</span> {
+    <span class="keyword">return</span> <span class="keyword">this</span>.<span class="variable">items</span>.<span class="function">get</span>(<span class="variable">id</span>);
+  }
+  
+  <span class="function">getAll</span>(): <span class="type">T</span>[] {
+    <span class="keyword">return</span> <span class="type">Array</span>.<span class="function">from</span>(<span class="keyword">this</span>.<span class="variable">items</span>.<span class="function">values</span>());
+  }
+}
+
+<span class="keyword">interface</span> <span class="type">User</span> {
+  <span class="variable">id</span>: <span class="type">string</span>;
+  <span class="variable">name</span>: <span class="type">string</span>;
+}
+
+<span class="keyword">const</span> <span class="variable">userRepo</span> = <span class="keyword">new</span> <span class="type">Repository</span>&lt;<span class="type">User</span>&gt;();
+<span class="variable">userRepo</span>.<span class="function">add</span>({ <span class="variable">id</span>: <span class="string">"1"</span>, <span class="variable">name</span>: <span class="string">"Alice"</span> });
+<span class="variable">userRepo</span>.<span class="function">add</span>({ <span class="variable">id</span>: <span class="string">"2"</span>, <span class="variable">name</span>: <span class="string">"Bob"</span> });</pre>
+      </div>
+
+      <h3>The this Type</h3>
+      <div class="code-block">
+<pre><span class="comment">// Fluent interface using 'this' type</span>
+<span class="keyword">class</span> <span class="type">QueryBuilder</span> {
+  <span class="keyword">private</span> <span class="variable">query</span>: <span class="type">string</span> = <span class="string">""</span>;
+  
+  <span class="function">select</span>(<span class="variable">fields</span>: <span class="type">string</span>): <span class="keyword">this</span> {
+    <span class="keyword">this</span>.<span class="variable">query</span> += <span class="string">`SELECT </span>${<span class="variable">fields</span>}<span class="string"> `</span>;
+    <span class="keyword">return</span> <span class="keyword">this</span>;
+  }
+  
+  <span class="function">from</span>(<span class="variable">table</span>: <span class="type">string</span>): <span class="keyword">this</span> {
+    <span class="keyword">this</span>.<span class="variable">query</span> += <span class="string">`FROM </span>${<span class="variable">table</span>}<span class="string"> `</span>;
+    <span class="keyword">return</span> <span class="keyword">this</span>;
+  }
+  
+  <span class="function">where</span>(<span class="variable">condition</span>: <span class="type">string</span>): <span class="keyword">this</span> {
+    <span class="keyword">this</span>.<span class="variable">query</span> += <span class="string">`WHERE </span>${<span class="variable">condition</span>}<span class="string"> `</span>;
+    <span class="keyword">return</span> <span class="keyword">this</span>;
+  }
+  
+  <span class="function">build</span>(): <span class="type">string</span> {
+    <span class="keyword">return</span> <span class="keyword">this</span>.<span class="variable">query</span>.<span class="function">trim</span>();
+  }
+}
+
+<span class="comment">// Extended builder maintains correct 'this' type</span>
+<span class="keyword">class</span> <span class="type">AdvancedQueryBuilder</span> <span class="keyword">extends</span> <span class="type">QueryBuilder</span> {
+  <span class="function">orderBy</span>(<span class="variable">field</span>: <span class="type">string</span>): <span class="keyword">this</span> {
+    <span class="comment">// Can still chain after parent methods</span>
+    <span class="keyword">return</span> <span class="keyword">this</span>;
+  }
+}
+
+<span class="comment">// Fluent chaining</span>
+<span class="keyword">const</span> <span class="variable">query</span> = <span class="keyword">new</span> <span class="type">AdvancedQueryBuilder</span>()
+  .<span class="function">select</span>(<span class="string">"*"</span>)
+  .<span class="function">from</span>(<span class="string">"users"</span>)
+  .<span class="function">where</span>(<span class="string">"active = true"</span>)
+  .<span class="function">orderBy</span>(<span class="string">"name"</span>)  <span class="comment">// ✅ Works because methods return 'this'</span>
+  .<span class="function">build</span>();</pre>
+      </div>
+
+      <div class="alert alert-tip">
+        <span class="alert-icon">💡</span>
+        <div class="alert-content">
+          <h4>Production Tip: When to Use Classes</h4>
+          <ul>
+            <li><strong>Use classes</strong> when you need stateful objects with methods, inheritance, or encapsulation</li>
+            <li><strong>Prefer functions</strong> for stateless utilities and pure transformations</li>
+            <li><strong>In React:</strong> Prefer functional components with hooks over class components</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="nav-btn">← Chapter 3</button>
+      <button class="nav-btn">Chapter 5: Modules →</button>
+    </div>
+  </div>
+</body>
+</html>

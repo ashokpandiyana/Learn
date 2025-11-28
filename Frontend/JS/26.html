@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Quality - Chapter 26</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .content { padding: 40px; }
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #f093fb;
+        }
+        .section h2 { color: #f093fb; margin-bottom: 20px; font-size: 2em; }
+        .section h3 { color: #f5576c; margin: 25px 0 15px 0; font-size: 1.5em; }
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .number { color: #d19a66; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+        .tip { background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .success { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        ul { margin-left: 30px; margin-top: 10px; }
+        li { margin: 8px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✨ Chapter 26: Code Quality & Best Practices</h1>
+            <p>Write Clean, Maintainable Code</p>
+        </header>
+        
+        <div class="content">
+            <div class="section">
+                <h2>📏 1. SOLID Principles in JavaScript</h2>
+                
+                <div class="code-block">
+<code><span class="comment">// S - Single Responsibility</span>
+<span class="comment">// ❌ BAD: Class doing too much</span>
+<span class="keyword">class</span> <span class="function">User</span> {
+    <span class="function">saveToDatabase</span>() {}
+    <span class="function">sendEmail</span>() {}
+    <span class="function">validateData</span>() {}
+}
+
+<span class="comment">// ✅ GOOD: Separate responsibilities</span>
+<span class="keyword">class</span> <span class="function">User</span> { }
+<span class="keyword">class</span> <span class="function">UserRepository</span> { <span class="function">save</span>(user) {} }
+<span class="keyword">class</span> <span class="function">EmailService</span> { <span class="function">send</span>(user) {} }
+<span class="keyword">class</span> <span class="function">UserValidator</span> { <span class="function">validate</span>(user) {} }</code>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🎯 2. Clean Code Principles</h2>
+                
+                <div class="code-block">
+<code><span class="comment">// DRY - Don't Repeat Yourself</span>
+<span class="comment">// ❌ Repetitive</span>
+<span class="keyword">const</span> user1Valid = user1.age >= <span class="number">18</span> && user1.email.includes(<span class="string">'@'</span>);
+<span class="keyword">const</span> user2Valid = user2.age >= <span class="number">18</span> && user2.email.includes(<span class="string">'@'</span>);
+
+<span class="comment">// ✅ Reusable function</span>
+<span class="keyword">const</span> isValid = user => user.age >= <span class="number">18</span> && user.email.includes(<span class="string">'@'</span>);
+
+<span class="comment">// KISS - Keep It Simple, Stupid</span>
+<span class="comment">// Prefer simple solutions over clever ones</span>
+
+<span class="comment">// YAGNI - You Aren't Gonna Need It</span>
+<span class="comment">// Don't add functionality until needed</span></code>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📖 3. Naming Conventions</h2>
+                
+                <div class="code-block">
+<code><span class="comment">// Variables & Functions: camelCase</span>
+<span class="keyword">const</span> userName = <span class="string">"Alice"</span>;
+<span class="keyword">function</span> <span class="function">getUserData</span>() {}
+
+<span class="comment">// Classes: PascalCase</span>
+<span class="keyword">class</span> <span class="function">UserAccount</span> {}
+
+<span class="comment">// Constants: UPPER_SNAKE_CASE</span>
+<span class="keyword">const</span> MAX_USERS = <span class="number">100</span>;
+<span class="keyword">const</span> API_URL = <span class="string">"https://api.example.com"</span>;
+
+<span class="comment">// Private: #prefix (ES2022) or _convention</span>
+<span class="keyword">class</span> <span class="function">Account</span> {
+    #balance = <span class="number">0</span>;  <span class="comment">// Truly private</span>
+    _internal = <span class="number">0</span>;  <span class="comment">// Convention (not enforced)</span>
+}
+
+<span class="comment">// Booleans: is/has/can prefix</span>
+<span class="keyword">const</span> isActive = <span class="keyword">true</span>;
+<span class="keyword">const</span> hasPermission = <span class="keyword">false</span>;
+<span class="keyword">const</span> canEdit = <span class="keyword">true</span>;</code>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>💬 4. Comments & Documentation</h2>
+                
+                <div class="code-block">
+<code><span class="comment">/**
+ * Calculate user's total score
+ * @param {Object} user - User object
+ * @param {number} user.baseScore - Base score
+ * @param {number[]} user.bonuses - Array of bonuses
+ * @returns {number} Total score
+ * @throws {ValidationError} If user data invalid
+ * @example
+ * calculateScore({ baseScore: 100, bonuses: [10, 20] }) // 130
+ */</span>
+<span class="keyword">function</span> <span class="function">calculateScore</span>(user) {
+    <span class="keyword">if</span> (!user || !user.baseScore) {
+        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="function">ValidationError</span>(<span class="string">'Invalid user'</span>);
+    }
+    <span class="keyword">return</span> user.baseScore + user.bonuses.<span class="function">reduce</span>((a, b) => a + b, <span class="number">0</span>);
+}</code>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔍 5. ESLint Configuration</h2>
+                
+                <div class="code-block">
+<code><span class="comment">// .eslintrc.json</span>
+{
+  <span class="string">"extends"</span>: <span class="string">"eslint:recommended"</span>,
+  <span class="string">"rules"</span>: {
+    <span class="string">"no-unused-vars"</span>: <span class="string">"error"</span>,
+    <span class="string">"no-console"</span>: <span class="string">"warn"</span>,
+    <span class="string">"prefer-const"</span>: <span class="string">"error"</span>,
+    <span class="string">"eqeqeq"</span>: <span class="string">"error"</span>
+  }
+}</code>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📝 Summary</h2>
+                
+                <div class="success">
+                    <strong>Code Quality Checklist:</strong>
+                    <ul>
+                        <li>✅ Follow SOLID principles</li>
+                        <li>✅ Use meaningful variable names</li>
+                        <li>✅ Keep functions small (one responsibility)</li>
+                        <li>✅ Document public APIs with JSDoc</li>
+                        <li>✅ Use ESLint for consistency</li>
+                        <li>✅ Format with Prettier</li>
+                        <li>✅ Write self-documenting code</li>
+                        <li>✅ Refactor regularly (boy scout rule)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

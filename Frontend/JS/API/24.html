@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 24: Location API</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: #e4e4e4; line-height: 1.7; padding: 40px 20px; min-height: 100vh; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2.5rem; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+    .subtitle { color: #888; font-size: 1.1rem; margin-bottom: 40px; }
+    h2 { color: #38bdf8; font-size: 1.6rem; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #818cf833; }
+    h3 { color: #818cf8; font-size: 1.2rem; margin: 25px 0 15px; }
+    p { margin-bottom: 16px; color: #ccc; }
+    .concept-box { background: linear-gradient(135deg, #1e3a5f 0%, #1e1b4b 100%); border-radius: 16px; padding: 25px; margin: 25px 0; border-left: 4px solid #38bdf8; }
+    .warning { background: linear-gradient(135deg, #4a2c2c 0%, #3d1f1f 100%); border-left-color: #ff6b6b; }
+    .tip { background: linear-gradient(135deg, #1f4a2c 0%, #1f3d2a 100%); border-left-color: #4ade80; }
+    .info { background: linear-gradient(135deg, #2d1b4e 0%, #1e1b4b 100%); border-left-color: #a78bfa; }
+    code { background: #0d1117; padding: 3px 8px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em; color: #38bdf8; }
+    pre { background: #0d1117; border-radius: 12px; padding: 20px; overflow-x: auto; margin: 20px 0; border: 1px solid #ffffff15; }
+    pre code { padding: 0; background: none; }
+    .keyword { color: #c792ea; }
+    .function { color: #82aaff; }
+    .string { color: #c3e88d; }
+    .comment { color: #676e95; }
+    .number { color: #f78c6c; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ffffff15; }
+    th { background: #38bdf833; color: #38bdf8; }
+    tr:hover { background: #ffffff08; }
+    .url-anatomy { background: #0d1117; border-radius: 16px; padding: 30px; margin: 30px 0; }
+    .url-display { font-family: 'Fira Code', monospace; font-size: 1rem; background: #1a1a2e; padding: 20px; border-radius: 10px; margin-bottom: 20px; overflow-x: auto; white-space: nowrap; }
+    .url-part { padding: 4px 8px; border-radius: 4px; margin: 0 1px; display: inline-block; }
+    .url-part.protocol { background: #4ade8033; color: #4ade80; }
+    .url-part.auth { background: #f472b633; color: #f472b6; }
+    .url-part.host { background: #38bdf833; color: #38bdf8; }
+    .url-part.port { background: #fbbf2433; color: #fbbf24; }
+    .url-part.path { background: #818cf833; color: #818cf8; }
+    .url-part.search { background: #22d3ee33; color: #22d3ee; }
+    .url-part.hash { background: #fb923c33; color: #fb923c; }
+    .legend { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-top: 15px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+    .legend-color { width: 20px; height: 20px; border-radius: 4px; }
+    .interactive-demo { background: #0d1117; border-radius: 16px; padding: 25px; margin: 30px 0; border: 1px solid #38bdf844; }
+    button { background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%); color: #0f172a; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.2s; margin: 5px; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px #38bdf855; }
+    button.secondary { background: linear-gradient(135deg, #818cf8, #6366f1); color: white; }
+    button.danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+    .property-display { background: #1a1a2e; border-radius: 10px; padding: 15px; margin: 15px 0; }
+    .property-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ffffff10; flex-wrap: wrap; gap: 10px; }
+    .property-row:last-child { border-bottom: none; }
+    .property-name { color: #818cf8; font-family: monospace; min-width: 120px; }
+    .property-value { color: #4ade80; font-family: monospace; word-break: break-all; }
+    .input-group { display: flex; gap: 10px; margin: 15px 0; flex-wrap: wrap; }
+    .input-group input { flex: 1; min-width: 200px; background: #1a1a2e; border: 1px solid #38bdf844; border-radius: 8px; padding: 10px 15px; color: white; font-family: monospace; }
+    .input-group input:focus { outline: none; border-color: #38bdf8; }
+    ul { margin-left: 25px; margin-bottom: 15px; }
+    li { margin-bottom: 8px; color: #ccc; }
+    .method-card { background: linear-gradient(135deg, #1e1b4b, #0f172a); padding: 20px; border-radius: 12px; margin: 15px 0; border: 1px solid #38bdf833; }
+    .method-card h4 { color: #38bdf8; margin-bottom: 10px; }
+    .method-card p { margin-bottom: 10px; font-size: 0.95rem; }
+    .params-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0; }
+    .param-card { background: linear-gradient(135deg, #1a1a2e, #0f172a); padding: 15px; border-radius: 10px; border-left: 3px solid #818cf8; }
+    .param-card h5 { color: #818cf8; margin-bottom: 8px; }
+    .param-card code { display: block; margin-top: 8px; padding: 8px; background: #0a0a15; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📍 Chapter 24: Location API</h1>
+    <p class="subtitle">Understanding and Manipulating URLs in the Browser</p>
+
+    <h2>🎯 What is the Location API?</h2>
+    <p>The <strong>Location API</strong> provides information about the current URL and methods to navigate to different URLs. It's available through <code>window.location</code> (or just <code>location</code>) and is essential for reading URL components and programmatic navigation.</p>
+
+    <div class="concept-box">
+      <h3>💡 Location vs History</h3>
+      <p><strong>Location:</strong> Deals with the current URL—reading its parts and navigating to new URLs (with page reload).</p>
+      <p style="margin-bottom:0;"><strong>History:</strong> Manages the history stack—navigating back/forward and changing URL without reload.</p>
+    </div>
+
+    <h2>🔗 Anatomy of a URL</h2>
+    <p>Let's break down all the components of a URL:</p>
+
+    <div class="url-anatomy">
+      <div class="url-display">
+        <span class="url-part protocol">https:</span>//<span class="url-part auth">user:pass@</span><span class="url-part host">www.example.com</span><span class="url-part port">:8080</span><span class="url-part path">/path/to/page</span><span class="url-part search">?query=value&foo=bar</span><span class="url-part hash">#section</span>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-color" style="background:#4ade8033;border:1px solid #4ade80;"></div> protocol</div>
+        <div class="legend-item"><div class="legend-color" style="background:#f472b633;border:1px solid #f472b6;"></div> auth (rare)</div>
+        <div class="legend-item"><div class="legend-color" style="background:#38bdf833;border:1px solid #38bdf8;"></div> hostname</div>
+        <div class="legend-item"><div class="legend-color" style="background:#fbbf2433;border:1px solid #fbbf24;"></div> port</div>
+        <div class="legend-item"><div class="legend-color" style="background:#818cf833;border:1px solid #818cf8;"></div> pathname</div>
+        <div class="legend-item"><div class="legend-color" style="background:#22d3ee33;border:1px solid #22d3ee;"></div> search</div>
+        <div class="legend-item"><div class="legend-color" style="background:#fb923c33;border:1px solid #fb923c;"></div> hash</div>
+      </div>
+    </div>
+
+    <h2>📊 Location Properties</h2>
+    <table>
+      <tr><th>Property</th><th>Example Value</th><th>Description</th></tr>
+      <tr><td><code>location.href</code></td><td>Full URL</td><td>Complete URL string</td></tr>
+      <tr><td><code>location.protocol</code></td><td><code>https:</code></td><td>Protocol with colon</td></tr>
+      <tr><td><code>location.host</code></td><td><code>example.com:8080</code></td><td>Hostname + port</td></tr>
+      <tr><td><code>location.hostname</code></td><td><code>example.com</code></td><td>Just the hostname</td></tr>
+      <tr><td><code>location.port</code></td><td><code>8080</code></td><td>Port number (empty if default)</td></tr>
+      <tr><td><code>location.pathname</code></td><td><code>/path/to/page</code></td><td>Path after host</td></tr>
+      <tr><td><code>location.search</code></td><td><code>?query=value</code></td><td>Query string with ?</td></tr>
+      <tr><td><code>location.hash</code></td><td><code>#section</code></td><td>Fragment with #</td></tr>
+      <tr><td><code>location.origin</code></td><td><code>https://example.com:8080</code></td><td>Protocol + host + port</td></tr>
+    </table>
+
+    <h2>🎮 Interactive Demo</h2>
+    <div class="interactive-demo">
+      <p>Enter a URL to see how it's parsed:</p>
+      <div class="input-group">
+        <input type="text" id="url-input" value="https://user:pass@www.example.com:8080/products/shoes?color=red&size=10#reviews" placeholder="Enter a URL...">
+        <button onclick="parseURL()">Parse URL</button>
+      </div>
+      
+      <div class="property-display" id="parsed-properties">
+        <!-- Will be filled by JS -->
+      </div>
+      
+      <h4 style="color:#38bdf8;margin-top:20px;">Current Page Location:</h4>
+      <div class="property-display" id="current-location">
+        <!-- Will be filled by JS -->
+      </div>
+    </div>
+
+    <h2>🧭 Navigation Methods</h2>
+
+    <div class="method-card">
+      <h4>location.assign(url)</h4>
+      <p>Navigates to the specified URL. Adds entry to history (back button works).</p>
+      <pre><code>location.<span class="function">assign</span>(<span class="string">'https://example.com/new-page'</span>);
+<span class="comment">// Same as: location.href = 'https://example.com/new-page';</span>
+<span class="comment">// Same as: location = 'https://example.com/new-page';</span></code></pre>
+    </div>
+
+    <div class="method-card">
+      <h4>location.replace(url)</h4>
+      <p>Navigates to URL but <strong>replaces</strong> current history entry (no back button).</p>
+      <pre><code>location.<span class="function">replace</span>(<span class="string">'https://example.com/new-page'</span>);
+<span class="comment">// User can't go back to the previous page!</span>
+<span class="comment">// Useful after login redirects, form submissions</span></code></pre>
+    </div>
+
+    <div class="method-card">
+      <h4>location.reload()</h4>
+      <p>Reloads the current page.</p>
+      <pre><code>location.<span class="function">reload</span>();       <span class="comment">// Normal reload (may use cache)</span>
+
+<span class="comment">// Force reload from server (bypassing cache) - deprecated but still works:</span>
+location.<span class="function">reload</span>(<span class="keyword">true</span>);    <span class="comment">// ⚠️ Deprecated in spec</span>
+
+<span class="comment">// Modern alternative for hard reload:</span>
+location.href = location.href;  <span class="comment">// Or use cache-busting</span></code></pre>
+    </div>
+
+    <div class="concept-box info">
+      <h3>📌 assign() vs replace()</h3>
+      <table style="margin-top:10px;">
+        <tr>
+          <th>assign()</th>
+          <th>replace()</th>
+        </tr>
+        <tr>
+          <td>Adds to history</td>
+          <td>Replaces current entry</td>
+        </tr>
+        <tr>
+          <td>Back button returns to previous page</td>
+          <td>Back button skips this page</td>
+        </tr>
+        <tr>
+          <td>Normal navigation</td>
+          <td>Redirects, login flows</td>
+        </tr>
+      </table>
+    </div>
+
+    <h2>🔍 The URL API</h2>
+    <p>For more robust URL parsing and manipulation, use the modern <code>URL</code> API:</p>
+
+    <pre><code><span class="comment">// Parse a URL string</span>
+<span class="keyword">const</span> url = <span class="keyword">new</span> <span class="function">URL</span>(<span class="string">'https://example.com/path?a=1&b=2#section'</span>);
+
+<span class="comment">// Access all the same properties</span>
+console.<span class="function">log</span>(url.hostname);   <span class="comment">// 'example.com'</span>
+console.<span class="function">log</span>(url.pathname);   <span class="comment">// '/path'</span>
+console.<span class="function">log</span>(url.search);     <span class="comment">// '?a=1&b=2'</span>
+console.<span class="function">log</span>(url.hash);       <span class="comment">// '#section'</span>
+
+<span class="comment">// Modify the URL</span>
+url.pathname = <span class="string">'/new-path'</span>;
+url.hash = <span class="string">'#new-section'</span>;
+console.<span class="function">log</span>(url.href);       <span class="comment">// Updated full URL</span>
+
+<span class="comment">// Create URL with base</span>
+<span class="keyword">const</span> relative = <span class="keyword">new</span> <span class="function">URL</span>(<span class="string">'/products'</span>, <span class="string">'https://example.com'</span>);
+console.<span class="function">log</span>(relative.href);  <span class="comment">// 'https://example.com/products'</span></code></pre>
+
+    <h2>📋 URLSearchParams API</h2>
+    <p>The best way to work with query string parameters:</p>
+
+    <pre><code><span class="comment">// From URL search string</span>
+<span class="keyword">const</span> params = <span class="keyword">new</span> <span class="function">URLSearchParams</span>(<span class="string">'?name=John&age=30&tags=a&tags=b'</span>);
+
+<span class="comment">// Or from URL object</span>
+<span class="keyword">const</span> url = <span class="keyword">new</span> <span class="function">URL</span>(<span class="string">'https://example.com?name=John'</span>);
+<span class="keyword">const</span> params2 = url.searchParams;
+
+<span class="comment">// Reading parameters</span>
+params.<span class="function">get</span>(<span class="string">'name'</span>);          <span class="comment">// 'John'</span>
+params.<span class="function">get</span>(<span class="string">'missing'</span>);       <span class="comment">// null</span>
+params.<span class="function">getAll</span>(<span class="string">'tags'</span>);       <span class="comment">// ['a', 'b'] - for multiple values</span>
+params.<span class="function">has</span>(<span class="string">'name'</span>);          <span class="comment">// true</span>
+
+<span class="comment">// Modifying parameters</span>
+params.<span class="function">set</span>(<span class="string">'name'</span>, <span class="string">'Jane'</span>);  <span class="comment">// Replace value</span>
+params.<span class="function">append</span>(<span class="string">'tags'</span>, <span class="string">'c'</span>);  <span class="comment">// Add another value</span>
+params.<span class="function">delete</span>(<span class="string">'age'</span>);        <span class="comment">// Remove parameter</span>
+
+<span class="comment">// Iterating</span>
+<span class="keyword">for</span> (<span class="keyword">const</span> [key, value] <span class="keyword">of</span> params) {
+    console.<span class="function">log</span>(key, value);
+}
+
+<span class="comment">// Convert to object</span>
+<span class="keyword">const</span> obj = Object.<span class="function">fromEntries</span>(params);
+
+<span class="comment">// Convert to string</span>
+params.<span class="function">toString</span>();  <span class="comment">// 'name=Jane&tags=a&tags=b&tags=c'</span>
+
+<span class="comment">// Sort parameters</span>
+params.<span class="function">sort</span>();</code></pre>
+
+    <h3>Practical Examples</h3>
+    <pre><code><span class="comment">// Get current URL params</span>
+<span class="keyword">const</span> currentParams = <span class="keyword">new</span> <span class="function">URLSearchParams</span>(location.search);
+
+<span class="comment">// Build a URL with query params</span>
+<span class="keyword">function</span> <span class="function">buildSearchURL</span>(filters) {
+    <span class="keyword">const</span> url = <span class="keyword">new</span> <span class="function">URL</span>(<span class="string">'/search'</span>, location.origin);
+    
+    Object.<span class="function">entries</span>(filters).<span class="function">forEach</span>(([key, value]) => {
+        <span class="keyword">if</span> (value) {
+            url.searchParams.<span class="function">set</span>(key, value);
+        }
+    });
+    
+    <span class="keyword">return</span> url.href;
+}
+
+<span class="keyword">const</span> searchUrl = <span class="function">buildSearchURL</span>({
+    q: <span class="string">'javascript'</span>,
+    category: <span class="string">'programming'</span>,
+    sort: <span class="string">'date'</span>
+});
+<span class="comment">// '/search?q=javascript&category=programming&sort=date'</span>
+
+<span class="comment">// Update URL params without page reload (using History API)</span>
+<span class="keyword">function</span> <span class="function">updateURLParam</span>(key, value) {
+    <span class="keyword">const</span> url = <span class="keyword">new</span> <span class="function">URL</span>(location.href);
+    url.searchParams.<span class="function">set</span>(key, value);
+    history.<span class="function">pushState</span>({}, <span class="string">''</span>, url);
+}</code></pre>
+
+    <h2>🎮 URLSearchParams Demo</h2>
+    <div class="interactive-demo">
+      <p>Try manipulating URL parameters:</p>
+      <div class="params-grid">
+        <div class="param-card">
+          <h5>Add/Update Parameter</h5>
+          <div class="input-group">
+            <input type="text" id="param-key" placeholder="Key" style="min-width:80px;">
+            <input type="text" id="param-value" placeholder="Value" style="min-width:80px;">
+            <button onclick="addParam()">Add</button>
+          </div>
+        </div>
+        <div class="param-card">
+          <h5>Delete Parameter</h5>
+          <div class="input-group">
+            <input type="text" id="delete-key" placeholder="Key to delete">
+            <button onclick="deleteParam()" class="danger">Delete</button>
+          </div>
+        </div>
+      </div>
+      
+      <h4 style="color:#38bdf8;margin:20px 0 10px;">Current Parameters:</h4>
+      <div class="property-display" id="params-display"></div>
+      
+      <h4 style="color:#38bdf8;margin:20px 0 10px;">As String:</h4>
+      <div class="property-display" id="params-string" style="font-family:monospace;color:#4ade80;"></div>
+      
+      <button onclick="clearParams()" class="secondary" style="margin-top:10px;">Clear All</button>
+    </div>
+
+    <h2>🔐 Hash Navigation</h2>
+    <p>The hash (fragment) can be used for in-page navigation and is commonly used in single-page applications:</p>
+
+    <pre><code><span class="comment">// Set the hash</span>
+location.hash = <span class="string">'#section-2'</span>;  <span class="comment">// URL becomes ...page#section-2</span>
+
+<span class="comment">// Read the hash</span>
+console.<span class="function">log</span>(location.hash);    <span class="comment">// '#section-2'</span>
+
+<span class="comment">// Listen for hash changes</span>
+window.<span class="function">addEventListener</span>(<span class="string">'hashchange'</span>, (event) => {
+    console.<span class="function">log</span>(<span class="string">'Old URL:'</span>, event.oldURL);
+    console.<span class="function">log</span>(<span class="string">'New URL:'</span>, event.newURL);
+    console.<span class="function">log</span>(<span class="string">'New hash:'</span>, location.hash);
+    
+    <span class="comment">// Handle the route</span>
+    <span class="keyword">const</span> section = location.hash.<span class="function">slice</span>(<span class="number">1</span>);  <span class="comment">// Remove #</span>
+    <span class="function">showSection</span>(section);
+});
+
+<span class="comment">// Hash-based routing (old-school SPA)</span>
+<span class="keyword">function</span> <span class="function">handleHashRoute</span>() {
+    <span class="keyword">const</span> hash = location.hash.<span class="function">slice</span>(<span class="number">1</span>) || <span class="string">'home'</span>;
+    <span class="keyword">const</span> routes = {
+        <span class="string">'home'</span>: <span class="function">renderHome</span>,
+        <span class="string">'about'</span>: <span class="function">renderAbout</span>,
+        <span class="string">'contact'</span>: <span class="function">renderContact</span>
+    };
+    routes[hash]?.() || <span class="function">render404</span>();
+}
+
+window.<span class="function">addEventListener</span>(<span class="string">'hashchange'</span>, handleHashRoute);
+<span class="function">handleHashRoute</span>();  <span class="comment">// Handle initial hash</span></code></pre>
+
+    <div class="concept-box tip">
+      <h3>✅ Best Practices</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li><strong>Use URL API for parsing:</strong> More reliable than string manipulation</li>
+        <li><strong>Use URLSearchParams for query strings:</strong> Handles encoding automatically</li>
+        <li><strong>Prefer History API for SPAs:</strong> Cleaner URLs than hash-based routing</li>
+        <li><strong>Use replace() for redirects:</strong> Don't pollute history with redirect chains</li>
+        <li><strong>Always encode user input:</strong> <code>encodeURIComponent()</code> for safety</li>
+      </ul>
+    </div>
+
+    <h2>🔒 Security Considerations</h2>
+    <div class="concept-box warning">
+      <h3>⚠️ Watch Out For</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li><strong>Open Redirects:</strong> Never use user-provided URLs directly in <code>location.href</code></li>
+        <li><strong>XSS via Hash:</strong> Don't insert <code>location.hash</code> into HTML without sanitizing</li>
+        <li><strong>URL Encoding:</strong> Always use <code>encodeURIComponent()</code> for dynamic values</li>
+      </ul>
+      <pre style="margin-top:15px;"><code><span class="comment">// BAD - Open redirect vulnerability</span>
+location.href = userProvidedUrl;
+
+<span class="comment">// GOOD - Validate the URL first</span>
+<span class="keyword">const</span> url = <span class="keyword">new</span> <span class="function">URL</span>(userProvidedUrl, location.origin);
+<span class="keyword">if</span> (url.origin === location.origin) {
+    location.href = url.href;
+}</code></pre>
+    </div>
+
+    <h2>📊 Comparison Summary</h2>
+    <table>
+      <tr>
+        <th>API</th>
+        <th>Purpose</th>
+        <th>Page Reload?</th>
+      </tr>
+      <tr>
+        <td><code>location.href = url</code></td>
+        <td>Navigate to new page</td>
+        <td>Yes ✅</td>
+      </tr>
+      <tr>
+        <td><code>location.assign(url)</code></td>
+        <td>Navigate (adds history)</td>
+        <td>Yes ✅</td>
+      </tr>
+      <tr>
+        <td><code>location.replace(url)</code></td>
+        <td>Navigate (no history)</td>
+        <td>Yes ✅</td>
+      </tr>
+      <tr>
+        <td><code>location.reload()</code></td>
+        <td>Refresh current page</td>
+        <td>Yes ✅</td>
+      </tr>
+      <tr>
+        <td><code>history.pushState()</code></td>
+        <td>Update URL (SPA nav)</td>
+        <td>No ❌</td>
+      </tr>
+      <tr>
+        <td><code>location.hash = '#x'</code></td>
+        <td>Update hash only</td>
+        <td>No ❌</td>
+      </tr>
+    </table>
+  </div>
+
+  <script>
+    // Parse URL demo
+    function parseURL() {
+      const input = document.getElementById('url-input').value;
+      const container = document.getElementById('parsed-properties');
+      
+      try {
+        const url = new URL(input);
+        const props = [
+          ['href', url.href],
+          ['origin', url.origin],
+          ['protocol', url.protocol],
+          ['username', url.username || '(empty)'],
+          ['password', url.password || '(empty)'],
+          ['host', url.host],
+          ['hostname', url.hostname],
+          ['port', url.port || '(default)'],
+          ['pathname', url.pathname],
+          ['search', url.search || '(empty)'],
+          ['hash', url.hash || '(empty)']
+        ];
+        
+        container.innerHTML = props.map(([name, value]) => `
+          <div class="property-row">
+            <span class="property-name">${name}</span>
+            <span class="property-value">${value}</span>
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = `<div style="color:#ef4444;">Invalid URL: ${e.message}</div>`;
+      }
+    }
+    
+    // Show current location
+    function showCurrentLocation() {
+      const container = document.getElementById('current-location');
+      const props = [
+        ['href', location.href],
+        ['origin', location.origin],
+        ['protocol', location.protocol],
+        ['host', location.host],
+        ['pathname', location.pathname],
+        ['search', location.search || '(empty)'],
+        ['hash', location.hash || '(empty)']
+      ];
+      
+      container.innerHTML = props.map(([name, value]) => `
+        <div class="property-row">
+          <span class="property-name">${name}</span>
+          <span class="property-value">${value}</span>
+        </div>
+      `).join('');
+    }
+    
+    // URLSearchParams demo
+    let demoParams = new URLSearchParams('category=electronics&brand=apple&sort=price');
+    
+    function updateParamsDisplay() {
+      const container = document.getElementById('params-display');
+      const stringEl = document.getElementById('params-string');
+      
+      const entries = [...demoParams.entries()];
+      if (entries.length === 0) {
+        container.innerHTML = '<div style="color:#888;">No parameters</div>';
+      } else {
+        container.innerHTML = entries.map(([key, value]) => `
+          <div class="property-row">
+            <span class="property-name">${key}</span>
+            <span class="property-value">${value}</span>
+          </div>
+        `).join('');
+      }
+      
+      stringEl.textContent = demoParams.toString() || '(empty)';
+    }
+    
+    function addParam() {
+      const key = document.getElementById('param-key').value.trim();
+      const value = document.getElementById('param-value').value.trim();
+      if (key) {
+        demoParams.set(key, value);
+        updateParamsDisplay();
+        document.getElementById('param-key').value = '';
+        document.getElementById('param-value').value = '';
+      }
+    }
+    
+    function deleteParam() {
+      const key = document.getElementById('delete-key').value.trim();
+      if (key) {
+        demoParams.delete(key);
+        updateParamsDisplay();
+        document.getElementById('delete-key').value = '';
+      }
+    }
+    
+    function clearParams() {
+      demoParams = new URLSearchParams();
+      updateParamsDisplay();
+    }
+    
+    // Initialize
+    parseURL();
+    showCurrentLocation();
+    updateParamsDisplay();
+  </script>
+</body>
+</html>

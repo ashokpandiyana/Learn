@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 1: TypeScript Basics</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e4e4e7;
+      line-height: 1.7;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle { color: #94a3b8; font-size: 1.1rem; margin-bottom: 40px; }
+    .section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    h2 {
+      color: #60a5fa;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, #3b82f6, #8b5cf6);
+      border-radius: 2px;
+    }
+    h3 {
+      color: #a78bfa;
+      font-size: 1.2rem;
+      margin: 25px 0 15px;
+    }
+    p { margin-bottom: 15px; color: #cbd5e1; }
+    .code-block {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+      overflow-x: auto;
+      border: 1px solid #334155;
+    }
+    pre {
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .keyword { color: #c678dd; }
+    .type { color: #e5c07b; }
+    .string { color: #98c379; }
+    .number { color: #d19a66; }
+    .comment { color: #5c6370; font-style: italic; }
+    .function { color: #61afef; }
+    .variable { color: #e06c75; }
+    .operator { color: #56b6c2; }
+    .alert {
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+    }
+    .alert-interview {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .alert-tip {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    .alert-icon { font-size: 1.5rem; }
+    .alert-content h4 { color: #f87171; margin-bottom: 5px; }
+    .alert-tip .alert-content h4 { color: #4ade80; }
+    .type-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    .type-table th, .type-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #334155;
+    }
+    .type-table th {
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+    }
+    .type-table tr:hover { background: rgba(255,255,255,0.03); }
+    .type-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      background: rgba(139, 92, 246, 0.2);
+      color: #a78bfa;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+    .visual-box {
+      background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.1));
+      border-radius: 12px;
+      padding: 25px;
+      margin: 20px 0;
+      border: 1px solid rgba(139,92,246,0.3);
+    }
+    .visual-title {
+      color: #a78bfa;
+      font-weight: 600;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .type-hierarchy {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .type-node {
+      padding: 10px 25px;
+      background: rgba(59, 130, 246, 0.2);
+      border: 2px solid #3b82f6;
+      border-radius: 8px;
+      color: #60a5fa;
+      font-family: monospace;
+    }
+    .type-arrow { color: #64748b; font-size: 1.2rem; }
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .comparison-box {
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .comparison-box.good { border: 2px solid #22c55e; }
+    .comparison-box.bad { border: 2px solid #ef4444; }
+    .comparison-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .comparison-box.good .comparison-label { color: #4ade80; }
+    .comparison-box.bad .comparison-label { color: #f87171; }
+    ul { padding-left: 25px; margin: 10px 0; }
+    li { margin: 8px 0; color: #cbd5e1; }
+    .nav-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 40px;
+    }
+    .nav-btn {
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Chapter 1: TypeScript Basics</h1>
+    <p class="subtitle">Building a solid foundation with TypeScript's type system</p>
+
+    <!-- Section 1.1 -->
+    <div class="section">
+      <h2>1.1 Type Annotations</h2>
+      <p>Type annotations are the foundation of TypeScript. They allow you to explicitly specify the type of variables, function parameters, and return values. This enables the TypeScript compiler to catch errors at compile time rather than runtime.</p>
+
+      <h3>Primitive Types</h3>
+      <p>TypeScript includes all JavaScript primitive types plus some additional ones:</p>
+      
+      <table class="type-table">
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Example</th>
+        </tr>
+        <tr>
+          <td><span class="type-badge">string</span></td>
+          <td>Textual data</td>
+          <td><code>"Hello World"</code></td>
+        </tr>
+        <tr>
+          <td><span class="type-badge">number</span></td>
+          <td>All numbers (int, float, hex, etc.)</td>
+          <td><code>42, 3.14, 0xff</code></td>
+        </tr>
+        <tr>
+          <td><span class="type-badge">boolean</span></td>
+          <td>True or false values</td>
+          <td><code>true, false</code></td>
+        </tr>
+        <tr>
+          <td><span class="type-badge">null</span></td>
+          <td>Intentional absence of value</td>
+          <td><code>null</code></td>
+        </tr>
+        <tr>
+          <td><span class="type-badge">undefined</span></td>
+          <td>Uninitialized value</td>
+          <td><code>undefined</code></td>
+        </tr>
+        <tr>
+          <td><span class="type-badge">symbol</span></td>
+          <td>Unique identifiers</td>
+          <td><code>Symbol("id")</code></td>
+        </tr>
+        <tr>
+          <td><span class="type-badge">bigint</span></td>
+          <td>Large integers</td>
+          <td><code>9007199254740991n</code></td>
+        </tr>
+      </table>
+
+      <div class="code-block">
+<pre><span class="comment">// Explicit type annotations</span>
+<span class="keyword">let</span> <span class="variable">username</span>: <span class="type">string</span> = <span class="string">"John Doe"</span>;
+<span class="keyword">let</span> <span class="variable">age</span>: <span class="type">number</span> = 25;
+<span class="keyword">let</span> <span class="variable">isActive</span>: <span class="type">boolean</span> = <span class="keyword">true</span>;
+<span class="keyword">let</span> <span class="variable">nothing</span>: <span class="type">null</span> = <span class="keyword">null</span>;
+<span class="keyword">let</span> <span class="variable">notDefined</span>: <span class="type">undefined</span> = <span class="keyword">undefined</span>;
+<span class="keyword">let</span> <span class="variable">uniqueId</span>: <span class="type">symbol</span> = <span class="function">Symbol</span>(<span class="string">"id"</span>);
+<span class="keyword">let</span> <span class="variable">bigNumber</span>: <span class="type">bigint</span> = <span class="number">9007199254740991n</span>;
+
+<span class="comment">// Type inference - TypeScript infers the type</span>
+<span class="keyword">let</span> <span class="variable">inferredString</span> = <span class="string">"Hello"</span>; <span class="comment">// TypeScript knows this is string</span>
+<span class="keyword">let</span> <span class="variable">inferredNumber</span> = <span class="number">42</span>;      <span class="comment">// TypeScript knows this is number</span></pre>
+      </div>
+
+      <h3>Type Inference vs Explicit Annotations</h3>
+      <p>TypeScript can automatically infer types from values. Use explicit annotations when:</p>
+      <ul>
+        <li>The type cannot be inferred (e.g., function parameters)</li>
+        <li>You want to be more specific than the inferred type</li>
+        <li>You're declaring a variable without initializing it</li>
+      </ul>
+
+      <h3>The <code>any</code> Type</h3>
+      <p>The <span class="type-badge">any</span> type opts out of type checking entirely. It's essentially telling TypeScript to treat the variable as any type.</p>
+
+      <div class="code-block">
+<pre><span class="keyword">let</span> <span class="variable">flexible</span>: <span class="type">any</span> = <span class="number">4</span>;
+<span class="variable">flexible</span> = <span class="string">"now I'm a string"</span>;  <span class="comment">// No error!</span>
+<span class="variable">flexible</span> = <span class="keyword">false</span>;                <span class="comment">// No error!</span>
+<span class="variable">flexible</span>.<span class="function">nonExistentMethod</span>();   <span class="comment">// No error at compile time! 💥 Runtime error</span></pre>
+      </div>
+
+      <div class="alert alert-interview">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+          <h4>Interview Alert: Why avoid <code>any</code>?</h4>
+          <p>Using <code>any</code> defeats the purpose of TypeScript. It disables type checking, removes IntelliSense support, and can lead to runtime errors that TypeScript was designed to prevent.</p>
+        </div>
+      </div>
+
+      <h3>The <code>unknown</code> Type</h3>
+      <p>The <span class="type-badge">unknown</span> type is the type-safe counterpart of <code>any</code>. You must perform type checking before using an unknown value.</p>
+
+      <div class="code-block">
+<pre><span class="keyword">let</span> <span class="variable">userInput</span>: <span class="type">unknown</span>;
+<span class="variable">userInput</span> = <span class="number">5</span>;
+<span class="variable">userInput</span> = <span class="string">"Hello"</span>;
+
+<span class="comment">// Cannot use directly - must narrow first</span>
+<span class="comment">// let str: string = userInput; // ❌ Error!</span>
+
+<span class="comment">// Type guard - checking before using</span>
+<span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">userInput</span> === <span class="string">"string"</span>) {
+  <span class="keyword">let</span> <span class="variable">str</span>: <span class="type">string</span> = <span class="variable">userInput</span>; <span class="comment">// ✅ OK - TypeScript knows it's a string</span>
+  console.<span class="function">log</span>(<span class="variable">str</span>.<span class="function">toUpperCase</span>());
+}</pre>
+      </div>
+
+      <div class="visual-box">
+        <div class="visual-title">🔍 any vs unknown Comparison</div>
+        <div class="comparison-grid">
+          <div class="comparison-box bad">
+            <div class="comparison-label">❌ any (Unsafe)</div>
+            <div class="code-block" style="margin: 0;">
+<pre><span class="keyword">let</span> x: <span class="type">any</span> = <span class="string">"hello"</span>;
+x.<span class="function">foo</span>(); <span class="comment">// No error!</span>
+x.<span class="function">bar</span>.<span class="function">baz</span>(); <span class="comment">// No error!</span></pre>
+            </div>
+          </div>
+          <div class="comparison-box good">
+            <div class="comparison-label">✅ unknown (Safe)</div>
+            <div class="code-block" style="margin: 0;">
+<pre><span class="keyword">let</span> x: <span class="type">unknown</span> = <span class="string">"hello"</span>;
+<span class="comment">// x.foo(); // ❌ Error!</span>
+<span class="keyword">if</span> (<span class="keyword">typeof</span> x === <span class="string">"string"</span>) {
+  x.<span class="function">toUpperCase</span>(); <span class="comment">// ✅ OK</span>
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>The <code>never</code> Type</h3>
+      <p>The <span class="type-badge">never</span> type represents values that never occur. It's used for functions that never return (throw errors or infinite loops) and for exhaustive type checking.</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Function that never returns</span>
+<span class="keyword">function</span> <span class="function">throwError</span>(<span class="variable">message</span>: <span class="type">string</span>): <span class="type">never</span> {
+  <span class="keyword">throw new</span> <span class="type">Error</span>(<span class="variable">message</span>);
+}
+
+<span class="comment">// Infinite loop</span>
+<span class="keyword">function</span> <span class="function">infiniteLoop</span>(): <span class="type">never</span> {
+  <span class="keyword">while</span> (<span class="keyword">true</span>) {
+    <span class="comment">// do something forever</span>
+  }
+}
+
+<span class="comment">// Exhaustive checking (very useful!)</span>
+<span class="keyword">type</span> <span class="type">Shape</span> = <span class="string">"circle"</span> | <span class="string">"square"</span>;
+
+<span class="keyword">function</span> <span class="function">getArea</span>(<span class="variable">shape</span>: <span class="type">Shape</span>): <span class="type">number</span> {
+  <span class="keyword">switch</span> (<span class="variable">shape</span>) {
+    <span class="keyword">case</span> <span class="string">"circle"</span>:
+      <span class="keyword">return</span> Math.<span class="variable">PI</span> * <span class="number">10</span> * <span class="number">10</span>;
+    <span class="keyword">case</span> <span class="string">"square"</span>:
+      <span class="keyword">return</span> <span class="number">10</span> * <span class="number">10</span>;
+    <span class="keyword">default</span>:
+      <span class="comment">// If we add a new shape and forget to handle it,</span>
+      <span class="comment">// TypeScript will error here!</span>
+      <span class="keyword">const</span> <span class="variable">_exhaustive</span>: <span class="type">never</span> = <span class="variable">shape</span>;
+      <span class="keyword">return</span> <span class="variable">_exhaustive</span>;
+  }
+}</pre>
+      </div>
+
+      <h3>The <code>void</code> Type</h3>
+      <p>The <span class="type-badge">void</span> type represents the absence of a return value. It's commonly used for functions that don't return anything.</p>
+
+      <div class="code-block">
+<pre><span class="keyword">function</span> <span class="function">logMessage</span>(<span class="variable">message</span>: <span class="type">string</span>): <span class="type">void</span> {
+  console.<span class="function">log</span>(<span class="variable">message</span>);
+  <span class="comment">// No return statement, or return undefined</span>
+}
+
+<span class="comment">// void vs undefined</span>
+<span class="keyword">let</span> <span class="variable">unusable</span>: <span class="type">void</span> = <span class="keyword">undefined</span>; <span class="comment">// Only undefined is assignable to void</span></pre>
+      </div>
+    </div>
+
+    <!-- Section 1.2 -->
+    <div class="section">
+      <h2>1.2 Arrays and Tuples</h2>
+      
+      <h3>Array Syntax</h3>
+      <p>TypeScript provides two syntaxes for typing arrays, both are equivalent:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Syntax 1: Type followed by []</span>
+<span class="keyword">let</span> <span class="variable">numbers</span>: <span class="type">number</span>[] = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];
+<span class="keyword">let</span> <span class="variable">names</span>: <span class="type">string</span>[] = [<span class="string">"Alice"</span>, <span class="string">"Bob"</span>, <span class="string">"Charlie"</span>];
+
+<span class="comment">// Syntax 2: Generic Array type</span>
+<span class="keyword">let</span> <span class="variable">numbers2</span>: <span class="type">Array</span>&lt;<span class="type">number</span>&gt; = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];
+<span class="keyword">let</span> <span class="variable">names2</span>: <span class="type">Array</span>&lt;<span class="type">string</span>&gt; = [<span class="string">"Alice"</span>, <span class="string">"Bob"</span>, <span class="string">"Charlie"</span>];
+
+<span class="comment">// Array of objects</span>
+<span class="keyword">let</span> <span class="variable">users</span>: { <span class="variable">name</span>: <span class="type">string</span>; <span class="variable">age</span>: <span class="type">number</span> }[] = [
+  { <span class="variable">name</span>: <span class="string">"Alice"</span>, <span class="variable">age</span>: <span class="number">25</span> },
+  { <span class="variable">name</span>: <span class="string">"Bob"</span>, <span class="variable">age</span>: <span class="number">30</span> }
+];
+
+<span class="comment">// Mixed types with union</span>
+<span class="keyword">let</span> <span class="variable">mixed</span>: (<span class="type">string</span> | <span class="type">number</span>)[] = [<span class="number">1</span>, <span class="string">"two"</span>, <span class="number">3</span>, <span class="string">"four"</span>];</pre>
+      </div>
+
+      <h3>Readonly Arrays</h3>
+      <p>Readonly arrays prevent mutation - you cannot push, pop, or modify elements:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Readonly array syntax options</span>
+<span class="keyword">const</span> <span class="variable">readonlyNums</span>: <span class="keyword">readonly</span> <span class="type">number</span>[] = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
+<span class="keyword">const</span> <span class="variable">readonlyNums2</span>: <span class="type">ReadonlyArray</span>&lt;<span class="type">number</span>&gt; = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
+
+<span class="comment">// These will cause errors:</span>
+<span class="comment">// readonlyNums.push(4);    // ❌ Error: Property 'push' does not exist</span>
+<span class="comment">// readonlyNums[0] = 10;    // ❌ Error: Index signature is readonly</span>
+
+<span class="comment">// But you can read values</span>
+console.<span class="function">log</span>(<span class="variable">readonlyNums</span>[<span class="number">0</span>]); <span class="comment">// ✅ OK</span></pre>
+      </div>
+
+      <h3>Tuples</h3>
+      <p>Tuples are fixed-length arrays where each element has a specific type at a specific position. They're perfect for representing structured data like coordinates or database rows.</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Basic tuple - [x, y] coordinate</span>
+<span class="keyword">let</span> <span class="variable">point</span>: [<span class="type">number</span>, <span class="type">number</span>] = [<span class="number">10</span>, <span class="number">20</span>];
+
+<span class="comment">// Tuple with different types</span>
+<span class="keyword">let</span> <span class="variable">person</span>: [<span class="type">string</span>, <span class="type">number</span>, <span class="type">boolean</span>] = [<span class="string">"Alice"</span>, <span class="number">25</span>, <span class="keyword">true</span>];
+<span class="comment">// person[0] is string, person[1] is number, person[2] is boolean</span>
+
+<span class="comment">// Named tuples (TypeScript 4.0+) - better documentation</span>
+<span class="keyword">type</span> <span class="type">NamedPoint</span> = [<span class="variable">x</span>: <span class="type">number</span>, <span class="variable">y</span>: <span class="type">number</span>];
+<span class="keyword">type</span> <span class="type">UserRecord</span> = [<span class="variable">name</span>: <span class="type">string</span>, <span class="variable">age</span>: <span class="type">number</span>, <span class="variable">isAdmin</span>: <span class="type">boolean</span>];
+
+<span class="keyword">const</span> <span class="variable">user</span>: <span class="type">UserRecord</span> = [<span class="string">"Bob"</span>, <span class="number">30</span>, <span class="keyword">false</span>];
+
+<span class="comment">// Optional tuple elements</span>
+<span class="keyword">type</span> <span class="type">OptionalTuple</span> = [<span class="type">string</span>, <span class="type">number</span>?]; <span class="comment">// Second element is optional</span>
+<span class="keyword">const</span> <span class="variable">t1</span>: <span class="type">OptionalTuple</span> = [<span class="string">"hello"</span>];        <span class="comment">// ✅ OK</span>
+<span class="keyword">const</span> <span class="variable">t2</span>: <span class="type">OptionalTuple</span> = [<span class="string">"hello"</span>, <span class="number">42</span>];    <span class="comment">// ✅ OK</span>
+
+<span class="comment">// Rest elements in tuples</span>
+<span class="keyword">type</span> <span class="type">StringAndNumbers</span> = [<span class="type">string</span>, ...<span class="type">number</span>[]];
+<span class="keyword">const</span> <span class="variable">t3</span>: <span class="type">StringAndNumbers</span> = [<span class="string">"hello"</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]; <span class="comment">// ✅ OK</span>
+<span class="keyword">const</span> <span class="variable">t4</span>: <span class="type">StringAndNumbers</span> = [<span class="string">"hello"</span>];          <span class="comment">// ✅ OK - rest can be empty</span></pre>
+      </div>
+
+      <div class="alert alert-tip">
+        <span class="alert-icon">💡</span>
+        <div class="alert-content">
+          <h4>Production Tip</h4>
+          <p>Use tuples for function return values when returning multiple related values. It's more efficient than creating an object for simple cases.</p>
+          <div class="code-block" style="margin-top: 10px;">
+<pre><span class="comment">// Return multiple values with a tuple</span>
+<span class="keyword">function</span> <span class="function">useState</span>&lt;<span class="type">T</span>&gt;(<span class="variable">initial</span>: <span class="type">T</span>): [<span class="type">T</span>, (<span class="variable">newValue</span>: <span class="type">T</span>) => <span class="type">void</span>] {
+  <span class="comment">// React's useState returns a tuple!</span>
+}
+
+<span class="keyword">const</span> [<span class="variable">count</span>, <span class="variable">setCount</span>] = <span class="function">useState</span>(<span class="number">0</span>);</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1.3 -->
+    <div class="section">
+      <h2>1.3 Objects and Interfaces</h2>
+      
+      <h3>Object Type Annotations</h3>
+      <p>You can define the shape of objects using inline type annotations or interfaces:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Inline object type annotation</span>
+<span class="keyword">let</span> <span class="variable">user</span>: { <span class="variable">name</span>: <span class="type">string</span>; <span class="variable">age</span>: <span class="type">number</span> } = {
+  <span class="variable">name</span>: <span class="string">"Alice"</span>,
+  <span class="variable">age</span>: <span class="number">25</span>
+};
+
+<span class="comment">// Function parameter with object type</span>
+<span class="keyword">function</span> <span class="function">greet</span>(<span class="variable">person</span>: { <span class="variable">name</span>: <span class="type">string</span>; <span class="variable">age</span>: <span class="type">number</span> }) {
+  console.<span class="function">log</span>(<span class="string">`Hello, </span>${<span class="variable">person</span>.<span class="variable">name</span>}<span class="string">!`</span>);
+}</pre>
+      </div>
+
+      <h3>Optional and Readonly Properties</h3>
+      <div class="code-block">
+<pre><span class="keyword">interface</span> <span class="type">User</span> {
+  <span class="keyword">readonly</span> <span class="variable">id</span>: <span class="type">string</span>;       <span class="comment">// Cannot be changed after creation</span>
+  <span class="variable">name</span>: <span class="type">string</span>;              <span class="comment">// Required property</span>
+  <span class="variable">email</span>?: <span class="type">string</span>;            <span class="comment">// Optional property (can be undefined)</span>
+  <span class="variable">age</span>?: <span class="type">number</span>;              <span class="comment">// Optional property</span>
+}
+
+<span class="keyword">const</span> <span class="variable">user</span>: <span class="type">User</span> = {
+  <span class="variable">id</span>: <span class="string">"123"</span>,
+  <span class="variable">name</span>: <span class="string">"Alice"</span>
+  <span class="comment">// email and age are optional, so we don't need them</span>
+};
+
+<span class="comment">// user.id = "456"; // ❌ Error: Cannot assign to 'id' because it's readonly</span>
+<span class="variable">user</span>.<span class="variable">name</span> = <span class="string">"Bob"</span>; <span class="comment">// ✅ OK - name is not readonly</span></pre>
+      </div>
+
+      <h3>Index Signatures</h3>
+      <p>Index signatures allow you to describe objects with dynamic keys:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// String index signature</span>
+<span class="keyword">interface</span> <span class="type">Dictionary</span> {
+  [<span class="variable">key</span>: <span class="type">string</span>]: <span class="type">string</span>;
+}
+
+<span class="keyword">const</span> <span class="variable">colors</span>: <span class="type">Dictionary</span> = {
+  <span class="variable">red</span>: <span class="string">"#ff0000"</span>,
+  <span class="variable">green</span>: <span class="string">"#00ff00"</span>,
+  <span class="variable">blue</span>: <span class="string">"#0000ff"</span>
+  <span class="comment">// Can add any string key with string value</span>
+};
+
+<span class="comment">// Mixing fixed and dynamic properties</span>
+<span class="keyword">interface</span> <span class="type">UserWithMetadata</span> {
+  <span class="variable">id</span>: <span class="type">string</span>;
+  <span class="variable">name</span>: <span class="type">string</span>;
+  [<span class="variable">key</span>: <span class="type">string</span>]: <span class="type">string</span>; <span class="comment">// Additional dynamic properties</span>
+}
+
+<span class="comment">// Number index signature (for array-like objects)</span>
+<span class="keyword">interface</span> <span class="type">StringArray</span> {
+  [<span class="variable">index</span>: <span class="type">number</span>]: <span class="type">string</span>;
+}</pre>
+      </div>
+
+      <h3>Interface Declaration and Extension</h3>
+      <div class="code-block">
+<pre><span class="comment">// Basic interface</span>
+<span class="keyword">interface</span> <span class="type">Animal</span> {
+  <span class="variable">name</span>: <span class="type">string</span>;
+  <span class="variable">age</span>: <span class="type">number</span>;
+}
+
+<span class="comment">// Extending an interface</span>
+<span class="keyword">interface</span> <span class="type">Dog</span> <span class="keyword">extends</span> <span class="type">Animal</span> {
+  <span class="variable">breed</span>: <span class="type">string</span>;
+  <span class="function">bark</span>(): <span class="type">void</span>;
+}
+
+<span class="comment">// Extending multiple interfaces</span>
+<span class="keyword">interface</span> <span class="type">Pet</span> {
+  <span class="variable">owner</span>: <span class="type">string</span>;
+}
+
+<span class="keyword">interface</span> <span class="type">PetDog</span> <span class="keyword">extends</span> <span class="type">Animal</span>, <span class="type">Pet</span> {
+  <span class="variable">breed</span>: <span class="type">string</span>;
+}
+
+<span class="keyword">const</span> <span class="variable">myDog</span>: <span class="type">PetDog</span> = {
+  <span class="variable">name</span>: <span class="string">"Buddy"</span>,
+  <span class="variable">age</span>: <span class="number">3</span>,
+  <span class="variable">owner</span>: <span class="string">"Alice"</span>,
+  <span class="variable">breed</span>: <span class="string">"Golden Retriever"</span>
+};</pre>
+      </div>
+
+      <h3>Interface Merging (Declaration Merging)</h3>
+      <p>One unique feature of interfaces: multiple declarations with the same name are merged:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Declaration 1</span>
+<span class="keyword">interface</span> <span class="type">User</span> {
+  <span class="variable">name</span>: <span class="type">string</span>;
+}
+
+<span class="comment">// Declaration 2 - merges with the first</span>
+<span class="keyword">interface</span> <span class="type">User</span> {
+  <span class="variable">email</span>: <span class="type">string</span>;
+}
+
+<span class="comment">// User now has both name AND email</span>
+<span class="keyword">const</span> <span class="variable">user</span>: <span class="type">User</span> = {
+  <span class="variable">name</span>: <span class="string">"Alice"</span>,
+  <span class="variable">email</span>: <span class="string">"alice@example.com"</span>
+};</pre>
+      </div>
+
+      <div class="alert alert-tip">
+        <span class="alert-icon">💡</span>
+        <div class="alert-content">
+          <h4>When is Interface Merging Useful?</h4>
+          <p>Declaration merging is commonly used to extend third-party library types. For example, adding custom properties to Express's Request object or extending Window in the browser.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1.4 -->
+    <div class="section">
+      <h2>1.4 Type Aliases</h2>
+      
+      <p>Type aliases create a new name for a type. They can represent any type, not just objects.</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Simple type alias</span>
+<span class="keyword">type</span> <span class="type">ID</span> = <span class="type">string</span> | <span class="type">number</span>;
+<span class="keyword">type</span> <span class="type">Callback</span> = (<span class="variable">data</span>: <span class="type">string</span>) => <span class="type">void</span>;
+
+<span class="comment">// Object type alias</span>
+<span class="keyword">type</span> <span class="type">Point</span> = {
+  <span class="variable">x</span>: <span class="type">number</span>;
+  <span class="variable">y</span>: <span class="type">number</span>;
+};
+
+<span class="comment">// Using type aliases</span>
+<span class="keyword">let</span> <span class="variable">userId</span>: <span class="type">ID</span> = <span class="string">"abc123"</span>;
+<span class="variable">userId</span> = <span class="number">123</span>; <span class="comment">// ✅ OK - ID can be string or number</span>
+
+<span class="keyword">const</span> <span class="variable">handleData</span>: <span class="type">Callback</span> = (<span class="variable">data</span>) => {
+  console.<span class="function">log</span>(<span class="variable">data</span>);
+};</pre>
+      </div>
+
+      <h3>Type vs Interface - When to Use Each</h3>
+      <div class="visual-box">
+        <div class="visual-title">🔄 Type vs Interface Comparison</div>
+        <table class="type-table" style="background: transparent;">
+          <tr>
+            <th>Feature</th>
+            <th>type</th>
+            <th>interface</th>
+          </tr>
+          <tr>
+            <td>Object shapes</td>
+            <td>✅ Yes</td>
+            <td>✅ Yes</td>
+          </tr>
+          <tr>
+            <td>Primitives / Unions</td>
+            <td>✅ Yes</td>
+            <td>❌ No</td>
+          </tr>
+          <tr>
+            <td>Declaration merging</td>
+            <td>❌ No</td>
+            <td>✅ Yes</td>
+          </tr>
+          <tr>
+            <td>Extends/Implements</td>
+            <td>✅ Via intersection</td>
+            <td>✅ Native extends</td>
+          </tr>
+          <tr>
+            <td>Computed properties</td>
+            <td>✅ Yes</td>
+            <td>❌ No</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="code-block">
+<pre><span class="comment">// Things ONLY type can do:</span>
+
+<span class="comment">// 1. Union types</span>
+<span class="keyword">type</span> <span class="type">Status</span> = <span class="string">"pending"</span> | <span class="string">"approved"</span> | <span class="string">"rejected"</span>;
+
+<span class="comment">// 2. Primitive aliases</span>
+<span class="keyword">type</span> <span class="type">StringOrNumber</span> = <span class="type">string</span> | <span class="type">number</span>;
+
+<span class="comment">// 3. Tuple types</span>
+<span class="keyword">type</span> <span class="type">Coordinate</span> = [<span class="type">number</span>, <span class="type">number</span>];
+
+<span class="comment">// 4. Mapped types (advanced)</span>
+<span class="keyword">type</span> <span class="type">Readonly</span>&lt;<span class="type">T</span>&gt; = {
+  <span class="keyword">readonly</span> [<span class="type">K</span> <span class="keyword">in</span> <span class="keyword">keyof</span> <span class="type">T</span>]: <span class="type">T</span>[<span class="type">K</span>];
+};
+
+<span class="comment">// Things ONLY interface can do:</span>
+
+<span class="comment">// Declaration merging (shown above)</span>
+<span class="keyword">interface</span> <span class="type">Window</span> {
+  <span class="variable">myCustomProperty</span>: <span class="type">string</span>;
+}</pre>
+      </div>
+
+      <div class="alert alert-interview">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+          <h4>Interview Answer</h4>
+          <p><strong>Use <code>interface</code></strong> for object shapes, especially when you need to extend or implement them, or when you're defining a contract for classes.</p>
+          <p><strong>Use <code>type</code></strong> for unions, tuples, primitives, and complex type transformations.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1.5 -->
+    <div class="section">
+      <h2>1.5 Union and Intersection Types</h2>
+      
+      <h3>Union Types</h3>
+      <p>A union type allows a value to be one of several types. Use the <code>|</code> operator.</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Basic union</span>
+<span class="keyword">type</span> <span class="type">StringOrNumber</span> = <span class="type">string</span> | <span class="type">number</span>;
+
+<span class="keyword">let</span> <span class="variable">value</span>: <span class="type">StringOrNumber</span> = <span class="string">"hello"</span>;
+<span class="variable">value</span> = <span class="number">42</span>; <span class="comment">// ✅ OK</span>
+
+<span class="comment">// Union with objects</span>
+<span class="keyword">type</span> <span class="type">SuccessResponse</span> = { <span class="variable">status</span>: <span class="string">"success"</span>; <span class="variable">data</span>: <span class="type">string</span> };
+<span class="keyword">type</span> <span class="type">ErrorResponse</span> = { <span class="variable">status</span>: <span class="string">"error"</span>; <span class="variable">message</span>: <span class="type">string</span> };
+<span class="keyword">type</span> <span class="type">Response</span> = <span class="type">SuccessResponse</span> | <span class="type">ErrorResponse</span>;
+
+<span class="keyword">function</span> <span class="function">handleResponse</span>(<span class="variable">res</span>: <span class="type">Response</span>) {
+  <span class="keyword">if</span> (<span class="variable">res</span>.<span class="variable">status</span> === <span class="string">"success"</span>) {
+    console.<span class="function">log</span>(<span class="variable">res</span>.<span class="variable">data</span>); <span class="comment">// TypeScript knows 'data' exists here</span>
+  } <span class="keyword">else</span> {
+    console.<span class="function">log</span>(<span class="variable">res</span>.<span class="variable">message</span>); <span class="comment">// TypeScript knows 'message' exists here</span>
+  }
+}</pre>
+      </div>
+
+      <h3>Intersection Types</h3>
+      <p>An intersection type combines multiple types into one. The result has all properties from all types.</p>
+
+      <div class="code-block">
+<pre><span class="keyword">type</span> <span class="type">HasName</span> = { <span class="variable">name</span>: <span class="type">string</span> };
+<span class="keyword">type</span> <span class="type">HasAge</span> = { <span class="variable">age</span>: <span class="type">number</span> };
+<span class="keyword">type</span> <span class="type">HasEmail</span> = { <span class="variable">email</span>: <span class="type">string</span> };
+
+<span class="comment">// Intersection combines all properties</span>
+<span class="keyword">type</span> <span class="type">Person</span> = <span class="type">HasName</span> & <span class="type">HasAge</span> & <span class="type">HasEmail</span>;
+
+<span class="keyword">const</span> <span class="variable">person</span>: <span class="type">Person</span> = {
+  <span class="variable">name</span>: <span class="string">"Alice"</span>,
+  <span class="variable">age</span>: <span class="number">25</span>,
+  <span class="variable">email</span>: <span class="string">"alice@example.com"</span>
+  <span class="comment">// Must have ALL properties from all types</span>
+};</pre>
+      </div>
+
+      <div class="visual-box">
+        <div class="visual-title">🔍 Union vs Intersection Visualized</div>
+        <div class="comparison-grid">
+          <div class="comparison-box" style="border-color: #3b82f6;">
+            <div class="comparison-label" style="color: #60a5fa;">Union (A | B) - "OR"</div>
+            <p style="font-size: 0.9rem;">Value can be type A <strong>or</strong> type B</p>
+            <p style="font-size: 0.9rem;">Access only <strong>common</strong> properties without narrowing</p>
+          </div>
+          <div class="comparison-box" style="border-color: #8b5cf6;">
+            <div class="comparison-label" style="color: #a78bfa;">Intersection (A & B) - "AND"</div>
+            <p style="font-size: 0.9rem;">Value must be type A <strong>and</strong> type B</p>
+            <p style="font-size: 0.9rem;">Has <strong>all</strong> properties from both types</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>Discriminated Unions (Tagged Unions)</h3>
+      <p>A powerful pattern where each type in a union has a common property (the "discriminant") that TypeScript uses to narrow the type:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Discriminated union with 'kind' as the discriminant</span>
+<span class="keyword">type</span> <span class="type">Circle</span> = {
+  <span class="variable">kind</span>: <span class="string">"circle"</span>;  <span class="comment">// Discriminant property</span>
+  <span class="variable">radius</span>: <span class="type">number</span>;
+};
+
+<span class="keyword">type</span> <span class="type">Rectangle</span> = {
+  <span class="variable">kind</span>: <span class="string">"rectangle"</span>;  <span class="comment">// Discriminant property</span>
+  <span class="variable">width</span>: <span class="type">number</span>;
+  <span class="variable">height</span>: <span class="type">number</span>;
+};
+
+<span class="keyword">type</span> <span class="type">Triangle</span> = {
+  <span class="variable">kind</span>: <span class="string">"triangle"</span>;  <span class="comment">// Discriminant property</span>
+  <span class="variable">base</span>: <span class="type">number</span>;
+  <span class="variable">height</span>: <span class="type">number</span>;
+};
+
+<span class="keyword">type</span> <span class="type">Shape</span> = <span class="type">Circle</span> | <span class="type">Rectangle</span> | <span class="type">Triangle</span>;
+
+<span class="keyword">function</span> <span class="function">getArea</span>(<span class="variable">shape</span>: <span class="type">Shape</span>): <span class="type">number</span> {
+  <span class="keyword">switch</span> (<span class="variable">shape</span>.<span class="variable">kind</span>) {
+    <span class="keyword">case</span> <span class="string">"circle"</span>:
+      <span class="comment">// TypeScript knows shape is Circle here</span>
+      <span class="keyword">return</span> Math.<span class="variable">PI</span> * <span class="variable">shape</span>.<span class="variable">radius</span> ** <span class="number">2</span>;
+    <span class="keyword">case</span> <span class="string">"rectangle"</span>:
+      <span class="comment">// TypeScript knows shape is Rectangle here</span>
+      <span class="keyword">return</span> <span class="variable">shape</span>.<span class="variable">width</span> * <span class="variable">shape</span>.<span class="variable">height</span>;
+    <span class="keyword">case</span> <span class="string">"triangle"</span>:
+      <span class="comment">// TypeScript knows shape is Triangle here</span>
+      <span class="keyword">return</span> (<span class="variable">shape</span>.<span class="variable">base</span> * <span class="variable">shape</span>.<span class="variable">height</span>) / <span class="number">2</span>;
+  }
+}</pre>
+      </div>
+
+      <div class="alert alert-interview">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+          <h4>Interview Alert: Discriminated Unions</h4>
+          <p>This pattern is extremely common in React for typing actions in reducers, API responses, and component variants. Master this pattern!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1.6 -->
+    <div class="section">
+      <h2>1.6 Literal Types</h2>
+      
+      <p>Literal types allow you to specify exact values a variable can hold, not just a type category.</p>
+
+      <h3>String Literal Types</h3>
+      <div class="code-block">
+<pre><span class="comment">// Single literal</span>
+<span class="keyword">let</span> <span class="variable">direction</span>: <span class="string">"north"</span> = <span class="string">"north"</span>;
+<span class="comment">// direction = "south"; // ❌ Error: Type '"south"' is not assignable</span>
+
+<span class="comment">// Union of literals - most common usage</span>
+<span class="keyword">type</span> <span class="type">Direction</span> = <span class="string">"north"</span> | <span class="string">"south"</span> | <span class="string">"east"</span> | <span class="string">"west"</span>;
+<span class="keyword">type</span> <span class="type">ButtonVariant</span> = <span class="string">"primary"</span> | <span class="string">"secondary"</span> | <span class="string">"danger"</span>;
+<span class="keyword">type</span> <span class="type">Size</span> = <span class="string">"sm"</span> | <span class="string">"md"</span> | <span class="string">"lg"</span> | <span class="string">"xl"</span>;
+
+<span class="keyword">function</span> <span class="function">move</span>(<span class="variable">dir</span>: <span class="type">Direction</span>) {
+  console.<span class="function">log</span>(<span class="string">`Moving </span>${<span class="variable">dir</span>}<span class="string">`</span>);
+}
+
+<span class="function">move</span>(<span class="string">"north"</span>); <span class="comment">// ✅ OK</span>
+<span class="comment">// move("up");   // ❌ Error: Argument of type '"up"' is not assignable</span></pre>
+      </div>
+
+      <h3>Numeric and Boolean Literal Types</h3>
+      <div class="code-block">
+<pre><span class="comment">// Numeric literals - great for constrained values</span>
+<span class="keyword">type</span> <span class="type">DiceRoll</span> = <span class="number">1</span> | <span class="number">2</span> | <span class="number">3</span> | <span class="number">4</span> | <span class="number">5</span> | <span class="number">6</span>;
+<span class="keyword">type</span> <span class="type">HttpSuccessCode</span> = <span class="number">200</span> | <span class="number">201</span> | <span class="number">204</span>;
+<span class="keyword">type</span> <span class="type">Month</span> = <span class="number">1</span> | <span class="number">2</span> | <span class="number">3</span> | <span class="number">4</span> | <span class="number">5</span> | <span class="number">6</span> | <span class="number">7</span> | <span class="number">8</span> | <span class="number">9</span> | <span class="number">10</span> | <span class="number">11</span> | <span class="number">12</span>;
+
+<span class="keyword">function</span> <span class="function">rollDice</span>(): <span class="type">DiceRoll</span> {
+  <span class="keyword">return</span> (Math.<span class="function">floor</span>(Math.<span class="function">random</span>() * <span class="number">6</span>) + <span class="number">1</span>) <span class="keyword">as</span> <span class="type">DiceRoll</span>;
+}
+
+<span class="comment">// Boolean literals</span>
+<span class="keyword">type</span> <span class="type">True</span> = <span class="keyword">true</span>;
+<span class="keyword">type</span> <span class="type">False</span> = <span class="keyword">false</span>;
+
+<span class="comment">// Useful in conditional types and generics</span>
+<span class="keyword">type</span> <span class="type">IsString</span>&lt;<span class="type">T</span>&gt; = <span class="type">T</span> <span class="keyword">extends</span> <span class="type">string</span> ? <span class="keyword">true</span> : <span class="keyword">false</span>;</pre>
+      </div>
+
+      <h3>Template Literal Types</h3>
+      <p>TypeScript 4.1+ allows you to create types using template literal syntax:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Basic template literal types</span>
+<span class="keyword">type</span> <span class="type">Greeting</span> = <span class="string">`Hello, </span>${<span class="type">string</span>}<span class="string">`</span>;
+<span class="keyword">let</span> <span class="variable">greet</span>: <span class="type">Greeting</span> = <span class="string">"Hello, World"</span>; <span class="comment">// ✅ OK</span>
+<span class="comment">// let greet2: Greeting = "Hi, World"; // ❌ Error</span>
+
+<span class="comment">// Combining with union types - creates all combinations!</span>
+<span class="keyword">type</span> <span class="type">Color</span> = <span class="string">"red"</span> | <span class="string">"green"</span> | <span class="string">"blue"</span>;
+<span class="keyword">type</span> <span class="type">Shade</span> = <span class="string">"light"</span> | <span class="string">"dark"</span>;
+<span class="keyword">type</span> <span class="type">ColorShade</span> = <span class="string">`</span>${<span class="type">Shade</span>}<span class="string">-</span>${<span class="type">Color</span>}<span class="string">`</span>;
+<span class="comment">// Results in: "light-red" | "light-green" | "light-blue" | "dark-red" | "dark-green" | "dark-blue"</span>
+
+<span class="comment">// Event handler pattern</span>
+<span class="keyword">type</span> <span class="type">EventName</span> = <span class="string">"click"</span> | <span class="string">"focus"</span> | <span class="string">"blur"</span>;
+<span class="keyword">type</span> <span class="type">EventHandler</span> = <span class="string">`on</span>${<span class="type">Capitalize</span>&lt;<span class="type">EventName</span>&gt;}<span class="string">`</span>;
+<span class="comment">// Results in: "onClick" | "onFocus" | "onBlur"</span>
+
+<span class="comment">// CSS property pattern</span>
+<span class="keyword">type</span> <span class="type">CSSValue</span> = <span class="string">`</span>${<span class="type">number</span>}<span class="string">px`</span> | <span class="string">`</span>${<span class="type">number</span>}<span class="string">rem`</span> | <span class="string">`</span>${<span class="type">number</span>}<span class="string">%`</span>;
+<span class="keyword">let</span> <span class="variable">width</span>: <span class="type">CSSValue</span> = <span class="string">"100px"</span>; <span class="comment">// ✅ OK</span></pre>
+      </div>
+
+      <h3>Intrinsic String Manipulation Types</h3>
+      <div class="code-block">
+<pre><span class="comment">// Built-in string manipulation types</span>
+<span class="keyword">type</span> <span class="type">Upper</span> = <span class="type">Uppercase</span>&lt;<span class="string">"hello"</span>&gt;;     <span class="comment">// "HELLO"</span>
+<span class="keyword">type</span> <span class="type">Lower</span> = <span class="type">Lowercase</span>&lt;<span class="string">"HELLO"</span>&gt;;     <span class="comment">// "hello"</span>
+<span class="keyword">type</span> <span class="type">Cap</span> = <span class="type">Capitalize</span>&lt;<span class="string">"hello"</span>&gt;;       <span class="comment">// "Hello"</span>
+<span class="keyword">type</span> <span class="type">Uncap</span> = <span class="type">Uncapitalize</span>&lt;<span class="string">"Hello"</span>&gt;;   <span class="comment">// "hello"</span>
+
+<span class="comment">// Practical example: Event handlers</span>
+<span class="keyword">type</span> <span class="type">Events</span> = <span class="string">"click"</span> | <span class="string">"scroll"</span> | <span class="string">"mousemove"</span>;
+<span class="keyword">type</span> <span class="type">Handlers</span> = {
+  [<span class="type">E</span> <span class="keyword">in</span> <span class="type">Events</span> <span class="keyword">as</span> <span class="string">`on</span>${<span class="type">Capitalize</span>&lt;<span class="type">E</span>&gt;}<span class="string">`</span>]: () => <span class="type">void</span>
+};
+<span class="comment">// Results in: { onClick: () => void; onScroll: () => void; onMousemove: () => void }</span></pre>
+      </div>
+
+      <div class="alert alert-tip">
+        <span class="alert-icon">💡</span>
+        <div class="alert-content">
+          <h4>Production Tip</h4>
+          <p>Template literal types are incredibly powerful for creating type-safe APIs, especially for CSS-in-JS libraries, event systems, and route definitions.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="nav-btn">← Previous</button>
+      <button class="nav-btn">Chapter 2: Functions →</button>
+    </div>
+  </div>
+</body>
+</html>

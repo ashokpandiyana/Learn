@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 12: IndexedDB</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        h2 {
+            color: #1e3c72;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #1e3c72;
+        }
+        
+        h3 {
+            color: #2a5298;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+        
+        .concept-box {
+            background: #f8f9fa;
+            border-left: 4px solid #1e3c72;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .key-point {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box {
+            background: #cfe2ff;
+            border-left: 4px solid #0d6efd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .code-block .comment {
+            color: #6272a4;
+        }
+        
+        .code-block .keyword {
+            color: #ff79c6;
+        }
+        
+        .code-block .string {
+            color: #f1fa8c;
+        }
+        
+        .code-block .function {
+            color: #50fa7b;
+        }
+        
+        .code-block .number {
+            color: #bd93f9;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: #1e3c72;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            border: 2px solid #1e3c72;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .db-structure {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .db-box {
+            background: white;
+            border: 2px solid #1e3c72;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px;
+            min-width: 200px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .db-box h4 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .db-item {
+            background: #e7f3ff;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        
+        .demo-section {
+            background: #e7f3ff;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #1e3c72;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #2a5298;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        input, select {
+            padding: 10px;
+            border: 2px solid #1e3c72;
+            border-radius: 5px;
+            font-size: 16px;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .output {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            min-height: 50px;
+            border: 2px solid #1e3c72;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .flow-diagram {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .flow-step {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 15px 25px;
+            margin: 10px 0;
+            border-radius: 8px;
+            display: inline-block;
+            position: relative;
+        }
+        
+        .flow-step::after {
+            content: '↓';
+            display: block;
+            text-align: center;
+            font-size: 24px;
+            margin-top: 10px;
+        }
+        
+        .flow-step:last-child::after {
+            content: '';
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #1e3c72;
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .feature-card h4 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗄️ Chapter 12: IndexedDB</h1>
+            <p>Powerful Client-Side Database for Large-Scale Data Storage</p>
+        </div>
+        
+        <div class="content">
+            
+            <!-- Introduction -->
+            <div class="section">
+                <h2>🎯 What is IndexedDB?</h2>
+                
+                <div class="concept-box">
+                    <p><strong>IndexedDB</strong> is a low-level API for client-side storage of significant amounts of structured data, including files and blobs. It's a NoSQL database built into the browser.</p>
+                    
+                    <p style="margin-top: 15px;"><strong>Key Characteristics:</strong></p>
+                    <ul style="margin-left: 25px; margin-top: 10px;">
+                        <li>🗃️ <strong>Large Storage:</strong> Hundreds of MBs to GBs (browser-dependent)</li>
+                        <li>🔍 <strong>Indexed:</strong> Fast queries using indexes</li>
+                        <li>📊 <strong>Structured Data:</strong> Store objects, not just strings</li>
+                        <li>🔄 <strong>Transactional:</strong> ACID-compliant operations</li>
+                        <li>⚡ <strong>Asynchronous:</strong> Non-blocking operations</li>
+                        <li>🎯 <strong>Same-Origin:</strong> Isolated per origin</li>
+                    </ul>
+                </div>
+                
+                <div class="visual-diagram">
+                    <h3>IndexedDB Architecture</h3>
+                    <div class="db-structure">
+                        <div class="db-box">
+                            <h4>📦 Database</h4>
+                            <p style="margin-bottom: 10px; font-size: 0.9em;">MyAppDB</p>
+                            <div class="db-item">Version: 1</div>
+                            <div class="db-item">Multiple Stores</div>
+                        </div>
+                        <div class="db-box">
+                            <h4>📋 Object Stores</h4>
+                            <p style="margin-bottom: 10px; font-size: 0.9em;">(Tables)</p>
+                            <div class="db-item">users</div>
+                            <div class="db-item">products</div>
+                            <div class="db-item">orders</div>
+                        </div>
+                        <div class="db-box">
+                            <h4>🔑 Indexes</h4>
+                            <p style="margin-bottom: 10px; font-size: 0.9em;">(Fast Lookups)</p>
+                            <div class="db-item">email</div>
+                            <div class="db-item">age</div>
+                            <div class="db-item">category</div>
+                        </div>
+                        <div class="db-box">
+                            <h4>📄 Records</h4>
+                            <p style="margin-bottom: 10px; font-size: 0.9em;">(Data Objects)</p>
+                            <div class="db-item">{id, name, ...}</div>
+                            <div class="db-item">{id, price, ...}</div>
+                            <div class="db-item">{id, total, ...}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 When to Use IndexedDB:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Large amounts of data (>5MB)</li>
+                        <li>Complex queries and searches</li>
+                        <li>Offline-first applications</li>
+                        <li>Progressive Web Apps (PWAs)</li>
+                        <li>Client-side caching of API responses</li>
+                        <li>Storing files, images, binary data</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Opening Database -->
+            <div class="section">
+                <h2>🔓 Opening a Database</h2>
+                
+                <div class="concept-box">
+                    <p>Opening a database is <strong>asynchronous</strong> and requires handling three events:</p>
+                    <ul style="margin-left: 25px; margin-top: 10px;">
+                        <li><code>onsuccess</code> - Database opened successfully</li>
+                        <li><code>onerror</code> - Error occurred</li>
+                        <li><code>onupgradeneeded</code> - Database needs setup/upgrade</li>
+                    </ul>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Open database (creates if doesn't exist)</span>
+<span class="keyword">const</span> request = indexedDB.<span class="function">open</span>(<span class="string">'MyDatabase'</span>, <span class="number">1</span>);
+<span class="comment">//                                     ↑ name    ↑ version</span>
+
+<span class="comment">// Handle errors</span>
+request.<span class="keyword">onerror</span> = (event) => {
+    console.<span class="function">error</span>(<span class="string">'Database error:'</span>, event.target.error);
+};
+
+<span class="comment">// Handle success - database is ready</span>
+request.<span class="keyword">onsuccess</span> = (event) => {
+    <span class="keyword">const</span> db = event.target.result;
+    console.<span class="function">log</span>(<span class="string">'Database opened successfully!'</span>, db);
+    
+    <span class="comment">// Now you can use the database</span>
+    <span class="function">performOperations</span>(db);
+};
+
+<span class="comment">// Handle upgrade - runs on first open or version change</span>
+request.<span class="keyword">onupgradeneeded</span> = (event) => {
+    <span class="keyword">const</span> db = event.target.result;
+    console.<span class="function">log</span>(<span class="string">'Upgrading database...'</span>);
+    
+    <span class="comment">// Create object stores here (only runs during upgrade)</span>
+    <span class="function">createObjectStores</span>(db);
+};
+                </div>
+                
+                <div class="flow-diagram">
+                    <h3>Database Opening Flow</h3>
+                    <div class="flow-step">1. indexedDB.open() called</div>
+                    <div class="flow-step">2. Check if DB exists & version</div>
+                    <div class="flow-step">3. onupgradeneeded (if new or higher version)</div>
+                    <div class="flow-step">4. onsuccess (DB ready to use)</div>
+                </div>
+                
+                <div class="warning-box">
+                    <strong>⚠️ Version Number Rules:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Must be a positive integer (1, 2, 3...)</li>
+                        <li>Increasing version triggers <code>onupgradeneeded</code></li>
+                        <li>Can only modify schema during <code>onupgradeneeded</code></li>
+                        <li>Cannot decrease version (will throw error)</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Object Stores -->
+            <div class="section">
+                <h2>📦 Creating Object Stores</h2>
+                
+                <div class="concept-box">
+                    <p><strong>Object Stores</strong> are like tables in traditional databases. They store JavaScript objects with keys for retrieval.</p>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Create object store during onupgradeneeded</span>
+request.<span class="keyword">onupgradeneeded</span> = (event) => {
+    <span class="keyword">const</span> db = event.target.result;
+    
+    <span class="comment">// METHOD 1: Auto-incrementing key</span>
+    <span class="keyword">const</span> userStore = db.<span class="function">createObjectStore</span>(<span class="string">'users'</span>, { 
+        autoIncrement: <span class="keyword">true</span> 
+    });
+    <span class="comment">// Keys: 1, 2, 3, 4...</span>
+    
+    <span class="comment">// METHOD 2: Use object property as key</span>
+    <span class="keyword">const</span> productStore = db.<span class="function">createObjectStore</span>(<span class="string">'products'</span>, { 
+        keyPath: <span class="string">'id'</span> 
+    });
+    <span class="comment">// Must have 'id' property: { id: 1, name: 'Item' }</span>
+    
+    <span class="comment">// METHOD 3: Nested property as key</span>
+    <span class="keyword">const</span> orderStore = db.<span class="function">createObjectStore</span>(<span class="string">'orders'</span>, { 
+        keyPath: <span class="string">'order.id'</span> 
+    });
+    <span class="comment">// { order: { id: 123 }, items: [...] }</span>
+    
+    <span class="comment">// METHOD 4: Auto-increment + keyPath</span>
+    <span class="keyword">const</span> postStore = db.<span class="function">createObjectStore</span>(<span class="string">'posts'</span>, {
+        keyPath: <span class="string">'id'</span>,
+        autoIncrement: <span class="keyword">true</span>
+    });
+    <span class="comment">// Automatically adds 'id' property</span>
+};
+                </div>
+                
+                <h3>Creating Indexes</h3>
+                <div class="concept-box">
+                    <p><strong>Indexes</strong> enable fast lookups on non-key properties. Like database indexes, they speed up queries.</p>
+                </div>
+                
+                <div class="code-block">
+request.<span class="keyword">onupgradeneeded</span> = (event) => {
+    <span class="keyword">const</span> db = event.target.result;
+    <span class="keyword">const</span> store = db.<span class="function">createObjectStore</span>(<span class="string">'users'</span>, { keyPath: <span class="string">'id'</span> });
+    
+    <span class="comment">// Create index on 'email' (unique)</span>
+    store.<span class="function">createIndex</span>(<span class="string">'email'</span>, <span class="string">'email'</span>, { unique: <span class="keyword">true</span> });
+    <span class="comment">//              ↑ index name  ↑ property path</span>
+    
+    <span class="comment">// Create index on 'age' (non-unique)</span>
+    store.<span class="function">createIndex</span>(<span class="string">'age'</span>, <span class="string">'age'</span>, { unique: <span class="keyword">false</span> });
+    
+    <span class="comment">// Create multi-entry index (arrays)</span>
+    store.<span class="function">createIndex</span>(<span class="string">'tags'</span>, <span class="string">'tags'</span>, { multiEntry: <span class="keyword">true</span> });
+    <span class="comment">// For: { id: 1, tags: ['js', 'react'] }</span>
+    <span class="comment">// Can query by single tag: 'js' OR 'react'</span>
+    
+    <span class="comment">// Create compound index</span>
+    store.<span class="function">createIndex</span>(<span class="string">'name_age'</span>, [<span class="string">'lastName'</span>, <span class="string">'age'</span>]);
+    <span class="comment">// Query by both properties together</span>
+};
+                </div>
+                
+                <div class="key-point">
+                    <strong>💡 Index Benefits:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Fast queries on non-key fields</li>
+                        <li>Enforce uniqueness constraints</li>
+                        <li>Enable complex filtering</li>
+                        <li>Support range queries</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- CRUD Operations -->
+            <div class="section">
+                <h2>✏️ CRUD Operations</h2>
+                
+                <div class="concept-box">
+                    <p>All database operations happen within <strong>transactions</strong>. Transactions ensure data integrity.</p>
+                </div>
+                
+                <h3>1. CREATE / UPDATE (add & put)</h3>
+                <div class="code-block">
+<span class="comment">// Start a transaction</span>
+<span class="keyword">const</span> transaction = db.<span class="function">transaction</span>([<span class="string">'users'</span>], <span class="string">'readwrite'</span>);
+<span class="comment">//                                     ↑ stores    ↑ mode: 'readonly' or 'readwrite'</span>
+
+<span class="keyword">const</span> store = transaction.<span class="function">objectStore</span>(<span class="string">'users'</span>);
+
+<span class="comment">// ADD - Fails if key exists</span>
+<span class="keyword">const</span> addRequest = store.<span class="function">add</span>({
+    id: <span class="number">1</span>,
+    name: <span class="string">'John Doe'</span>,
+    email: <span class="string">'john@example.com'</span>,
+    age: <span class="number">30</span>
+});
+
+addRequest.<span class="keyword">onsuccess</span> = () => {
+    console.<span class="function">log</span>(<span class="string">'User added!'</span>, addRequest.result); <span class="comment">// Returns key</span>
+};
+
+addRequest.<span class="keyword">onerror</span> = () => {
+    console.<span class="function">error</span>(<span class="string">'Add failed:'</span>, addRequest.error);
+};
+
+<span class="comment">// PUT - Adds or updates (upsert)</span>
+<span class="keyword">const</span> putRequest = store.<span class="function">put</span>({
+    id: <span class="number">1</span>,
+    name: <span class="string">'John Updated'</span>,
+    email: <span class="string">'john.new@example.com'</span>,
+    age: <span class="number">31</span>
+});
+
+putRequest.<span class="keyword">onsuccess</span> = () => {
+    console.<span class="function">log</span>(<span class="string">'User updated!'</span>);
+};
+
+<span class="comment">// Transaction complete event</span>
+transaction.<span class="keyword">oncomplete</span> = () => {
+    console.<span class="function">log</span>(<span class="string">'Transaction completed successfully'</span>);
+};
+
+transaction.<span class="keyword">onerror</span> = () => {
+    console.<span class="function">error</span>(<span class="string">'Transaction failed'</span>);
+};
+                </div>
+                
+                <h3>2. READ (get & getAll)</h3>
+                <div class="code-block">
+<span class="keyword">const</span> transaction = db.<span class="function">transaction</span>([<span class="string">'users'</span>], <span class="string">'readonly'</span>);
+<span class="keyword">const</span> store = transaction.<span class="function">objectStore</span>(<span class="string">'users'</span>);
+
+<span class="comment">// GET - Single record by key</span>
+<span class="keyword">const</span> getRequest = store.<span class="function">get</span>(<span class="number">1</span>); <span class="comment">// Get user with id=1</span>
+
+getRequest.<span class="keyword">onsuccess</span> = () => {
+    <span class="keyword">const</span> user = getRequest.result;
+    <span class="keyword">if</span> (user) {
+        console.<span class="function">log</span>(<span class="string">'Found:'</span>, user.name);
+    } <span class="keyword">else</span> {
+        console.<span class="function">log</span>(<span class="string">'User not found'</span>);
+    }
+};
+
+<span class="comment">// GETALL - All records</span>
+<span class="keyword">const</span> getAllRequest = store.<span class="function">getAll</span>();
+
+getAllRequest.<span class="keyword">onsuccess</span> = () => {
+    <span class="keyword">const</span> users = getAllRequest.result;
+    console.<span class="function">log</span>(<span class="string">'All users:'</span>, users); <span class="comment">// Array of objects</span>
+};
+
+<span class="comment">// GETALL with limit</span>
+<span class="keyword">const</span> limitedRequest = store.<span class="function">getAll</span>(<span class="keyword">null</span>, <span class="number">10</span>); <span class="comment">// First 10 records</span>
+
+<span class="comment">// GETALLKEYS - Just the keys</span>
+<span class="keyword">const</span> keysRequest = store.<span class="function">getAllKeys</span>();
+keysRequest.<span class="keyword">onsuccess</span> = () => {
+    console.<span class="function">log</span>(<span class="string">'All keys:'</span>, keysRequest.result); <span class="comment">// [1, 2, 3...]</span>
+};
+                </div>
+                
+                <h3>3. DELETE (delete & clear)</h3>
+                <div class="code-block">
+<span class="keyword">const</span> transaction = db.<span class="function">transaction</span>([<span class="string">'users'</span>], <span class="string">'readwrite'</span>);
+<span class="keyword">const</span> store = transaction.<span class="function">objectStore</span>(<span class="string">'users'</span>);
+
+<span class="comment">// DELETE - Single record</span>
+<span class="keyword">const</span> deleteRequest = store.<span class="function">delete</span>(<span class="number">1</span>); <span class="comment">// Delete user with id=1</span>
+
+deleteRequest.<span class="keyword">onsuccess</span> = () => {
+    console.<span class="function">log</span>(<span class="string">'User deleted'</span>);
+};
+
+<span class="comment">// CLEAR - All records</span>
+<span class="keyword">const</span> clearRequest = store.<span class="function">clear</span>();
+
+clearRequest.<span class="keyword">onsuccess</span> = () => {
+    console.<span class="function">log</span>(<span class="string">'All users deleted'</span>);
+};
+                </div>
+                
+                <h3>4. COUNT</h3>
+                <div class="code-block">
+<span class="keyword">const</span> transaction = db.<span class="function">transaction</span>([<span class="string">'users'</span>], <span class="string">'readonly'</span>);
+<span class="keyword">const</span> store = transaction.<span class="function">objectStore</span>(<span class="string">'users'</span>);
+
+<span class="comment">// COUNT - Number of records</span>
+<span class="keyword">const</span> countRequest = store.<span class="function">count</span>();
+
+countRequest.<span class="keyword">onsuccess</span> = () => {
+    console.<span class="function">log</span>(<span class="string">'Total users:'</span>, countRequest.result);
+};
+
+<span class="comment">// COUNT with key range</span>
+<span class="keyword">const</span> range = IDBKeyRange.<span class="function">bound</span>(<span class="number">1</span>, <span class="number">10</span>); <span class="comment">// Between 1 and 10</span>
+<span class="keyword">const</span> rangeCount = store.<span class="function">count</span>(range);
+                </code>
+                </div>
+            </div>
+            
+            <!-- Using Indexes -->
+            <div class="section">
+                <h2>🔍 Querying with Indexes</h2>
+                
+                <div class="concept-box">
+                    <p>Indexes allow you to query by properties other than the primary key.</p>
+                </div>
+                
+                <div class="code-block">
+<span class="keyword">const</span> transaction = db.<span class="function">transaction</span>([<span class="string">'users'</span>], <span class="string">'readonly'</span>);
+<span class="keyword">const</span> store = transaction.<span class="function">objectStore</span>(<span class="string">'users'</span>);
+
+<span class="comment">// Get index</span>
+<span class="keyword">const</span> emailIndex = store.<span class="function">index</span>(<span class="string">'email'</span>);
+
+<span class="comment">// Query by index</span>
+<span class="keyword">const</span> request = emailIndex.<span class="function">get</span>(<span class="string">'john@example.com'</span>);
+
+request.<span class="keyword">onsuccess</span> = () => {
+    <span class="keyword">const</span> user = request.result;
+    <span class="keyword">if</span> (user) {
+        console.<span class="function">log</span>(<span class="string">'Found by email:'</span>, user.name);
+    }
+};
+
+<span class="comment">// Get all users with specific age</span>
+<span class="keyword">const</span> ageIndex = store.<span class="function">index</span>(<span class="string">'age'</span>);
+<span class="keyword">const</span> ageRequest = ageIndex.<span class="function">getAll</span>(<span class="number">30</span>); <span class="comment">// All 30-year-olds</span>
+
+ageRequest.<span class="keyword">onsuccess</span> = () => {
+    console.<span class="function">log</span>(<span class="string">'Users aged 30:'</span>, ageRequest.result);
+};
+
+<span class="comment">// Get keys only</span>
+<span class="keyword">const</span> keysRequest = ageIndex.<span class="function">getAllKeys</span>(<span class="number">30</span>);
+                </div>
+            </div>
+            
+            <!-- Cursors -->
+            <div class="section">
+                <h2>🔄 Cursors for Iteration</h2>
+                
+                <div class="concept-box">
+                    <p><strong>Cursors</strong> allow you to iterate through records one by one, enabling complex filtering and processing.</p>
+                </div>
+                
+                <div class="code-block">
+<span class="keyword">const</span> transaction = db.<span class="function">transaction</span>([<span class="string">'users'</span>], <span class="string">'readonly'</span>);
+<span class="keyword">const</span> store = transaction.<span class="function">objectStore</span>(<span class="string">'users'</span>);
+
+<span class="comment">// Open cursor</span>
+<span class="keyword">const</span> cursorRequest = store.<span class="function">openCursor</span>();
+
+cursorRequest.<span class="keyword">onsuccess</span> = (event) => {
+    <span class="keyword">const</span> cursor = event.target.result;
+    
+    <span class="keyword">if</span> (cursor) {
+        <span class="comment">// Process current record</span>
+        console.<span class="function">log</span>(<span class="string">'Key:'</span>, cursor.key);
+        console.<span class="function">log</span>(<span class="string">'Value:'</span>, cursor.value);
+        
+        <span class="comment">// Move to next record</span>
+        cursor.<span class="function">continue</span>();
+    } <span class="keyword">else</span> {
+        <span class="comment">// No more records</span>
+        console.<span class="function">log</span>(<span class="string">'Iteration complete'</span>);
+    }
+};
+
+<span class="comment">// Cursor with range</span>
+<span class="keyword">const</span> range = IDBKeyRange.<span class="function">bound</span>(<span class="number">1</span>, <span class="number">10</span>);
+<span class="keyword">const</span> rangeCursor = store.<span class="function">openCursor</span>(range);
+
+<span class="comment">// Cursor direction</span>
+<span class="keyword">const</span> reverseCursor = store.<span class="function">openCursor</span>(<span class="keyword">null</span>, <span class="string">'prev'</span>); <span class="comment">// Reverse order</span>
+<span class="comment">// Directions: 'next', 'prev', 'nextunique', 'prevunique'</span>
+                </div>
+                
+                <h3>Updating/Deleting with Cursor</h3>
+                <div class="code-block">
+<span class="keyword">const</span> transaction = db.<span class="function">transaction</span>([<span class="string">'users'</span>], <span class="string">'readwrite'</span>);
+<span class="keyword">const</span> store = transaction.<span class="function">objectStore</span>(<span class="string">'users'</span>);
+<span class="keyword">const</span> cursorRequest = store.<span class="function">openCursor</span>();
+
+cursorRequest.<span class="keyword">onsuccess</span> = (event) => {
+    <span class="keyword">const</span> cursor = event.target.result;
+    
+    <span class="keyword">if</span> (cursor) {
+        <span class="keyword">const</span> user = cursor.value;
+        
+        <span class="comment">// Update current record</span>
+        <span class="keyword">if</span> (user.age < <span class="number">18</span>) {
+            user.status = <span class="string">'minor'</span>;
+            cursor.<span class="function">update</span>(user);
+        }
+        
+        <span class="comment">// Delete current record</span>
+        <span class="keyword">if</span> (user.inactive) {
+            cursor.<span class="function">delete</span>();
+        }
+        
+        cursor.<span class="function">continue</span>();
+    }
+};
+                </div>
+                
+                <h3>Key Ranges</h3>
+                <div class="code-block">
+<span class="comment">// Range types</span>
+IDBKeyRange.<span class="function">bound</span>(<span class="number">1</span>, <span class="number">10</span>);              <span class="comment">// 1 <= key <= 10</span>
+IDBKeyRange.<span class="function">bound</span>(<span class="number">1</span>, <span class="number">10</span>, <span class="keyword">true</span>, <span class="keyword">false</span>); <span class="comment">// 1 < key <= 10</span>
+IDBKeyRange.<span class="function">lowerBound</span>(<span class="number">5</span>);             <span class="comment">// key >= 5</span>
+IDBKeyRange.<span class="function">lowerBound</span>(<span class="number">5</span>, <span class="keyword">true</span>);       <span class="comment">// key > 5</span>
+IDBKeyRange.<span class="function">upperBound</span>(<span class="number">10</span>);            <span class="comment">// key <= 10</span>
+IDBKeyRange.<span class="function">upperBound</span>(<span class="number">10</span>, <span class="keyword">true</span>);      <span class="comment">// key < 10</span>
+IDBKeyRange.<span class="function">only</span>(<span class="number">5</span>);                  <span class="comment">// key == 5</span>
+
+<span class="comment">// Example: Get users aged 18-65</span>
+<span class="keyword">const</span> ageRange = IDBKeyRange.<span class="function">bound</span>(<span class="number">18</span>, <span class="number">65</span>);
+<span class="keyword">const</span> ageIndex = store.<span class="function">index</span>(<span class="string">'age'</span>);
+<span class="keyword">const</span> request = ageIndex.<span class="function">getAll</span>(ageRange);
+                </div>
+            </div>
+            
+            <!-- Promise Wrapper -->
+            <div class="section">
+                <h2>🎁 Modern Promise Wrapper</h2>
+                
+                <div class="concept-box">
+                    <p>IndexedDB's callback-based API can be wrapped in Promises for cleaner async/await code.</p>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Promise wrapper for opening database</span>
+<span class="keyword">function</span> <span class="function">openDatabase</span>(name, version, upgradeCallback) {
+    <span class="keyword">return new Promise</span>((resolve, reject) => {
+        <span class="keyword">const</span> request = indexedDB.<span class="function">open</span>(name, version);
+        
+        request.<span class="keyword">onerror</span> = () => <span class="function">reject</span>(request.error);
+        request.<span class="keyword">onsuccess</span> = () => <span class="function">resolve</span>(request.result);
+        request.<span class="keyword">onupgradeneeded</span> = (e) => {
+            <span class="keyword">if</span> (upgradeCallback) {
+                <span class="function">upgradeCallback</span>(e.target.result, e.oldVersion);
+            }
+        };
+    });
+}
+
+<span class="comment">// Promise wrapper for transactions</span>
+<span class="keyword">function</span> <span class="function">executeTransaction</span>(db, storeName, mode, callback) {
+    <span class="keyword">return new Promise</span>((resolve, reject) => {
+        <span class="keyword">const</span> transaction = db.<span class="function">transaction</span>(storeName, mode);
+        <span class="keyword">const</span> store = transaction.<span class="function">objectStore</span>(storeName);
+        
+        transaction.<span class="keyword">oncomplete</span> = () => <span class="function">resolve</span>();
+        transaction.<span class="keyword">onerror</span> = () => <span class="function">reject</span>(transaction.error);
+        
+        <span class="function">callback</span>(store);
+    });
+}
+
+<span class="comment">// Usage with async/await</span>
+<span class="keyword">async function</span> <span class="function">example</span>() {
+    <span class="comment">// Open database</span>
+    <span class="keyword">const</span> db = <span class="keyword">await</span> <span class="function">openDatabase</span>(<span class="string">'MyDB'</span>, <span class="number">1</span>, (db) => {
+        db.<span class="function">createObjectStore</span>(<span class="string">'users'</span>, { keyPath: <span class="string">'id'</span> });
+    });
+    
+    <span class="comment">// Add data</span>
+    <span class="keyword">await</span> <span class="function">executeTransaction</span>(db, <span class="string">'users'</span>, <span class="string">'readwrite'</span>, (store) => {
+        store.<span class="function">add</span>({ id: <span class="number">1</span>, name: <span class="string">'John'</span> });
+    });
+    
+    console.<span class="function">log</span>(<span class="string">'Data saved!'</span>);
+}
+                </div>
+                
+                <div class="key-point">
+                    <strong>💡 Better Yet:</strong> Use libraries like <code>idb</code> (by Jake Archibald) for a modern Promise-based API that's much easier to work with!
+                </div>
+            </div>
+            
+            <!-- Comparison -->
+            <div class="section">
+                <h2>⚖️ Storage Comparison</h2>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>localStorage</th>
+                            <th>IndexedDB</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Storage Size</strong></td>
+                            <td>~5-10 MB</td>
+                            <td>Hundreds of MB to GBs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Data Type</strong></td>
+                            <td>Strings only</td>
+                            <td>Objects, arrays, blobs, files</td>
+                        </tr>
+                        <tr>
+                            <td><strong>API</strong></td>
+                            <td>Synchronous (simple)</td>
+                            <td>Asynchronous (complex)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Queries</strong></td>
+                            <td>Key-only access</td>
+                            <td>Indexes, ranges, cursors</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Performance</strong></td>
+                            <td>Blocks UI thread</td>
+                            <td>Non-blocking</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Transactions</strong></td>
+                            <td>No</td>
+                            <td>Yes (ACID)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Cases</strong></td>
+                            <td>Simple settings, preferences</td>
+                            <td>Large datasets, offline apps</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Interactive Demo -->
+            <div class="section">
+                <h2>🎮 Interactive Demo</h2>
+                
+                <div class="demo-section">
+                    <h3>Try IndexedDB Now!</h3>
+                    
+                    <div class="demo-controls">
+                        <button onclick="initDB()">Initialize Database</button>
+                        <button onclick="showStatus()">Show Status</button>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">Add User</h4>
+                    <div class="demo-controls">
+                        <input type="text" id="userName" placeholder="Name">
+                        <input type="email" id="userEmail" placeholder="Email">
+                        <input type="number" id="userAge" placeholder="Age">
+                        <button onclick="addUser()">Add User</button>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">Query</h4>
+                    <div class="demo-controls">
+                        <select id="queryType">
+                            <option value="all">Get All Users</option>
+                            <option value="byId">Get by ID</option>
+                            <option value="byEmail">Get by Email</option>
+                            <option value="byAge">Get by Age</option>
+                        </select>
+                        <input type="text" id="queryValue" placeholder="Search value">
+                        <button onclick="queryUsers()">Query</button>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">Actions</h4>
+                    <div class="demo-controls">
+                        <button onclick="countUsers()">Count Users</button>
+                        <button onclick="clearUsers()">Clear All</button>
+                        <button onclick="deleteDB()">Delete Database</button>
+                    </div>
+                    
+                    <div class="output" id="output">Output will appear here...</div>
+                </div>
+            </div>
+            
+            <!-- Best Practices -->
+            <div class="section">
+                <h2>✅ Best Practices</h2>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🔒 Error Handling</h4>
+                        <p>Always handle errors at multiple levels: request, transaction, and database opening.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>📦 Use Transactions</h4>
+                        <p>Group related operations in a single transaction for consistency and performance.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>🔍 Create Indexes</h4>
+                        <p>Add indexes for properties you frequently query to improve performance.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>🎯 Limit Range</h4>
+                        <p>Use key ranges and limits on getAll() to avoid loading too much data at once.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>🧹 Clean Up</h4>
+                        <p>Close database connections when done and handle upgrade gracefully.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>📚 Version Control</h4>
+                        <p>Plan schema changes carefully. Version upgrades are one-way only.</p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        let db = null;
+        let userIdCounter = 1;
+        
+        function log(message, isError = false) {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const style = isError ? 'color: red;' : 'color: green;';
+            output.innerHTML += `<div style="${style}">[${timestamp}] ${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function initDB() {
+            const request = indexedDB.open('DemoDatabase', 1);
+            
+            request.onerror = () => {
+                log('❌ Failed to open database: ' + request.error, true);
+            };
+            
+            request.onsuccess = () => {
+                db = request.result;
+                log('✓ Database opened successfully!');
+                log(`Database name: ${db.name}, Version: ${db.version}`);
+            };
+            
+            request.onupgradeneeded = (event) => {
+                db = event.target.result;
+                log('🔧 Creating database schema...');
+                
+                // Create object store
+                if (!db.objectStoreNames.contains('users')) {
+                    const store = db.createObjectStore('users', { keyPath: 'id' });
+                    store.createIndex('email', 'email', { unique: true });
+                    store.createIndex('age', 'age', { unique: false });
+                    log('✓ Object store and indexes created');
+                }
+            };
+        }
+        
+        function addUser() {
+            if (!db) {
+                log('❌ Database not initialized. Click "Initialize Database" first.', true);
+                return;
+            }
+            
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const age = parseInt(document.getElementById('userAge').value);
+            
+            if (!name || !email || !age) {
+                log('❌ Please fill all fields', true);
+                return;
+            }
+            
+            const transaction = db.transaction(['users'], 'readwrite');
+            const store = transaction.objectStore('users');
+            
+            const user = { id: userIdCounter++, name, email, age };
+            const request = store.add(user);
+            
+            request.onsuccess = () => {
+                log(`✓ Added user: ${name} (ID: ${user.id})`);
+                document.getElementById('userName').value = '';
+                document.getElementById('userEmail').value = '';
+                document.getElementById('userAge').value = '';
+            };
+            
+            request.onerror = () => {
+                log(`❌ Failed to add user: ${request.error}`, true);
+            };
+        }
+        
+        function queryUsers() {
+            if (!db) {
+                log('❌ Database not initialized', true);
+                return;
+            }
+            
+            const queryType = document.getElementById('queryType').value;
+            const queryValue = document.getElementById('queryValue').value;
+            
+            const transaction = db.transaction(['users'], 'readonly');
+            const store = transaction.objectStore('users');
+            let request;
+            
+            switch(queryType) {
+                case 'all':
+                    request = store.getAll();
+                    break;
+                case 'byId':
+                    request = store.get(parseInt(queryValue));
+                    break;
+                case 'byEmail':
+                    const emailIndex = store.index('email');
+                    request = emailIndex.get(queryValue);
+                    break;
+                case 'byAge':
+                    const ageIndex = store.index('age');
+                    request = ageIndex.getAll(parseInt(queryValue));
+                    break;
+            }
+            
+            request.onsuccess = () => {
+                const result = request.result;
+                if (Array.isArray(result)) {
+                    log(`📊 Found ${result.length} users:`);
+                    result.forEach(user => {
+                        log(`  • ${user.name} (${user.email}, age ${user.age})`);
+                    });
+                } else if (result) {
+                    log(`✓ Found: ${result.name} (${result.email}, age ${result.age})`);
+                } else {
+                    log('❌ No user found', true);
+                }
+            };
+        }
+        
+        function countUsers() {
+            if (!db) {
+                log('❌ Database not initialized', true);
+                return;
+            }
+            
+            const transaction = db.transaction(['users'], 'readonly');
+            const store = transaction.objectStore('users');
+            const request = store.count();
+            
+            request.onsuccess = () => {
+                log(`📊 Total users in database: ${request.result}`);
+            };
+        }
+        
+        function clearUsers() {
+            if (!db) {
+                log('❌ Database not initialized', true);
+                return;
+            }
+            
+            const transaction = db.transaction(['users'], 'readwrite');
+            const store = transaction.objectStore('users');
+            const request = store.clear();
+            
+            request.onsuccess = () => {
+                log('✓ All users deleted');
+                userIdCounter = 1;
+            };
+        }
+        
+        function deleteDB() {
+            if (db) {
+                db.close();
+                db = null;
+            }
+            
+            const request = indexedDB.deleteDatabase('DemoDatabase');
+            
+            request.onsuccess = () => {
+                log('✓ Database deleted');
+                userIdCounter = 1;
+            };
+            
+            request.onerror = () => {
+                log('❌ Failed to delete database', true);
+            };
+        }
+        
+        function showStatus() {
+            if (db) {
+                log(`✓ Connected to: ${db.name} v${db.version}`);
+                log(`Object stores: ${Array.from(db.objectStoreNames).join(', ')}`);
+            } else {
+                log('❌ No database connection', true);
+            }
+        }
+        
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            log('👋 Welcome to IndexedDB Demo!');
+            log('Click "Initialize Database" to start.');
+        });
+    </script>
+</body>
+</html>

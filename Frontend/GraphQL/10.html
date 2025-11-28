@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 10: Error Handling Strategies</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a0a0a 0%, #2d1f1f 100%);
+      color: #e4e4e7;
+      line-height: 1.7;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 950px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #ef4444, #f97316);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle { color: #a1a1aa; font-size: 1.1rem; margin-bottom: 40px; }
+    h2 {
+      color: #ef4444;
+      font-size: 1.6rem;
+      margin: 40px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #3f3f46;
+    }
+    h3 { color: #f87171; font-size: 1.2rem; margin: 25px 0 15px; }
+    h4 { color: #fca5a5; font-size: 1rem; margin: 20px 0 10px; }
+    p { margin-bottom: 15px; color: #d4d4d8; }
+    .highlight-box {
+      background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%);
+      border-left: 4px solid #ef4444;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .warning-box {
+      background: linear-gradient(135deg, #78350f 0%, #451a03 100%);
+      border-left: 4px solid #f59e0b;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .warning-box::before { content: "⚠️ INTERVIEW HIGHLIGHT: "; font-weight: bold; color: #fbbf24; }
+    .tip-box {
+      background: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+      border-left: 4px solid #10b981;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .tip-box::before { content: "📝 PRODUCTION TIP: "; font-weight: bold; color: #34d399; }
+    .concept-box {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e1b4b 100%);
+      border-left: 4px solid #3b82f6;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .concept-box::before { content: "💡 KEY CONCEPT: "; font-weight: bold; color: #60a5fa; }
+    pre {
+      background: #0a0a0f;
+      border: 1px solid #3f3f46;
+      border-radius: 12px;
+      padding: 20px;
+      overflow-x: auto;
+      margin: 15px 0;
+      font-size: 0.85rem;
+    }
+    code { font-family: 'Fira Code', 'Consolas', monospace; }
+    .inline-code {
+      background: #3f3f46;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+    .keyword { color: #c084fc; }
+    .type { color: #38bdf8; }
+    .string { color: #4ade80; }
+    .comment { color: #6b7280; font-style: italic; }
+    .field { color: #fbbf24; }
+    .function { color: #f472b6; }
+    .const { color: #fb923c; }
+    .diagram {
+      background: #0a0a0f;
+      border-radius: 12px;
+      padding: 30px;
+      margin: 20px 0;
+      text-align: center;
+      overflow-x: auto;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: #1e293b;
+      border-radius: 12px;
+      overflow: hidden;
+      font-size: 0.9rem;
+    }
+    .comparison-table th {
+      background: linear-gradient(90deg, #b91c1c, #c2410c);
+      padding: 14px;
+      text-align: left;
+      font-weight: 600;
+    }
+    .comparison-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #334155;
+    }
+    .comparison-table tr:last-child td { border-bottom: none; }
+    ul, ol { margin: 15px 0 15px 25px; }
+    li { margin: 8px 0; color: #d4d4d8; }
+    .chapter-nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 1px solid #3f3f46;
+    }
+    .nav-btn {
+      padding: 12px 24px;
+      background: linear-gradient(90deg, #b91c1c, #c2410c);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .error-card {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      border: 1px solid #374151;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+    }
+    .error-card h4 { color: #ef4444; margin-bottom: 10px; }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+    .badge-network { background: #dc2626; color: white; }
+    .badge-graphql { background: #7c3aed; color: white; }
+    .badge-partial { background: #0891b2; color: white; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Chapter 10</h1>
+    <p class="subtitle">Error Handling Strategies — Building Resilient GraphQL Applications</p>
+
+    <!-- Section 10.1 -->
+    <h2>10.1 Understanding Error Types in GraphQL</h2>
+    
+    <p>GraphQL has two distinct types of errors, and understanding the difference is crucial for proper error handling.</p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 800 220" xmlns="http://www.w3.org/2000/svg">
+        <text x="400" y="25" fill="#e4e4e7" font-size="16" font-weight="bold" text-anchor="middle">GraphQL Error Types</text>
+        
+        <!-- Network Errors -->
+        <rect x="50" y="50" width="320" height="150" rx="10" fill="#7f1d1d" fill-opacity="0.4" stroke="#ef4444" stroke-width="2"/>
+        <text x="210" y="80" fill="#f87171" font-size="14" font-weight="bold" text-anchor="middle">Network Errors</text>
+        <text x="70" y="110" fill="#fca5a5" font-size="11">• No internet connection</text>
+        <text x="70" y="130" fill="#fca5a5" font-size="11">• Server unreachable (500, 502, 503)</text>
+        <text x="70" y="150" fill="#fca5a5" font-size="11">• CORS errors</text>
+        <text x="70" y="170" fill="#fca5a5" font-size="11">• Request timeout</text>
+        <text x="70" y="190" fill="#94a3b8" font-size="10">Result: error.networkError exists</text>
+        
+        <!-- GraphQL Errors -->
+        <rect x="430" y="50" width="320" height="150" rx="10" fill="#581c87" fill-opacity="0.4" stroke="#a855f7" stroke-width="2"/>
+        <text x="590" y="80" fill="#c084fc" font-size="14" font-weight="bold" text-anchor="middle">GraphQL Errors</text>
+        <text x="450" y="110" fill="#d8b4fe" font-size="11">• Validation errors (bad query)</text>
+        <text x="450" y="130" fill="#d8b4fe" font-size="11">• Authentication errors</text>
+        <text x="450" y="150" fill="#d8b4fe" font-size="11">• Authorization errors</text>
+        <text x="450" y="170" fill="#d8b4fe" font-size="11">• Resolver/business logic errors</text>
+        <text x="450" y="190" fill="#94a3b8" font-size="10">Result: error.graphQLErrors array</text>
+      </svg>
+    </div>
+
+    <div class="error-card">
+      <h4>Network Error Structure <span class="badge badge-network">NETWORK</span></h4>
+      <pre><code>{
+  <span class="field">"networkError"</span>: {
+    <span class="field">"name"</span>: <span class="string">"ServerError"</span>,
+    <span class="field">"statusCode"</span>: 500,
+    <span class="field">"message"</span>: <span class="string">"Internal Server Error"</span>,
+    <span class="field">"result"</span>: { ... }  <span class="comment">// Server response if any</span>
+  }
+}</code></pre>
+    </div>
+
+    <div class="error-card">
+      <h4>GraphQL Error Structure <span class="badge badge-graphql">GRAPHQL</span></h4>
+      <pre><code>{
+  <span class="field">"graphQLErrors"</span>: [
+    {
+      <span class="field">"message"</span>: <span class="string">"User not found"</span>,
+      <span class="field">"locations"</span>: [{ <span class="field">"line"</span>: 2, <span class="field">"column"</span>: 3 }],
+      <span class="field">"path"</span>: [<span class="string">"user"</span>],
+      <span class="field">"extensions"</span>: {
+        <span class="field">"code"</span>: <span class="string">"NOT_FOUND"</span>,
+        <span class="field">"timestamp"</span>: <span class="string">"2024-01-15T10:30:00Z"</span>
+      }
+    }
+  ]
+}</code></pre>
+    </div>
+
+    <div class="warning-box">
+      GraphQL can return <strong>partial data with errors</strong>. Unlike REST, a GraphQL response might have both <code class="inline-code">data</code> and <code class="inline-code">errors</code> fields. This is controlled by the <code class="inline-code">errorPolicy</code> option.
+    </div>
+
+    <!-- Section 10.2 -->
+    <h2>10.2 Error Policies</h2>
+
+    <p>Error policies control how Apollo Client handles GraphQL errors and whether partial data is returned.</p>
+
+    <table class="comparison-table">
+      <tr>
+        <th>Policy</th>
+        <th>data</th>
+        <th>error</th>
+        <th>Use Case</th>
+      </tr>
+      <tr>
+        <td><code>none</code> (default)</td>
+        <td>undefined on any error</td>
+        <td>First error only</td>
+        <td>Strict error handling</td>
+      </tr>
+      <tr>
+        <td><code>ignore</code></td>
+        <td>Partial data returned</td>
+        <td>undefined (ignored)</td>
+        <td>Best-effort display</td>
+      </tr>
+      <tr>
+        <td><code>all</code></td>
+        <td>Partial data returned</td>
+        <td>All errors in array</td>
+        <td>Graceful degradation</td>
+      </tr>
+    </table>
+
+    <pre><code><span class="comment">// Using error policies</span>
+<span class="keyword">const</span> { data, error } = <span class="function">useQuery</span>(<span class="const">GET_USER_DASHBOARD</span>, {
+  <span class="field">errorPolicy</span>: <span class="string">'all'</span>,  <span class="comment">// Get partial data + all errors</span>
+});
+
+<span class="comment">// With errorPolicy: 'all', you might get:</span>
+<span class="comment">// data = { user: { name: 'John' }, posts: null }  // posts failed</span>
+<span class="comment">// error.graphQLErrors = [{ message: 'Posts service unavailable' }]</span>
+
+<span class="comment">// Handle gracefully</span>
+<span class="keyword">return</span> (
+  <span class="keyword">&lt;</span>div<span class="keyword">&gt;</span>
+    {data?.user && <span class="keyword">&lt;</span>UserProfile user={data.user} <span class="keyword">/&gt;</span>}
+    {error?.graphQLErrors.<span class="function">some</span>(e => e.path?.[0] === <span class="string">'posts'</span>) ? (
+      <span class="keyword">&lt;</span>PostsErrorFallback <span class="keyword">/&gt;</span>
+    ) : (
+      <span class="keyword">&lt;</span>PostsList posts={data?.posts} <span class="keyword">/&gt;</span>
+    )}
+  <span class="keyword">&lt;/</span>div<span class="keyword">&gt;</span>
+);</code></pre>
+
+    <div class="concept-box">
+      Use <code class="inline-code">errorPolicy: 'all'</code> for dashboards and complex UIs where partial data is better than no data. Use <code class="inline-code">errorPolicy: 'none'</code> for critical operations where you need all-or-nothing behavior.
+    </div>
+
+    <!-- Section 10.3 -->
+    <h2>10.3 Global Error Handling with Error Link</h2>
+
+    <p>The Error Link provides centralized error handling for all GraphQL operations.</p>
+
+    <pre><code><span class="keyword">import</span> { <span class="type">onError</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/link/error'</span>;
+<span class="keyword">import</span> { <span class="type">fromPromise</span> } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+
+<span class="comment">// Token refresh state</span>
+<span class="keyword">let</span> isRefreshing = <span class="keyword">false</span>;
+<span class="keyword">let</span> pendingRequests = [];
+
+<span class="keyword">const</span> <span class="const">errorLink</span> = <span class="function">onError</span>(({
+  graphQLErrors,
+  networkError,
+  operation,
+  forward,
+}) => {
+  <span class="comment">// ═══════════════════════════════════════════════════════</span>
+  <span class="comment">// HANDLE GRAPHQL ERRORS</span>
+  <span class="comment">// ═══════════════════════════════════════════════════════</span>
+  <span class="keyword">if</span> (graphQLErrors) {
+    <span class="keyword">for</span> (<span class="keyword">const</span> err <span class="keyword">of</span> graphQLErrors) {
+      <span class="keyword">const</span> { message, extensions, path } = err;
+      
+      <span class="comment">// Log all errors</span>
+      console.<span class="function">error</span>(
+        <span class="string">`[GraphQL Error]: </span>${message}<span class="string">`</span>,
+        { <span class="field">code</span>: extensions?.code, <span class="field">path</span> }
+      );
+
+      <span class="keyword">switch</span> (extensions?.code) {
+        <span class="comment">// ─────────────────────────────────────────────</span>
+        <span class="comment">// AUTHENTICATION ERROR - Token expired</span>
+        <span class="comment">// ─────────────────────────────────────────────</span>
+        <span class="keyword">case</span> <span class="string">'UNAUTHENTICATED'</span>:
+          <span class="keyword">if</span> (!isRefreshing) {
+            isRefreshing = <span class="keyword">true</span>;
+            
+            <span class="keyword">return</span> <span class="function">fromPromise</span>(
+              <span class="function">refreshAccessToken</span>()
+                .<span class="function">then</span>(newToken => {
+                  <span class="comment">// Update token in storage</span>
+                  localStorage.<span class="function">setItem</span>(<span class="string">'token'</span>, newToken);
+                  
+                  <span class="comment">// Retry pending requests</span>
+                  pendingRequests.<span class="function">forEach</span>(cb => <span class="function">cb</span>());
+                  pendingRequests = [];
+                  
+                  <span class="keyword">return</span> newToken;
+                })
+                .<span class="function">catch</span>(error => {
+                  <span class="comment">// Refresh failed - logout user</span>
+                  pendingRequests = [];
+                  <span class="function">logout</span>();
+                  <span class="keyword">return</span> <span class="keyword">null</span>;
+                })
+                .<span class="function">finally</span>(() => {
+                  isRefreshing = <span class="keyword">false</span>;
+                })
+            )
+            .<span class="function">filter</span>(value => Boolean(value))
+            .<span class="function">flatMap</span>(() => {
+              <span class="comment">// Update operation context with new token</span>
+              <span class="keyword">const</span> oldHeaders = operation.<span class="function">getContext</span>().headers;
+              operation.<span class="function">setContext</span>({
+                <span class="field">headers</span>: {
+                  ...oldHeaders,
+                  <span class="field">authorization</span>: <span class="string">`Bearer </span>${localStorage.<span class="function">getItem</span>(<span class="string">'token'</span>)}<span class="string">`</span>,
+                },
+              });
+              <span class="keyword">return</span> <span class="function">forward</span>(operation);
+            });
+          }
+          
+          <span class="comment">// Queue this request while refresh is in progress</span>
+          <span class="keyword">return</span> <span class="function">fromPromise</span>(
+            <span class="keyword">new</span> <span class="type">Promise</span>(resolve => {
+              pendingRequests.<span class="function">push</span>(() => <span class="function">resolve</span>());
+            })
+          ).<span class="function">flatMap</span>(() => <span class="function">forward</span>(operation));
+
+        <span class="comment">// ─────────────────────────────────────────────</span>
+        <span class="comment">// AUTHORIZATION ERROR - No permission</span>
+        <span class="comment">// ─────────────────────────────────────────────</span>
+        <span class="keyword">case</span> <span class="string">'FORBIDDEN'</span>:
+          <span class="function">showToast</span>({
+            <span class="field">type</span>: <span class="string">'error'</span>,
+            <span class="field">message</span>: <span class="string">'You do not have permission to perform this action'</span>,
+          });
+          <span class="keyword">break</span>;
+
+        <span class="comment">// ─────────────────────────────────────────────</span>
+        <span class="comment">// VALIDATION ERROR</span>
+        <span class="comment">// ─────────────────────────────────────────────</span>
+        <span class="keyword">case</span> <span class="string">'BAD_USER_INPUT'</span>:
+          <span class="comment">// Let component handle validation errors</span>
+          <span class="keyword">break</span>;
+
+        <span class="comment">// ─────────────────────────────────────────────</span>
+        <span class="comment">// RATE LIMITING</span>
+        <span class="comment">// ─────────────────────────────────────────────</span>
+        <span class="keyword">case</span> <span class="string">'RATE_LIMITED'</span>:
+          <span class="keyword">const</span> retryAfter = extensions?.retryAfter || 60;
+          <span class="function">showToast</span>({
+            <span class="field">type</span>: <span class="string">'warning'</span>,
+            <span class="field">message</span>: <span class="string">`Too many requests. Try again in </span>${retryAfter}<span class="string">s`</span>,
+          });
+          <span class="keyword">break</span>;
+
+        <span class="comment">// ─────────────────────────────────────────────</span>
+        <span class="comment">// DEFAULT - Log to monitoring service</span>
+        <span class="comment">// ─────────────────────────────────────────────</span>
+        <span class="keyword">default</span>:
+          <span class="function">logToSentry</span>(err, {
+            <span class="field">operationName</span>: operation.operationName,
+            <span class="field">variables</span>: operation.variables,
+          });
+      }
+    }
+  }
+
+  <span class="comment">// ═══════════════════════════════════════════════════════</span>
+  <span class="comment">// HANDLE NETWORK ERRORS</span>
+  <span class="comment">// ═══════════════════════════════════════════════════════</span>
+  <span class="keyword">if</span> (networkError) {
+    console.<span class="function">error</span>(<span class="string">`[Network Error]: </span>${networkError}<span class="string">`</span>);
+    
+    <span class="comment">// Check if offline</span>
+    <span class="keyword">if</span> (!navigator.onLine) {
+      <span class="function">showToast</span>({
+        <span class="field">type</span>: <span class="string">'warning'</span>,
+        <span class="field">message</span>: <span class="string">'You appear to be offline'</span>,
+      });
+      <span class="keyword">return</span>;
+    }
+    
+    <span class="comment">// Handle specific status codes</span>
+    <span class="keyword">if</span> (<span class="string">'statusCode'</span> <span class="keyword">in</span> networkError) {
+      <span class="keyword">switch</span> (networkError.statusCode) {
+        <span class="keyword">case</span> 401:
+          <span class="function">logout</span>();
+          <span class="keyword">break</span>;
+        <span class="keyword">case</span> 503:
+          <span class="function">showToast</span>({
+            <span class="field">type</span>: <span class="string">'error'</span>,
+            <span class="field">message</span>: <span class="string">'Service temporarily unavailable. Please try again.'</span>,
+          });
+          <span class="keyword">break</span>;
+        <span class="keyword">default</span>:
+          <span class="function">showToast</span>({
+            <span class="field">type</span>: <span class="string">'error'</span>,
+            <span class="field">message</span>: <span class="string">'A network error occurred. Please try again.'</span>,
+          });
+      }
+    }
+  }
+});</code></pre>
+
+    <div class="warning-box">
+      The Error Link's <code class="inline-code">forward(operation)</code> allows you to <strong>retry the operation</strong>. This is essential for implementing automatic token refresh — catch the auth error, refresh the token, then retry the original request.
+    </div>
+
+    <!-- Section 10.4 -->
+    <h2>10.4 Component-Level Error Handling</h2>
+
+    <pre><code><span class="keyword">function</span> <span class="function">UserProfile</span>({ <span class="param">userId</span> }) {
+  <span class="keyword">const</span> { data, loading, error, refetch } = <span class="function">useQuery</span>(<span class="const">GET_USER</span>, {
+    <span class="field">variables</span>: { <span class="field">id</span>: userId },
+    <span class="field">errorPolicy</span>: <span class="string">'all'</span>,
+  });
+
+  <span class="comment">// Loading state</span>
+  <span class="keyword">if</span> (loading && !data) {
+    <span class="keyword">return</span> <span class="keyword">&lt;</span>ProfileSkeleton <span class="keyword">/&gt;</span>;
+  }
+
+  <span class="comment">// Network error - no connection</span>
+  <span class="keyword">if</span> (error?.networkError) {
+    <span class="keyword">return</span> (
+      <span class="keyword">&lt;</span>ErrorState
+        <span class="field">icon</span>=<span class="string">"wifi-off"</span>
+        <span class="field">title</span>=<span class="string">"Connection Error"</span>
+        <span class="field">message</span>=<span class="string">"Unable to connect to the server"</span>
+        <span class="field">action</span>={<span class="keyword">&lt;</span>button <span class="field">onClick</span>={() => <span class="function">refetch</span>()}<span class="keyword">&gt;</span>Retry<span class="keyword">&lt;/</span>button<span class="keyword">&gt;</span>}
+      <span class="keyword">/&gt;</span>
+    );
+  }
+
+  <span class="comment">// Specific GraphQL errors</span>
+  <span class="keyword">if</span> (error?.graphQLErrors) {
+    <span class="keyword">const</span> notFound = error.graphQLErrors.<span class="function">some</span>(
+      e => e.extensions?.code === <span class="string">'NOT_FOUND'</span>
+    );
+    
+    <span class="keyword">if</span> (notFound) {
+      <span class="keyword">return</span> (
+        <span class="keyword">&lt;</span>ErrorState
+          <span class="field">icon</span>=<span class="string">"user-x"</span>
+          <span class="field">title</span>=<span class="string">"User Not Found"</span>
+          <span class="field">message</span>=<span class="string">"This user doesn't exist or has been deleted"</span>
+          <span class="field">action</span>={<span class="keyword">&lt;</span>Link <span class="field">to</span>=<span class="string">"/"</span><span class="keyword">&gt;</span>Go Home<span class="keyword">&lt;/</span>Link<span class="keyword">&gt;</span>}
+        <span class="keyword">/&gt;</span>
+      );
+    }
+    
+    <span class="keyword">const</span> forbidden = error.graphQLErrors.<span class="function">some</span>(
+      e => e.extensions?.code === <span class="string">'FORBIDDEN'</span>
+    );
+    
+    <span class="keyword">if</span> (forbidden) {
+      <span class="keyword">return</span> (
+        <span class="keyword">&lt;</span>ErrorState
+          <span class="field">icon</span>=<span class="string">"lock"</span>
+          <span class="field">title</span>=<span class="string">"Access Denied"</span>
+          <span class="field">message</span>=<span class="string">"You don't have permission to view this profile"</span>
+        <span class="keyword">/&gt;</span>
+      );
+    }
+  }
+
+  <span class="comment">// Generic error fallback</span>
+  <span class="keyword">if</span> (error && !data) {
+    <span class="keyword">return</span> (
+      <span class="keyword">&lt;</span>ErrorState
+        <span class="field">icon</span>=<span class="string">"alert-circle"</span>
+        <span class="field">title</span>=<span class="string">"Something went wrong"</span>
+        <span class="field">message</span>={error.message}
+        <span class="field">action</span>={<span class="keyword">&lt;</span>button <span class="field">onClick</span>={() => <span class="function">refetch</span>()}<span class="keyword">&gt;</span>Try Again<span class="keyword">&lt;/</span>button<span class="keyword">&gt;</span>}
+      <span class="keyword">/&gt;</span>
+    );
+  }
+
+  <span class="comment">// Render with partial data (errorPolicy: 'all')</span>
+  <span class="keyword">return</span> (
+    <span class="keyword">&lt;</span>div<span class="keyword">&gt;</span>
+      <span class="keyword">&lt;</span>ProfileHeader user={data.user} <span class="keyword">/&gt;</span>
+      
+      {<span class="comment">/* Show warning if some data failed */</span>}
+      {error && (
+        <span class="keyword">&lt;</span>Alert <span class="field">type</span>=<span class="string">"warning"</span><span class="keyword">&gt;</span>
+          Some information couldn't be loaded
+        <span class="keyword">&lt;/</span>Alert<span class="keyword">&gt;</span>
+      )}
+      
+      <span class="keyword">&lt;</span>ProfileContent user={data.user} <span class="keyword">/&gt;</span>
+    <span class="keyword">&lt;/</span>div<span class="keyword">&gt;</span>
+  );
+}</code></pre>
+
+    <!-- Section 10.5 -->
+    <h2>10.5 Error Boundaries for GraphQL</h2>
+
+    <pre><code><span class="keyword">import</span> { <span class="type">Component</span> } <span class="keyword">from</span> <span class="string">'react'</span>;
+
+<span class="keyword">class</span> <span class="type">GraphQLErrorBoundary</span> <span class="keyword">extends</span> <span class="type">Component</span> {
+  state = { hasError: <span class="keyword">false</span>, error: <span class="keyword">null</span> };
+
+  <span class="keyword">static</span> <span class="function">getDerivedStateFromError</span>(error) {
+    <span class="keyword">return</span> { <span class="field">hasError</span>: <span class="keyword">true</span>, <span class="field">error</span> };
+  }
+
+  <span class="function">componentDidCatch</span>(error, errorInfo) {
+    <span class="comment">// Log to monitoring service</span>
+    <span class="function">logToSentry</span>(error, { <span class="field">componentStack</span>: errorInfo.componentStack });
+  }
+
+  <span class="function">handleReset</span> = () => {
+    <span class="keyword">this</span>.<span class="function">setState</span>({ <span class="field">hasError</span>: <span class="keyword">false</span>, <span class="field">error</span>: <span class="keyword">null</span> });
+  };
+
+  <span class="function">render</span>() {
+    <span class="keyword">if</span> (<span class="keyword">this</span>.state.hasError) {
+      <span class="keyword">return</span> (
+        <span class="keyword">&lt;</span>div className=<span class="string">"error-boundary"</span><span class="keyword">&gt;</span>
+          <span class="keyword">&lt;</span>h2<span class="keyword">&gt;</span>Something went wrong<span class="keyword">&lt;/</span>h2<span class="keyword">&gt;</span>
+          <span class="keyword">&lt;</span>p<span class="keyword">&gt;</span>{<span class="keyword">this</span>.state.error?.message}<span class="keyword">&lt;/</span>p<span class="keyword">&gt;</span>
+          <span class="keyword">&lt;</span>button <span class="field">onClick</span>={<span class="keyword">this</span>.handleReset}<span class="keyword">&gt;</span>
+            Try Again
+          <span class="keyword">&lt;/</span>button<span class="keyword">&gt;</span>
+        <span class="keyword">&lt;/</span>div<span class="keyword">&gt;</span>
+      );
+    }
+
+    <span class="keyword">return</span> <span class="keyword">this</span>.props.children;
+  }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">&lt;</span><span class="type">GraphQLErrorBoundary</span><span class="keyword">&gt;</span>
+  <span class="keyword">&lt;</span><span class="type">UserProfile</span> <span class="field">userId</span>={userId} <span class="keyword">/&gt;</span>
+<span class="keyword">&lt;/</span><span class="type">GraphQLErrorBoundary</span><span class="keyword">&gt;</span></code></pre>
+
+    <!-- Section 10.6 -->
+    <h2>10.6 Retry Link for Resilience</h2>
+
+    <pre><code><span class="keyword">import</span> { <span class="type">RetryLink</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/link/retry'</span>;
+
+<span class="keyword">const</span> <span class="const">retryLink</span> = <span class="keyword">new</span> <span class="function">RetryLink</span>({
+  <span class="field">delay</span>: {
+    <span class="field">initial</span>: 300,      <span class="comment">// First retry after 300ms</span>
+    <span class="field">max</span>: 10000,        <span class="comment">// Max delay 10 seconds</span>
+    <span class="field">jitter</span>: <span class="keyword">true</span>,      <span class="comment">// Randomize to prevent thundering herd</span>
+  },
+  <span class="field">attempts</span>: {
+    <span class="field">max</span>: 5,
+    <span class="function">retryIf</span>: (error, operation) => {
+      <span class="comment">// Don't retry mutations (could cause duplicates)</span>
+      <span class="keyword">const</span> isMutation = operation.query.definitions.<span class="function">some</span>(
+        def => def.kind === <span class="string">'OperationDefinition'</span> &&
+               def.operation === <span class="string">'mutation'</span>
+      );
+      <span class="keyword">if</span> (isMutation) <span class="keyword">return</span> <span class="keyword">false</span>;
+
+      <span class="comment">// Retry network errors</span>
+      <span class="keyword">if</span> (error?.networkError) {
+        <span class="comment">// Don't retry 4xx errors (client errors)</span>
+        <span class="keyword">const</span> status = error.networkError.statusCode;
+        <span class="keyword">if</span> (status >= 400 && status < 500) <span class="keyword">return</span> <span class="keyword">false</span>;
+        <span class="keyword">return</span> <span class="keyword">true</span>;
+      }
+
+      <span class="comment">// Retry specific GraphQL errors</span>
+      <span class="keyword">const</span> retryableCodes = [<span class="string">'INTERNAL_ERROR'</span>, <span class="string">'SERVICE_UNAVAILABLE'</span>];
+      <span class="keyword">return</span> error?.graphQLErrors?.<span class="function">some</span>(
+        e => retryableCodes.<span class="function">includes</span>(e.extensions?.code)
+      );
+    },
+  },
+});</code></pre>
+
+    <!-- Section 10.7 -->
+    <h2>10.7 Mutation Error Handling</h2>
+
+    <pre><code><span class="keyword">function</span> <span class="function">CreatePostForm</span>() {
+  <span class="keyword">const</span> [createPost, { loading, error, reset }] = <span class="function">useMutation</span>(<span class="const">CREATE_POST</span>, {
+    <span class="field">errorPolicy</span>: <span class="string">'all'</span>,
+    
+    <span class="function">onError</span>(error) {
+      <span class="comment">// Handle errors that aren't caught by component</span>
+      <span class="keyword">if</span> (error.networkError) {
+        <span class="function">toast.error</span>(<span class="string">'Network error. Please check your connection.'</span>);
+      }
+    },
+  });
+
+  <span class="keyword">const</span> <span class="function">handleSubmit</span> = <span class="keyword">async</span> (formData) => {
+    <span class="keyword">try</span> {
+      <span class="keyword">const</span> { data, errors } = <span class="keyword">await</span> <span class="function">createPost</span>({
+        <span class="field">variables</span>: { <span class="field">input</span>: formData },
+      });
+
+      <span class="comment">// Check for GraphQL errors even on success</span>
+      <span class="keyword">if</span> (errors?.length) {
+        <span class="comment">// Handle partial success</span>
+        console.<span class="function">warn</span>(<span class="string">'Partial success:'</span>, errors);
+      }
+
+      <span class="keyword">if</span> (data?.createPost) {
+        <span class="function">toast.success</span>(<span class="string">'Post created!'</span>);
+        <span class="function">navigate</span>(<span class="string">`/posts/</span>${data.createPost.id}<span class="string">`</span>);
+      }
+    } <span class="keyword">catch</span> (err) {
+      <span class="comment">// Handle thrown errors (network errors, unexpected errors)</span>
+      console.<span class="function">error</span>(<span class="string">'Create post failed:'</span>, err);
+    }
+  };
+
+  <span class="comment">// Extract validation errors from GraphQL error</span>
+  <span class="keyword">const</span> validationErrors = <span class="function">useMemo</span>(() => {
+    <span class="keyword">if</span> (!error?.graphQLErrors) <span class="keyword">return</span> {};
+    
+    <span class="keyword">const</span> validationError = error.graphQLErrors.<span class="function">find</span>(
+      e => e.extensions?.code === <span class="string">'BAD_USER_INPUT'</span>
+    );
+    
+    <span class="keyword">return</span> validationError?.extensions?.validationErrors || {};
+  }, [error]);
+
+  <span class="keyword">return</span> (
+    <span class="keyword">&lt;</span>form <span class="field">onSubmit</span>={handleSubmit}<span class="keyword">&gt;</span>
+      {error && !Object.<span class="function">keys</span>(validationErrors).length && (
+        <span class="keyword">&lt;</span>Alert <span class="field">type</span>=<span class="string">"error"</span> <span class="field">onDismiss</span>={reset}<span class="keyword">&gt;</span>
+          {error.message}
+        <span class="keyword">&lt;/</span>Alert<span class="keyword">&gt;</span>
+      )}
+
+      <span class="keyword">&lt;</span>Input
+        <span class="field">name</span>=<span class="string">"title"</span>
+        <span class="field">error</span>={validationErrors.title}
+        <span class="field">onChange</span>={() => error && <span class="function">reset</span>()}
+      <span class="keyword">/&gt;</span>
+
+      <span class="keyword">&lt;</span>Textarea
+        <span class="field">name</span>=<span class="string">"content"</span>
+        <span class="field">error</span>={validationErrors.content}
+      <span class="keyword">/&gt;</span>
+
+      <span class="keyword">&lt;</span>button <span class="field">type</span>=<span class="string">"submit"</span> <span class="field">disabled</span>={loading}<span class="keyword">&gt;</span>
+        {loading ? <span class="string">'Creating...'</span> : <span class="string">'Create Post'</span>}
+      <span class="keyword">&lt;/</span>button<span class="keyword">&gt;</span>
+    <span class="keyword">&lt;/</span>form<span class="keyword">&gt;</span>
+  );
+}</code></pre>
+
+    <div class="tip-box">
+      Always call <code class="inline-code">reset()</code> when the user starts correcting their input. This clears the error state and provides a fresh start for the next submission attempt.
+    </div>
+
+    <div class="chapter-nav">
+      <button class="nav-btn">← Chapter 9: Pagination</button>
+      <button class="nav-btn">Next: Chapter 11 — Performance →</button>
+    </div>
+  </div>
+</body>
+</html>

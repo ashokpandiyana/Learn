@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 5: Modules and Namespaces</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e4e4e7;
+      line-height: 1.7;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #f97316, #eab308);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle { color: #94a3b8; font-size: 1.1rem; margin-bottom: 40px; }
+    .section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    h2 {
+      color: #fb923c;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, #f97316, #eab308);
+      border-radius: 2px;
+    }
+    h3 { color: #fdba74; font-size: 1.2rem; margin: 25px 0 15px; }
+    h4 { color: #fed7aa; margin: 15px 0 10px; }
+    p { margin-bottom: 15px; color: #cbd5e1; }
+    .code-block {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+      overflow-x: auto;
+      border: 1px solid #334155;
+    }
+    pre { font-family: 'Fira Code', 'Consolas', monospace; font-size: 14px; line-height: 1.6; }
+    .keyword { color: #c678dd; }
+    .type { color: #e5c07b; }
+    .string { color: #98c379; }
+    .number { color: #d19a66; }
+    .comment { color: #5c6370; font-style: italic; }
+    .function { color: #61afef; }
+    .variable { color: #e06c75; }
+    .alert {
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+    }
+    .alert-interview { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .alert-tip { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); }
+    .alert-note { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); }
+    .alert-warning { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .alert-icon { font-size: 1.5rem; }
+    .alert-content h4 { color: #f87171; margin-bottom: 5px; }
+    .alert-tip .alert-content h4 { color: #4ade80; }
+    .alert-note .alert-content h4 { color: #60a5fa; }
+    .alert-warning .alert-content h4 { color: #fbbf24; }
+    .visual-box {
+      background: linear-gradient(135deg, rgba(249,115,22,0.1), rgba(234,179,8,0.1));
+      border-radius: 12px;
+      padding: 25px;
+      margin: 20px 0;
+      border: 1px solid rgba(251,146,60,0.3);
+    }
+    .visual-title { color: #fb923c; font-weight: 600; margin-bottom: 15px; text-align: center; }
+    .file-tree {
+      font-family: monospace;
+      background: rgba(0,0,0,0.3);
+      padding: 20px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+    .file-tree .folder { color: #fbbf24; }
+    .file-tree .file { color: #60a5fa; }
+    .file-tree .ts { color: #3b82f6; }
+    .file-tree .dts { color: #22c55e; }
+    .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+    .comparison-box { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 20px; }
+    .comparison-box.good { border: 2px solid #22c55e; }
+    .comparison-box.bad { border: 2px solid #ef4444; }
+    .comparison-label { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-weight: 600; }
+    .comparison-box.good .comparison-label { color: #4ade80; }
+    .comparison-box.bad .comparison-label { color: #f87171; }
+    ul { padding-left: 25px; margin: 10px 0; }
+    li { margin: 8px 0; color: #cbd5e1; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
+    th { background: rgba(249,115,22,0.2); color: #fb923c; }
+    code { background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+    .nav-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
+    .nav-btn {
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #f97316, #eab308);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .module-diagram {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+      flex-wrap: wrap;
+    }
+    .module-box {
+      padding: 20px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      border: 2px solid #f97316;
+      text-align: center;
+      min-width: 150px;
+    }
+    .module-box h5 { color: #fb923c; margin-bottom: 10px; }
+    .module-box code { display: block; margin: 5px 0; font-size: 0.8rem; }
+    .arrow { color: #64748b; font-size: 2rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Chapter 5: Modules & Namespaces</h1>
+    <p class="subtitle">Organizing code with ES modules, type imports, and declaration files</p>
+
+    <!-- Section 5.1 -->
+    <div class="section">
+      <h2>5.1 ES Modules in TypeScript</h2>
+      
+      <p>TypeScript fully supports ES modules (ESM), the standard JavaScript module system. Modules help organize code into separate files with explicit dependencies.</p>
+
+      <div class="visual-box">
+        <div class="visual-title">📦 Module System Overview</div>
+        <div class="module-diagram">
+          <div class="module-box">
+            <h5>utils.ts</h5>
+            <code>export function add()</code>
+            <code>export const PI</code>
+          </div>
+          <div class="arrow">→</div>
+          <div class="module-box">
+            <h5>app.ts</h5>
+            <code>import { add, PI }</code>
+            <code>from './utils'</code>
+          </div>
+        </div>
+      </div>
+
+      <h3>Export Syntax</h3>
+      <div class="code-block">
+<pre><span class="comment">// ============ utils.ts ============</span>
+
+<span class="comment">// Named exports (can have multiple per file)</span>
+<span class="keyword">export</span> <span class="keyword">const</span> <span class="variable">PI</span> = <span class="number">3.14159</span>;
+
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">add</span>(<span class="variable">a</span>: <span class="type">number</span>, <span class="variable">b</span>: <span class="type">number</span>): <span class="type">number</span> {
+  <span class="keyword">return</span> <span class="variable">a</span> + <span class="variable">b</span>;
+}
+
+<span class="keyword">export</span> <span class="keyword">interface</span> <span class="type">User</span> {
+  <span class="variable">id</span>: <span class="type">string</span>;
+  <span class="variable">name</span>: <span class="type">string</span>;
+}
+
+<span class="keyword">export</span> <span class="keyword">class</span> <span class="type">Calculator</span> {
+  <span class="function">multiply</span>(<span class="variable">a</span>: <span class="type">number</span>, <span class="variable">b</span>: <span class="type">number</span>): <span class="type">number</span> {
+    <span class="keyword">return</span> <span class="variable">a</span> * <span class="variable">b</span>;
+  }
+}
+
+<span class="comment">// Export after declaration</span>
+<span class="keyword">const</span> <span class="variable">SECRET</span> = <span class="string">"hidden"</span>;
+<span class="keyword">function</span> <span class="function">helper</span>() { <span class="comment">/* ... */</span> }
+<span class="keyword">export</span> { <span class="variable">SECRET</span>, <span class="function">helper</span> };
+
+<span class="comment">// Export with alias</span>
+<span class="keyword">export</span> { <span class="function">helper</span> <span class="keyword">as</span> <span class="function">utilHelper</span> };
+
+<span class="comment">// Default export (one per file)</span>
+<span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="type">MathUtils</span> {
+  <span class="keyword">static</span> <span class="function">square</span>(<span class="variable">n</span>: <span class="type">number</span>): <span class="type">number</span> {
+    <span class="keyword">return</span> <span class="variable">n</span> * <span class="variable">n</span>;
+  }
+}</pre>
+      </div>
+
+      <h3>Import Syntax</h3>
+      <div class="code-block">
+<pre><span class="comment">// ============ app.ts ============</span>
+
+<span class="comment">// Import named exports</span>
+<span class="keyword">import</span> { <span class="variable">PI</span>, <span class="function">add</span>, <span class="type">User</span>, <span class="type">Calculator</span> } <span class="keyword">from</span> <span class="string">'./utils'</span>;
+
+<span class="comment">// Import with alias</span>
+<span class="keyword">import</span> { <span class="variable">PI</span> <span class="keyword">as</span> <span class="variable">PI_VALUE</span> } <span class="keyword">from</span> <span class="string">'./utils'</span>;
+
+<span class="comment">// Import default export</span>
+<span class="keyword">import</span> <span class="type">MathUtils</span> <span class="keyword">from</span> <span class="string">'./utils'</span>;
+
+<span class="comment">// Import default + named together</span>
+<span class="keyword">import</span> <span class="type">MathUtils</span>, { <span class="variable">PI</span>, <span class="function">add</span> } <span class="keyword">from</span> <span class="string">'./utils'</span>;
+
+<span class="comment">// Import entire module as namespace</span>
+<span class="keyword">import</span> * <span class="keyword">as</span> <span class="variable">Utils</span> <span class="keyword">from</span> <span class="string">'./utils'</span>;
+console.<span class="function">log</span>(<span class="variable">Utils</span>.<span class="variable">PI</span>);       <span class="comment">// 3.14159</span>
+console.<span class="function">log</span>(<span class="variable">Utils</span>.<span class="function">add</span>(<span class="number">1</span>, <span class="number">2</span>)); <span class="comment">// 3</span>
+
+<span class="comment">// Side-effect import (just runs the module code)</span>
+<span class="keyword">import</span> <span class="string">'./polyfills'</span>;
+
+<span class="comment">// Dynamic import (code splitting)</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">loadModule</span>() {
+  <span class="keyword">const</span> <span class="variable">module</span> = <span class="keyword">await</span> <span class="keyword">import</span>(<span class="string">'./heavy-module'</span>);
+  <span class="variable">module</span>.<span class="function">doSomething</span>();
+}</pre>
+      </div>
+
+      <h3>Type-Only Imports and Exports</h3>
+      <p>Use <code>import type</code> to import types without including them in the JavaScript output:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// ============ types.ts ============</span>
+<span class="keyword">export</span> <span class="keyword">interface</span> <span class="type">User</span> {
+  <span class="variable">id</span>: <span class="type">string</span>;
+  <span class="variable">name</span>: <span class="type">string</span>;
+}
+
+<span class="keyword">export</span> <span class="keyword">type</span> <span class="type">UserRole</span> = <span class="string">'admin'</span> | <span class="string">'user'</span> | <span class="string">'guest'</span>;
+
+<span class="keyword">export</span> <span class="keyword">const</span> <span class="variable">DEFAULT_ROLE</span>: <span class="type">UserRole</span> = <span class="string">'user'</span>;
+
+<span class="comment">// ============ app.ts ============</span>
+
+<span class="comment">// Type-only import - NOT included in JS output</span>
+<span class="keyword">import</span> <span class="keyword">type</span> { <span class="type">User</span>, <span class="type">UserRole</span> } <span class="keyword">from</span> <span class="string">'./types'</span>;
+
+<span class="comment">// Regular import - included in JS output</span>
+<span class="keyword">import</span> { <span class="variable">DEFAULT_ROLE</span> } <span class="keyword">from</span> <span class="string">'./types'</span>;
+
+<span class="comment">// Mixed import with inline type modifier</span>
+<span class="keyword">import</span> { <span class="keyword">type</span> <span class="type">User</span>, <span class="variable">DEFAULT_ROLE</span> } <span class="keyword">from</span> <span class="string">'./types'</span>;
+
+<span class="comment">// Usage</span>
+<span class="keyword">function</span> <span class="function">createUser</span>(<span class="variable">name</span>: <span class="type">string</span>): <span class="type">User</span> {
+  <span class="keyword">return</span> { <span class="variable">id</span>: <span class="function">crypto</span>.<span class="function">randomUUID</span>(), <span class="variable">name</span> };
+}
+
+<span class="comment">// Type-only export</span>
+<span class="keyword">export</span> <span class="keyword">type</span> { <span class="type">User</span> };</pre>
+      </div>
+
+      <div class="alert alert-tip">
+        <span class="alert-icon">💡</span>
+        <div class="alert-content">
+          <h4>Production Tip: Always Use import type for Types</h4>
+          <p>Using <code>import type</code> improves build performance because:</p>
+          <ul>
+            <li>Types are erased during compilation</li>
+            <li>No runtime code is generated for type imports</li>
+            <li>Enables better tree-shaking</li>
+            <li>Makes the intent clear (this is just a type)</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Re-exporting</h3>
+      <div class="code-block">
+<pre><span class="comment">// ============ index.ts (barrel file) ============</span>
+
+<span class="comment">// Re-export everything from a module</span>
+<span class="keyword">export</span> * <span class="keyword">from</span> <span class="string">'./user'</span>;
+<span class="keyword">export</span> * <span class="keyword">from</span> <span class="string">'./product'</span>;
+<span class="keyword">export</span> * <span class="keyword">from</span> <span class="string">'./order'</span>;
+
+<span class="comment">// Re-export specific items</span>
+<span class="keyword">export</span> { <span class="type">User</span>, <span class="function">createUser</span> } <span class="keyword">from</span> <span class="string">'./user'</span>;
+
+<span class="comment">// Re-export with alias</span>
+<span class="keyword">export</span> { <span class="type">User</span> <span class="keyword">as</span> <span class="type">UserModel</span> } <span class="keyword">from</span> <span class="string">'./user'</span>;
+
+<span class="comment">// Re-export default as named</span>
+<span class="keyword">export</span> { <span class="keyword">default</span> <span class="keyword">as</span> <span class="type">UserService</span> } <span class="keyword">from</span> <span class="string">'./user-service'</span>;
+
+<span class="comment">// Re-export types only</span>
+<span class="keyword">export</span> <span class="keyword">type</span> * <span class="keyword">from</span> <span class="string">'./types'</span>;
+<span class="keyword">export</span> <span class="keyword">type</span> { <span class="type">UserDTO</span> } <span class="keyword">from</span> <span class="string">'./dto'</span>;
+
+<span class="comment">// ============ Usage ============</span>
+<span class="comment">// Now consumers can import from a single entry point</span>
+<span class="keyword">import</span> { <span class="type">User</span>, <span class="type">Product</span>, <span class="type">Order</span>, <span class="function">createUser</span> } <span class="keyword">from</span> <span class="string">'./models'</span>;</pre>
+      </div>
+
+      <h3>Default vs Named Exports</h3>
+      <div class="comparison-grid">
+        <div class="comparison-box good">
+          <div class="comparison-label">✅ Named Exports (Preferred)</div>
+          <div class="code-block" style="margin: 0;">
+<pre><span class="comment">// Explicit, refactorable</span>
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">fetchUser</span>() {}
+<span class="keyword">export</span> <span class="keyword">function</span> <span class="function">saveUser</span>() {}
+
+<span class="comment">// Import</span>
+<span class="keyword">import</span> { <span class="function">fetchUser</span> } <span class="keyword">from</span> <span class="string">'./api'</span>;</pre>
+          </div>
+          <p style="font-size: 0.85rem; margin-top: 10px; color: #94a3b8;">Better for tree-shaking, IDE autocomplete, and refactoring.</p>
+        </div>
+        <div class="comparison-box bad">
+          <div class="comparison-label">⚠️ Default Exports</div>
+          <div class="code-block" style="margin: 0;">
+<pre><span class="comment">// Can be renamed freely</span>
+<span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">function</span> <span class="function">fetchUser</span>() {}
+
+<span class="comment">// Import (any name works)</span>
+<span class="keyword">import</span> <span class="variable">getUser</span> <span class="keyword">from</span> <span class="string">'./api'</span>;
+<span class="keyword">import</span> <span class="variable">anything</span> <span class="keyword">from</span> <span class="string">'./api'</span>;</pre>
+          </div>
+          <p style="font-size: 0.85rem; margin-top: 10px; color: #94a3b8;">Harder to refactor, inconsistent naming across codebase.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5.2 -->
+    <div class="section">
+      <h2>5.2 Module Resolution</h2>
+      
+      <p>Module resolution is how TypeScript locates the file for an import statement. Understanding this helps debug "module not found" errors.</p>
+
+      <h3>Resolution Strategies</h3>
+      <table>
+        <tr>
+          <th>Strategy</th>
+          <th>Description</th>
+          <th>Use Case</th>
+        </tr>
+        <tr>
+          <td><code>node</code></td>
+          <td>Mimics Node.js resolution</td>
+          <td>Traditional Node.js projects</td>
+        </tr>
+        <tr>
+          <td><code>node16</code> / <code>nodenext</code></td>
+          <td>Node.js ESM resolution</td>
+          <td>Modern Node.js with ESM</td>
+        </tr>
+        <tr>
+          <td><code>bundler</code></td>
+          <td>For bundlers (Vite, webpack)</td>
+          <td>Frontend projects with bundlers</td>
+        </tr>
+      </table>
+
+      <div class="code-block">
+<pre><span class="comment">// tsconfig.json</span>
+{
+  <span class="string">"compilerOptions"</span>: {
+    <span class="comment">// Module resolution strategy</span>
+    <span class="string">"moduleResolution"</span>: <span class="string">"bundler"</span>,
+    
+    <span class="comment">// Base URL for non-relative imports</span>
+    <span class="string">"baseUrl"</span>: <span class="string">"./src"</span>,
+    
+    <span class="comment">// Path aliases</span>
+    <span class="string">"paths"</span>: {
+      <span class="string">"@/*"</span>: [<span class="string">"./*"</span>],
+      <span class="string">"@components/*"</span>: [<span class="string">"components/*"</span>],
+      <span class="string">"@utils/*"</span>: [<span class="string">"utils/*"</span>],
+      <span class="string">"@hooks/*"</span>: [<span class="string">"hooks/*"</span>],
+      <span class="string">"@types/*"</span>: [<span class="string">"types/*"</span>]
+    }
+  }
+}</pre>
+      </div>
+
+      <h3>Path Aliases in Practice</h3>
+      <div class="code-block">
+<pre><span class="comment">// Without path aliases (messy relative imports)</span>
+<span class="keyword">import</span> { <span class="type">Button</span> } <span class="keyword">from</span> <span class="string">'../../../components/ui/Button'</span>;
+<span class="keyword">import</span> { <span class="function">formatDate</span> } <span class="keyword">from</span> <span class="string">'../../utils/date'</span>;
+<span class="keyword">import</span> <span class="keyword">type</span> { <span class="type">User</span> } <span class="keyword">from</span> <span class="string">'../../../types/user'</span>;
+
+<span class="comment">// With path aliases (clean absolute imports)</span>
+<span class="keyword">import</span> { <span class="type">Button</span> } <span class="keyword">from</span> <span class="string">'@components/ui/Button'</span>;
+<span class="keyword">import</span> { <span class="function">formatDate</span> } <span class="keyword">from</span> <span class="string">'@utils/date'</span>;
+<span class="keyword">import</span> <span class="keyword">type</span> { <span class="type">User</span> } <span class="keyword">from</span> <span class="string">'@types/user'</span>;
+
+<span class="comment">// Or with baseUrl + simple alias</span>
+<span class="keyword">import</span> { <span class="type">Button</span> } <span class="keyword">from</span> <span class="string">'@/components/ui/Button'</span>;</pre>
+      </div>
+
+      <div class="alert alert-warning">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+          <h4>Important: Configure Your Bundler Too!</h4>
+          <p>Path aliases in tsconfig.json only help TypeScript. You must also configure your bundler (Vite, webpack) or use a tool like <code>tsconfig-paths</code> for Node.js runtime.</p>
+          <div class="code-block" style="margin-top: 10px;">
+<pre><span class="comment">// vite.config.ts</span>
+<span class="keyword">import</span> { <span class="function">defineConfig</span> } <span class="keyword">from</span> <span class="string">'vite'</span>;
+<span class="keyword">import</span> <span class="variable">path</span> <span class="keyword">from</span> <span class="string">'path'</span>;
+
+<span class="keyword">export default</span> <span class="function">defineConfig</span>({
+  <span class="variable">resolve</span>: {
+    <span class="variable">alias</span>: {
+      <span class="string">'@'</span>: <span class="variable">path</span>.<span class="function">resolve</span>(<span class="variable">__dirname</span>, <span class="string">'./src'</span>),
+    },
+  },
+});</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5.3 -->
+    <div class="section">
+      <h2>5.3 Declaration Files (.d.ts)</h2>
+      
+      <p>Declaration files contain type information without implementation. They're essential for typing JavaScript libraries and defining global types.</p>
+
+      <div class="visual-box">
+        <div class="visual-title">📄 File Types in TypeScript</div>
+        <div class="file-tree">
+<pre>
+<span class="folder">src/</span>
+├── <span class="ts">utils.ts</span>        <span class="comment">← TypeScript source (types + implementation)</span>
+├── <span class="ts">utils.js</span>        <span class="comment">← Compiled JavaScript (no types)</span>
+├── <span class="dts">utils.d.ts</span>      <span class="comment">← Declaration file (types only)</span>
+├── <span class="dts">global.d.ts</span>     <span class="comment">← Global type declarations</span>
+└── <span class="dts">env.d.ts</span>        <span class="comment">← Environment variable types</span>
+</pre>
+        </div>
+      </div>
+
+      <h3>The declare Keyword</h3>
+      <p>Use <code>declare</code> to tell TypeScript about types that exist elsewhere (in JavaScript, globally, etc.):</p>
+
+      <div class="code-block">
+<pre><span class="comment">// ============ global.d.ts ============</span>
+
+<span class="comment">// Declare a global variable</span>
+<span class="keyword">declare</span> <span class="keyword">const</span> <span class="variable">API_URL</span>: <span class="type">string</span>;
+<span class="keyword">declare</span> <span class="keyword">const</span> <span class="variable">VERSION</span>: <span class="type">string</span>;
+
+<span class="comment">// Declare a global function</span>
+<span class="keyword">declare</span> <span class="keyword">function</span> <span class="function">analytics</span>(<span class="variable">event</span>: <span class="type">string</span>, <span class="variable">data</span>?: <span class="type">object</span>): <span class="type">void</span>;
+
+<span class="comment">// Extend Window interface</span>
+<span class="keyword">declare</span> <span class="keyword">global</span> {
+  <span class="keyword">interface</span> <span class="type">Window</span> {
+    <span class="variable">gtag</span>: (...<span class="variable">args</span>: <span class="type">any</span>[]) => <span class="type">void</span>;
+    <span class="variable">myApp</span>: {
+      <span class="variable">version</span>: <span class="type">string</span>;
+      <span class="function">init</span>(): <span class="type">void</span>;
+    };
+  }
+}
+
+<span class="comment">// Extend existing module</span>
+<span class="keyword">declare</span> <span class="keyword">module</span> <span class="string">'express'</span> {
+  <span class="keyword">interface</span> <span class="type">Request</span> {
+    <span class="variable">user</span>?: {
+      <span class="variable">id</span>: <span class="type">string</span>;
+      <span class="variable">role</span>: <span class="type">string</span>;
+    };
+  }
+}
+
+<span class="comment">// Required for module augmentation</span>
+<span class="keyword">export</span> {};</pre>
+      </div>
+
+      <h3>Ambient Module Declarations</h3>
+      <p>Declare types for modules that don't have type definitions:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// ============ modules.d.ts ============</span>
+
+<span class="comment">// Declare a module with any type (escape hatch)</span>
+<span class="keyword">declare</span> <span class="keyword">module</span> <span class="string">'untyped-library'</span>;
+
+<span class="comment">// Declare module with specific types</span>
+<span class="keyword">declare</span> <span class="keyword">module</span> <span class="string">'my-special-lib'</span> {
+  <span class="keyword">export</span> <span class="keyword">function</span> <span class="function">doSomething</span>(<span class="variable">x</span>: <span class="type">string</span>): <span class="type">number</span>;
+  <span class="keyword">export</span> <span class="keyword">const</span> <span class="variable">config</span>: {
+    <span class="variable">debug</span>: <span class="type">boolean</span>;
+    <span class="variable">apiKey</span>: <span class="type">string</span>;
+  };
+  <span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="type">Client</span> {
+    <span class="keyword">constructor</span>(<span class="variable">apiKey</span>: <span class="type">string</span>);
+    <span class="function">connect</span>(): <span class="type">Promise</span>&lt;<span class="type">void</span>&gt;;
+  }
+}
+
+<span class="comment">// Declare CSS/SCSS modules</span>
+<span class="keyword">declare</span> <span class="keyword">module</span> <span class="string">'*.css'</span> {
+  <span class="keyword">const</span> <span class="variable">classes</span>: { <span class="keyword">readonly</span> [<span class="variable">key</span>: <span class="type">string</span>]: <span class="type">string</span> };
+  <span class="keyword">export</span> <span class="keyword">default</span> <span class="variable">classes</span>;
+}
+
+<span class="keyword">declare</span> <span class="keyword">module</span> <span class="string">'*.scss'</span> {
+  <span class="keyword">const</span> <span class="variable">classes</span>: { <span class="keyword">readonly</span> [<span class="variable">key</span>: <span class="type">string</span>]: <span class="type">string</span> };
+  <span class="keyword">export</span> <span class="keyword">default</span> <span class="variable">classes</span>;
+}
+
+<span class="comment">// Declare image imports</span>
+<span class="keyword">declare</span> <span class="keyword">module</span> <span class="string">'*.png'</span> {
+  <span class="keyword">const</span> <span class="variable">src</span>: <span class="type">string</span>;
+  <span class="keyword">export</span> <span class="keyword">default</span> <span class="variable">src</span>;
+}
+
+<span class="keyword">declare</span> <span class="keyword">module</span> <span class="string">'*.svg'</span> {
+  <span class="keyword">import</span> * <span class="keyword">as</span> <span class="type">React</span> <span class="keyword">from</span> <span class="string">'react'</span>;
+  <span class="keyword">const</span> <span class="type">SVGComponent</span>: <span class="type">React</span>.<span class="type">FC</span>&lt;<span class="type">React</span>.<span class="type">SVGProps</span>&lt;<span class="type">SVGSVGElement</span>&gt;&gt;;
+  <span class="keyword">export</span> <span class="keyword">default</span> <span class="type">SVGComponent</span>;
+}</pre>
+      </div>
+
+      <h3>Environment Variables Typing</h3>
+      <div class="code-block">
+<pre><span class="comment">// ============ env.d.ts ============</span>
+
+<span class="comment">// For Vite projects</span>
+<span class="comment">/// &lt;reference types="vite/client" /&gt;</span>
+
+<span class="keyword">interface</span> <span class="type">ImportMetaEnv</span> {
+  <span class="keyword">readonly</span> <span class="variable">VITE_API_URL</span>: <span class="type">string</span>;
+  <span class="keyword">readonly</span> <span class="variable">VITE_APP_TITLE</span>: <span class="type">string</span>;
+  <span class="keyword">readonly</span> <span class="variable">VITE_ENABLE_ANALYTICS</span>: <span class="type">string</span>;
+}
+
+<span class="keyword">interface</span> <span class="type">ImportMeta</span> {
+  <span class="keyword">readonly</span> <span class="variable">env</span>: <span class="type">ImportMetaEnv</span>;
+}
+
+<span class="comment">// For Node.js / Create React App</span>
+<span class="keyword">declare</span> <span class="keyword">namespace</span> <span class="type">NodeJS</span> {
+  <span class="keyword">interface</span> <span class="type">ProcessEnv</span> {
+    <span class="variable">NODE_ENV</span>: <span class="string">'development'</span> | <span class="string">'production'</span> | <span class="string">'test'</span>;
+    <span class="variable">REACT_APP_API_URL</span>: <span class="type">string</span>;
+    <span class="variable">DATABASE_URL</span>: <span class="type">string</span>;
+  }
+}
+
+<span class="comment">// Usage in code</span>
+<span class="keyword">const</span> <span class="variable">apiUrl</span> = <span class="keyword">import</span>.<span class="variable">meta</span>.<span class="variable">env</span>.<span class="variable">VITE_API_URL</span>; <span class="comment">// ✅ Type-safe</span>
+<span class="keyword">const</span> <span class="variable">dbUrl</span> = process.<span class="variable">env</span>.<span class="variable">DATABASE_URL</span>;      <span class="comment">// ✅ Type-safe</span></pre>
+      </div>
+
+      <h3>DefinitelyTyped (@types/*)</h3>
+      <p>DefinitelyTyped is a repository of type definitions for popular JavaScript libraries:</p>
+
+      <div class="code-block">
+<pre><span class="comment"># Install type definitions for libraries without built-in types</span>
+npm install --save-dev @types/lodash
+npm install --save-dev @types/node
+npm install --save-dev @types/react
+npm install --save-dev @types/express
+
+<span class="comment"># TypeScript automatically finds types in @types/*</span>
+<span class="comment"># No additional configuration needed!</span></pre>
+      </div>
+
+      <div class="alert alert-note">
+        <span class="alert-icon">📝</span>
+        <div class="alert-content">
+          <h4>How TypeScript Finds Types</h4>
+          <ol style="margin-left: 20px;">
+            <li>Built-in types (bundled with the library)</li>
+            <li>Types in @types/* packages</li>
+            <li>Declaration files in your project</li>
+            <li>Ambient declarations in .d.ts files</li>
+          </ol>
+        </div>
+      </div>
+
+      <h3>Creating Your Own Declaration Files</h3>
+      <div class="code-block">
+<pre><span class="comment">// ============ my-library.d.ts ============</span>
+<span class="comment">// Type definitions for my-library 1.0.0</span>
+
+<span class="keyword">declare</span> <span class="keyword">namespace</span> <span class="type">MyLibrary</span> {
+  <span class="keyword">interface</span> <span class="type">Config</span> {
+    <span class="variable">apiKey</span>: <span class="type">string</span>;
+    <span class="variable">debug</span>?: <span class="type">boolean</span>;
+    <span class="variable">timeout</span>?: <span class="type">number</span>;
+  }
+
+  <span class="keyword">interface</span> <span class="type">User</span> {
+    <span class="variable">id</span>: <span class="type">string</span>;
+    <span class="variable">name</span>: <span class="type">string</span>;
+    <span class="variable">email</span>: <span class="type">string</span>;
+  }
+
+  <span class="keyword">class</span> <span class="type">Client</span> {
+    <span class="keyword">constructor</span>(<span class="variable">config</span>: <span class="type">Config</span>);
+    <span class="function">getUser</span>(<span class="variable">id</span>: <span class="type">string</span>): <span class="type">Promise</span>&lt;<span class="type">User</span>&gt;;
+    <span class="function">getUsers</span>(): <span class="type">Promise</span>&lt;<span class="type">User</span>[]&gt;;
+    <span class="function">createUser</span>(<span class="variable">data</span>: <span class="type">Omit</span>&lt;<span class="type">User</span>, <span class="string">'id'</span>&gt;): <span class="type">Promise</span>&lt;<span class="type">User</span>&gt;;
+  }
+
+  <span class="keyword">function</span> <span class="function">init</span>(<span class="variable">config</span>: <span class="type">Config</span>): <span class="type">Client</span>;
+}
+
+<span class="keyword">export</span> = <span class="type">MyLibrary</span>;
+<span class="keyword">export</span> <span class="keyword">as</span> <span class="keyword">namespace</span> <span class="type">MyLibrary</span>;</pre>
+      </div>
+
+      <div class="alert alert-tip">
+        <span class="alert-icon">💡</span>
+        <div class="alert-content">
+          <h4>Best Practices for Declaration Files</h4>
+          <ul>
+            <li>Place project-wide types in <code>src/types/</code> directory</li>
+            <li>Use <code>global.d.ts</code> for global augmentations</li>
+            <li>Use <code>env.d.ts</code> for environment variables</li>
+            <li>Include <code>*.d.ts</code> in your <code>tsconfig.json</code> include array</li>
+            <li>Never import/export from <code>.d.ts</code> files that augment global scope</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="nav-btn">← Chapter 4</button>
+      <button class="nav-btn">Chapter 6: React Components →</button>
+    </div>
+  </div>
+</body>
+</html>

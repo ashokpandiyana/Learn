@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 11: Web Storage</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+        
+        .concept-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .key-point {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .code-block .comment {
+            color: #6272a4;
+        }
+        
+        .code-block .keyword {
+            color: #ff79c6;
+        }
+        
+        .code-block .string {
+            color: #f1fa8c;
+        }
+        
+        .code-block .function {
+            color: #50fa7b;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .visual-diagram {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .storage-box {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 50px;
+            border-radius: 10px;
+            margin: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .storage-box h4 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        
+        .storage-box p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .demo-section {
+            background: #e3f2fd;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        input {
+            padding: 10px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            font-size: 16px;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .output {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            min-height: 50px;
+            border: 2px solid #667eea;
+        }
+        
+        .tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 Chapter 11: Web Storage API</h1>
+            <p>Master localStorage and sessionStorage for Client-Side Data Persistence</p>
+        </div>
+        
+        <div class="content">
+            
+            <!-- Introduction -->
+            <div class="section">
+                <h2>🎯 What is Web Storage?</h2>
+                <div class="concept-box">
+                    <p><strong>Web Storage API</strong> provides mechanisms for storing key-value pairs in a web browser. It's simpler than cookies and offers more storage space (typically 5-10MB per origin).</p>
+                    <p style="margin-top: 15px;">Web Storage comes in two flavors:</p>
+                    <ul style="margin-left: 25px; margin-top: 10px;">
+                        <li><strong>localStorage</strong> - Persists even after browser is closed</li>
+                        <li><strong>sessionStorage</strong> - Cleared when tab/browser is closed</li>
+                    </ul>
+                </div>
+                
+                <div class="visual-diagram">
+                    <h3>Web Storage Types</h3>
+                    <div style="display: flex; justify-content: center; flex-wrap: wrap;">
+                        <div class="storage-box">
+                            <h4>localStorage</h4>
+                            <p>✓ Persists across sessions</p>
+                            <p>✓ Shared across all tabs</p>
+                            <p>✓ ~5-10MB storage</p>
+                            <p>✓ No expiration</p>
+                        </div>
+                        <div class="storage-box">
+                            <h4>sessionStorage</h4>
+                            <p>✓ Tab-specific storage</p>
+                            <p>✓ Cleared on tab close</p>
+                            <p>✓ ~5-10MB storage</p>
+                            <p>✓ Isolated per tab</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- localStorage -->
+            <div class="section">
+                <h2>💾 localStorage Deep Dive</h2>
+                
+                <h3>Basic Operations</h3>
+                <div class="concept-box">
+                    <p>localStorage provides a simple key-value store that persists data indefinitely until explicitly deleted.</p>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// 1. STORING DATA</span>
+localStorage.<span class="function">setItem</span>(<span class="string">'username'</span>, <span class="string">'john_doe'</span>);
+localStorage.<span class="function">setItem</span>(<span class="string">'theme'</span>, <span class="string">'dark'</span>);
+localStorage.<span class="function">setItem</span>(<span class="string">'fontSize'</span>, <span class="string">'16'</span>);
+
+<span class="comment">// 2. RETRIEVING DATA</span>
+<span class="keyword">const</span> username = localStorage.<span class="function">getItem</span>(<span class="string">'username'</span>);
+<span class="comment">// Returns: 'john_doe' or null if not found</span>
+
+<span class="comment">// 3. REMOVING DATA</span>
+localStorage.<span class="function">removeItem</span>(<span class="string">'theme'</span>);
+
+<span class="comment">// 4. CLEARING ALL DATA</span>
+localStorage.<span class="function">clear</span>();
+
+<span class="comment">// 5. GETTING KEY BY INDEX</span>
+<span class="keyword">const</span> firstKey = localStorage.<span class="function">key</span>(<span class="string">0</span>);
+
+<span class="comment">// 6. GETTING NUMBER OF ITEMS</span>
+<span class="keyword">const</span> itemCount = localStorage.length;
+                </div>
+                
+                <h3>Storing Complex Data (Objects & Arrays)</h3>
+                <div class="key-point">
+                    <strong>⚠️ Critical Concept:</strong> localStorage only stores strings. You must serialize objects to JSON and deserialize when retrieving.
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// STORING AN OBJECT</span>
+<span class="keyword">const</span> user = {
+    name: <span class="string">'John Doe'</span>,
+    email: <span class="string">'john@example.com'</span>,
+    age: <span class="string">30</span>,
+    preferences: {
+        theme: <span class="string">'dark'</span>,
+        language: <span class="string">'en'</span>
+    }
+};
+
+<span class="comment">// Convert to JSON string before storing</span>
+localStorage.<span class="function">setItem</span>(<span class="string">'user'</span>, JSON.<span class="function">stringify</span>(user));
+
+<span class="comment">// RETRIEVING AND PARSING</span>
+<span class="keyword">const</span> storedUser = JSON.<span class="function">parse</span>(localStorage.<span class="function">getItem</span>(<span class="string">'user'</span>));
+console.<span class="function">log</span>(storedUser.name); <span class="comment">// 'John Doe'</span>
+console.<span class="function">log</span>(storedUser.preferences.theme); <span class="comment">// 'dark'</span>
+
+<span class="comment">// STORING AN ARRAY</span>
+<span class="keyword">const</span> todos = [
+    { id: <span class="string">1</span>, text: <span class="string">'Learn localStorage'</span>, done: <span class="keyword">true</span> },
+    { id: <span class="string">2</span>, text: <span class="string">'Build a project'</span>, done: <span class="keyword">false</span> }
+];
+
+localStorage.<span class="function">setItem</span>(<span class="string">'todos'</span>, JSON.<span class="function">stringify</span>(todos));
+
+<span class="comment">// RETRIEVING ARRAY</span>
+<span class="keyword">const</span> storedTodos = JSON.<span class="function">parse</span>(localStorage.<span class="function">getItem</span>(<span class="string">'todos'</span>));
+console.<span class="function">log</span>(storedTodos[<span class="string">0</span>].text); <span class="comment">// 'Learn localStorage'</span>
+                </div>
+                
+                <h3>Error Handling Best Practices</h3>
+                <div class="warning-box">
+                    <strong>⚠️ Always handle errors!</strong> localStorage can fail due to:
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Storage quota exceeded</li>
+                        <li>Private browsing mode restrictions</li>
+                        <li>Browser permissions</li>
+                        <li>Invalid JSON parsing</li>
+                    </ul>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// SAFE STORAGE WRAPPER</span>
+<span class="keyword">function</span> <span class="function">safeSetItem</span>(key, value) {
+    <span class="keyword">try</span> {
+        <span class="keyword">const</span> serialized = JSON.<span class="function">stringify</span>(value);
+        localStorage.<span class="function">setItem</span>(key, serialized);
+        <span class="keyword">return true</span>;
+    } <span class="keyword">catch</span> (error) {
+        <span class="keyword">if</span> (error.name === <span class="string">'QuotaExceededError'</span>) {
+            console.<span class="function">error</span>(<span class="string">'Storage quota exceeded!'</span>);
+        } <span class="keyword">else</span> {
+            console.<span class="function">error</span>(<span class="string">'Failed to save to localStorage:'</span>, error);
+        }
+        <span class="keyword">return false</span>;
+    }
+}
+
+<span class="comment">// SAFE RETRIEVAL WRAPPER</span>
+<span class="keyword">function</span> <span class="function">safeGetItem</span>(key, defaultValue = <span class="keyword">null</span>) {
+    <span class="keyword">try</span> {
+        <span class="keyword">const</span> item = localStorage.<span class="function">getItem</span>(key);
+        <span class="keyword">return</span> item ? JSON.<span class="function">parse</span>(item) : defaultValue;
+    } <span class="keyword">catch</span> (error) {
+        console.<span class="function">error</span>(<span class="string">'Failed to read from localStorage:'</span>, error);
+        <span class="keyword">return</span> defaultValue;
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="function">safeSetItem</span>(<span class="string">'user'</span>, { name: <span class="string">'John'</span> });
+<span class="keyword">const</span> user = <span class="function">safeGetItem</span>(<span class="string">'user'</span>, { name: <span class="string">'Guest'</span> });
+                </div>
+                
+                <h3>Advanced: Iterating Through Storage</h3>
+                <div class="code-block">
+<span class="comment">// Method 1: Using length and key()</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="string">0</span>; i < localStorage.length; i++) {
+    <span class="keyword">const</span> key = localStorage.<span class="function">key</span>(i);
+    <span class="keyword">const</span> value = localStorage.<span class="function">getItem</span>(key);
+    console.<span class="function">log</span>(`${key}: ${value}`);
+}
+
+<span class="comment">// Method 2: Using Object.keys()</span>
+Object.<span class="function">keys</span>(localStorage).<span class="function">forEach</span>(key => {
+    console.<span class="function">log</span>(`${key}: ${localStorage[key]}`);
+});
+
+<span class="comment">// Method 3: Get all as object</span>
+<span class="keyword">function</span> <span class="function">getAllLocalStorage</span>() {
+    <span class="keyword">const</span> items = {};
+    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="string">0</span>; i < localStorage.length; i++) {
+        <span class="keyword">const</span> key = localStorage.<span class="function">key</span>(i);
+        items[key] = localStorage.<span class="function">getItem</span>(key);
+    }
+    <span class="keyword">return</span> items;
+}
+                </div>
+            </div>
+            
+            <!-- sessionStorage -->
+            <div class="section">
+                <h2>🔒 sessionStorage Deep Dive</h2>
+                
+                <div class="concept-box">
+                    <p><strong>sessionStorage</strong> has the exact same API as localStorage, but with different persistence behavior.</p>
+                    <p style="margin-top: 15px;"><strong>Key Characteristics:</strong></p>
+                    <ul style="margin-left: 25px; margin-top: 10px;">
+                        <li>Data persists only for the page session</li>
+                        <li>Separate storage for each tab (even same URL)</li>
+                        <li>Cleared when tab is closed</li>
+                        <li>Survives page refreshes</li>
+                        <li>Not shared between tabs</li>
+                    </ul>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// sessionStorage API (identical to localStorage)</span>
+sessionStorage.<span class="function">setItem</span>(<span class="string">'sessionID'</span>, <span class="string">'abc123'</span>);
+sessionStorage.<span class="function">setItem</span>(<span class="string">'tempData'</span>, JSON.<span class="function">stringify</span>({ temp: <span class="keyword">true</span> }));
+
+<span class="keyword">const</span> sessionID = sessionStorage.<span class="function">getItem</span>(<span class="string">'sessionID'</span>);
+sessionStorage.<span class="function">removeItem</span>(<span class="string">'tempData'</span>);
+sessionStorage.<span class="function">clear</span>();
+
+<span class="comment">// Perfect for:</span>
+<span class="comment">// - Form data during multi-step process</span>
+<span class="comment">// - Temporary authentication tokens</span>
+<span class="comment">// - Tab-specific state</span>
+<span class="comment">// - Wizard/multi-page form progress</span>
+                </div>
+                
+                <h3>Practical Use Case: Form Wizard</h3>
+                <div class="code-block">
+<span class="comment">// Save form progress across page navigations</span>
+<span class="keyword">class</span> <span class="function">FormWizard</span> {
+    <span class="keyword">constructor</span>(formId) {
+        <span class="keyword">this</span>.formId = formId;
+        <span class="keyword">this</span>.storageKey = `wizard_${formId}`;
+        <span class="keyword">this</span>.<span class="function">loadProgress</span>();
+    }
+    
+    <span class="function">saveStep</span>(stepNumber, data) {
+        <span class="keyword">const</span> progress = <span class="keyword">this</span>.<span class="function">getProgress</span>();
+        progress[stepNumber] = data;
+        progress.currentStep = stepNumber;
+        
+        sessionStorage.<span class="function">setItem</span>(
+            <span class="keyword">this</span>.storageKey, 
+            JSON.<span class="function">stringify</span>(progress)
+        );
+    }
+    
+    <span class="function">getProgress</span>() {
+        <span class="keyword">const</span> stored = sessionStorage.<span class="function">getItem</span>(<span class="keyword">this</span>.storageKey);
+        <span class="keyword">return</span> stored ? JSON.<span class="function">parse</span>(stored) : {};
+    }
+    
+    <span class="function">loadProgress</span>() {
+        <span class="keyword">const</span> progress = <span class="keyword">this</span>.<span class="function">getProgress</span>();
+        <span class="keyword">if</span> (progress.currentStep) {
+            <span class="comment">// Resume from saved step</span>
+            <span class="keyword">this</span>.<span class="function">goToStep</span>(progress.currentStep);
+        }
+    }
+    
+    <span class="function">clearProgress</span>() {
+        sessionStorage.<span class="function">removeItem</span>(<span class="keyword">this</span>.storageKey);
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> wizard = <span class="keyword">new</span> <span class="function">FormWizard</span>(<span class="string">'signup'</span>);
+wizard.<span class="function">saveStep</span>(<span class="string">1</span>, { name: <span class="string">'John'</span>, email: <span class="string">'john@example.com'</span> });
+                </div>
+            </div>
+            
+            <!-- Comparison -->
+            <div class="section">
+                <h2>⚖️ localStorage vs sessionStorage Comparison</h2>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>localStorage</th>
+                            <th>sessionStorage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Persistence</strong></td>
+                            <td>Permanent (until explicitly deleted)</td>
+                            <td>Tab session only</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scope</strong></td>
+                            <td>Shared across all tabs/windows</td>
+                            <td>Isolated per tab</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Expiration</strong></td>
+                            <td>Never expires</td>
+                            <td>When tab closes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Storage Size</strong></td>
+                            <td>~5-10MB</td>
+                            <td>~5-10MB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>API</strong></td>
+                            <td>Identical</td>
+                            <td>Identical</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Cases</strong></td>
+                            <td>User preferences, themes, saved data</td>
+                            <td>Form drafts, temporary state, session data</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Synchronous</strong></td>
+                            <td>Yes (blocks main thread)</td>
+                            <td>Yes (blocks main thread)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Storage Events -->
+            <div class="section">
+                <h2>📡 Storage Events</h2>
+                
+                <div class="concept-box">
+                    <p>The <strong>storage</strong> event fires when localStorage is modified in <strong>another tab/window</strong> of the same origin. This enables cross-tab communication!</p>
+                </div>
+                
+                <div class="key-point">
+                    <strong>💡 Important:</strong> The storage event does NOT fire in the tab that made the change - only in other tabs!
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Listen for storage changes from other tabs</span>
+window.<span class="function">addEventListener</span>(<span class="string">'storage'</span>, (event) => {
+    console.<span class="function">log</span>(<span class="string">'Storage changed in another tab!'</span>);
+    
+    console.<span class="function">log</span>(event.key);         <span class="comment">// Key that changed (null if clear())</span>
+    console.<span class="function">log</span>(event.oldValue);    <span class="comment">// Previous value</span>
+    console.<span class="function">log</span>(event.newValue);    <span class="comment">// New value</span>
+    console.<span class="function">log</span>(event.url);         <span class="comment">// URL of page that made change</span>
+    console.<span class="function">log</span>(event.storageArea); <span class="comment">// localStorage or sessionStorage</span>
+});
+
+<span class="comment">// Practical Example: Sync theme across tabs</span>
+<span class="keyword">function</span> <span class="function">setTheme</span>(theme) {
+    document.body.className = theme;
+    localStorage.<span class="function">setItem</span>(<span class="string">'theme'</span>, theme);
+}
+
+window.<span class="function">addEventListener</span>(<span class="string">'storage'</span>, (e) => {
+    <span class="keyword">if</span> (e.key === <span class="string">'theme'</span> && e.newValue) {
+        document.body.className = e.newValue;
+    }
+});
+
+<span class="comment">// Practical Example: Logout across all tabs</span>
+<span class="keyword">function</span> <span class="function">logout</span>() {
+    localStorage.<span class="function">removeItem</span>(<span class="string">'authToken'</span>);
+    window.location.href = <span class="string">'/login'</span>;
+}
+
+window.<span class="function">addEventListener</span>(<span class="string">'storage'</span>, (e) => {
+    <span class="keyword">if</span> (e.key === <span class="string">'authToken'</span> && e.newValue === <span class="keyword">null</span>) {
+        <span class="comment">// User logged out in another tab</span>
+        window.location.href = <span class="string">'/login'</span>;
+    }
+});
+                </div>
+            </div>
+            
+            <!-- Limitations -->
+            <div class="section">
+                <h2>⚠️ Limitations & Considerations</h2>
+                
+                <div class="warning-box">
+                    <h3 style="margin-top: 0;">Storage Limitations</h3>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Size Limit:</strong> Typically 5-10MB per origin (browser-dependent)</li>
+                        <li><strong>Strings Only:</strong> Must serialize/deserialize objects</li>
+                        <li><strong>Synchronous:</strong> Blocks main thread (can cause performance issues)</li>
+                        <li><strong>No Expiration:</strong> No built-in TTL (time-to-live)</li>
+                        <li><strong>Security:</strong> Accessible via JavaScript (vulnerable to XSS)</li>
+                        <li><strong>Same-Origin:</strong> Cannot access storage from different origins</li>
+                    </ul>
+                </div>
+                
+                <h3>Implementing Expiration (TTL)</h3>
+                <div class="code-block">
+<span class="comment">// Storage wrapper with expiration</span>
+<span class="keyword">const</span> storage = {
+    <span class="function">setWithExpiry</span>(key, value, ttlMinutes) {
+        <span class="keyword">const</span> now = <span class="keyword">new</span> <span class="function">Date</span>();
+        <span class="keyword">const</span> item = {
+            value: value,
+            expiry: now.<span class="function">getTime</span>() + ttlMinutes * <span class="string">60</span> * <span class="string">1000</span>
+        };
+        localStorage.<span class="function">setItem</span>(key, JSON.<span class="function">stringify</span>(item));
+    },
+    
+    <span class="function">getWithExpiry</span>(key) {
+        <span class="keyword">const</span> itemStr = localStorage.<span class="function">getItem</span>(key);
+        <span class="keyword">if</span> (!itemStr) <span class="keyword">return null</span>;
+        
+        <span class="keyword">const</span> item = JSON.<span class="function">parse</span>(itemStr);
+        <span class="keyword">const</span> now = <span class="keyword">new</span> <span class="function">Date</span>();
+        
+        <span class="keyword">if</span> (now.<span class="function">getTime</span>() > item.expiry) {
+            <span class="comment">// Expired - remove and return null</span>
+            localStorage.<span class="function">removeItem</span>(key);
+            <span class="keyword">return null</span>;
+        }
+        
+        <span class="keyword">return</span> item.value;
+    }
+};
+
+<span class="comment">// Usage: Store for 30 minutes</span>
+storage.<span class="function">setWithExpiry</span>(<span class="string">'tempToken'</span>, <span class="string">'abc123'</span>, <span class="string">30</span>);
+<span class="keyword">const</span> token = storage.<span class="function">getWithExpiry</span>(<span class="string">'tempToken'</span>);
+                </div>
+                
+                <h3>Checking Available Space</h3>
+                <div class="code-block">
+<span class="comment">// Estimate remaining storage space</span>
+<span class="keyword">function</span> <span class="function">getStorageSize</span>() {
+    <span class="keyword">let</span> total = <span class="string">0</span>;
+    <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> localStorage) {
+        <span class="keyword">if</span> (localStorage.<span class="function">hasOwnProperty</span>(key)) {
+            total += localStorage[key].length + key.length;
+        }
+    }
+    <span class="keyword">return</span> (total / <span class="string">1024</span>).<span class="function">toFixed</span>(<span class="string">2</span>) + <span class="string">' KB'</span>;
+}
+
+<span class="comment">// Test if storage is available</span>
+<span class="keyword">function</span> <span class="function">storageAvailable</span>(type) {
+    <span class="keyword">try</span> {
+        <span class="keyword">const</span> storage = window[type];
+        <span class="keyword">const</span> test = <span class="string">'__storage_test__'</span>;
+        storage.<span class="function">setItem</span>(test, test);
+        storage.<span class="function">removeItem</span>(test);
+        <span class="keyword">return true</span>;
+    } <span class="keyword">catch</span> (e) {
+        <span class="keyword">return false</span>;
+    }
+}
+
+<span class="keyword">if</span> (<span class="function">storageAvailable</span>(<span class="string">'localStorage'</span>)) {
+    <span class="comment">// Safe to use localStorage</span>
+} <span class="keyword">else</span> {
+    <span class="comment">// Use fallback (cookies, memory, server)</span>
+}
+                </div>
+            </div>
+            
+            <!-- Interactive Demo -->
+            <div class="section">
+                <h2>🎮 Interactive Demo</h2>
+                
+                <div class="demo-section">
+                    <h3>Try Web Storage Now!</h3>
+                    
+                    <h4 style="margin-top: 20px;">localStorage Demo</h4>
+                    <div class="demo-controls">
+                        <input type="text" id="localKey" placeholder="Key">
+                        <input type="text" id="localValue" placeholder="Value">
+                        <button onclick="setLocal()">Set</button>
+                        <button onclick="getLocal()">Get</button>
+                        <button onclick="removeLocal()">Remove</button>
+                        <button onclick="clearLocal()">Clear All</button>
+                    </div>
+                    <div class="output" id="localOutput">Output will appear here...</div>
+                    
+                    <h4 style="margin-top: 30px;">sessionStorage Demo</h4>
+                    <div class="demo-controls">
+                        <input type="text" id="sessionKey" placeholder="Key">
+                        <input type="text" id="sessionValue" placeholder="Value">
+                        <button onclick="setSession()">Set</button>
+                        <button onclick="getSession()">Get</button>
+                        <button onclick="removeSession()">Remove</button>
+                        <button onclick="clearSession()">Clear All</button>
+                    </div>
+                    <div class="output" id="sessionOutput">Output will appear here...</div>
+                    
+                    <h4 style="margin-top: 30px;">View All Storage</h4>
+                    <div class="demo-controls">
+                        <button onclick="viewAll()">View All Data</button>
+                        <button onclick="checkSize()">Check Storage Size</button>
+                    </div>
+                    <div class="output" id="viewOutput">Click "View All Data" to see all stored items...</div>
+                </div>
+            </div>
+            
+            <!-- Best Practices -->
+            <div class="section">
+                <h2>✅ Best Practices</h2>
+                
+                <div class="concept-box">
+                    <h3 style="margin-top: 0;">When to Use Each</h3>
+                    
+                    <p><strong>Use localStorage for:</strong></p>
+                    <ul style="margin-left: 25px; margin-top: 10px;">
+                        <li>User preferences (theme, language)</li>
+                        <li>Recently viewed items</li>
+                        <li>Cached data that doesn't change often</li>
+                        <li>Offline app data</li>
+                        <li>Shopping cart (non-sensitive)</li>
+                    </ul>
+                    
+                    <p style="margin-top: 20px;"><strong>Use sessionStorage for:</strong></p>
+                    <ul style="margin-left: 25px; margin-top: 10px;">
+                        <li>Multi-step form data</li>
+                        <li>Temporary authentication tokens</li>
+                        <li>Session-specific state</li>
+                        <li>Tab-specific settings</li>
+                        <li>One-time messages</li>
+                    </ul>
+                    
+                    <p style="margin-top: 20px;"><strong>DON'T store in Web Storage:</strong></p>
+                    <ul style="margin-left: 25px; margin-top: 10px;">
+                        <li>❌ Passwords or sensitive credentials</li>
+                        <li>❌ Personal Identifiable Information (PII)</li>
+                        <li>❌ Financial data</li>
+                        <li>❌ Session tokens for production (use httpOnly cookies)</li>
+                        <li>❌ Large files or binary data (use IndexedDB)</li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        // Demo Functions
+        function setLocal() {
+            const key = document.getElementById('localKey').value;
+            const value = document.getElementById('localValue').value;
+            if (key && value) {
+                localStorage.setItem(key, value);
+                document.getElementById('localOutput').textContent = `✓ Stored: ${key} = ${value}`;
+            } else {
+                document.getElementById('localOutput').textContent = '⚠️ Please enter both key and value';
+            }
+        }
+        
+        function getLocal() {
+            const key = document.getElementById('localKey').value;
+            if (key) {
+                const value = localStorage.getItem(key);
+                document.getElementById('localOutput').textContent = value 
+                    ? `Retrieved: ${key} = ${value}`
+                    : `❌ Key "${key}" not found`;
+            } else {
+                document.getElementById('localOutput').textContent = '⚠️ Please enter a key';
+            }
+        }
+        
+        function removeLocal() {
+            const key = document.getElementById('localKey').value;
+            if (key) {
+                localStorage.removeItem(key);
+                document.getElementById('localOutput').textContent = `✓ Removed: ${key}`;
+            } else {
+                document.getElementById('localOutput').textContent = '⚠️ Please enter a key';
+            }
+        }
+        
+        function clearLocal() {
+            localStorage.clear();
+            document.getElementById('localOutput').textContent = '✓ All localStorage cleared!';
+        }
+        
+        function setSession() {
+            const key = document.getElementById('sessionKey').value;
+            const value = document.getElementById('sessionValue').value;
+            if (key && value) {
+                sessionStorage.setItem(key, value);
+                document.getElementById('sessionOutput').textContent = `✓ Stored: ${key} = ${value}`;
+            } else {
+                document.getElementById('sessionOutput').textContent = '⚠️ Please enter both key and value';
+            }
+        }
+        
+        function getSession() {
+            const key = document.getElementById('sessionKey').value;
+            if (key) {
+                const value = sessionStorage.getItem(key);
+                document.getElementById('sessionOutput').textContent = value 
+                    ? `Retrieved: ${key} = ${value}`
+                    : `❌ Key "${key}" not found`;
+            } else {
+                document.getElementById('sessionOutput').textContent = '⚠️ Please enter a key';
+            }
+        }
+        
+        function removeSession() {
+            const key = document.getElementById('sessionKey').value;
+            if (key) {
+                sessionStorage.removeItem(key);
+                document.getElementById('sessionOutput').textContent = `✓ Removed: ${key}`;
+            } else {
+                document.getElementById('sessionOutput').textContent = '⚠️ Please enter a key';
+            }
+        }
+        
+        function clearSession() {
+            sessionStorage.clear();
+            document.getElementById('sessionOutput').textContent = '✓ All sessionStorage cleared!';
+        }
+        
+        function viewAll() {
+            let output = '<h4>localStorage:</h4>';
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                output += `<div style="margin: 5px 0;">${key}: ${localStorage.getItem(key)}</div>`;
+            }
+            
+            output += '<h4 style="margin-top: 15px;">sessionStorage:</h4>';
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                output += `<div style="margin: 5px 0;">${key}: ${sessionStorage.getItem(key)}</div>`;
+            }
+            
+            if (localStorage.length === 0 && sessionStorage.length === 0) {
+                output = '❌ No data stored';
+            }
+            
+            document.getElementById('viewOutput').innerHTML = output;
+        }
+        
+        function checkSize() {
+            let localSize = 0;
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    localSize += localStorage[key].length + key.length;
+                }
+            }
+            
+            let sessionSize = 0;
+            for (let key in sessionStorage) {
+                if (sessionStorage.hasOwnProperty(key)) {
+                    sessionSize += sessionStorage[key].length + key.length;
+                }
+            }
+            
+            document.getElementById('viewOutput').innerHTML = `
+                <div><strong>localStorage:</strong> ${(localSize / 1024).toFixed(2)} KB (${localStorage.length} items)</div>
+                <div style="margin-top: 10px;"><strong>sessionStorage:</strong> ${(sessionSize / 1024).toFixed(2)} KB (${sessionStorage.length} items)</div>
+                <div style="margin-top: 10px;"><em>Typical limit: ~5-10 MB (5120-10240 KB)</em></div>
+            `;
+        }
+    </script>
+</body>
+</html>

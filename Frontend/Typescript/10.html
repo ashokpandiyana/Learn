@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 10: State Management</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e4e4e7;
+      line-height: 1.7;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #8b5cf6, #6366f1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle { color: #94a3b8; font-size: 1.1rem; margin-bottom: 40px; }
+    .section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    h2 {
+      color: #a78bfa;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, #8b5cf6, #6366f1);
+      border-radius: 2px;
+    }
+    h3 { color: #c4b5fd; font-size: 1.2rem; margin: 25px 0 15px; }
+    h4 { color: #ddd6fe; margin: 15px 0 10px; }
+    p { margin-bottom: 15px; color: #cbd5e1; }
+    .code-block {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+      overflow-x: auto;
+      border: 1px solid #334155;
+    }
+    pre { font-family: 'Fira Code', 'Consolas', monospace; font-size: 13px; line-height: 1.6; }
+    .keyword { color: #c678dd; }
+    .type { color: #e5c07b; }
+    .string { color: #98c379; }
+    .number { color: #d19a66; }
+    .comment { color: #5c6370; font-style: italic; }
+    .function { color: #61afef; }
+    .variable { color: #e06c75; }
+    .alert {
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+    }
+    .alert-interview { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .alert-tip { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); }
+    .alert-note { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); }
+    .alert-icon { font-size: 1.5rem; }
+    .alert-content h4 { color: #f87171; margin-bottom: 5px; }
+    .alert-tip .alert-content h4 { color: #4ade80; }
+    .alert-note .alert-content h4 { color: #60a5fa; }
+    .visual-box {
+      background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(99,102,241,0.1));
+      border-radius: 12px;
+      padding: 25px;
+      margin: 20px 0;
+      border: 1px solid rgba(167,139,250,0.3);
+    }
+    .visual-title { color: #a78bfa; font-weight: 600; margin-bottom: 15px; text-align: center; }
+    ul { padding-left: 25px; margin: 10px 0; }
+    li { margin: 8px 0; color: #cbd5e1; }
+    code { background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+    .nav-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
+    .nav-btn {
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .lib-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(139,92,246,0.2);
+      color: #a78bfa;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      margin-bottom: 15px;
+    }
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .comparison-card {
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid rgba(139,92,246,0.2);
+    }
+    .comparison-card h5 { color: #a78bfa; margin-bottom: 10px; }
+    .comparison-card p { font-size: 0.9rem; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🗄️ Chapter 10: State Management</h1>
+    <p class="subtitle">Type-safe global state with Redux Toolkit, Zustand, and TanStack Query</p>
+
+    <!-- Section 10.1 -->
+    <div class="section">
+      <h2>10.1 Redux Toolkit</h2>
+      <span class="lib-badge">npm install @reduxjs/toolkit react-redux</span>
+      
+      <p>Redux Toolkit (RTK) is the official, recommended way to write Redux logic. It provides excellent TypeScript support out of the box.</p>
+
+      <h3>Store Setup</h3>
+      <div class="code-block">
+<pre><span class="comment">// store/store.ts</span>
+<span class="keyword">import</span> { <span class="function">configureStore</span> } <span class="keyword">from</span> <span class="string">'@reduxjs/toolkit'</span>;
+<span class="keyword">import</span> <span class="variable">userReducer</span> <span class="keyword">from</span> <span class="string">'./slices/userSlice'</span>;
+<span class="keyword">import</span> <span class="variable">cartReducer</span> <span class="keyword">from</span> <span class="string">'./slices/cartSlice'</span>;
+<span class="keyword">import</span> <span class="variable">notificationReducer</span> <span class="keyword">from</span> <span class="string">'./slices/notificationSlice'</span>;
+
+<span class="keyword">export</span> <span class="keyword">const</span> <span class="variable">store</span> = <span class="function">configureStore</span>({
+  <span class="variable">reducer</span>: {
+    <span class="variable">user</span>: <span class="variable">userReducer</span>,
+    <span class="variable">cart</span>: <span class="variable">cartReducer</span>,
+    <span class="variable">notifications</span>: <span class="variable">notificationReducer</span>,
+  },
+});
+
+<span class="comment">// Infer types from the store itself</span>
+<span class="keyword">export</span> <span class="keyword">type</span> <span class="type">RootState</span> = <span class="type">ReturnType</span>&lt;<span class="keyword">typeof</span> <span class="variable">store</span>.<span class="variable">getState</span>&gt;;
+<span class="keyword">export</span> <span class="keyword">type</span> <span class="type">AppDispatch</span> = <span class="keyword">typeof</span> <span class="variable">store</span>.<span class="variable">dispatch</span>;</pre>
+      </div>
+
+      <h3>Typed Hooks</h3>
+      <div class="code-block">
+<pre><span class="comment">// store/hooks.ts</span>
+<span class="keyword">import</span> { <span class="function">useDispatch</span>, <span class="function">useSelector</span>, <span class="type">TypedUseSelectorHook</span> } <span class="keyword">from</span> <span class="string">'react-redux'</span>;
+<span class="keyword">import</span> <span class="keyword">type</span> { <span class="type">RootState</span>, <span class="type">AppDispatch</span> } <span class="keyword">from</span> <span class="string">'./store'</span>;
+
+<span class="comment">// Typed versions of useDispatch and useSelector</span>
+<span class="keyword">export</span> <span class="keyword">const</span> <span class="function">useAppDispatch</span> = () => <span class="function">useDispatch</span>&lt;<span class="type">AppDispatch</span>&gt;();
+<span class="keyword">export</span> <span class="keyword">const</span> <span class="variable">useAppSelector</span>: <span class="type">TypedUseSelectorHook</span>&lt;<span class="type">RootState</span>&gt; = <span class="function">useSelector</span>;
+
+<span class="comment">// Now use these hooks throughout your app for full type safety!</span></pre>
+      </div>
+
+      <h3>Creating Typed Slices</h3>
+      <div class="code-block">
+<pre><span class="comment">// store/slices/userSlice.ts</span>
+<span class="keyword">import</span> { <span class="function">createSlice</span>, <span class="type">PayloadAction</span>, <span class="function">createAsyncThunk</span> } <span class="keyword">from</span> <span class="string">'@reduxjs/toolkit'</span>;
+
+<span class="comment">// Define types</span>
+<span class="keyword">interface</span> <span class="type">User</span> {
+  <span class="variable">id</span>: <span class="type">string</span>;
+  <span class="variable">name</span>: <span class="type">string</span>;
+  <span class="variable">email</span>: <span class="type">string</span>;
+  <span class="variable">role</span>: <span class="string">'admin'</span> | <span class="string">'user'</span>;
+}
+
+<span class="keyword">interface</span> <span class="type">UserState</span> {
+  <span class="variable">currentUser</span>: <span class="type">User</span> | <span class="type">null</span>;
+  <span class="variable">isAuthenticated</span>: <span class="type">boolean</span>;
+  <span class="variable">loading</span>: <span class="type">boolean</span>;
+  <span class="variable">error</span>: <span class="type">string</span> | <span class="type">null</span>;
+}
+
+<span class="comment">// Initial state with type</span>
+<span class="keyword">const</span> <span class="variable">initialState</span>: <span class="type">UserState</span> = {
+  <span class="variable">currentUser</span>: <span class="keyword">null</span>,
+  <span class="variable">isAuthenticated</span>: <span class="keyword">false</span>,
+  <span class="variable">loading</span>: <span class="keyword">false</span>,
+  <span class="variable">error</span>: <span class="keyword">null</span>,
+};
+
+<span class="comment">// Async thunk with proper typing</span>
+<span class="keyword">export</span> <span class="keyword">const</span> <span class="variable">fetchUser</span> = <span class="function">createAsyncThunk</span>&lt;
+  <span class="type">User</span>,           <span class="comment">// Return type</span>
+  <span class="type">string</span>,         <span class="comment">// Argument type (userId)</span>
+  { <span class="variable">rejectValue</span>: <span class="type">string</span> }  <span class="comment">// ThunkAPI config</span>
+&gt;(
+  <span class="string">'user/fetchUser'</span>,
+  <span class="keyword">async</span> (<span class="variable">userId</span>, { <span class="variable">rejectWithValue</span> }) => {
+    <span class="keyword">try</span> {
+      <span class="keyword">const</span> <span class="variable">response</span> = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">`/api/users/</span>${<span class="variable">userId</span>}<span class="string">`</span>);
+      <span class="keyword">if</span> (!<span class="variable">response</span>.<span class="variable">ok</span>) {
+        <span class="keyword">throw new</span> <span class="type">Error</span>(<span class="string">'Failed to fetch user'</span>);
+      }
+      <span class="keyword">return</span> (<span class="keyword">await</span> <span class="variable">response</span>.<span class="function">json</span>()) <span class="keyword">as</span> <span class="type">User</span>;
+    } <span class="keyword">catch</span> (<span class="variable">error</span>) {
+      <span class="keyword">return</span> <span class="function">rejectWithValue</span>(
+        <span class="variable">error</span> <span class="keyword">instanceof</span> <span class="type">Error</span> ? <span class="variable">error</span>.<span class="variable">message</span> : <span class="string">'Unknown error'</span>
+      );
+    }
+  }
+);
+
+<span class="comment">// Login thunk</span>
+<span class="keyword">export</span> <span class="keyword">const</span> <span class="variable">loginUser</span> = <span class="function">createAsyncThunk</span>&lt;
+  <span class="type">User</span>,
+  { <span class="variable">email</span>: <span class="type">string</span>; <span class="variable">password</span>: <span class="type">string</span> },
+  { <span class="variable">rejectValue</span>: <span class="type">string</span> }
+&gt;(
+  <span class="string">'user/login'</span>,
+  <span class="keyword">async</span> (<span class="variable">credentials</span>, { <span class="variable">rejectWithValue</span> }) => {
+    <span class="keyword">try</span> {
+      <span class="keyword">const</span> <span class="variable">response</span> = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/api/login'</span>, {
+        <span class="variable">method</span>: <span class="string">'POST'</span>,
+        <span class="variable">headers</span>: { <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span> },
+        <span class="variable">body</span>: <span class="function">JSON</span>.<span class="function">stringify</span>(<span class="variable">credentials</span>),
+      });
+      <span class="keyword">if</span> (!<span class="variable">response</span>.<span class="variable">ok</span>) {
+        <span class="keyword">throw new</span> <span class="type">Error</span>(<span class="string">'Invalid credentials'</span>);
+      }
+      <span class="keyword">return</span> (<span class="keyword">await</span> <span class="variable">response</span>.<span class="function">json</span>()) <span class="keyword">as</span> <span class="type">User</span>;
+    } <span class="keyword">catch</span> (<span class="variable">error</span>) {
+      <span class="keyword">return</span> <span class="function">rejectWithValue</span>(
+        <span class="variable">error</span> <span class="keyword">instanceof</span> <span class="type">Error</span> ? <span class="variable">error</span>.<span class="variable">message</span> : <span class="string">'Login failed'</span>
+      );
+    }
+  }
+);
+
+<span class="comment">// Create the slice</span>
+<span class="keyword">const</span> <span class="variable">userSlice</span> = <span class="function">createSlice</span>({
+  <span class="variable">name</span>: <span class="string">'user'</span>,
+  <span class="variable">initialState</span>,
+  <span class="variable">reducers</span>: {
+    <span class="comment">// Sync actions with PayloadAction</span>
+    <span class="function">setUser</span>(<span class="variable">state</span>, <span class="variable">action</span>: <span class="type">PayloadAction</span>&lt;<span class="type">User</span>&gt;) {
+      <span class="variable">state</span>.<span class="variable">currentUser</span> = <span class="variable">action</span>.<span class="variable">payload</span>;
+      <span class="variable">state</span>.<span class="variable">isAuthenticated</span> = <span class="keyword">true</span>;
+    },
+    <span class="function">logout</span>(<span class="variable">state</span>) {
+      <span class="variable">state</span>.<span class="variable">currentUser</span> = <span class="keyword">null</span>;
+      <span class="variable">state</span>.<span class="variable">isAuthenticated</span> = <span class="keyword">false</span>;
+      <span class="variable">state</span>.<span class="variable">error</span> = <span class="keyword">null</span>;
+    },
+    <span class="function">updateUserName</span>(<span class="variable">state</span>, <span class="variable">action</span>: <span class="type">PayloadAction</span>&lt;<span class="type">string</span>&gt;) {
+      <span class="keyword">if</span> (<span class="variable">state</span>.<span class="variable">currentUser</span>) {
+        <span class="variable">state</span>.<span class="variable">currentUser</span>.<span class="variable">name</span> = <span class="variable">action</span>.<span class="variable">payload</span>;
+      }
+    },
+    <span class="function">clearError</span>(<span class="variable">state</span>) {
+      <span class="variable">state</span>.<span class="variable">error</span> = <span class="keyword">null</span>;
+    },
+  },
+  <span class="comment">// Handle async thunks</span>
+  <span class="variable">extraReducers</span>: (<span class="variable">builder</span>) => {
+    <span class="variable">builder</span>
+      <span class="comment">// fetchUser</span>
+      .<span class="function">addCase</span>(<span class="variable">fetchUser</span>.<span class="variable">pending</span>, (<span class="variable">state</span>) => {
+        <span class="variable">state</span>.<span class="variable">loading</span> = <span class="keyword">true</span>;
+        <span class="variable">state</span>.<span class="variable">error</span> = <span class="keyword">null</span>;
+      })
+      .<span class="function">addCase</span>(<span class="variable">fetchUser</span>.<span class="variable">fulfilled</span>, (<span class="variable">state</span>, <span class="variable">action</span>) => {
+        <span class="variable">state</span>.<span class="variable">loading</span> = <span class="keyword">false</span>;
+        <span class="variable">state</span>.<span class="variable">currentUser</span> = <span class="variable">action</span>.<span class="variable">payload</span>;
+        <span class="variable">state</span>.<span class="variable">isAuthenticated</span> = <span class="keyword">true</span>;
+      })
+      .<span class="function">addCase</span>(<span class="variable">fetchUser</span>.<span class="variable">rejected</span>, (<span class="variable">state</span>, <span class="variable">action</span>) => {
+        <span class="variable">state</span>.<span class="variable">loading</span> = <span class="keyword">false</span>;
+        <span class="variable">state</span>.<span class="variable">error</span> = <span class="variable">action</span>.<span class="variable">payload</span> ?? <span class="string">'Failed to fetch user'</span>;
+      })
+      <span class="comment">// loginUser</span>
+      .<span class="function">addCase</span>(<span class="variable">loginUser</span>.<span class="variable">pending</span>, (<span class="variable">state</span>) => {
+        <span class="variable">state</span>.<span class="variable">loading</span> = <span class="keyword">true</span>;
+        <span class="variable">state</span>.<span class="variable">error</span> = <span class="keyword">null</span>;
+      })
+      .<span class="function">addCase</span>(<span class="variable">loginUser</span>.<span class="variable">fulfilled</span>, (<span class="variable">state</span>, <span class="variable">action</span>) => {
+        <span class="variable">state</span>.<span class="variable">loading</span> = <span class="keyword">false</span>;
+        <span class="variable">state</span>.<span class="variable">currentUser</span> = <span class="variable">action</span>.<span class="variable">payload</span>;
+        <span class="variable">state</span>.<span class="variable">isAuthenticated</span> = <span class="keyword">true</span>;
+      })
+      .<span class="function">addCase</span>(<span class="variable">loginUser</span>.<span class="variable">rejected</span>, (<span class="variable">state</span>, <span class="variable">action</span>) => {
+        <span class="variable">state</span>.<span class="variable">loading</span> = <span class="keyword">false</span>;
+        <span class="variable">state</span>.<span class="variable">error</span> = <span class="variable">action</span>.<span class="variable">payload</span> ?? <span class="string">'Login failed'</span>;
+      });
+  },
+});
+
+<span class="keyword">export</span> <span class="keyword">const</span> { <span class="variable">setUser</span>, <span class="variable">logout</span>, <span class="variable">updateUserName</span>, <span class="variable">clearError</span> } = <span class="variable">userSlice</span>.<span class="variable">actions</span>;
+<span class="keyword">export</span> <span class="keyword">default</span> <span class="variable">userSlice</span>.<span class="variable">reducer</span>;</pre>
+      </div>
+
+      <h3>Using in Components</h3>
+      <div class="code-block">
+<pre><span class="comment">// components/UserProfile.tsx</span>
+<span class="keyword">import</span> { <span class="variable">useAppSelector</span>, <span class="variable">useAppDispatch</span> } <span class="keyword">from</span> <span class="string">'../store/hooks'</span>;
+<span class="keyword">import</span> { <span class="variable">logout</span>, <span class="variable">fetchUser</span> } <span class="keyword">from</span> <span class="string">'../store/slices/userSlice'</span>;
+<span class="keyword">import</span> { <span class="function">useEffect</span> } <span class="keyword">from</span> <span class="string">'react'</span>;
+
+<span class="keyword">function</span> <span class="function">UserProfile</span>() {
+  <span class="keyword">const</span> <span class="variable">dispatch</span> = <span class="function">useAppDispatch</span>();
+  
+  <span class="comment">// Full type safety - state is RootState</span>
+  <span class="keyword">const</span> { <span class="variable">currentUser</span>, <span class="variable">loading</span>, <span class="variable">error</span> } = <span class="function">useAppSelector</span>(
+    (<span class="variable">state</span>) => <span class="variable">state</span>.<span class="variable">user</span>
+  );
+  
+  <span class="comment">// Typed selector</span>
+  <span class="keyword">const</span> <span class="variable">isAdmin</span> = <span class="function">useAppSelector</span>(
+    (<span class="variable">state</span>) => <span class="variable">state</span>.<span class="variable">user</span>.<span class="variable">currentUser</span>?.<span class="variable">role</span> === <span class="string">'admin'</span>
+  );
+  
+  <span class="function">useEffect</span>(() => {
+    <span class="comment">// Dispatch async thunk with typed argument</span>
+    <span class="variable">dispatch</span>(<span class="function">fetchUser</span>(<span class="string">'user-123'</span>));
+  }, [<span class="variable">dispatch</span>]);
+  
+  <span class="keyword">const</span> <span class="function">handleLogout</span> = () => {
+    <span class="variable">dispatch</span>(<span class="function">logout</span>()); <span class="comment">// Sync action</span>
+  };
+  
+  <span class="keyword">if</span> (<span class="variable">loading</span>) <span class="keyword">return</span> &lt;<span class="variable">div</span>&gt;Loading...&lt;/<span class="variable">div</span>&gt;;
+  <span class="keyword">if</span> (<span class="variable">error</span>) <span class="keyword">return</span> &lt;<span class="variable">div</span>&gt;Error: {<span class="variable">error</span>}&lt;/<span class="variable">div</span>&gt;;
+  <span class="keyword">if</span> (!<span class="variable">currentUser</span>) <span class="keyword">return</span> &lt;<span class="variable">div</span>&gt;Not logged in&lt;/<span class="variable">div</span>&gt;;
+  
+  <span class="keyword">return</span> (
+    &lt;<span class="variable">div</span>&gt;
+      &lt;<span class="variable">h1</span>&gt;Welcome, {<span class="variable">currentUser</span>.<span class="variable">name</span>}&lt;/<span class="variable">h1</span>&gt;
+      &lt;<span class="variable">p</span>&gt;Email: {<span class="variable">currentUser</span>.<span class="variable">email</span>}&lt;/<span class="variable">p</span>&gt;
+      {<span class="variable">isAdmin</span> && &lt;<span class="variable">span</span>&gt;Admin Badge&lt;/<span class="variable">span</span>&gt;}
+      &lt;<span class="variable">button</span> <span class="variable">onClick</span>={<span class="variable">handleLogout</span>}&gt;Logout&lt;/<span class="variable">button</span>&gt;
+    &lt;/<span class="variable">div</span>&gt;
+  );
+}</pre>
+      </div>
+
+      <div class="alert alert-interview">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+          <h4>Interview Alert: Why createAsyncThunk Generic Parameters?</h4>
+          <p><code>createAsyncThunk&lt;ReturnType, ArgType, ThunkConfig&gt;</code></p>
+          <ul>
+            <li><strong>ReturnType:</strong> What the thunk returns on success</li>
+            <li><strong>ArgType:</strong> What argument the thunk receives</li>
+            <li><strong>ThunkConfig:</strong> Configure rejectValue, state type, etc.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 10.2 -->
+    <div class="section">
+      <h2>10.2 Zustand</h2>
+      <span class="lib-badge">npm install zustand</span>
+      
+      <p>Zustand is a lightweight state management library with excellent TypeScript support and minimal boilerplate.</p>
+
+      <div class="code-block">
+<pre><span class="keyword">import</span> { <span class="function">create</span> } <span class="keyword">from</span> <span class="string">'zustand'</span>;
+<span class="keyword">import</span> { <span class="function">persist</span>, <span class="function">devtools</span> } <span class="keyword">from</span> <span class="string">'zustand/middleware'</span>;
+<span class="keyword">import</span> { <span class="function">immer</span> } <span class="keyword">from</span> <span class="string">'zustand/middleware/immer'</span>;
+
+<span class="comment">// Define the store interface</span>
+<span class="keyword">interface</span> <span class="type">Todo</span> {
+  <span class="variable">id</span>: <span class="type">string</span>;
+  <span class="variable">text</span>: <span class="type">string</span>;
+  <span class="variable">completed</span>: <span class="type">boolean</span>;
+}
+
+<span class="keyword">interface</span> <span class="type">TodoStore</span> {
+  <span class="comment">// State</span>
+  <span class="variable">todos</span>: <span class="type">Todo</span>[];
+  <span class="variable">filter</span>: <span class="string">'all'</span> | <span class="string">'active'</span> | <span class="string">'completed'</span>;
+  
+  <span class="comment">// Actions</span>
+  <span class="function">addTodo</span>: (<span class="variable">text</span>: <span class="type">string</span>) => <span class="type">void</span>;
+  <span class="function">toggleTodo</span>: (<span class="variable">id</span>: <span class="type">string</span>) => <span class="type">void</span>;
+  <span class="function">removeTodo</span>: (<span class="variable">id</span>: <span class="type">string</span>) => <span class="type">void</span>;
+  <span class="function">setFilter</span>: (<span class="variable">filter</span>: <span class="type">TodoStore</span>[<span class="string">'filter'</span>]) => <span class="type">void</span>;
+  <span class="function">clearCompleted</span>: () => <span class="type">void</span>;
+  
+  <span class="comment">// Computed (as a function)</span>
+  <span class="function">getFilteredTodos</span>: () => <span class="type">Todo</span>[];
+}
+
+<span class="comment">// Create the store with full type safety</span>
+<span class="keyword">export</span> <span class="keyword">const</span> <span class="variable">useTodoStore</span> = <span class="function">create</span>&lt;<span class="type">TodoStore</span>&gt;()(
+  <span class="function">devtools</span>(
+    <span class="function">persist</span>(
+      <span class="function">immer</span>((<span class="variable">set</span>, <span class="variable">get</span>) => ({
+        <span class="comment">// Initial state</span>
+        <span class="variable">todos</span>: [],
+        <span class="variable">filter</span>: <span class="string">'all'</span>,
+        
+        <span class="comment">// Actions using immer for immutable updates</span>
+        <span class="function">addTodo</span>: (<span class="variable">text</span>) => <span class="function">set</span>((<span class="variable">state</span>) => {
+          <span class="variable">state</span>.<span class="variable">todos</span>.<span class="function">push</span>({
+            <span class="variable">id</span>: <span class="type">crypto</span>.<span class="function">randomUUID</span>(),
+            <span class="variable">text</span>,
+            <span class="variable">completed</span>: <span class="keyword">false</span>,
+          });
+        }),
+        
+        <span class="function">toggleTodo</span>: (<span class="variable">id</span>) => <span class="function">set</span>((<span class="variable">state</span>) => {
+          <span class="keyword">const</span> <span class="variable">todo</span> = <span class="variable">state</span>.<span class="variable">todos</span>.<span class="function">find</span>(<span class="variable">t</span> => <span class="variable">t</span>.<span class="variable">id</span> === <span class="variable">id</span>);
+          <span class="keyword">if</span> (<span class="variable">todo</span>) {
+            <span class="variable">todo</span>.<span class="variable">completed</span> = !<span class="variable">todo</span>.<span class="variable">completed</span>;
+          }
+        }),
+        
+        <span class="function">removeTodo</span>: (<span class="variable">id</span>) => <span class="function">set</span>((<span class="variable">state</span>) => {
+          <span class="variable">state</span>.<span class="variable">todos</span> = <span class="variable">state</span>.<span class="variable">todos</span>.<span class="function">filter</span>(<span class="variable">t</span> => <span class="variable">t</span>.<span class="variable">id</span> !== <span class="variable">id</span>);
+        }),
+        
+        <span class="function">setFilter</span>: (<span class="variable">filter</span>) => <span class="function">set</span>({ <span class="variable">filter</span> }),
+        
+        <span class="function">clearCompleted</span>: () => <span class="function">set</span>((<span class="variable">state</span>) => {
+          <span class="variable">state</span>.<span class="variable">todos</span> = <span class="variable">state</span>.<span class="variable">todos</span>.<span class="function">filter</span>(<span class="variable">t</span> => !<span class="variable">t</span>.<span class="variable">completed</span>);
+        }),
+        
+        <span class="comment">// Computed value</span>
+        <span class="function">getFilteredTodos</span>: () => {
+          <span class="keyword">const</span> { <span class="variable">todos</span>, <span class="variable">filter</span> } = <span class="function">get</span>();
+          <span class="keyword">switch</span> (<span class="variable">filter</span>) {
+            <span class="keyword">case</span> <span class="string">'active'</span>:
+              <span class="keyword">return</span> <span class="variable">todos</span>.<span class="function">filter</span>(<span class="variable">t</span> => !<span class="variable">t</span>.<span class="variable">completed</span>);
+            <span class="keyword">case</span> <span class="string">'completed'</span>:
+              <span class="keyword">return</span> <span class="variable">todos</span>.<span class="function">filter</span>(<span class="variable">t</span> => <span class="variable">t</span>.<span class="variable">completed</span>);
+            <span class="keyword">default</span>:
+              <span class="keyword">return</span> <span class="variable">todos</span>;
+          }
+        },
+      })),
+      { <span class="variable">name</span>: <span class="string">'todo-storage'</span> }
+    )
+  )
+);
+
+<span class="comment">// Usage in component</span>
+<span class="keyword">function</span> <span class="function">TodoList</span>() {
+  <span class="comment">// Select specific pieces of state</span>
+  <span class="keyword">const</span> <span class="variable">todos</span> = <span class="function">useTodoStore</span>((<span class="variable">state</span>) => <span class="variable">state</span>.<span class="function">getFilteredTodos</span>());
+  <span class="keyword">const</span> <span class="variable">addTodo</span> = <span class="function">useTodoStore</span>((<span class="variable">state</span>) => <span class="variable">state</span>.<span class="variable">addTodo</span>);
+  <span class="keyword">const</span> <span class="variable">toggleTodo</span> = <span class="function">useTodoStore</span>((<span class="variable">state</span>) => <span class="variable">state</span>.<span class="variable">toggleTodo</span>);
+  
+  <span class="keyword">return</span> (
+    &lt;<span class="variable">div</span>&gt;
+      {<span class="variable">todos</span>.<span class="function">map</span>(<span class="variable">todo</span> => (
+        &lt;<span class="variable">div</span> <span class="variable">key</span>={<span class="variable">todo</span>.<span class="variable">id</span>} <span class="variable">onClick</span>={() => <span class="function">toggleTodo</span>(<span class="variable">todo</span>.<span class="variable">id</span>)}&gt;
+          {<span class="variable">todo</span>.<span class="variable">text</span>} - {<span class="variable">todo</span>.<span class="variable">completed</span> ? <span class="string">'✓'</span> : <span class="string">'○'</span>}
+        &lt;/<span class="variable">div</span>&gt;
+      ))}
+    &lt;/<span class="variable">div</span>&gt;
+  );
+}</pre>
+      </div>
+
+      <div class="alert alert-tip">
+        <span class="alert-icon">💡</span>
+        <div class="alert-content">
+          <h4>Zustand vs Redux Toolkit</h4>
+          <ul>
+            <li><strong>Zustand:</strong> Less boilerplate, simpler API, great for small-medium apps</li>
+            <li><strong>Redux:</strong> More structure, better devtools, great for large apps with complex state</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 10.3 -->
+    <div class="section">
+      <h2>10.3 TanStack Query (React Query)</h2>
+      <span class="lib-badge">npm install @tanstack/react-query</span>
+      
+      <p>TanStack Query manages server state, caching, and synchronization. It's not a replacement for Redux/Zustand but complements them.</p>
+
+      <div class="code-block">
+<pre><span class="keyword">import</span> { 
+  <span class="function">useQuery</span>, 
+  <span class="function">useMutation</span>, 
+  <span class="function">useQueryClient</span>,
+  <span class="type">QueryClient</span>,
+  <span class="type">QueryClientProvider</span>
+} <span class="keyword">from</span> <span class="string">'@tanstack/react-query'</span>;
+
+<span class="comment">// Types</span>
+<span class="keyword">interface</span> <span class="type">User</span> {
+  <span class="variable">id</span>: <span class="type">string</span>;
+  <span class="variable">name</span>: <span class="type">string</span>;
+  <span class="variable">email</span>: <span class="type">string</span>;
+}
+
+<span class="keyword">interface</span> <span class="type">CreateUserDTO</span> {
+  <span class="variable">name</span>: <span class="type">string</span>;
+  <span class="variable">email</span>: <span class="type">string</span>;
+}
+
+<span class="comment">// API functions with types</span>
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">fetchUsers</span>(): <span class="type">Promise</span>&lt;<span class="type">User</span>[]&gt; {
+  <span class="keyword">const</span> <span class="variable">res</span> = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/api/users'</span>);
+  <span class="keyword">if</span> (!<span class="variable">res</span>.<span class="variable">ok</span>) <span class="keyword">throw new</span> <span class="type">Error</span>(<span class="string">'Failed to fetch'</span>);
+  <span class="keyword">return</span> <span class="variable">res</span>.<span class="function">json</span>();
+}
+
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">fetchUser</span>(<span class="variable">id</span>: <span class="type">string</span>): <span class="type">Promise</span>&lt;<span class="type">User</span>&gt; {
+  <span class="keyword">const</span> <span class="variable">res</span> = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">`/api/users/</span>${<span class="variable">id</span>}<span class="string">`</span>);
+  <span class="keyword">if</span> (!<span class="variable">res</span>.<span class="variable">ok</span>) <span class="keyword">throw new</span> <span class="type">Error</span>(<span class="string">'User not found'</span>);
+  <span class="keyword">return</span> <span class="variable">res</span>.<span class="function">json</span>();
+}
+
+<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">createUser</span>(<span class="variable">data</span>: <span class="type">CreateUserDTO</span>): <span class="type">Promise</span>&lt;<span class="type">User</span>&gt; {
+  <span class="keyword">const</span> <span class="variable">res</span> = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/api/users'</span>, {
+    <span class="variable">method</span>: <span class="string">'POST'</span>,
+    <span class="variable">headers</span>: { <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span> },
+    <span class="variable">body</span>: <span class="function">JSON</span>.<span class="function">stringify</span>(<span class="variable">data</span>),
+  });
+  <span class="keyword">return</span> <span class="variable">res</span>.<span class="function">json</span>();
+}
+
+<span class="comment">// Custom hooks with full typing</span>
+<span class="keyword">function</span> <span class="function">useUsers</span>() {
+  <span class="keyword">return</span> <span class="function">useQuery</span>&lt;<span class="type">User</span>[], <span class="type">Error</span>&gt;({
+    <span class="variable">queryKey</span>: [<span class="string">'users'</span>],
+    <span class="variable">queryFn</span>: <span class="variable">fetchUsers</span>,
+    <span class="variable">staleTime</span>: <span class="number">5</span> * <span class="number">60</span> * <span class="number">1000</span>, <span class="comment">// 5 minutes</span>
+  });
+}
+
+<span class="keyword">function</span> <span class="function">useUser</span>(<span class="variable">id</span>: <span class="type">string</span>) {
+  <span class="keyword">return</span> <span class="function">useQuery</span>&lt;<span class="type">User</span>, <span class="type">Error</span>&gt;({
+    <span class="variable">queryKey</span>: [<span class="string">'users'</span>, <span class="variable">id</span>],
+    <span class="variable">queryFn</span>: () => <span class="function">fetchUser</span>(<span class="variable">id</span>),
+    <span class="variable">enabled</span>: !!<span class="variable">id</span>, <span class="comment">// Only fetch if id exists</span>
+  });
+}
+
+<span class="keyword">function</span> <span class="function">useCreateUser</span>() {
+  <span class="keyword">const</span> <span class="variable">queryClient</span> = <span class="function">useQueryClient</span>();
+  
+  <span class="keyword">return</span> <span class="function">useMutation</span>&lt;<span class="type">User</span>, <span class="type">Error</span>, <span class="type">CreateUserDTO</span>&gt;({
+    <span class="variable">mutationFn</span>: <span class="variable">createUser</span>,
+    <span class="variable">onSuccess</span>: (<span class="variable">newUser</span>) => {
+      <span class="comment">// Invalidate and refetch users list</span>
+      <span class="variable">queryClient</span>.<span class="function">invalidateQueries</span>({ <span class="variable">queryKey</span>: [<span class="string">'users'</span>] });
+      
+      <span class="comment">// Or optimistically update the cache</span>
+      <span class="variable">queryClient</span>.<span class="function">setQueryData</span>&lt;<span class="type">User</span>[]&gt;([<span class="string">'users'</span>], (<span class="variable">old</span>) => 
+        <span class="variable">old</span> ? [...<span class="variable">old</span>, <span class="variable">newUser</span>] : [<span class="variable">newUser</span>]
+      );
+    },
+  });
+}
+
+<span class="comment">// Usage in component</span>
+<span class="keyword">function</span> <span class="function">UsersList</span>() {
+  <span class="keyword">const</span> { <span class="variable">data</span>: <span class="variable">users</span>, <span class="variable">isLoading</span>, <span class="variable">error</span> } = <span class="function">useUsers</span>();
+  <span class="keyword">const</span> <span class="variable">createUserMutation</span> = <span class="function">useCreateUser</span>();
+  
+  <span class="keyword">const</span> <span class="function">handleCreateUser</span> = () => {
+    <span class="variable">createUserMutation</span>.<span class="function">mutate</span>(
+      { <span class="variable">name</span>: <span class="string">'John'</span>, <span class="variable">email</span>: <span class="string">'john@example.com'</span> },
+      {
+        <span class="function">onSuccess</span>: (<span class="variable">user</span>) => {
+          console.<span class="function">log</span>(<span class="string">'Created:'</span>, <span class="variable">user</span>.<span class="variable">name</span>);
+        },
+      }
+    );
+  };
+  
+  <span class="keyword">if</span> (<span class="variable">isLoading</span>) <span class="keyword">return</span> &lt;<span class="variable">div</span>&gt;Loading...&lt;/<span class="variable">div</span>&gt;;
+  <span class="keyword">if</span> (<span class="variable">error</span>) <span class="keyword">return</span> &lt;<span class="variable">div</span>&gt;Error: {<span class="variable">error</span>.<span class="variable">message</span>}&lt;/<span class="variable">div</span>&gt;;
+  
+  <span class="keyword">return</span> (
+    &lt;<span class="variable">div</span>&gt;
+      {<span class="variable">users</span>?.<span class="function">map</span>(<span class="variable">user</span> => (
+        &lt;<span class="variable">div</span> <span class="variable">key</span>={<span class="variable">user</span>.<span class="variable">id</span>}&gt;{<span class="variable">user</span>.<span class="variable">name</span>}&lt;/<span class="variable">div</span>&gt;
+      ))}
+      &lt;<span class="variable">button</span> 
+        <span class="variable">onClick</span>={<span class="variable">handleCreateUser</span>}
+        <span class="variable">disabled</span>={<span class="variable">createUserMutation</span>.<span class="variable">isPending</span>}
+      &gt;
+        {<span class="variable">createUserMutation</span>.<span class="variable">isPending</span> ? <span class="string">'Creating...'</span> : <span class="string">'Add User'</span>}
+      &lt;/<span class="variable">button</span>&gt;
+    &lt;/<span class="variable">div</span>&gt;
+  );
+}</pre>
+      </div>
+
+      <div class="visual-box">
+        <div class="visual-title">📊 When to Use What</div>
+        <div class="comparison-grid">
+          <div class="comparison-card">
+            <h5>Redux / Zustand</h5>
+            <p>Client state: UI state, form state, user preferences, application state</p>
+          </div>
+          <div class="comparison-card">
+            <h5>TanStack Query</h5>
+            <p>Server state: API data, caching, background updates, pagination</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="nav-btn">← Chapter 9</button>
+      <button class="nav-btn">Chapter 11: Routing →</button>
+    </div>
+  </div>
+</body>
+</html>

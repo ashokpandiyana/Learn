@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 31: Web Workers</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .header p { font-size: 1.2em; opacity: 0.95; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 40px; }
+        h2 { color: #667eea; font-size: 2em; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid #667eea; }
+        h3 { color: #764ba2; font-size: 1.5em; margin: 30px 0 15px 0; }
+        .concept-box { background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .key-point { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .warning-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .info-box { background: #cfe2ff; border-left: 4px solid #0d6efd; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .code-block .comment { color: #6272a4; }
+        .code-block .keyword { color: #ff79c6; }
+        .code-block .string { color: #f1fa8c; }
+        .code-block .function { color: #50fa7b; }
+        .code-block .number { color: #bd93f9; }
+        .visual-diagram {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .demo-section { background: #e7f3ff; padding: 30px; border-radius: 10px; margin: 30px 0; }
+        .demo-controls { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        button:hover { background: #764ba2; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        button:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        input { padding: 10px; border: 2px solid #667eea; border-radius: 5px; font-size: 16px; flex: 1; min-width: 150px; }
+        .output { background: white; padding: 15px; border-radius: 5px; margin-top: 15px; min-height: 100px; border: 2px solid #667eea; max-height: 400px; overflow-y: auto; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; color: #d63384; }
+        .comparison-table { width: 100%; border-collapse: collapse; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .comparison-table th { background: #667eea; color: white; padding: 15px; text-align: left; }
+        .comparison-table td { padding: 15px; border-bottom: 1px solid #ddd; }
+        .comparison-table tr:hover { background: #f8f9fa; }
+        .thread-viz {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .thread-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        .thread-box h4 { color: #667eea; margin-bottom: 15px; }
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚙️ Chapter 31: Web Workers</h1>
+            <p>Background JavaScript Threads</p>
+        </div>
+        
+        <div class="content">
+            
+            <div class="section">
+                <h2>🎯 What are Web Workers?</h2>
+                
+                <div class="concept-box">
+                    <p><strong>Web Workers</strong> enable running JavaScript in background threads, separate from the main execution thread. This prevents heavy computations from blocking the UI.</p>
+                    
+                    <p style="margin-top: 15px;"><strong>Key Features:</strong></p>
+                    <ul style="margin-left: 25px; margin-top: 10px;">
+                        <li>🧵 <strong>Separate Thread:</strong> Runs independently</li>
+                        <li>⚡ <strong>Non-Blocking:</strong> Doesn't freeze UI</li>
+                        <li>📨 <strong>Message-Based:</strong> Communicate via messages</li>
+                        <li>🔒 <strong>No DOM Access:</strong> Cannot manipulate DOM</li>
+                        <li>🎯 <strong>Dedicated/Shared:</strong> Per-page or cross-tab</li>
+                        <li>💪 <strong>CPU-Intensive:</strong> Perfect for heavy computation</li>
+                    </ul>
+                </div>
+                
+                <div class="visual-diagram">
+                    <h3>Main Thread vs Worker Thread</h3>
+                    <div class="thread-viz">
+                        <div class="thread-box">
+                            <h4>🖥️ Main Thread</h4>
+                            <div style="text-align: left; margin-top: 15px;">
+                                <div>✓ DOM access</div>
+                                <div>✓ UI updates</div>
+                                <div>✓ Event handling</div>
+                                <div>✗ Heavy computation blocks UI</div>
+                            </div>
+                        </div>
+                        <div class="thread-box">
+                            <h4>⚙️ Worker Thread</h4>
+                            <div style="text-align: left; margin-top: 15px;">
+                                <div>✗ No DOM access</div>
+                                <div>✗ No UI updates</div>
+                                <div>✓ Heavy computations</div>
+                                <div>✓ Doesn't block UI</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 Perfect For:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Image/video processing</li>
+                        <li>Large data calculations</li>
+                        <li>Parsing large files</li>
+                        <li>Encryption/decryption</li>
+                        <li>Game physics calculations</li>
+                        <li>Real-time data processing</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🚀 Creating Workers</h2>
+                
+                <h3>Main Thread (Creating Worker)</h3>
+                <div class="code-block">
+<span class="comment">// main.js - Create worker</span>
+<span class="keyword">const</span> worker = <span class="keyword">new</span> <span class="function">Worker</span>(<span class="string">'worker.js'</span>);
+
+<span class="comment">// Send message to worker</span>
+worker.<span class="function">postMessage</span>({ type: <span class="string">'start'</span>, data: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>] });
+
+<span class="comment">// Receive messages from worker</span>
+worker.<span class="keyword">onmessage</span> = (event) => {
+    console.<span class="function">log</span>(<span class="string">'Result from worker:'</span>, event.data);
+};
+
+<span class="comment">// Handle errors</span>
+worker.<span class="keyword">onerror</span> = (error) => {
+    console.<span class="function">error</span>(<span class="string">'Worker error:'</span>, error.message);
+    console.<span class="function">error</span>(<span class="string">'File:'</span>, error.filename);
+    console.<span class="function">error</span>(<span class="string">'Line:'</span>, error.lineno);
+};
+
+<span class="comment">// Terminate worker when done</span>
+worker.<span class="function">terminate</span>();
+                </div>
+                
+                <h3>Worker Thread (worker.js)</h3>
+                <div class="code-block">
+<span class="comment">// worker.js - Worker code</span>
+self.<span class="keyword">onmessage</span> = (event) => {
+    <span class="keyword">const</span> { type, data } = event.data;
+    
+    <span class="keyword">if</span> (type === <span class="string">'start'</span>) {
+        <span class="comment">// Perform heavy computation</span>
+        <span class="keyword">const</span> result = <span class="function">heavyComputation</span>(data);
+        
+        <span class="comment">// Send result back to main thread</span>
+        self.<span class="function">postMessage</span>(result);
+    }
+};
+
+<span class="keyword">function</span> <span class="function">heavyComputation</span>(data) {
+    <span class="comment">// CPU-intensive work here</span>
+    <span class="keyword">let</span> result = <span class="number">0</span>;
+    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">1000000000</span>; i++) {
+        result += i;
+    }
+    <span class="keyword">return</span> result;
+}
+
+<span class="comment">// Worker can terminate itself</span>
+self.<span class="function">close</span>();
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📦 Transferable Objects</h2>
+                
+                <div class="concept-box">
+                    <p><strong>Transferable Objects</strong> allow transferring ownership of data to the worker instead of copying it. This is much faster for large data.</p>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Create ArrayBuffer</span>
+<span class="keyword">const</span> buffer = <span class="keyword">new</span> <span class="function">ArrayBuffer</span>(<span class="number">1024</span> * <span class="number">1024</span>); <span class="comment">// 1MB</span>
+
+<span class="comment">// Transfer ownership to worker (faster than copying)</span>
+worker.<span class="function">postMessage</span>({ buffer }, [buffer]);
+
+<span class="comment">// buffer is now unusable in main thread!</span>
+console.<span class="function">log</span>(buffer.byteLength); <span class="comment">// 0 (transferred away)</span>
+
+<span class="comment">// Worker receives and owns the buffer</span>
+<span class="comment">// worker.js</span>
+self.<span class="keyword">onmessage</span> = (e) => {
+    <span class="keyword">const</span> buffer = e.data.buffer;
+    console.<span class="function">log</span>(buffer.byteLength); <span class="comment">// 1048576 (1MB)</span>
+    
+    <span class="comment">// Process buffer...</span>
+    
+    <span class="comment">// Transfer back if needed</span>
+    self.<span class="function">postMessage</span>({ buffer }, [buffer]);
+};
+                </div>
+                
+                <div class="warning-box">
+                    <strong>⚠️ Transferable Types:</strong> Only certain types can be transferred: ArrayBuffer, MessagePort, ImageBitmap, OffscreenCanvas. Regular objects are copied, not transferred.
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>💼 Practical Examples</h2>
+                
+                <h3>1. Prime Number Calculator</h3>
+                <div class="code-block">
+<span class="comment">// main.js</span>
+<span class="keyword">const</span> primeWorker = <span class="keyword">new</span> <span class="function">Worker</span>(<span class="string">'prime-worker.js'</span>);
+
+<span class="keyword">function</span> <span class="function">calculatePrimes</span>(limit) {
+    primeWorker.<span class="function">postMessage</span>({ limit });
+    
+    primeWorker.<span class="keyword">onmessage</span> = (e) => {
+        console.<span class="function">log</span>(<span class="string">`Found ${e.data.count} primes`</span>);
+        console.<span class="function">log</span>(<span class="string">'Primes:'</span>, e.data.primes);
+    };
+}
+
+<span class="function">calculatePrimes</span>(<span class="number">100000</span>);
+
+<span class="comment">// prime-worker.js</span>
+self.<span class="keyword">onmessage</span> = (e) => {
+    <span class="keyword">const</span> { limit } = e.data;
+    <span class="keyword">const</span> primes = [];
+    
+    <span class="keyword">for</span> (<span class="keyword">let</span> num = <span class="number">2</span>; num <= limit; num++) {
+        <span class="keyword">let</span> isPrime = <span class="keyword">true</span>;
+        <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">2</span>; i <= Math.<span class="function">sqrt</span>(num); i++) {
+            <span class="keyword">if</span> (num % i === <span class="number">0</span>) {
+                isPrime = <span class="keyword">false</span>;
+                <span class="keyword">break</span>;
+            }
+        }
+        <span class="keyword">if</span> (isPrime) primes.<span class="function">push</span>(num);
+    }
+    
+    self.<span class="function">postMessage</span>({ primes, count: primes.length });
+};
+                </div>
+                
+                <h3>2. Image Processing</h3>
+                <div class="code-block">
+<span class="comment">// main.js</span>
+<span class="keyword">const</span> imageWorker = <span class="keyword">new</span> <span class="function">Worker</span>(<span class="string">'image-worker.js'</span>);
+
+<span class="keyword">function</span> <span class="function">processImage</span>(imageData) {
+    imageWorker.<span class="function">postMessage</span>({
+        imageData,
+        filter: <span class="string">'grayscale'</span>
+    });
+    
+    imageWorker.<span class="keyword">onmessage</span> = (e) => {
+        <span class="keyword">const</span> processedData = e.data.imageData;
+        ctx.<span class="function">putImageData</span>(processedData, <span class="number">0</span>, <span class="number">0</span>);
+    };
+}
+
+<span class="comment">// image-worker.js</span>
+self.<span class="keyword">onmessage</span> = (e) => {
+    <span class="keyword">const</span> { imageData, filter } = e.data;
+    <span class="keyword">const</span> pixels = imageData.data;
+    
+    <span class="keyword">if</span> (filter === <span class="string">'grayscale'</span>) {
+        <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < pixels.length; i += <span class="number">4</span>) {
+            <span class="keyword">const</span> avg = (pixels[i] + pixels[i+<span class="number">1</span>] + pixels[i+<span class="number">2</span>]) / <span class="number">3</span>;
+            pixels[i] = pixels[i+<span class="number">1</span>] = pixels[i+<span class="number">2</span>] = avg;
+        }
+    }
+    
+    self.<span class="function">postMessage</span>({ imageData });
+};
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🔧 Inline Workers</h2>
+                
+                <div class="concept-box">
+                    <p>Create workers from strings instead of separate files using Blob URLs.</p>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Create worker from code string</span>
+<span class="keyword">const</span> workerCode = <span class="string">`
+    self.onmessage = (e) => {
+        const result = e.data * 2;
+        self.postMessage(result);
+    };
+`</span>;
+
+<span class="keyword">const</span> blob = <span class="keyword">new</span> <span class="function">Blob</span>([workerCode], { type: <span class="string">'application/javascript'</span> });
+<span class="keyword">const</span> workerUrl = URL.<span class="function">createObjectURL</span>(blob);
+<span class="keyword">const</span> worker = <span class="keyword">new</span> <span class="function">Worker</span>(workerUrl);
+
+worker.<span class="function">postMessage</span>(<span class="number">5</span>);
+worker.<span class="keyword">onmessage</span> = (e) => {
+    console.<span class="function">log</span>(<span class="string">'Result:'</span>, e.data); <span class="comment">// 10</span>
+};
+
+<span class="comment">// Clean up</span>
+URL.<span class="function">revokeObjectURL</span>(workerUrl);
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🎮 Interactive Demo</h2>
+                
+                <div class="demo-section">
+                    <h3>Web Worker Performance Test</h3>
+                    <p style="margin-bottom: 15px;">Compare computation with and without workers</p>
+                    
+                    <h4>Fibonacci Calculator</h4>
+                    <div class="demo-controls">
+                        <input type="number" id="fibNumber" value="40" min="1" max="45">
+                        <button onclick="calcWithoutWorker()">Calculate (Main Thread)</button>
+                        <button onclick="calcWithWorker()">Calculate (Worker)</button>
+                    </div>
+                    
+                    <div class="progress-bar" id="mainProgress">
+                        <div class="progress-fill" id="mainFill">Main Thread: Ready</div>
+                    </div>
+                    
+                    <div class="progress-bar" id="workerProgress">
+                        <div class="progress-fill" id="workerFill">Worker Thread: Ready</div>
+                    </div>
+                    
+                    <div class="output" id="output">Click buttons to test performance...</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>✅ Best Practices</h2>
+                
+                <div class="key-point">
+                    <h3 style="margin-top: 0;">DO ✓</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Use for CPU-intensive tasks</li>
+                        <li>Terminate workers when done</li>
+                        <li>Handle errors in both threads</li>
+                        <li>Use transferables for large data</li>
+                        <li>Keep worker code simple</li>
+                    </ul>
+                </div>
+                
+                <div class="warning-box">
+                    <h3 style="margin-top: 0;">DON'T ✗</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Access DOM from workers (impossible)</li>
+                        <li>Create too many workers</li>
+                        <li>Use for simple tasks</li>
+                        <li>Forget to terminate workers</li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        let worker = null;
+        
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const colors = { info: '#0d6efd', success: '#28a745', error: '#dc3545' };
+            output.innerHTML += `<div style="color: ${colors[type]};">${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function fibonacci(n) {
+            if (n <= 1) return n;
+            return fibonacci(n - 1) + fibonacci(n - 2);
+        }
+        
+        function calcWithoutWorker() {
+            const n = parseInt(document.getElementById('fibNumber').value);
+            const fill = document.getElementById('mainFill');
+            
+            fill.style.width = '50%';
+            fill.textContent = 'Calculating...';
+            
+            log(`🔢 Calculating fibonacci(${n}) on main thread...`, 'info');
+            
+            const start = performance.now();
+            
+            // This blocks the UI!
+            setTimeout(() => {
+                const result = fibonacci(n);
+                const time = (performance.now() - start).toFixed(2);
+                
+                fill.style.width = '100%';
+                fill.textContent = 'Complete!';
+                
+                log(`✓ Result: ${result}`, 'success');
+                log(`⏱️ Time: ${time}ms (UI was frozen!)`, 'info');
+                
+                setTimeout(() => {
+                    fill.style.width = '0%';
+                    fill.textContent = 'Main Thread: Ready';
+                }, 2000);
+            }, 100);
+        }
+        
+        function calcWithWorker() {
+            const n = parseInt(document.getElementById('fibNumber').value);
+            const fill = document.getElementById('workerFill');
+            
+            // Create inline worker
+            const workerCode = `
+                function fibonacci(n) {
+                    if (n <= 1) return n;
+                    return fibonacci(n - 1) + fibonacci(n - 2);
+                }
+                
+                self.onmessage = (e) => {
+                    const result = fibonacci(e.data);
+                    self.postMessage(result);
+                };
+            `;
+            
+            const blob = new Blob([workerCode], { type: 'application/javascript' });
+            const workerUrl = URL.createObjectURL(blob);
+            worker = new Worker(workerUrl);
+            
+            fill.style.width = '50%';
+            fill.textContent = 'Calculating...';
+            
+            log(`⚙️ Calculating fibonacci(${n}) in worker...`, 'info');
+            log(`✨ UI remains responsive!`, 'success');
+            
+            const start = performance.now();
+            
+            worker.postMessage(n);
+            
+            worker.onmessage = (e) => {
+                const time = (performance.now() - start).toFixed(2);
+                
+                fill.style.width = '100%';
+                fill.textContent = 'Complete!';
+                
+                log(`✓ Result: ${e.data}`, 'success');
+                log(`⏱️ Time: ${time}ms (UI was NOT frozen!)`, 'success');
+                
+                worker.terminate();
+                URL.revokeObjectURL(workerUrl);
+                
+                setTimeout(() => {
+                    fill.style.width = '0%';
+                    fill.textContent = 'Worker Thread: Ready';
+                }, 2000);
+            };
+            
+            worker.onerror = (error) => {
+                log(`❌ Worker error: ${error.message}`, 'error');
+                fill.style.width = '0%';
+                fill.textContent = 'Error!';
+            };
+        }
+        
+        window.addEventListener('load', () => {
+            log('👋 Welcome to Web Workers Demo!', 'success');
+            log('Try calculating fibonacci - notice how Worker keeps UI responsive', 'info');
+        });
+    </script>
+</body>
+</html>

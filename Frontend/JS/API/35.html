@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 35: Custom Elements</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #e4e4e4; line-height: 1.7; padding: 40px 20px; min-height: 100vh; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2.5rem; background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+    .subtitle { color: #888; font-size: 1.1rem; margin-bottom: 40px; }
+    h2 { color: #ff6b6b; font-size: 1.6rem; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #feca5733; }
+    h3 { color: #feca57; font-size: 1.2rem; margin: 25px 0 15px; }
+    p { margin-bottom: 16px; color: #ccc; }
+    .concept-box { background: linear-gradient(135deg, #2d1f1f 0%, #1a1a2e 100%); border-radius: 16px; padding: 25px; margin: 25px 0; border-left: 4px solid #ff6b6b; }
+    .warning { background: linear-gradient(135deg, #4a2c2c 0%, #3d1f1f 100%); border-left-color: #ff6b6b; }
+    .tip { background: linear-gradient(135deg, #1f4a2c 0%, #1f3d2a 100%); border-left-color: #4ade80; }
+    .info { background: linear-gradient(135deg, #1e3a5f 0%, #1a1a2e 100%); border-left-color: #48dbfb; }
+    code { background: #0d1117; padding: 3px 8px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em; color: #ff6b6b; }
+    pre { background: #0d1117; border-radius: 12px; padding: 20px; overflow-x: auto; margin: 20px 0; border: 1px solid #ffffff15; }
+    pre code { padding: 0; background: none; }
+    .keyword { color: #c792ea; }
+    .function { color: #82aaff; }
+    .string { color: #c3e88d; }
+    .comment { color: #676e95; }
+    .number { color: #f78c6c; }
+    .tag { color: #f07178; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ffffff15; }
+    th { background: #ff6b6b33; color: #ff6b6b; }
+    tr:hover { background: #ffffff08; }
+    .interactive-demo { background: #0d1117; border-radius: 16px; padding: 25px; margin: 30px 0; border: 1px solid #feca5744; }
+    button { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.2s; margin: 5px; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px #ff6b6b55; }
+    button.secondary { background: linear-gradient(135deg, #feca57, #f9a826); color: #1a1a2e; }
+    button.tertiary { background: linear-gradient(135deg, #48dbfb, #0abde3); color: #1a1a2e; }
+    .lifecycle-diagram { background: #0d1117; border-radius: 16px; padding: 30px; margin: 30px 0; }
+    .lifecycle-flow { display: flex; flex-direction: column; gap: 15px; align-items: center; }
+    .lifecycle-step { background: linear-gradient(135deg, #2d1f1f, #1a1a2e); padding: 15px 30px; border-radius: 10px; border: 2px solid #ff6b6b; text-align: center; min-width: 200px; }
+    .lifecycle-step.constructor { border-color: #feca57; }
+    .lifecycle-step.connected { border-color: #4ade80; }
+    .lifecycle-step.attribute { border-color: #48dbfb; }
+    .lifecycle-step.disconnected { border-color: #ff6b6b; }
+    .lifecycle-arrow { font-size: 1.5rem; color: #666; }
+    .demo-output { background: #1a1a2e; border-radius: 10px; padding: 20px; margin: 15px 0; min-height: 100px; }
+    ul { margin-left: 25px; margin-bottom: 15px; }
+    li { margin-bottom: 8px; color: #ccc; }
+    .log-output { background: #0a0a15; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.85rem; max-height: 200px; overflow-y: auto; margin: 15px 0; }
+    .log-entry { padding: 4px 0; border-bottom: 1px solid #ffffff10; }
+    .log-entry.constructor { color: #feca57; }
+    .log-entry.connected { color: #4ade80; }
+    .log-entry.attribute { color: #48dbfb; }
+    .log-entry.disconnected { color: #ff6b6b; }
+    .comparison-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 20px 0; }
+    .compare-box { background: #1a1a2e; padding: 20px; border-radius: 12px; }
+    .compare-box h4 { color: #feca57; margin-bottom: 15px; }
+    .attr-demo { display: flex; gap: 10px; flex-wrap: wrap; margin: 15px 0; }
+    .attr-demo button { font-size: 0.85rem; padding: 8px 15px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧩 Chapter 35: Custom Elements</h1>
+    <p class="subtitle">Creating Your Own HTML Elements</p>
+
+    <h2>🎯 What are Custom Elements?</h2>
+    <p><strong>Custom Elements</strong> allow you to define your own HTML tags with custom behavior. They're a core part of Web Components, enabling you to create reusable, encapsulated components that work like native HTML elements.</p>
+
+    <div class="concept-box">
+      <h3>💡 Why Custom Elements?</h3>
+      <ul style="margin-top: 10px; margin-left: 20px;">
+        <li><strong>Reusability:</strong> Create once, use everywhere—even across projects</li>
+        <li><strong>Encapsulation:</strong> Bundle HTML, CSS, and JS into one tag</li>
+        <li><strong>Framework-agnostic:</strong> Works with React, Vue, Angular, or vanilla JS</li>
+        <li><strong>Native browser support:</strong> No library needed</li>
+        <li><strong>Semantic HTML:</strong> <code>&lt;user-profile&gt;</code> is more meaningful than <code>&lt;div class="user-profile"&gt;</code></li>
+      </ul>
+    </div>
+
+    <h2>📝 Defining a Custom Element</h2>
+    <pre><code><span class="comment">// Step 1: Create a class extending HTMLElement</span>
+<span class="keyword">class</span> <span class="function">MyGreeting</span> <span class="keyword">extends</span> HTMLElement {
+    <span class="function">constructor</span>() {
+        <span class="keyword">super</span>();  <span class="comment">// Always call super() first!</span>
+        
+        <span class="comment">// Set up the component</span>
+        <span class="keyword">this</span>.innerHTML = <span class="string">`&lt;p&gt;Hello, World!&lt;/p&gt;`</span>;
+    }
+}
+
+<span class="comment">// Step 2: Register the custom element</span>
+customElements.<span class="function">define</span>(<span class="string">'my-greeting'</span>, MyGreeting);
+
+<span class="comment">// Step 3: Use it in HTML!</span>
+<span class="comment">// &lt;my-greeting&gt;&lt;/my-greeting&gt;</span></code></pre>
+
+    <div class="concept-box warning">
+      <h3>⚠️ Naming Rules</h3>
+      <p>Custom element names <strong>MUST</strong>:</p>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li>Contain a hyphen (<code>-</code>) to distinguish from native elements</li>
+        <li>Start with a lowercase letter</li>
+        <li>Not contain uppercase letters</li>
+      </ul>
+      <p style="margin-top:10px;">✅ Valid: <code>my-element</code>, <code>user-card</code>, <code>app-header</code></p>
+      <p>❌ Invalid: <code>myelement</code>, <code>MyElement</code>, <code>1-element</code></p>
+    </div>
+
+    <h2>🔄 Lifecycle Callbacks</h2>
+    <p>Custom elements have special methods that are automatically called at different points in their lifecycle:</p>
+
+    <div class="lifecycle-diagram">
+      <div class="lifecycle-flow">
+        <div class="lifecycle-step constructor">
+          <strong>constructor()</strong>
+          <div style="font-size:0.85rem;color:#888;margin-top:5px;">Element created</div>
+        </div>
+        <div class="lifecycle-arrow">↓</div>
+        <div class="lifecycle-step connected">
+          <strong>connectedCallback()</strong>
+          <div style="font-size:0.85rem;color:#888;margin-top:5px;">Added to DOM</div>
+        </div>
+        <div class="lifecycle-arrow">↓</div>
+        <div class="lifecycle-step attribute">
+          <strong>attributeChangedCallback()</strong>
+          <div style="font-size:0.85rem;color:#888;margin-top:5px;">Attribute modified</div>
+        </div>
+        <div class="lifecycle-arrow">↓</div>
+        <div class="lifecycle-step disconnected">
+          <strong>disconnectedCallback()</strong>
+          <div style="font-size:0.85rem;color:#888;margin-top:5px;">Removed from DOM</div>
+        </div>
+      </div>
+    </div>
+
+    <pre><code><span class="keyword">class</span> <span class="function">MyComponent</span> <span class="keyword">extends</span> HTMLElement {
+    <span class="comment">// Declare which attributes to observe</span>
+    <span class="keyword">static</span> observedAttributes = [<span class="string">'name'</span>, <span class="string">'count'</span>, <span class="string">'disabled'</span>];
+    
+    <span class="function">constructor</span>() {
+        <span class="keyword">super</span>();
+        console.<span class="function">log</span>(<span class="string">'1. Constructor called'</span>);
+        <span class="comment">// Initialize state, attach shadow DOM</span>
+        <span class="comment">// DON'T access attributes or children here!</span>
+    }
+    
+    <span class="function">connectedCallback</span>() {
+        console.<span class="function">log</span>(<span class="string">'2. Added to DOM'</span>);
+        <span class="comment">// Safe to access attributes, add event listeners</span>
+        <span class="comment">// Set up the component, render content</span>
+        <span class="keyword">this</span>.<span class="function">render</span>();
+    }
+    
+    <span class="function">disconnectedCallback</span>() {
+        console.<span class="function">log</span>(<span class="string">'3. Removed from DOM'</span>);
+        <span class="comment">// Clean up: remove event listeners, cancel timers</span>
+    }
+    
+    <span class="function">attributeChangedCallback</span>(name, oldValue, newValue) {
+        console.<span class="function">log</span>(<span class="string">`Attribute ${name}: ${oldValue} → ${newValue}`</span>);
+        <span class="comment">// React to attribute changes</span>
+        <span class="keyword">if</span> (oldValue !== newValue) {
+            <span class="keyword">this</span>.<span class="function">render</span>();
+        }
+    }
+    
+    <span class="function">adoptedCallback</span>() {
+        console.<span class="function">log</span>(<span class="string">'4. Moved to new document'</span>);
+        <span class="comment">// Rare: called when element moves to new document (iframe)</span>
+    }
+    
+    <span class="function">render</span>() {
+        <span class="keyword">const</span> name = <span class="keyword">this</span>.<span class="function">getAttribute</span>(<span class="string">'name'</span>) || <span class="string">'World'</span>;
+        <span class="keyword">this</span>.innerHTML = <span class="string">`&lt;p&gt;Hello, ${name}!&lt;/p&gt;`</span>;
+    }
+}
+
+customElements.<span class="function">define</span>(<span class="string">'my-component'</span>, MyComponent);</code></pre>
+
+    <h2>🎮 Interactive Lifecycle Demo</h2>
+    <div class="interactive-demo">
+      <p>Watch the lifecycle callbacks fire in real-time:</p>
+      <div class="demo-output" id="lifecycle-demo"></div>
+      <div>
+        <button onclick="addElement()">➕ Add Element</button>
+        <button onclick="removeElement()" class="secondary">➖ Remove Element</button>
+        <button onclick="changeAttribute()" class="tertiary">🔄 Change Attribute</button>
+        <button onclick="clearLog()">🗑️ Clear Log</button>
+      </div>
+      <div class="log-output" id="lifecycle-log"></div>
+    </div>
+
+    <h2>🔧 Working with Attributes</h2>
+    <pre><code><span class="keyword">class</span> <span class="function">UserCard</span> <span class="keyword">extends</span> HTMLElement {
+    <span class="comment">// Only these attributes trigger attributeChangedCallback</span>
+    <span class="keyword">static</span> observedAttributes = [<span class="string">'name'</span>, <span class="string">'avatar'</span>, <span class="string">'role'</span>];
+    
+    <span class="comment">// Getter/setter for 'name' attribute</span>
+    <span class="keyword">get</span> <span class="function">name</span>() {
+        <span class="keyword">return</span> <span class="keyword">this</span>.<span class="function">getAttribute</span>(<span class="string">'name'</span>);
+    }
+    
+    <span class="keyword">set</span> <span class="function">name</span>(value) {
+        <span class="keyword">this</span>.<span class="function">setAttribute</span>(<span class="string">'name'</span>, value);
+    }
+    
+    <span class="comment">// Boolean attribute (like 'disabled')</span>
+    <span class="keyword">get</span> <span class="function">active</span>() {
+        <span class="keyword">return</span> <span class="keyword">this</span>.<span class="function">hasAttribute</span>(<span class="string">'active'</span>);
+    }
+    
+    <span class="keyword">set</span> <span class="function">active</span>(value) {
+        <span class="keyword">if</span> (value) {
+            <span class="keyword">this</span>.<span class="function">setAttribute</span>(<span class="string">'active'</span>, <span class="string">''</span>);
+        } <span class="keyword">else</span> {
+            <span class="keyword">this</span>.<span class="function">removeAttribute</span>(<span class="string">'active'</span>);
+        }
+    }
+    
+    <span class="function">attributeChangedCallback</span>(name, oldVal, newVal) {
+        <span class="keyword">switch</span>(name) {
+            <span class="keyword">case</span> <span class="string">'name'</span>:
+                <span class="keyword">this</span>.<span class="function">updateName</span>(newVal);
+                <span class="keyword">break</span>;
+            <span class="keyword">case</span> <span class="string">'avatar'</span>:
+                <span class="keyword">this</span>.<span class="function">updateAvatar</span>(newVal);
+                <span class="keyword">break</span>;
+        }
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="comment">// &lt;user-card name="John" avatar="john.jpg" active&gt;&lt;/user-card&gt;</span>
+
+<span class="comment">// Programmatic access</span>
+<span class="keyword">const</span> card = document.<span class="function">querySelector</span>(<span class="string">'user-card'</span>);
+card.name = <span class="string">'Jane'</span>;       <span class="comment">// Uses setter</span>
+card.active = <span class="keyword">true</span>;       <span class="comment">// Adds 'active' attribute</span></code></pre>
+
+    <h2>🎨 Complete Example with Shadow DOM</h2>
+    <pre><code><span class="keyword">class</span> <span class="function">FancyButton</span> <span class="keyword">extends</span> HTMLElement {
+    <span class="keyword">static</span> observedAttributes = [<span class="string">'variant'</span>, <span class="string">'disabled'</span>];
+    
+    <span class="function">constructor</span>() {
+        <span class="keyword">super</span>();
+        <span class="keyword">this</span>.<span class="function">attachShadow</span>({ mode: <span class="string">'open'</span> });
+    }
+    
+    <span class="function">connectedCallback</span>() {
+        <span class="keyword">this</span>.<span class="function">render</span>();
+        <span class="keyword">this</span>.shadowRoot.<span class="function">querySelector</span>(<span class="string">'button'</span>)
+            .<span class="function">addEventListener</span>(<span class="string">'click'</span>, <span class="keyword">this</span>.handleClick.bind(<span class="keyword">this</span>));
+    }
+    
+    <span class="function">handleClick</span>(e) {
+        <span class="keyword">if</span> (<span class="keyword">this</span>.disabled) <span class="keyword">return</span>;
+        
+        <span class="comment">// Dispatch custom event</span>
+        <span class="keyword">this</span>.<span class="function">dispatchEvent</span>(<span class="keyword">new</span> <span class="function">CustomEvent</span>(<span class="string">'fancy-click'</span>, {
+            bubbles: <span class="keyword">true</span>,
+            composed: <span class="keyword">true</span>,
+            detail: { variant: <span class="keyword">this</span>.variant }
+        }));
+    }
+    
+    <span class="keyword">get</span> <span class="function">variant</span>() {
+        <span class="keyword">return</span> <span class="keyword">this</span>.<span class="function">getAttribute</span>(<span class="string">'variant'</span>) || <span class="string">'primary'</span>;
+    }
+    
+    <span class="keyword">get</span> <span class="function">disabled</span>() {
+        <span class="keyword">return</span> <span class="keyword">this</span>.<span class="function">hasAttribute</span>(<span class="string">'disabled'</span>);
+    }
+    
+    <span class="function">attributeChangedCallback</span>() {
+        <span class="keyword">this</span>.<span class="function">render</span>();
+    }
+    
+    <span class="function">render</span>() {
+        <span class="keyword">this</span>.shadowRoot.innerHTML = <span class="string">`
+            &lt;style&gt;
+                :host { display: inline-block; }
+                button {
+                    padding: 10px 20px;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 1rem;
+                    transition: all 0.2s;
+                }
+                button:hover { transform: translateY(-2px); }
+                button.primary { background: #3b82f6; color: white; }
+                button.danger { background: #ef4444; color: white; }
+                button.success { background: #22c55e; color: white; }
+                :host([disabled]) button {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+            &lt;/style&gt;
+            &lt;button class="${<span class="keyword">this</span>.variant}"&gt;
+                &lt;slot&gt;Click Me&lt;/slot&gt;
+            &lt;/button&gt;
+        `</span>;
+    }
+}
+
+customElements.<span class="function">define</span>(<span class="string">'fancy-button'</span>, FancyButton);</code></pre>
+
+    <h2>🎮 Custom Button Demo</h2>
+    <div class="interactive-demo">
+      <div class="demo-output" id="button-demo" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;"></div>
+      <p style="margin-top:15px;color:#888;">Click a button to see the custom event fire!</p>
+      <div class="log-output" id="button-log"></div>
+    </div>
+
+    <h2>🏗️ Extending Built-in Elements</h2>
+    <p>You can also extend existing HTML elements (customized built-in elements):</p>
+
+    <pre><code><span class="comment">// Extend the native button element</span>
+<span class="keyword">class</span> <span class="function">ConfirmButton</span> <span class="keyword">extends</span> HTMLButtonElement {
+    <span class="function">constructor</span>() {
+        <span class="keyword">super</span>();
+        <span class="keyword">this</span>.<span class="function">addEventListener</span>(<span class="string">'click'</span>, <span class="keyword">this</span>.handleClick);
+    }
+    
+    <span class="function">handleClick</span>(e) {
+        <span class="keyword">if</span> (!<span class="function">confirm</span>(<span class="string">'Are you sure?'</span>)) {
+            e.<span class="function">preventDefault</span>();
+            e.<span class="function">stopPropagation</span>();
+        }
+    }
+}
+
+<span class="comment">// Register with 'extends' option</span>
+customElements.<span class="function">define</span>(<span class="string">'confirm-button'</span>, ConfirmButton, { 
+    extends: <span class="string">'button'</span> 
+});
+
+<span class="comment">// Usage - use 'is' attribute</span>
+<span class="comment">// &lt;button is="confirm-button"&gt;Delete&lt;/button&gt;</span></code></pre>
+
+    <div class="concept-box warning">
+      <h3>⚠️ Safari Compatibility</h3>
+      <p>Safari does NOT support customized built-in elements (the <code>is</code> attribute). For cross-browser compatibility, prefer autonomous custom elements (extending HTMLElement).</p>
+    </div>
+
+    <h2>🔍 Custom Element Registry</h2>
+    <pre><code><span class="comment">// Check if an element is defined</span>
+customElements.<span class="function">get</span>(<span class="string">'my-element'</span>);  <span class="comment">// Returns class or undefined</span>
+
+<span class="comment">// Wait for an element to be defined</span>
+customElements.<span class="function">whenDefined</span>(<span class="string">'my-element'</span>)
+    .<span class="function">then</span>(() => {
+        console.<span class="function">log</span>(<span class="string">'my-element is now available!'</span>);
+    });
+
+<span class="comment">// Upgrade elements that were in DOM before definition</span>
+customElements.<span class="function">upgrade</span>(element);
+
+<span class="comment">// Get the name of an element's constructor</span>
+<span class="keyword">const</span> name = element.constructor.name;</code></pre>
+
+    <h2>📋 Best Practices</h2>
+    <div class="concept-box tip">
+      <h3>✅ Do's</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li>Always call <code>super()</code> first in constructor</li>
+        <li>Do heavy setup in <code>connectedCallback</code>, not constructor</li>
+        <li>Clean up event listeners in <code>disconnectedCallback</code></li>
+        <li>Use Shadow DOM for style encapsulation</li>
+        <li>Provide getters/setters for attributes</li>
+        <li>Dispatch custom events for component communication</li>
+        <li>Use <code>observedAttributes</code> static property</li>
+      </ul>
+    </div>
+
+    <div class="concept-box warning">
+      <h3>❌ Don'ts</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li>Don't access attributes/children in constructor</li>
+        <li>Don't return anything from constructor</li>
+        <li>Don't add children in constructor (use connectedCallback)</li>
+        <li>Don't forget the hyphen in custom element names</li>
+        <li>Don't modify attributes in <code>attributeChangedCallback</code> (infinite loop!)</li>
+      </ul>
+    </div>
+
+    <h2>🎯 Real-World Example: Modal Dialog</h2>
+    <pre><code><span class="keyword">class</span> <span class="function">ModalDialog</span> <span class="keyword">extends</span> HTMLElement {
+    <span class="keyword">static</span> observedAttributes = [<span class="string">'open'</span>];
+    
+    <span class="function">constructor</span>() {
+        <span class="keyword">super</span>();
+        <span class="keyword">this</span>.<span class="function">attachShadow</span>({ mode: <span class="string">'open'</span> });
+        <span class="keyword">this</span>.close = <span class="keyword">this</span>.close.bind(<span class="keyword">this</span>);
+    }
+    
+    <span class="function">connectedCallback</span>() {
+        <span class="keyword">this</span>.<span class="function">render</span>();
+        <span class="keyword">this</span>.shadowRoot.<span class="function">querySelector</span>(<span class="string">'.close-btn'</span>)
+            .<span class="function">addEventListener</span>(<span class="string">'click'</span>, <span class="keyword">this</span>.close);
+        <span class="keyword">this</span>.shadowRoot.<span class="function">querySelector</span>(<span class="string">'.overlay'</span>)
+            .<span class="function">addEventListener</span>(<span class="string">'click'</span>, <span class="keyword">this</span>.close);
+    }
+    
+    <span class="keyword">get</span> <span class="function">open</span>() {
+        <span class="keyword">return</span> <span class="keyword">this</span>.<span class="function">hasAttribute</span>(<span class="string">'open'</span>);
+    }
+    
+    <span class="keyword">set</span> <span class="function">open</span>(value) {
+        value ? <span class="keyword">this</span>.<span class="function">setAttribute</span>(<span class="string">'open'</span>, <span class="string">''</span>) 
+              : <span class="keyword">this</span>.<span class="function">removeAttribute</span>(<span class="string">'open'</span>);
+    }
+    
+    <span class="function">show</span>() { <span class="keyword">this</span>.open = <span class="keyword">true</span>; }
+    <span class="function">close</span>() { <span class="keyword">this</span>.open = <span class="keyword">false</span>; }
+    
+    <span class="function">render</span>() {
+        <span class="keyword">this</span>.shadowRoot.innerHTML = <span class="string">`
+            &lt;style&gt;
+                :host { display: none; }
+                :host([open]) { display: block; }
+                .overlay {
+                    position: fixed; inset: 0;
+                    background: rgba(0,0,0,0.5);
+                }
+                .modal {
+                    position: fixed;
+                    top: 50%; left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: white;
+                    padding: 20px;
+                    border-radius: 10px;
+                    min-width: 300px;
+                }
+                .close-btn {
+                    position: absolute;
+                    top: 10px; right: 10px;
+                }
+            &lt;/style&gt;
+            &lt;div class="overlay"&gt;&lt;/div&gt;
+            &lt;div class="modal"&gt;
+                &lt;button class="close-btn"&gt;×&lt;/button&gt;
+                &lt;slot&gt;&lt;/slot&gt;
+            &lt;/div&gt;
+        `</span>;
+    }
+}</code></pre>
+  </div>
+
+  <script>
+    // Lifecycle demo
+    const logEl = document.getElementById('lifecycle-log');
+    const demoEl = document.getElementById('lifecycle-demo');
+    
+    function log(msg, type = '') {
+      const entry = document.createElement('div');
+      entry.className = 'log-entry ' + type;
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      logEl.prepend(entry);
+    }
+
+    class LifecycleDemo extends HTMLElement {
+      static observedAttributes = ['greeting'];
+      
+      constructor() {
+        super();
+        log('🟡 constructor() - Element created', 'constructor');
+      }
+      
+      connectedCallback() {
+        log('🟢 connectedCallback() - Added to DOM', 'connected');
+        this.render();
+      }
+      
+      disconnectedCallback() {
+        log('🔴 disconnectedCallback() - Removed from DOM', 'disconnected');
+      }
+      
+      attributeChangedCallback(name, oldVal, newVal) {
+        log(`🔵 attributeChangedCallback() - ${name}: "${oldVal}" → "${newVal}"`, 'attribute');
+        if (this.isConnected) this.render();
+      }
+      
+      render() {
+        const greeting = this.getAttribute('greeting') || 'Hello';
+        this.innerHTML = `<div style="background:#1a1a2e;padding:15px;border-radius:8px;border:2px solid #feca57;">
+          <span style="font-size:1.5rem;">👋</span> ${greeting}, Custom Element!
+        </div>`;
+      }
+    }
+    
+    customElements.define('lifecycle-demo', LifecycleDemo);
+    
+    function addElement() {
+      if (!demoEl.querySelector('lifecycle-demo')) {
+        const el = document.createElement('lifecycle-demo');
+        el.setAttribute('greeting', 'Welcome');
+        demoEl.appendChild(el);
+      }
+    }
+    
+    function removeElement() {
+      const el = demoEl.querySelector('lifecycle-demo');
+      if (el) el.remove();
+    }
+    
+    function changeAttribute() {
+      const el = demoEl.querySelector('lifecycle-demo');
+      if (el) {
+        const greetings = ['Hello', 'Hi', 'Hey', 'Greetings', 'Welcome'];
+        const current = el.getAttribute('greeting');
+        const next = greetings[(greetings.indexOf(current) + 1) % greetings.length];
+        el.setAttribute('greeting', next);
+      }
+    }
+    
+    function clearLog() {
+      logEl.innerHTML = '';
+    }
+
+    // Fancy button demo
+    class DemoFancyButton extends HTMLElement {
+      static observedAttributes = ['variant'];
+      
+      constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+      }
+      
+      connectedCallback() {
+        this.render();
+        this.shadowRoot.querySelector('button').addEventListener('click', () => {
+          this.dispatchEvent(new CustomEvent('fancy-click', {
+            bubbles: true,
+            composed: true,
+            detail: { variant: this.getAttribute('variant') }
+          }));
+        });
+      }
+      
+      attributeChangedCallback() { this.render(); }
+      
+      render() {
+        const variant = this.getAttribute('variant') || 'primary';
+        const colors = {
+          primary: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+          danger: 'linear-gradient(135deg, #ef4444, #dc2626)',
+          success: 'linear-gradient(135deg, #22c55e, #16a34a)'
+        };
+        this.shadowRoot.innerHTML = `
+          <style>
+            button {
+              background: ${colors[variant]};
+              color: white;
+              border: none;
+              padding: 10px 20px;
+              border-radius: 8px;
+              cursor: pointer;
+              font-size: 1rem;
+              transition: all 0.2s;
+            }
+            button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+          </style>
+          <button><slot>Click Me</slot></button>
+        `;
+      }
+    }
+    
+    customElements.define('demo-fancy-button', DemoFancyButton);
+    
+    const buttonDemo = document.getElementById('button-demo');
+    const buttonLog = document.getElementById('button-log');
+    
+    buttonDemo.innerHTML = `
+      <demo-fancy-button variant="primary">Primary</demo-fancy-button>
+      <demo-fancy-button variant="danger">Danger</demo-fancy-button>
+      <demo-fancy-button variant="success">Success</demo-fancy-button>
+    `;
+    
+    buttonDemo.addEventListener('fancy-click', (e) => {
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.style.color = '#4ade80';
+      entry.textContent = `[${new Date().toLocaleTimeString()}] 🎉 fancy-click event! variant: ${e.detail.variant}`;
+      buttonLog.prepend(entry);
+    });
+  </script>
+</body>
+</html>

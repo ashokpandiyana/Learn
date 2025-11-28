@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 1: Understanding the DOM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.7;
+            color: #1a1a2e;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            color: #2d3748;
+            margin: 35px 0 20px;
+            padding-left: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        h3 {
+            font-size: 1.2rem;
+            color: #4a5568;
+            margin: 25px 0 15px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            color: #4a5568;
+        }
+        
+        .concept-box {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border-left: 4px solid #fc8181;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        
+        .warning-box::before {
+            content: "⚠️ Important";
+            font-weight: bold;
+            color: #c53030;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e6fffa 0%, #b2f5ea 100%);
+            border-left: 4px solid #38b2ac;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        
+        .key-point::before {
+            content: "🔑 Key Point";
+            font-weight: bold;
+            color: #234e52;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .interview-tip {
+            background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
+            border-left: 4px solid #4299e1;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        
+        .interview-tip::before {
+            content: "💼 Interview Insight";
+            font-weight: bold;
+            color: #2b6cb0;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        pre {
+            background: #1a1a2e;
+            color: #a0aec0;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+        
+        code {
+            font-family: 'Fira Code', 'Consolas', monospace;
+        }
+        
+        .inline-code {
+            background: #edf2f7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #e53e3e;
+        }
+        
+        .keyword { color: #c792ea; }
+        .string { color: #c3e88d; }
+        .comment { color: #676e95; }
+        .function { color: #82aaff; }
+        .variable { color: #f78c6c; }
+        .property { color: #ffcb6b; }
+        
+        .diagram {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        
+        .diagram svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f7fafc;
+        }
+        
+        ul, ol {
+            margin: 15px 0 15px 25px;
+            color: #4a5568;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #667eea, transparent);
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chapter 1: Understanding the DOM</h1>
+        <p class="subtitle">The Foundation of Web Page Manipulation — Deep Dive into Document Object Model</p>
+        
+        <!-- Section 1.1 -->
+        <h2>1.1 What is the DOM?</h2>
+        
+        <div class="concept-box">
+            <p>The <strong>Document Object Model (DOM)</strong> is a programming interface for web documents. Think of it as a bridge between your HTML document and JavaScript — it allows programs to access and manipulate the content, structure, and style of a webpage.</p>
+            
+            <p>When a browser loads a webpage, it doesn't just display the HTML. It goes through a process:</p>
+            
+            <ol>
+                <li><strong>Parsing:</strong> The browser reads the HTML text</li>
+                <li><strong>Tokenization:</strong> Breaks HTML into meaningful tokens (tags, attributes, text)</li>
+                <li><strong>Tree Construction:</strong> Builds a tree structure from tokens</li>
+                <li><strong>DOM Creation:</strong> Creates JavaScript objects for each element</li>
+            </ol>
+        </div>
+        
+        <div class="diagram">
+            <h3 style="margin-bottom: 20px;">How Browser Creates the DOM</h3>
+            <svg viewBox="0 0 700 200" style="max-width: 700px;">
+                <!-- HTML Box -->
+                <rect x="10" y="70" width="120" height="60" rx="8" fill="#e2e8f0" stroke="#667eea" stroke-width="2"/>
+                <text x="70" y="95" text-anchor="middle" font-size="12" font-weight="bold" fill="#2d3748">HTML Text</text>
+                <text x="70" y="115" text-anchor="middle" font-size="10" fill="#718096">&lt;html&gt;...&lt;/html&gt;</text>
+                
+                <!-- Arrow 1 -->
+                <path d="M135 100 L175 100" stroke="#667eea" stroke-width="2" marker-end="url(#arrow)"/>
+                <text x="155" y="90" text-anchor="middle" font-size="9" fill="#667eea">Parse</text>
+                
+                <!-- Tokens Box -->
+                <rect x="180" y="70" width="120" height="60" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                <text x="240" y="95" text-anchor="middle" font-size="12" font-weight="bold" fill="#92400e">Tokens</text>
+                <text x="240" y="115" text-anchor="middle" font-size="10" fill="#b45309">[tag, attr, text]</text>
+                
+                <!-- Arrow 2 -->
+                <path d="M305 100 L345 100" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow2)"/>
+                <text x="325" y="90" text-anchor="middle" font-size="9" fill="#f59e0b">Build</text>
+                
+                <!-- Tree Box -->
+                <rect x="350" y="70" width="120" height="60" rx="8" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+                <text x="410" y="95" text-anchor="middle" font-size="12" font-weight="bold" fill="#065f46">Node Tree</text>
+                <text x="410" y="115" text-anchor="middle" font-size="10" fill="#047857">Parent → Children</text>
+                
+                <!-- Arrow 3 -->
+                <path d="M475 100 L515 100" stroke="#10b981" stroke-width="2" marker-end="url(#arrow3)"/>
+                <text x="495" y="90" text-anchor="middle" font-size="9" fill="#10b981">Create</text>
+                
+                <!-- DOM Box -->
+                <rect x="520" y="70" width="120" height="60" rx="8" fill="#ddd6fe" stroke="#8b5cf6" stroke-width="2"/>
+                <text x="580" y="95" text-anchor="middle" font-size="12" font-weight="bold" fill="#5b21b6">DOM Objects</text>
+                <text x="580" y="115" text-anchor="middle" font-size="10" fill="#6d28d9">JS can access!</text>
+                
+                <!-- Arrow markers -->
+                <defs>
+                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#667eea"/>
+                    </marker>
+                    <marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
+                    </marker>
+                    <marker id="arrow3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
+                    </marker>
+                </defs>
+            </svg>
+        </div>
+        
+        <h3>What the DOM is NOT:</h3>
+        
+        <div class="warning-box">
+            <ul>
+                <li><strong>The DOM is NOT your HTML source code</strong> — The DOM can be modified by JavaScript, but your original HTML file remains unchanged.</li>
+                <li><strong>The DOM is NOT what you see in the browser</strong> — What you see is the rendered output after CSS and visual formatting.</li>
+                <li><strong>The DOM is NOT what DevTools shows</strong> — DevTools shows a visual representation of the DOM, not the DOM itself.</li>
+            </ul>
+        </div>
+        
+        <div class="concept-box">
+            <h3>Proof: DOM vs HTML Source</h3>
+            <p>Here's proof that the DOM is different from HTML:</p>
+            
+<pre><span class="comment">// Original HTML</span>
+<span class="string">&lt;div id="app"&gt;&lt;/div&gt;</span>
+
+<span class="comment">// JavaScript adds content</span>
+<span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'app'</span>).<span class="property">innerHTML</span> = <span class="string">'&lt;p&gt;Hello World&lt;/p&gt;'</span>;
+
+<span class="comment">// DOM now has:</span>
+<span class="string">&lt;div id="app"&gt;
+    &lt;p&gt;Hello World&lt;/p&gt;
+&lt;/div&gt;</span>
+
+<span class="comment">// But your HTML file still shows:</span>
+<span class="string">&lt;div id="app"&gt;&lt;/div&gt;</span></pre>
+        </div>
+        
+        <div class="interview-tip">
+            <strong>Definition for Interviews:</strong> "The DOM is a programming interface provided by browsers that represents an HTML document as a tree of objects. It allows JavaScript to access, modify, add, or delete HTML elements and their content dynamically. The DOM is created when the browser parses HTML and is kept in memory as long as the page is open."
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 1.2 -->
+        <h2>1.2 DOM Tree Structure</h2>
+        
+        <div class="concept-box">
+            <p>The DOM represents a document as a <strong>tree structure</strong> (also called a hierarchical structure). Every piece of content in an HTML document becomes a <strong>node</strong> in this tree.</p>
+        </div>
+        
+        <h3>Example HTML to DOM Tree:</h3>
+        
+<pre><span class="comment">&lt;!-- HTML Document --&gt;</span>
+<span class="string">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;My Page&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Hello&lt;/h1&gt;
+    &lt;p&gt;World&lt;/p&gt;
+    &lt;!-- Comment --&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</span></pre>
+
+        <div class="diagram">
+            <h3 style="margin-bottom: 20px;">Visual DOM Tree Representation</h3>
+            <svg viewBox="0 0 600 400" style="max-width: 600px;">
+                <!-- Document Node -->
+                <rect x="250" y="10" width="100" height="35" rx="6" fill="#8b5cf6" stroke="#6d28d9" stroke-width="2"/>
+                <text x="300" y="33" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Document</text>
+                
+                <!-- Line to DOCTYPE and HTML -->
+                <line x1="275" y1="45" x2="150" y2="75" stroke="#cbd5e0" stroke-width="2"/>
+                <line x1="325" y1="45" x2="400" y2="75" stroke="#cbd5e0" stroke-width="2"/>
+                
+                <!-- DOCTYPE Node -->
+                <rect x="90" y="75" width="120" height="30" rx="6" fill="#f3f4f6" stroke="#9ca3af" stroke-width="2"/>
+                <text x="150" y="95" text-anchor="middle" font-size="11" fill="#4b5563">DOCTYPE html</text>
+                
+                <!-- HTML Element -->
+                <rect x="340" y="75" width="120" height="30" rx="6" fill="#3b82f6" stroke="#2563eb" stroke-width="2"/>
+                <text x="400" y="95" text-anchor="middle" font-size="12" font-weight="bold" fill="white">&lt;html&gt;</text>
+                
+                <!-- Lines from HTML -->
+                <line x1="370" y1="105" x2="200" y2="145" stroke="#cbd5e0" stroke-width="2"/>
+                <line x1="430" y1="105" x2="500" y2="145" stroke="#cbd5e0" stroke-width="2"/>
+                
+                <!-- HEAD Element -->
+                <rect x="140" y="145" width="100" height="30" rx="6" fill="#10b981" stroke="#059669" stroke-width="2"/>
+                <text x="190" y="165" text-anchor="middle" font-size="12" font-weight="bold" fill="white">&lt;head&gt;</text>
+                
+                <!-- BODY Element -->
+                <rect x="450" y="145" width="100" height="30" rx="6" fill="#10b981" stroke="#059669" stroke-width="2"/>
+                <text x="500" y="165" text-anchor="middle" font-size="12" font-weight="bold" fill="white">&lt;body&gt;</text>
+                
+                <!-- Line from HEAD to TITLE -->
+                <line x1="190" y1="175" x2="190" y2="205" stroke="#cbd5e0" stroke-width="2"/>
+                
+                <!-- TITLE Element -->
+                <rect x="130" y="205" width="100" height="30" rx="6" fill="#f59e0b" stroke="#d97706" stroke-width="2"/>
+                <text x="180" y="225" text-anchor="middle" font-size="11" font-weight="bold" fill="white">&lt;title&gt;</text>
+                
+                <!-- Line from TITLE to text -->
+                <line x1="180" y1="235" x2="180" y2="265" stroke="#cbd5e0" stroke-width="2"/>
+                
+                <!-- Title Text Node -->
+                <rect x="120" y="265" width="100" height="25" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/>
+                <text x="170" y="282" text-anchor="middle" font-size="10" fill="#92400e">"My Page"</text>
+                
+                <!-- Lines from BODY -->
+                <line x1="470" y1="175" x2="350" y2="215" stroke="#cbd5e0" stroke-width="2"/>
+                <line x1="500" y1="175" x2="500" y2="215" stroke="#cbd5e0" stroke-width="2"/>
+                <line x1="530" y1="175" x2="620" y2="215" stroke="#cbd5e0" stroke-width="2"/>
+                
+                <!-- H1 Element -->
+                <rect x="300" y="215" width="80" height="30" rx="6" fill="#f59e0b" stroke="#d97706" stroke-width="2"/>
+                <text x="340" y="235" text-anchor="middle" font-size="11" font-weight="bold" fill="white">&lt;h1&gt;</text>
+                
+                <!-- P Element -->
+                <rect x="460" y="215" width="80" height="30" rx="6" fill="#f59e0b" stroke="#d97706" stroke-width="2"/>
+                <text x="500" y="235" text-anchor="middle" font-size="11" font-weight="bold" fill="white">&lt;p&gt;</text>
+                
+                <!-- Comment Node -->
+                <rect x="570" y="215" width="90" height="30" rx="6" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2" stroke-dasharray="4"/>
+                <text x="615" y="235" text-anchor="middle" font-size="10" fill="#6b7280">&lt;!-- --&gt;</text>
+                
+                <!-- Text nodes -->
+                <line x1="340" y1="245" x2="340" y2="275" stroke="#cbd5e0" stroke-width="2"/>
+                <line x1="500" y1="245" x2="500" y2="275" stroke="#cbd5e0" stroke-width="2"/>
+                <line x1="615" y1="245" x2="615" y2="275" stroke="#cbd5e0" stroke-width="2"/>
+                
+                <rect x="300" y="275" width="80" height="25" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/>
+                <text x="340" y="292" text-anchor="middle" font-size="10" fill="#92400e">"Hello"</text>
+                
+                <rect x="460" y="275" width="80" height="25" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/>
+                <text x="500" y="292" text-anchor="middle" font-size="10" fill="#92400e">"World"</text>
+                
+                <rect x="570" y="275" width="90" height="25" rx="4" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1"/>
+                <text x="615" y="292" text-anchor="middle" font-size="9" fill="#6b7280">"Comment"</text>
+                
+                <!-- Legend -->
+                <rect x="10" y="340" width="580" height="50" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+                <rect x="20" y="355" width="15" height="15" rx="3" fill="#8b5cf6"/>
+                <text x="40" y="367" font-size="10" fill="#4b5563">Document</text>
+                <rect x="100" y="355" width="15" height="15" rx="3" fill="#3b82f6"/>
+                <text x="120" y="367" font-size="10" fill="#4b5563">Root Element</text>
+                <rect x="200" y="355" width="15" height="15" rx="3" fill="#10b981"/>
+                <text x="220" y="367" font-size="10" fill="#4b5563">Element</text>
+                <rect x="280" y="355" width="15" height="15" rx="3" fill="#f59e0b"/>
+                <text x="300" y="367" font-size="10" fill="#4b5563">Element</text>
+                <rect x="360" y="355" width="15" height="15" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+                <text x="380" y="367" font-size="10" fill="#4b5563">Text Node</text>
+                <rect x="450" y="355" width="15" height="15" rx="3" fill="#e5e7eb" stroke="#9ca3af" stroke-dasharray="2"/>
+                <text x="470" y="367" font-size="10" fill="#4b5563">Comment</text>
+            </svg>
+        </div>
+        
+        <h3>Types of Nodes in the DOM:</h3>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Node Type</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                    <th>nodeType Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Document Node</strong></td>
+                    <td>The root of the entire document tree. Entry point for accessing the DOM.</td>
+                    <td><span class="inline-code">document</span></td>
+                    <td>9</td>
+                </tr>
+                <tr>
+                    <td><strong>Element Node</strong></td>
+                    <td>Represents HTML tags. Most common node type you'll work with.</td>
+                    <td><span class="inline-code">&lt;div&gt;</span>, <span class="inline-code">&lt;p&gt;</span>, <span class="inline-code">&lt;span&gt;</span></td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td><strong>Text Node</strong></td>
+                    <td>Contains the actual text content inside elements.</td>
+                    <td>The text "Hello" inside <span class="inline-code">&lt;p&gt;Hello&lt;/p&gt;</span></td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td><strong>Comment Node</strong></td>
+                    <td>Represents HTML comments. Usually ignored but accessible via DOM.</td>
+                    <td><span class="inline-code">&lt;!-- comment --&gt;</span></td>
+                    <td>8</td>
+                </tr>
+                <tr>
+                    <td><strong>Attribute Node</strong></td>
+                    <td>Represents element attributes. Not technically in the tree.</td>
+                    <td><span class="inline-code">class="container"</span></td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td><strong>DocumentFragment</strong></td>
+                    <td>Lightweight container for holding nodes before inserting into DOM.</td>
+                    <td><span class="inline-code">document.createDocumentFragment()</span></td>
+                    <td>11</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 1.3 -->
+        <h2>1.3 Node vs Element — The Critical Difference</h2>
+        
+        <div class="concept-box">
+            <p>This is one of the <strong>most important distinctions</strong> in DOM manipulation and a favorite interview question. Understanding this difference will prevent countless bugs.</p>
+        </div>
+        
+        <div class="diagram">
+            <h3 style="margin-bottom: 20px;">Node vs Element Hierarchy</h3>
+            <svg viewBox="0 0 500 280" style="max-width: 500px;">
+                <!-- Node Box (Parent) -->
+                <rect x="100" y="20" width="300" height="240" rx="12" fill="#f0fdf4" stroke="#22c55e" stroke-width="3"/>
+                <text x="250" y="50" text-anchor="middle" font-size="16" font-weight="bold" fill="#166534">Node (Base Class)</text>
+                
+                <!-- Element Box (Child) -->
+                <rect x="130" y="130" width="240" height="110" rx="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+                <text x="250" y="155" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e40af">Element</text>
+                <text x="250" y="175" text-anchor="middle" font-size="11" fill="#3b82f6">(HTML tags like div, p, span)</text>
+                
+                <!-- Other node types -->
+                <rect x="130" y="70" width="70" height="45" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                <text x="165" y="97" text-anchor="middle" font-size="10" fill="#92400e">Text</text>
+                
+                <rect x="210" y="70" width="70" height="45" rx="6" fill="#e5e7eb" stroke="#6b7280" stroke-width="2"/>
+                <text x="245" y="97" text-anchor="middle" font-size="10" fill="#4b5563">Comment</text>
+                
+                <rect x="290" y="70" width="70" height="45" rx="6" fill="#fce7f3" stroke="#ec4899" stroke-width="2"/>
+                <text x="325" y="97" text-anchor="middle" font-size="10" fill="#be185d">Document</text>
+                
+                <!-- Specific elements inside Element -->
+                <rect x="145" y="190" width="45" height="35" rx="4" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1"/>
+                <text x="167" y="212" text-anchor="middle" font-size="9" fill="#1e40af">&lt;div&gt;</text>
+                
+                <rect x="200" y="190" width="45" height="35" rx="4" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1"/>
+                <text x="222" y="212" text-anchor="middle" font-size="9" fill="#1e40af">&lt;p&gt;</text>
+                
+                <rect x="255" y="190" width="45" height="35" rx="4" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1"/>
+                <text x="277" y="212" text-anchor="middle" font-size="9" fill="#1e40af">&lt;span&gt;</text>
+                
+                <rect x="310" y="190" width="45" height="35" rx="4" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1"/>
+                <text x="332" y="212" text-anchor="middle" font-size="9" fill="#1e40af">&lt;img&gt;</text>
+            </svg>
+        </div>
+        
+        <div class="key-point">
+            <strong>The Golden Rule:</strong> All Elements are Nodes, but NOT all Nodes are Elements!
+            <ul style="margin-top: 10px;">
+                <li>Element is a <strong>specific type</strong> of Node (nodeType === 1)</li>
+                <li>Text, Comments, Document are also Nodes but NOT Elements</li>
+                <li>This affects which properties/methods you can use</li>
+            </ul>
+        </div>
+        
+        <h3>Why Does This Matter? Practical Example:</h3>
+        
+<pre><span class="comment">// Consider this HTML:</span>
+<span class="string">&lt;div id="parent"&gt;
+    Hello
+    &lt;span&gt;World&lt;/span&gt;
+&lt;/div&gt;</span>
+
+<span class="keyword">const</span> parent = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'parent'</span>);
+
+<span class="comment">// childNodes returns ALL nodes (including text nodes!)</span>
+<span class="variable">console</span>.<span class="function">log</span>(parent.<span class="property">childNodes</span>);
+<span class="comment">// NodeList(3) [text, span, text]</span>
+<span class="comment">//   - text: "\n    Hello\n    "</span>
+<span class="comment">//   - span: the &lt;span&gt; element</span>
+<span class="comment">//   - text: "\n" (whitespace after span)</span>
+
+<span class="comment">// children returns ONLY element nodes</span>
+<span class="variable">console</span>.<span class="function">log</span>(parent.<span class="property">children</span>);
+<span class="comment">// HTMLCollection [span]</span>
+<span class="comment">//   - Just the &lt;span&gt; element!</span>
+
+<span class="comment">// This is why your loop might break!</span>
+parent.<span class="property">childNodes</span>.<span class="function">forEach</span>(node => {
+    <span class="comment">// ERROR if you try to access element-only properties on text nodes!</span>
+    <span class="variable">console</span>.<span class="function">log</span>(node.<span class="property">className</span>); <span class="comment">// undefined for text nodes</span>
+});</pre>
+
+        <h3>Node vs Element Properties:</h3>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Node Properties</th>
+                    <th>Element Properties</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="inline-code">childNodes</span> — All child nodes</td>
+                    <td><span class="inline-code">children</span> — Only element children</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">firstChild</span> — First node (any type)</td>
+                    <td><span class="inline-code">firstElementChild</span> — First element</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">lastChild</span> — Last node (any type)</td>
+                    <td><span class="inline-code">lastElementChild</span> — Last element</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">previousSibling</span> — Previous node</td>
+                    <td><span class="inline-code">previousElementSibling</span> — Previous element</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">nextSibling</span> — Next node</td>
+                    <td><span class="inline-code">nextElementSibling</span> — Next element</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">parentNode</span> — Parent node</td>
+                    <td><span class="inline-code">parentElement</span> — Parent element</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="warning-box">
+            <strong>Common Bug:</strong> Using <span class="inline-code">firstChild</span> when you mean <span class="inline-code">firstElementChild</span>. Whitespace (newlines, spaces) between tags creates text nodes!
+<pre style="margin-top: 10px;"><span class="comment">// This HTML has hidden text nodes from whitespace!</span>
+<span class="string">&lt;ul&gt;
+    &lt;li&gt;Item 1&lt;/li&gt;
+    &lt;li&gt;Item 2&lt;/li&gt;
+&lt;/ul&gt;</span>
+
+ul.<span class="property">firstChild</span>       <span class="comment">// Returns TEXT NODE (whitespace)!</span>
+ul.<span class="property">firstElementChild</span> <span class="comment">// Returns &lt;li&gt; element ✓</span></pre>
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 1.4 -->
+        <h2>1.4 The document Object — Your Gateway to the DOM</h2>
+        
+        <div class="concept-box">
+            <p>The <span class="inline-code">document</span> object is your entry point to the entire DOM. It represents the whole HTML document and provides methods to access and manipulate any element.</p>
+        </div>
+        
+        <h3>Essential document Properties:</h3>
+        
+<pre><span class="comment">// The entire document</span>
+<span class="variable">document</span>                    <span class="comment">// The Document node itself</span>
+
+<span class="comment">// Quick access to major elements</span>
+<span class="variable">document</span>.<span class="property">documentElement</span>    <span class="comment">// The &lt;html&gt; element</span>
+<span class="variable">document</span>.<span class="property">head</span>               <span class="comment">// The &lt;head&gt; element</span>
+<span class="variable">document</span>.<span class="property">body</span>               <span class="comment">// The &lt;body&gt; element</span>
+<span class="variable">document</span>.<span class="property">doctype</span>            <span class="comment">// The DOCTYPE declaration</span>
+
+<span class="comment">// Document information</span>
+<span class="variable">document</span>.<span class="property">title</span>              <span class="comment">// Page title (can read/write!)</span>
+<span class="variable">document</span>.<span class="property">URL</span>                <span class="comment">// Current page URL</span>
+<span class="variable">document</span>.<span class="property">domain</span>             <span class="comment">// Domain name</span>
+<span class="variable">document</span>.<span class="property">referrer</span>           <span class="comment">// URL of referring page</span>
+
+<span class="comment">// Collections of elements</span>
+<span class="variable">document</span>.<span class="property">forms</span>              <span class="comment">// All &lt;form&gt; elements</span>
+<span class="variable">document</span>.<span class="property">images</span>             <span class="comment">// All &lt;img&gt; elements</span>
+<span class="variable">document</span>.<span class="property">links</span>              <span class="comment">// All &lt;a&gt; with href</span>
+<span class="variable">document</span>.<span class="property">scripts</span>            <span class="comment">// All &lt;script&gt; elements</span>
+<span class="variable">document</span>.<span class="property">styleSheets</span>        <span class="comment">// All stylesheets</span>
+
+<span class="comment">// Active/focused element</span>
+<span class="variable">document</span>.<span class="property">activeElement</span>      <span class="comment">// Currently focused element</span>
+
+<span class="comment">// Document state</span>
+<span class="variable">document</span>.<span class="property">readyState</span>         <span class="comment">// 'loading', 'interactive', 'complete'</span>
+<span class="variable">document</span>.<span class="property">visibilityState</span>   <span class="comment">// 'visible', 'hidden'</span></pre>
+
+        <h3>Understanding Document Ready States:</h3>
+        
+        <div class="diagram">
+            <svg viewBox="0 0 600 120" style="max-width: 600px;">
+                <!-- Loading -->
+                <rect x="20" y="40" width="150" height="50" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                <text x="95" y="60" text-anchor="middle" font-size="12" font-weight="bold" fill="#92400e">loading</text>
+                <text x="95" y="78" text-anchor="middle" font-size="9" fill="#b45309">Document still loading</text>
+                
+                <!-- Arrow -->
+                <path d="M175 65 L215 65" stroke="#cbd5e0" stroke-width="2" marker-end="url(#arrow4)"/>
+                
+                <!-- Interactive -->
+                <rect x="220" y="40" width="150" height="50" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+                <text x="295" y="60" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e40af">interactive</text>
+                <text x="295" y="78" text-anchor="middle" font-size="9" fill="#3b82f6">DOM ready, resources loading</text>
+                
+                <!-- Arrow -->
+                <path d="M375 65 L415 65" stroke="#cbd5e0" stroke-width="2" marker-end="url(#arrow4)"/>
+                
+                <!-- Complete -->
+                <rect x="420" y="40" width="150" height="50" rx="8" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+                <text x="495" y="60" text-anchor="middle" font-size="12" font-weight="bold" fill="#065f46">complete</text>
+                <text x="495" y="78" text-anchor="middle" font-size="9" fill="#047857">Everything loaded!</text>
+                
+                <!-- Events below -->
+                <text x="295" y="110" text-anchor="middle" font-size="10" fill="#3b82f6">DOMContentLoaded fires here</text>
+                <text x="495" y="110" text-anchor="middle" font-size="10" fill="#047857">load event fires here</text>
+                
+                <defs>
+                    <marker id="arrow4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#cbd5e0"/>
+                    </marker>
+                </defs>
+            </svg>
+        </div>
+        
+        <h3>Waiting for DOM Ready:</h3>
+        
+<pre><span class="comment">// Method 1: DOMContentLoaded event</span>
+<span class="variable">document</span>.<span class="function">addEventListener</span>(<span class="string">'DOMContentLoaded'</span>, () => {
+    <span class="comment">// DOM is ready, safe to manipulate</span>
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'DOM fully loaded!'</span>);
+});
+
+<span class="comment">// Method 2: Check readyState (for scripts that might load late)</span>
+<span class="keyword">if</span> (<span class="variable">document</span>.<span class="property">readyState</span> === <span class="string">'loading'</span>) {
+    <span class="variable">document</span>.<span class="function">addEventListener</span>(<span class="string">'DOMContentLoaded'</span>, init);
+} <span class="keyword">else</span> {
+    <span class="comment">// DOM already ready</span>
+    <span class="function">init</span>();
+}
+
+<span class="comment">// Method 3: Wait for everything (including images)</span>
+<span class="variable">window</span>.<span class="function">addEventListener</span>(<span class="string">'load'</span>, () => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Everything loaded including images!'</span>);
+});</pre>
+
+        <div class="interview-tip">
+            <strong>Interview Question:</strong> "What's the difference between <span class="inline-code">DOMContentLoaded</span> and <span class="inline-code">load</span> events?"
+            <br><br>
+            <strong>Answer:</strong> <span class="inline-code">DOMContentLoaded</span> fires when the HTML is fully parsed and the DOM tree is built, but external resources (images, stylesheets, iframes) may still be loading. The <span class="inline-code">load</span> event fires only after ALL resources have finished loading. Use <span class="inline-code">DOMContentLoaded</span> for DOM manipulation, <span class="inline-code">load</span> when you need images/resources ready.
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <h2>Chapter 1 Summary</h2>
+        
+        <div class="concept-box">
+            <h3>Key Takeaways:</h3>
+            <ol>
+                <li><strong>DOM is a Programming Interface</strong> — Not the HTML source, not what you see rendered</li>
+                <li><strong>Tree Structure</strong> — Document → html → head/body → nested elements</li>
+                <li><strong>Multiple Node Types</strong> — Element, Text, Comment, Document, DocumentFragment</li>
+                <li><strong>Node vs Element</strong> — All Elements are Nodes, but not all Nodes are Elements</li>
+                <li><strong>document Object</strong> — Your entry point to access everything in the DOM</li>
+                <li><strong>Ready States</strong> — loading → interactive → complete</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

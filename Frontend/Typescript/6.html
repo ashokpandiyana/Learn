@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 6: React Component Types</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e4e4e7;
+      line-height: 1.7;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #06b6d4, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle { color: #94a3b8; font-size: 1.1rem; margin-bottom: 40px; }
+    .section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    h2 {
+      color: #22d3ee;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, #06b6d4, #3b82f6);
+      border-radius: 2px;
+    }
+    h3 { color: #67e8f9; font-size: 1.2rem; margin: 25px 0 15px; }
+    h4 { color: #a5f3fc; margin: 15px 0 10px; }
+    p { margin-bottom: 15px; color: #cbd5e1; }
+    .code-block {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+      overflow-x: auto;
+      border: 1px solid #334155;
+    }
+    pre { font-family: 'Fira Code', 'Consolas', monospace; font-size: 14px; line-height: 1.6; }
+    .keyword { color: #c678dd; }
+    .type { color: #e5c07b; }
+    .string { color: #98c379; }
+    .number { color: #d19a66; }
+    .comment { color: #5c6370; font-style: italic; }
+    .function { color: #61afef; }
+    .variable { color: #e06c75; }
+    .tag { color: #e06c75; }
+    .attr { color: #d19a66; }
+    .alert {
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+    }
+    .alert-interview { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .alert-tip { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); }
+    .alert-note { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); }
+    .alert-icon { font-size: 1.5rem; }
+    .alert-content h4 { color: #f87171; margin-bottom: 5px; }
+    .alert-tip .alert-content h4 { color: #4ade80; }
+    .alert-note .alert-content h4 { color: #60a5fa; }
+    .visual-box {
+      background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(59,130,246,0.1));
+      border-radius: 12px;
+      padding: 25px;
+      margin: 20px 0;
+      border: 1px solid rgba(34,211,238,0.3);
+    }
+    .visual-title { color: #22d3ee; font-weight: 600; margin-bottom: 15px; text-align: center; }
+    .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+    .comparison-box { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 20px; }
+    .comparison-box.good { border: 2px solid #22c55e; }
+    .comparison-box.bad { border: 2px solid #ef4444; }
+    .comparison-box.neutral { border: 2px solid #3b82f6; }
+    .comparison-label { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-weight: 600; }
+    .comparison-box.good .comparison-label { color: #4ade80; }
+    .comparison-box.bad .comparison-label { color: #f87171; }
+    .comparison-box.neutral .comparison-label { color: #60a5fa; }
+    ul { padding-left: 25px; margin: 10px 0; }
+    li { margin: 8px 0; color: #cbd5e1; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
+    th { background: rgba(6,182,212,0.2); color: #22d3ee; }
+    code { background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+    .nav-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
+    .nav-btn {
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .type-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0; }
+    .type-card {
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      padding: 15px;
+      border: 1px solid rgba(34,211,238,0.2);
+    }
+    .type-card h5 { color: #22d3ee; font-family: monospace; margin-bottom: 8px; }
+    .type-card p { font-size: 0.85rem; margin: 0; color: #94a3b8; }
+    .react-logo { font-size: 2rem; margin-right: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span class="react-logo">⚛️</span> Chapter 6: React Component Types</h1>
+    <p class="subtitle">Mastering TypeScript with React components, props, and children</p>
+
+    <!-- Section 6.1 -->
+    <div class="section">
+      <h2>6.1 Function Component Types</h2>
+      
+      <p>There are multiple ways to type React function components. Understanding the differences helps you choose the right approach for your codebase.</p>
+
+      <h3>The React.FC Type (and Why Many Avoid It)</h3>
+      <div class="code-block">
+<pre><span class="keyword">import</span> <span class="type">React</span> <span class="keyword">from</span> <span class="string">'react'</span>;
+
+<span class="keyword">interface</span> <span class="type">GreetingProps</span> {
+  <span class="variable">name</span>: <span class="type">string</span>;
+  <span class="variable">age</span>?: <span class="type">number</span>;
+}
+
+<span class="comment">// Using React.FC (Function Component)</span>
+<span class="keyword">const</span> <span class="variable">Greeting</span>: <span class="type">React</span>.<span class="type">FC</span>&lt;<span class="type">GreetingProps</span>&gt; = ({ <span class="variable">name</span>, <span class="variable">age</span> }) => {
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">div</span>&gt;
+      Hello, {<span class="variable">name</span>}! {<span class="variable">age</span> && &lt;<span class="tag">span</span>&gt;Age: {<span class="variable">age</span>}&lt;/<span class="tag">span</span>&gt;}
+    &lt;/<span class="tag">div</span>&gt;
+  );
+};</pre>
+      </div>
+
+      <div class="alert alert-interview">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+          <h4>Interview Alert: Problems with React.FC</h4>
+          <ol style="margin-left: 20px;">
+            <li><strong>Implicit children:</strong> Before React 18, FC included <code>children</code> even if not wanted</li>
+            <li><strong>No generic support:</strong> Can't create generic components with FC</li>
+            <li><strong>Doesn't work with defaultProps:</strong> Type inference issues</li>
+            <li><strong>Verbose:</strong> Adds extra type annotation</li>
+          </ol>
+        </div>
+      </div>
+
+      <h3>Preferred Approach: Direct Typing</h3>
+      <div class="code-block">
+<pre><span class="keyword">interface</span> <span class="type">GreetingProps</span> {
+  <span class="variable">name</span>: <span class="type">string</span>;
+  <span class="variable">age</span>?: <span class="type">number</span>;
+  <span class="variable">children</span>?: <span class="type">React</span>.<span class="type">ReactNode</span>; <span class="comment">// Explicitly add if needed</span>
+}
+
+<span class="comment">// ✅ Preferred: Type props directly</span>
+<span class="keyword">function</span> <span class="function">Greeting</span>({ <span class="variable">name</span>, <span class="variable">age</span>, <span class="variable">children</span> }: <span class="type">GreetingProps</span>) {
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">div</span>&gt;
+      Hello, {<span class="variable">name</span>}!
+      {<span class="variable">age</span> && &lt;<span class="tag">span</span>&gt; Age: {<span class="variable">age</span>}&lt;/<span class="tag">span</span>&gt;}
+      {<span class="variable">children</span>}
+    &lt;/<span class="tag">div</span>&gt;
+  );
+}
+
+<span class="comment">// Also works with arrow functions</span>
+<span class="keyword">const</span> <span class="variable">Greeting2</span> = ({ <span class="variable">name</span>, <span class="variable">age</span> }: <span class="type">GreetingProps</span>) => (
+  &lt;<span class="tag">div</span>&gt;Hello, {<span class="variable">name</span>}!&lt;/<span class="tag">div</span>&gt;
+);
+
+<span class="comment">// With explicit return type (optional but recommended for public APIs)</span>
+<span class="keyword">function</span> <span class="function">Greeting3</span>({ <span class="variable">name</span> }: <span class="type">GreetingProps</span>): <span class="type">JSX</span>.<span class="type">Element</span> {
+  <span class="keyword">return</span> &lt;<span class="tag">div</span>&gt;Hello, {<span class="variable">name</span>}!&lt;/<span class="tag">div</span>&gt;;
+}</pre>
+      </div>
+
+      <div class="comparison-grid">
+        <div class="comparison-box bad">
+          <div class="comparison-label">❌ React.FC Issues</div>
+          <ul style="font-size: 0.85rem;">
+            <li>Implicit children (before React 18)</li>
+            <li>Can't use generics easily</li>
+            <li>defaultProps doesn't work well</li>
+            <li>More verbose</li>
+          </ul>
+        </div>
+        <div class="comparison-box good">
+          <div class="comparison-label">✅ Direct Typing Benefits</div>
+          <ul style="font-size: 0.85rem;">
+            <li>Explicit about children</li>
+            <li>Supports generics</li>
+            <li>Better type inference</li>
+            <li>Industry standard</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Generic Components</h3>
+      <p>Generic components allow you to create reusable components with type-safe props:</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Generic List component</span>
+<span class="keyword">interface</span> <span class="type">ListProps</span>&lt;<span class="type">T</span>&gt; {
+  <span class="variable">items</span>: <span class="type">T</span>[];
+  <span class="variable">renderItem</span>: (<span class="variable">item</span>: <span class="type">T</span>, <span class="variable">index</span>: <span class="type">number</span>) => <span class="type">React</span>.<span class="type">ReactNode</span>;
+  <span class="variable">keyExtractor</span>: (<span class="variable">item</span>: <span class="type">T</span>) => <span class="type">string</span>;
+}
+
+<span class="comment">// Generic function component</span>
+<span class="keyword">function</span> <span class="function">List</span>&lt;<span class="type">T</span>&gt;({ <span class="variable">items</span>, <span class="variable">renderItem</span>, <span class="variable">keyExtractor</span> }: <span class="type">ListProps</span>&lt;<span class="type">T</span>&gt;) {
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">ul</span>&gt;
+      {<span class="variable">items</span>.<span class="function">map</span>((<span class="variable">item</span>, <span class="variable">index</span>) => (
+        &lt;<span class="tag">li</span> <span class="attr">key</span>={<span class="function">keyExtractor</span>(<span class="variable">item</span>)}&gt;
+          {<span class="function">renderItem</span>(<span class="variable">item</span>, <span class="variable">index</span>)}
+        &lt;/<span class="tag">li</span>&gt;
+      ))}
+    &lt;/<span class="tag">ul</span>&gt;
+  );
+}
+
+<span class="comment">// Usage with type inference</span>
+<span class="keyword">interface</span> <span class="type">User</span> {
+  <span class="variable">id</span>: <span class="type">string</span>;
+  <span class="variable">name</span>: <span class="type">string</span>;
+  <span class="variable">email</span>: <span class="type">string</span>;
+}
+
+<span class="keyword">const</span> <span class="variable">users</span>: <span class="type">User</span>[] = [
+  { <span class="variable">id</span>: <span class="string">'1'</span>, <span class="variable">name</span>: <span class="string">'Alice'</span>, <span class="variable">email</span>: <span class="string">'alice@example.com'</span> },
+  { <span class="variable">id</span>: <span class="string">'2'</span>, <span class="variable">name</span>: <span class="string">'Bob'</span>, <span class="variable">email</span>: <span class="string">'bob@example.com'</span> },
+];
+
+<span class="comment">// TypeScript infers T as User</span>
+&lt;<span class="type">List</span>
+  <span class="attr">items</span>={<span class="variable">users</span|}
+  <span class="attr">renderItem</span>={(<span class="variable">user</span>) => &lt;<span class="tag">span</span>&gt;{<span class="variable">user</span>.<span class="variable">name</span>}&lt;/<span class="tag">span</span>&gt;}  <span class="comment">// user is typed as User</span>
+  <span class="attr">keyExtractor</span>={(<span class="variable">user</span>) => <span class="variable">user</span>.<span class="variable">id</span|}
+/&gt;
+
+<span class="comment">// Or explicitly specify the type</span>
+&lt;<span class="type">List</span>&lt;<span class="type">User</span>&gt;
+  <span class="attr">items</span>={<span class="variable">users</span>}
+  <span class="attr">renderItem</span>={(<span class="variable">user</span>) => &lt;<span class="tag">span</span>&gt;{<span class="variable">user</span>.<span class="variable">email</span>}&lt;/<span class="tag">span</span>&gt;}
+  <span class="attr">keyExtractor</span>={(<span class="variable">user</span>) => <span class="variable">user</span>.<span class="variable">id</span>}
+/&gt;</pre>
+      </div>
+
+      <div class="alert alert-tip">
+        <span class="alert-icon">💡</span>
+        <div class="alert-content">
+          <h4>Production Tip: Generic Components</h4>
+          <p>Generic components are perfect for:</p>
+          <ul>
+            <li>Lists, Tables, and Grids</li>
+            <li>Select/Dropdown components</li>
+            <li>Data fetching wrappers</li>
+            <li>Form field components</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 6.2 -->
+    <div class="section">
+      <h2>6.2 Props Typing</h2>
+      
+      <h3>Required vs Optional Props</h3>
+      <div class="code-block">
+<pre><span class="keyword">interface</span> <span class="type">ButtonProps</span> {
+  <span class="comment">// Required props</span>
+  <span class="variable">label</span>: <span class="type">string</span>;
+  <span class="variable">onClick</span>: () => <span class="type">void</span>;
+  
+  <span class="comment">// Optional props</span>
+  <span class="variable">variant</span>?: <span class="string">'primary'</span> | <span class="string">'secondary'</span> | <span class="string">'danger'</span>;
+  <span class="variable">size</span>?: <span class="string">'sm'</span> | <span class="string">'md'</span> | <span class="string">'lg'</span>;
+  <span class="variable">disabled</span>?: <span class="type">boolean</span>;
+  <span class="variable">icon</span>?: <span class="type">React</span>.<span class="type">ReactNode</span>;
+}
+
+<span class="comment">// Default values with destructuring</span>
+<span class="keyword">function</span> <span class="function">Button</span>({
+  <span class="variable">label</span>,
+  <span class="variable">onClick</span>,
+  <span class="variable">variant</span> = <span class="string">'primary'</span>,     <span class="comment">// Default value</span>
+  <span class="variable">size</span> = <span class="string">'md'</span>,              <span class="comment">// Default value</span>
+  <span class="variable">disabled</span> = <span class="keyword">false</span>,
+  <span class="variable">icon</span>,
+}: <span class="type">ButtonProps</span>) {
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">button</span>
+      <span class="attr">onClick</span>={<span class="variable">onClick</span>}
+      <span class="attr">disabled</span>={<span class="variable">disabled</span>}
+      <span class="attr">className</span>={<span class="string">`btn btn-</span>${<span class="variable">variant</span>}<span class="string"> btn-</span>${<span class="variable">size</span>}<span class="string">`</span>}
+    &gt;
+      {<span class="variable">icon</span> && &lt;<span class="tag">span</span> <span class="attr">className</span>=<span class="string">"icon"</span>&gt;{<span class="variable">icon</span>}&lt;/<span class="tag">span</span>&gt;}
+      {<span class="variable">label</span>}
+    &lt;/<span class="tag">button</span>&gt;
+  );
+}</pre>
+      </div>
+
+      <h3>React Node Types</h3>
+      <p>Understanding the different types for React children and content:</p>
+
+      <div class="type-card-grid">
+        <div class="type-card">
+          <h5>React.ReactNode</h5>
+          <p>Most flexible. Accepts: elements, strings, numbers, fragments, portals, null, undefined, booleans</p>
+        </div>
+        <div class="type-card">
+          <h5>React.ReactElement</h5>
+          <p>Only React elements (JSX). No strings, numbers, or null</p>
+        </div>
+        <div class="type-card">
+          <h5>JSX.Element</h5>
+          <p>Return type of JSX expressions. Subset of ReactElement</p>
+        </div>
+        <div class="type-card">
+          <h5>React.PropsWithChildren&lt;P&gt;</h5>
+          <p>Utility to add children prop to existing props type</p>
+        </div>
+      </div>
+
+      <div class="code-block">
+<pre><span class="keyword">import</span> <span class="keyword">type</span> { <span class="type">ReactNode</span>, <span class="type">ReactElement</span>, <span class="type">PropsWithChildren</span> } <span class="keyword">from</span> <span class="string">'react'</span>;
+
+<span class="comment">// ReactNode - accepts almost anything renderable</span>
+<span class="keyword">interface</span> <span class="type">CardProps</span> {
+  <span class="variable">title</span>: <span class="type">string</span>;
+  <span class="variable">children</span>: <span class="type">ReactNode</span>;  <span class="comment">// Most common for children</span>
+}
+
+<span class="keyword">function</span> <span class="function">Card</span>({ <span class="variable">title</span>, <span class="variable">children</span> }: <span class="type">CardProps</span>) {
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">div</span> <span class="attr">className</span>=<span class="string">"card"</span>&gt;
+      &lt;<span class="tag">h2</span>&gt;{<span class="variable">title</span>}&lt;/<span class="tag">h2</span>&gt;
+      {<span class="variable">children</span|}
+    &lt;/<span class="tag">div</span>&gt;
+  );
+}
+
+<span class="comment">// All valid:</span>
+&lt;<span class="type">Card</span> <span class="attr">title</span>=<span class="string">"Test"</span>&gt;Hello&lt;/<span class="type">Card</span>&gt;            <span class="comment">// string</span>
+&lt;<span class="type">Card</span> <span class="attr">title</span>=<span class="string">"Test"</span>&gt;{<span class="number">42</span>}&lt;/<span class="type">Card</span>&gt;               <span class="comment">// number</span>
+&lt;<span class="type">Card</span> <span class="attr">title</span>=<span class="string">"Test"</span>&gt;&lt;<span class="tag">span</span>&gt;Hi&lt;/<span class="tag">span</span>&gt;&lt;/<span class="type">Card</span>&gt;    <span class="comment">// element</span>
+&lt;<span class="type">Card</span> <span class="attr">title</span>=<span class="string">"Test"</span>&gt;{<span class="keyword">null</span>}&lt;/<span class="type">Card</span>&gt;             <span class="comment">// null</span>
+
+<span class="comment">// ReactElement - stricter, only elements</span>
+<span class="keyword">interface</span> <span class="type">LayoutProps</span> {
+  <span class="variable">header</span>: <span class="type">ReactElement</span>;  <span class="comment">// Must be a React element</span>
+  <span class="variable">sidebar</span>: <span class="type">ReactElement</span>;
+  <span class="variable">children</span>: <span class="type">ReactNode</span>;
+}
+
+<span class="comment">// PropsWithChildren utility</span>
+<span class="keyword">type</span> <span class="type">CardPropsAlt</span> = <span class="type">PropsWithChildren</span>&lt;{
+  <span class="variable">title</span>: <span class="type">string</span>;
+  <span class="variable">subtitle</span>?: <span class="type">string</span>;
+}&gt;;
+<span class="comment">// Equivalent to: { title: string; subtitle?: string; children?: ReactNode }</span></pre>
+      </div>
+
+      <h3>ComponentProps Utility Types</h3>
+      <p>Extract props from existing components or HTML elements:</p>
+
+      <div class="code-block">
+<pre><span class="keyword">import</span> <span class="keyword">type</span> { <span class="type">ComponentProps</span>, <span class="type">ComponentPropsWithRef</span>, <span class="type">ComponentPropsWithoutRef</span> } <span class="keyword">from</span> <span class="string">'react'</span>;
+
+<span class="comment">// Get props of HTML elements</span>
+<span class="keyword">type</span> <span class="type">ButtonHTMLProps</span> = <span class="type">ComponentProps</span>&lt;<span class="string">'button'</span>&gt;;
+<span class="keyword">type</span> <span class="type">InputHTMLProps</span> = <span class="type">ComponentProps</span>&lt;<span class="string">'input'</span>&gt;;
+<span class="keyword">type</span> <span class="type">DivHTMLProps</span> = <span class="type">ComponentProps</span>&lt;<span class="string">'div'</span>&gt;;
+
+<span class="comment">// Extend HTML element props</span>
+<span class="keyword">interface</span> <span class="type">CustomButtonProps</span> <span class="keyword">extends</span> <span class="type">ComponentPropsWithoutRef</span>&lt;<span class="string">'button'</span>&gt; {
+  <span class="variable">variant</span>: <span class="string">'primary'</span> | <span class="string">'secondary'</span>;
+  <span class="variable">isLoading</span>?: <span class="type">boolean</span>;
+}
+
+<span class="keyword">function</span> <span class="function">CustomButton</span>({ 
+  <span class="variable">variant</span>, 
+  <span class="variable">isLoading</span>, 
+  <span class="variable">children</span>, 
+  <span class="variable">className</span>,
+  ...<span class="variable">rest</span>  <span class="comment">// All other button props (onClick, disabled, etc.)</span>
+}: <span class="type">CustomButtonProps</span>) {
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">button</span>
+      <span class="attr">className</span>={<span class="string">`btn btn-</span>${<span class="variable">variant</span>}<span class="string"> </span>${<span class="variable">className</span> || <span class="string">''</span>}<span class="string">`</span>}
+      <span class="attr">disabled</span>={<span class="variable">isLoading</span>}
+      {...<span class="variable">rest</span|}
+    &gt;
+      {<span class="variable">isLoading</span> ? <span class="string">'Loading...'</span> : <span class="variable">children</span>}
+    &lt;/<span class="tag">button</span>&gt;
+  );
+}
+
+<span class="comment">// Get props of custom component</span>
+<span class="keyword">type</span> <span class="type">CustomButtonPropsFromComponent</span> = <span class="type">ComponentProps</span>&lt;<span class="keyword">typeof</span> <span class="variable">CustomButton</span>&gt;;
+
+<span class="comment">// Usage - has all button props plus custom ones</span>
+&lt;<span class="type">CustomButton</span>
+  <span class="attr">variant</span>=<span class="string">"primary"</span>
+  <span class="attr">onClick</span>={() => console.<span class="function">log</span>(<span class="string">'clicked'</span>)}
+  <span class="attr">type</span>=<span class="string">"submit"</span>
+  <span class="attr">disabled</span>={<span class="keyword">false</span>}
+&gt;
+  Submit
+&lt;/<span class="type">CustomButton</span>&gt;</pre>
+      </div>
+
+      <div class="alert alert-interview">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+          <h4>Interview Alert: ComponentPropsWithRef vs WithoutRef</h4>
+          <p><strong>ComponentPropsWithoutRef:</strong> Use when your component doesn't forward refs. This is most common.</p>
+          <p><strong>ComponentPropsWithRef:</strong> Use when your component forwards refs using forwardRef.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 6.3 -->
+    <div class="section">
+      <h2>6.3 Children Types Deep Dive</h2>
+
+      <div class="code-block">
+<pre><span class="keyword">import</span> <span class="keyword">type</span> { <span class="type">ReactNode</span>, <span class="type">ReactElement</span> } <span class="keyword">from</span> <span class="string">'react'</span>;
+
+<span class="comment">// 1. ReactNode - Most common and flexible</span>
+<span class="keyword">interface</span> <span class="type">ContainerProps</span> {
+  <span class="variable">children</span>: <span class="type">ReactNode</span>;
+}
+
+<span class="comment">// 2. ReactElement - Only JSX elements</span>
+<span class="keyword">interface</span> <span class="type">TabPanelProps</span> {
+  <span class="variable">children</span>: <span class="type">ReactElement</span>;  <span class="comment">// Must be single element</span>
+}
+
+<span class="comment">// 3. Array of elements</span>
+<span class="keyword">interface</span> <span class="type">TabsProps</span> {
+  <span class="variable">children</span>: <span class="type">ReactElement</span>[];  <span class="comment">// Must be array of elements</span>
+}
+
+<span class="comment">// 4. Specific element type</span>
+<span class="keyword">interface</span> <span class="type">NavProps</span> {
+  <span class="variable">children</span>: <span class="type">ReactElement</span>&lt;<span class="type">NavItemProps</span>&gt; | <span class="type">ReactElement</span>&lt;<span class="type">NavItemProps</span>&gt;[];
+}
+
+<span class="comment">// 5. Function as children (Render Props pattern)</span>
+<span class="keyword">interface</span> <span class="type">DataProviderProps</span>&lt;<span class="type">T</span>&gt; {
+  <span class="variable">url</span>: <span class="type">string</span>;
+  <span class="variable">children</span>: (<span class="variable">data</span>: <span class="type">T</span>, <span class="variable">loading</span>: <span class="type">boolean</span>, <span class="variable">error</span>: <span class="type">Error</span> | <span class="type">null</span>) => <span class="type">ReactNode</span>;
+}
+
+<span class="keyword">function</span> <span class="function">DataProvider</span>&lt;<span class="type">T</span>&gt;({ <span class="variable">url</span>, <span class="variable">children</span> }: <span class="type">DataProviderProps</span>&lt;<span class="type">T</span>&gt;) {
+  <span class="keyword">const</span> [<span class="variable">data</span>, <span class="variable">setData</span>] = <span class="function">useState</span>&lt;<span class="type">T</span> | <span class="type">null</span>&gt;(<span class="keyword">null</span>);
+  <span class="keyword">const</span> [<span class="variable">loading</span>, <span class="variable">setLoading</span>] = <span class="function">useState</span>(<span class="keyword">true</span>);
+  <span class="keyword">const</span> [<span class="variable">error</span>, <span class="variable">setError</span>] = <span class="function">useState</span>&lt;<span class="type">Error</span> | <span class="type">null</span>&gt;(<span class="keyword">null</span>);
+  
+  <span class="comment">// Fetch logic...</span>
+  
+  <span class="keyword">return</span> &lt;&gt;{<span class="function">children</span>(<span class="variable">data</span> <span class="keyword">as</span> <span class="type">T</span>, <span class="variable">loading</span>, <span class="variable">error</span>)}&lt;/&gt;;
+}
+
+<span class="comment">// Usage of function as children</span>
+&lt;<span class="type">DataProvider</span>&lt;<span class="type">User</span>[]&gt; <span class="attr">url</span>=<span class="string">"/api/users"</span>&gt;
+  {(<span class="variable">users</span>, <span class="variable">loading</span>, <span class="variable">error</span>) => (
+    &lt;<span class="tag">div</span>&gt;
+      {<span class="variable">loading</span> && &lt;<span class="tag">p</span>&gt;Loading...&lt;/<span class="tag">p</span>&gt;}
+      {<span class="variable">error</span> && &lt;<span class="tag">p</span>&gt;Error: {<span class="variable">error</span>.<span class="variable">message</span>}&lt;/<span class="tag">p</span>&gt;}
+      {<span class="variable">users</span> && <span class="variable">users</span>.<span class="function">map</span>(<span class="variable">u</span> => &lt;<span class="tag">div</span> <span class="attr">key</span>={<span class="variable">u</span>.<span class="variable">id</span>}&gt;{<span class="variable">u</span>.<span class="variable">name</span>}&lt;/<span class="tag">div</span>&gt;)}
+    &lt;/<span class="tag">div</span>&gt;
+  )}
+&lt;/<span class="type">DataProvider</span>&gt;</pre>
+      </div>
+    </div>
+
+    <!-- Section 6.4 -->
+    <div class="section">
+      <h2>6.4 Event Handler Types</h2>
+      
+      <p>React provides specific event types for type-safe event handling:</p>
+
+      <table>
+        <tr>
+          <th>Event Type</th>
+          <th>Use Case</th>
+        </tr>
+        <tr>
+          <td><code>React.MouseEvent&lt;HTMLElement&gt;</code></td>
+          <td>Click, double-click, mouse enter/leave</td>
+        </tr>
+        <tr>
+          <td><code>React.ChangeEvent&lt;HTMLInputElement&gt;</code></td>
+          <td>Input value changes</td>
+        </tr>
+        <tr>
+          <td><code>React.FormEvent&lt;HTMLFormElement&gt;</code></td>
+          <td>Form submission</td>
+        </tr>
+        <tr>
+          <td><code>React.KeyboardEvent&lt;HTMLElement&gt;</code></td>
+          <td>Key press, key down, key up</td>
+        </tr>
+        <tr>
+          <td><code>React.FocusEvent&lt;HTMLElement&gt;</code></td>
+          <td>Focus, blur</td>
+        </tr>
+        <tr>
+          <td><code>React.DragEvent&lt;HTMLElement&gt;</code></td>
+          <td>Drag and drop</td>
+        </tr>
+      </table>
+
+      <div class="code-block">
+<pre><span class="keyword">import</span> <span class="keyword">type</span> { 
+  <span class="type">MouseEvent</span>, 
+  <span class="type">ChangeEvent</span>, 
+  <span class="type">FormEvent</span>, 
+  <span class="type">KeyboardEvent</span>,
+  <span class="type">FocusEvent</span>
+} <span class="keyword">from</span> <span class="string">'react'</span>;
+
+<span class="keyword">function</span> <span class="function">EventExamples</span>() {
+  <span class="comment">// Mouse event</span>
+  <span class="keyword">const</span> <span class="function">handleClick</span> = (<span class="variable">e</span>: <span class="type">MouseEvent</span>&lt;<span class="type">HTMLButtonElement</span>&gt;) => {
+    console.<span class="function">log</span>(<span class="string">'Clicked at:'</span>, <span class="variable">e</span>.<span class="variable">clientX</span>, <span class="variable">e</span>.<span class="variable">clientY</span>);
+    console.<span class="function">log</span>(<span class="string">'Button:'</span>, <span class="variable">e</span>.<span class="variable">currentTarget</span>.<span class="variable">name</span>);
+  };
+
+  <span class="comment">// Change event - different element types</span>
+  <span class="keyword">const</span> <span class="function">handleInputChange</span> = (<span class="variable">e</span>: <span class="type">ChangeEvent</span>&lt;<span class="type">HTMLInputElement</span>&gt;) => {
+    console.<span class="function">log</span>(<span class="string">'Input value:'</span>, <span class="variable">e</span>.<span class="variable">target</span>.<span class="variable">value</span>);
+  };
+
+  <span class="keyword">const</span> <span class="function">handleSelectChange</span> = (<span class="variable">e</span>: <span class="type">ChangeEvent</span>&lt;<span class="type">HTMLSelectElement</span>&gt;) => {
+    console.<span class="function">log</span>(<span class="string">'Selected:'</span>, <span class="variable">e</span>.<span class="variable">target</span>.<span class="variable">value</span>);
+  };
+
+  <span class="keyword">const</span> <span class="function">handleTextareaChange</span> = (<span class="variable">e</span>: <span class="type">ChangeEvent</span>&lt;<span class="type">HTMLTextAreaElement</span>&gt;) => {
+    console.<span class="function">log</span>(<span class="string">'Textarea:'</span>, <span class="variable">e</span>.<span class="variable">target</span>.<span class="variable">value</span>);
+  };
+
+  <span class="comment">// Form submit</span>
+  <span class="keyword">const</span> <span class="function">handleSubmit</span> = (<span class="variable">e</span>: <span class="type">FormEvent</span>&lt;<span class="type">HTMLFormElement</span>&gt;) => {
+    <span class="variable">e</span>.<span class="function">preventDefault</span>();
+    <span class="keyword">const</span> <span class="variable">formData</span> = <span class="keyword">new</span> <span class="type">FormData</span>(<span class="variable">e</span>.<span class="variable">currentTarget</span>);
+    console.<span class="function">log</span>(<span class="string">'Form data:'</span>, <span class="type">Object</span>.<span class="function">fromEntries</span>(<span class="variable">formData</span>));
+  };
+
+  <span class="comment">// Keyboard event</span>
+  <span class="keyword">const</span> <span class="function">handleKeyDown</span> = (<span class="variable">e</span>: <span class="type">KeyboardEvent</span>&lt;<span class="type">HTMLInputElement</span>&gt;) => {
+    <span class="keyword">if</span> (<span class="variable">e</span>.<span class="variable">key</span> === <span class="string">'Enter'</span>) {
+      console.<span class="function">log</span>(<span class="string">'Enter pressed!'</span>);
+    }
+    <span class="keyword">if</span> (<span class="variable">e</span>.<span class="variable">key</span> === <span class="string">'Escape'</span>) {
+      <span class="variable">e</span>.<span class="variable">currentTarget</span>.<span class="function">blur</span>();
+    }
+  };
+
+  <span class="comment">// Focus event</span>
+  <span class="keyword">const</span> <span class="function">handleFocus</span> = (<span class="variable">e</span>: <span class="type">FocusEvent</span>&lt;<span class="type">HTMLInputElement</span>&gt;) => {
+    console.<span class="function">log</span>(<span class="string">'Focused:'</span>, <span class="variable">e</span>.<span class="variable">target</span>.<span class="variable">name</span>);
+  };
+
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">form</span> <span class="attr">onSubmit</span>={<span class="function">handleSubmit</span>}&gt;
+      &lt;<span class="tag">input</span>
+        <span class="attr">name</span>=<span class="string">"email"</span>
+        <span class="attr">onChange</span>={<span class="function">handleInputChange</span>}
+        <span class="attr">onKeyDown</span>={<span class="function">handleKeyDown</span>}
+        <span class="attr">onFocus</span>={<span class="function">handleFocus</span>}
+      /&gt;
+      &lt;<span class="tag">select</span> <span class="attr">onChange</span>={<span class="function">handleSelectChange</span>}&gt;
+        &lt;<span class="tag">option</span> <span class="attr">value</span>=<span class="string">"a"</span>&gt;A&lt;/<span class="tag">option</span>&gt;
+        &lt;<span class="tag">option</span> <span class="attr">value</span>=<span class="string">"b"</span>&gt;B&lt;/<span class="tag">option</span>&gt;
+      &lt;/<span class="tag">select</span>&gt;
+      &lt;<span class="tag">button</span> <span class="attr">name</span>=<span class="string">"submit"</span> <span class="attr">onClick</span>={<span class="function">handleClick</span>}&gt;Submit&lt;/<span class="tag">button</span>&gt;
+    &lt;/<span class="tag">form</span>&gt;
+  );
+}</pre>
+      </div>
+
+      <h3>Inline Event Handler Typing</h3>
+      <div class="code-block">
+<pre><span class="comment">// TypeScript infers the event type when inline</span>
+&lt;<span class="tag">button</span> <span class="attr">onClick</span>={(<span class="variable">e</span>) => {
+  <span class="comment">// e is automatically typed as MouseEvent&lt;HTMLButtonElement&gt;</span>
+  console.<span class="function">log</span>(<span class="variable">e</span>.<span class="variable">clientX</span>);
+}}&gt;
+  Click me
+&lt;/<span class="tag">button</span>&gt;
+
+&lt;<span class="tag">input</span> <span class="attr">onChange</span>={(<span class="variable">e</span>) => {
+  <span class="comment">// e is automatically typed as ChangeEvent&lt;HTMLInputElement&gt;</span>
+  console.<span class="function">log</span>(<span class="variable">e</span>.<span class="variable">target</span>.<span class="variable">value</span>);
+}} /&gt;</pre>
+      </div>
+    </div>
+
+    <!-- Section 6.5 -->
+    <div class="section">
+      <h2>6.5 Style Types</h2>
+
+      <div class="code-block">
+<pre><span class="keyword">import</span> <span class="keyword">type</span> { <span class="type">CSSProperties</span> } <span class="keyword">from</span> <span class="string">'react'</span>;
+
+<span class="keyword">interface</span> <span class="type">BoxProps</span> {
+  <span class="variable">style</span>?: <span class="type">CSSProperties</span>;  <span class="comment">// React's inline style type</span>
+  <span class="variable">className</span>?: <span class="type">string</span>;
+}
+
+<span class="keyword">function</span> <span class="function">Box</span>({ <span class="variable">style</span>, <span class="variable">className</span> }: <span class="type">BoxProps</span>) {
+  <span class="comment">// Default styles with type safety</span>
+  <span class="keyword">const</span> <span class="variable">defaultStyles</span>: <span class="type">CSSProperties</span> = {
+    <span class="variable">display</span>: <span class="string">'flex'</span>,
+    <span class="variable">flexDirection</span>: <span class="string">'column'</span>,
+    <span class="variable">padding</span>: <span class="number">16</span>,
+    <span class="variable">borderRadius</span>: <span class="number">8</span>,
+    <span class="variable">backgroundColor</span>: <span class="string">'#f0f0f0'</span>,
+    <span class="comment">// TypeScript catches typos!</span>
+    <span class="comment">// colour: 'red', // ❌ Error: 'colour' does not exist</span>
+  };
+
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">div</span> 
+      <span class="attr">className</span>={<span class="variable">className</span>} 
+      <span class="attr">style</span>={{ ...<span class="variable">defaultStyles</span>, ...<span class="variable">style</span> }}
+    /&gt;
+  );
+}
+
+<span class="comment">// Dynamic styles with type safety</span>
+<span class="keyword">interface</span> <span class="type">StyledBoxProps</span> {
+  <span class="variable">color</span>: <span class="string">'primary'</span> | <span class="string">'secondary'</span> | <span class="string">'danger'</span>;
+  <span class="variable">size</span>: <span class="string">'sm'</span> | <span class="string">'md'</span> | <span class="string">'lg'</span>;
+}
+
+<span class="keyword">function</span> <span class="function">StyledBox</span>({ <span class="variable">color</span>, <span class="variable">size</span> }: <span class="type">StyledBoxProps</span>) {
+  <span class="keyword">const</span> <span class="variable">colorMap</span>: <span class="type">Record</span>&lt;<span class="type">StyledBoxProps</span>[<span class="string">'color'</span>], <span class="type">string</span>&gt; = {
+    <span class="variable">primary</span>: <span class="string">'#3b82f6'</span>,
+    <span class="variable">secondary</span>: <span class="string">'#64748b'</span>,
+    <span class="variable">danger</span>: <span class="string">'#ef4444'</span>,
+  };
+
+  <span class="keyword">const</span> <span class="variable">sizeMap</span>: <span class="type">Record</span>&lt;<span class="type">StyledBoxProps</span>[<span class="string">'size'</span>], <span class="type">number</span>&gt; = {
+    <span class="variable">sm</span>: <span class="number">8</span>,
+    <span class="variable">md</span>: <span class="number">16</span>,
+    <span class="variable">lg</span>: <span class="number">24</span>,
+  };
+
+  <span class="keyword">const</span> <span class="variable">styles</span>: <span class="type">CSSProperties</span> = {
+    <span class="variable">backgroundColor</span>: <span class="variable">colorMap</span>[<span class="variable">color</span>],
+    <span class="variable">padding</span>: <span class="variable">sizeMap</span>[<span class="variable">size</span>],
+  };
+
+  <span class="keyword">return</span> &lt;<span class="tag">div</span> <span class="attr">style</span>={<span class="variable">styles</span>} /&gt;;
+}</pre>
+      </div>
+
+      <h3>CSS Modules with TypeScript</h3>
+      <div class="code-block">
+<pre><span class="comment">// styles.module.css.d.ts (auto-generated or manual)</span>
+<span class="keyword">declare</span> <span class="keyword">const</span> <span class="variable">styles</span>: {
+  <span class="keyword">readonly</span> <span class="variable">container</span>: <span class="type">string</span>;
+  <span class="keyword">readonly</span> <span class="variable">header</span>: <span class="type">string</span>;
+  <span class="keyword">readonly</span> <span class="variable">button</span>: <span class="type">string</span>;
+  <span class="keyword">readonly</span> <span class="variable">buttonPrimary</span>: <span class="type">string</span>;
+};
+<span class="keyword">export</span> <span class="keyword">default</span> <span class="variable">styles</span>;
+
+<span class="comment">// Component.tsx</span>
+<span class="keyword">import</span> <span class="variable">styles</span> <span class="keyword">from</span> <span class="string">'./styles.module.css'</span>;
+
+<span class="keyword">function</span> <span class="function">Component</span>() {
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">div</span> <span class="attr">className</span>={<span class="variable">styles</span>.<span class="variable">container</span>}&gt;
+      &lt;<span class="tag">h1</span> <span class="attr">className</span>={<span class="variable">styles</span>.<span class="variable">header</span>}&gt;Hello&lt;/<span class="tag">h1</span>&gt;
+      &lt;<span class="tag">button</span> <span class="attr">className</span>={<span class="string">`</span>${<span class="variable">styles</span>.<span class="variable">button</span>}<span class="string"> </span>${<span class="variable">styles</span>.<span class="variable">buttonPrimary</span>}<span class="string">`</span>}&gt;
+        Click me
+      &lt;/<span class="tag">button</span>&gt;
+    &lt;/<span class="tag">div</span>&gt;
+  );
+}</pre>
+      </div>
+
+      <div class="alert alert-tip">
+        <span class="alert-icon">💡</span>
+        <div class="alert-content">
+          <h4>Production Tip: Use typed-css-modules or css-modules-typescript-loader</h4>
+          <p>These tools auto-generate TypeScript declaration files for your CSS modules, giving you autocomplete and type checking for class names.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="section">
+      <h2>📋 Chapter 6 Summary</h2>
+      
+      <div class="visual-box">
+        <div class="visual-title">Key Takeaways</div>
+        <ul>
+          <li><strong>Prefer direct typing over React.FC</strong> - More flexible, supports generics</li>
+          <li><strong>Use ReactNode for children</strong> - Most flexible type for content</li>
+          <li><strong>ComponentPropsWithoutRef</strong> - Extend HTML element props easily</li>
+          <li><strong>Generic components</strong> - Create reusable, type-safe components</li>
+          <li><strong>Event types are element-specific</strong> - ChangeEvent&lt;HTMLInputElement&gt; vs ChangeEvent&lt;HTMLSelectElement&gt;</li>
+          <li><strong>CSSProperties</strong> - Type-safe inline styles</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="nav-btn">← Chapter 5</button>
+      <button class="nav-btn">Chapter 7: Hooks →</button>
+    </div>
+  </div>
+</body>
+</html>

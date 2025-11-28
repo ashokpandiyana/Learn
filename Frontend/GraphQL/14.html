@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 14: Security Best Practices</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e4e4e7;
+      line-height: 1.7;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #f472b6, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle { color: #a1a1aa; font-size: 1.1rem; margin-bottom: 40px; }
+    .section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    h2 {
+      color: #f472b6;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h3 { color: #818cf8; margin: 25px 0 15px; font-size: 1.2rem; }
+    p { margin-bottom: 15px; color: #d4d4d8; }
+    .code-block {
+      background: #0f0f23;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      border-left: 4px solid #818cf8;
+    }
+    .code-block code {
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 0.9rem;
+      color: #a5f3fc;
+      white-space: pre;
+    }
+    .comment { color: #6b7280; }
+    .keyword { color: #f472b6; }
+    .string { color: #86efac; }
+    .function { color: #fbbf24; }
+    .warning-box {
+      background: linear-gradient(135deg, rgba(251,191,36,0.1), rgba(245,158,11,0.05));
+      border: 1px solid rgba(251,191,36,0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .warning-box h4 { color: #fbbf24; margin-bottom: 10px; }
+    .danger-box {
+      background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(220,38,38,0.05));
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .danger-box h4 { color: #ef4444; margin-bottom: 10px; }
+    .diagram {
+      background: #0f0f23;
+      border-radius: 12px;
+      padding: 30px;
+      margin: 25px 0;
+      text-align: center;
+    }
+    .flow-diagram {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    .flow-box {
+      background: linear-gradient(135deg, #818cf8, #6366f1);
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-weight: 600;
+      min-width: 200px;
+    }
+    .flow-arrow {
+      color: #818cf8;
+      font-size: 1.5rem;
+    }
+    .flow-decision {
+      background: linear-gradient(135deg, #f472b6, #ec4899);
+      padding: 15px 30px;
+      border-radius: 10px;
+      transform: rotate(0deg);
+    }
+    .tip-box {
+      background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(22,163,74,0.05));
+      border: 1px solid rgba(34,197,94,0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .tip-box h4 { color: #22c55e; margin-bottom: 10px; }
+    ul { margin: 15px 0 15px 25px; }
+    li { margin-bottom: 10px; color: #d4d4d8; }
+    .highlight { color: #fbbf24; font-weight: 600; }
+    .attack-visual {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .attack-card {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .attack-card h4 { color: #ef4444; margin-bottom: 10px; }
+    .defense-card {
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.3);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .defense-card h4 { color: #22c55e; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔒 Chapter 14: Security Best Practices</h1>
+    <p class="subtitle">Protecting Your GraphQL Application from Common Vulnerabilities</p>
+
+    <div class="section">
+      <h2>🎯 14.1 Query Complexity & Depth Limiting</h2>
+      
+      <p>GraphQL's flexibility is a double-edged sword. While it allows clients to request exactly what they need, it also opens the door to <span class="highlight">denial-of-service attacks</span> through maliciously complex queries.</p>
+
+      <h3>The Problem: Deeply Nested Queries</h3>
+      <p>Unlike REST where each endpoint has a fixed cost, GraphQL allows clients to construct arbitrarily complex queries:</p>
+
+      <div class="danger-box">
+        <h4>⚠️ Dangerous Query Example</h4>
+        <p>This query could crash your server by creating exponential database joins:</p>
+      </div>
+
+      <div class="code-block">
+        <code><span class="comment"># This malicious query creates exponential complexity</span>
+<span class="keyword">query</span> <span class="function">DangerousQuery</span> {
+  users {              <span class="comment"># 100 users</span>
+    posts {            <span class="comment"># × 50 posts each = 5,000</span>
+      comments {       <span class="comment"># × 100 comments = 500,000</span>
+        author {       <span class="comment"># × 1 author = 500,000</span>
+          posts {      <span class="comment"># × 50 posts = 25,000,000</span>
+            comments { <span class="comment"># × 100 = 2,500,000,000 operations!</span>
+              content
+            }
+          }
+        }
+      }
+    }
+  }
+}</code>
+      </div>
+
+      <h3>Solution 1: Query Depth Limiting</h3>
+      <p>Limit how deeply queries can nest. Most legitimate queries rarely exceed 5-7 levels.</p>
+
+      <div class="code-block">
+        <code><span class="comment">// Server-side configuration (graphql-depth-limit)</span>
+<span class="keyword">import</span> depthLimit <span class="keyword">from</span> <span class="string">'graphql-depth-limit'</span>;
+
+<span class="keyword">const</span> server = <span class="keyword">new</span> <span class="function">ApolloServer</span>({
+  typeDefs,
+  resolvers,
+  validationRules: [<span class="function">depthLimit</span>(<span class="string">5</span>)], <span class="comment">// Max 5 levels deep</span>
+});</code>
+      </div>
+
+      <h3>Solution 2: Query Complexity Analysis</h3>
+      <p>Assign costs to fields and reject queries exceeding a threshold:</p>
+
+      <div class="code-block">
+        <code><span class="comment">// Define complexity costs in schema</span>
+<span class="keyword">type</span> User {
+  id: ID!
+  name: String!                    <span class="comment"># Cost: 1</span>
+  posts: [Post!]! <span class="function">@complexity</span>(value: 10)  <span class="comment"># Cost: 10 per item</span>
+}
+
+<span class="comment">// Server configuration</span>
+<span class="keyword">import</span> { <span class="function">createComplexityRule</span> } <span class="keyword">from</span> <span class="string">'graphql-query-complexity'</span>;
+
+<span class="keyword">const</span> complexityRule = <span class="function">createComplexityRule</span>({
+  maximumComplexity: <span class="string">1000</span>,
+  <span class="function">onComplete</span>: (complexity) => {
+    console.<span class="function">log</span>(<span class="string">`Query complexity: ${complexity}`</span>);
+  },
+});</code>
+      </div>
+
+      <div class="diagram">
+        <h4 style="color: #818cf8; margin-bottom: 20px;">Query Complexity Visualization</h4>
+        <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
+          <div style="text-align: center;">
+            <div style="background: #22c55e; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">50</div>
+            <div style="color: #22c55e;">Simple Query</div>
+            <div style="font-size: 0.8rem; color: #6b7280;">✓ Allowed</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="background: #fbbf24; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">500</div>
+            <div style="color: #fbbf24;">Moderate Query</div>
+            <div style="font-size: 0.8rem; color: #6b7280;">✓ Allowed</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="background: #ef4444; width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">5000+</div>
+            <div style="color: #ef4444;">Complex Query</div>
+            <div style="font-size: 0.8rem; color: #6b7280;">✗ Rejected</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🔐 14.2 Sensitive Data Handling</h2>
+
+      <p>GraphQL operations can contain sensitive information. Proper handling prevents data leaks:</p>
+
+      <div class="attack-visual">
+        <div class="attack-card">
+          <h4>🚨 Common Mistakes</h4>
+          <ul style="margin-left: 15px;">
+            <li>Logging full query variables</li>
+            <li>Exposing passwords in errors</li>
+            <li>Sending sensitive data to analytics</li>
+            <li>Storing tokens in plain text</li>
+          </ul>
+        </div>
+        <div class="defense-card">
+          <h4>✅ Best Practices</h4>
+          <ul style="margin-left: 15px;">
+            <li>Sanitize logs</li>
+            <li>Mask sensitive fields</li>
+            <li>Use environment variables</li>
+            <li>Encrypt at rest</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Safe Error Logging</h3>
+      <div class="code-block">
+        <code><span class="keyword">import</span> { onError } <span class="keyword">from</span> <span class="string">'@apollo/client/link/error'</span>;
+
+<span class="comment">// List of sensitive variable names to redact</span>
+<span class="keyword">const</span> SENSITIVE_FIELDS = [<span class="string">'password'</span>, <span class="string">'token'</span>, <span class="string">'secret'</span>, <span class="string">'creditCard'</span>];
+
+<span class="keyword">const</span> <span class="function">sanitizeVariables</span> = (variables) => {
+  <span class="keyword">if</span> (!variables) <span class="keyword">return</span> {};
+  
+  <span class="keyword">return</span> Object.<span class="function">keys</span>(variables).<span class="function">reduce</span>((acc, key) => {
+    acc[key] = SENSITIVE_FIELDS.<span class="function">some</span>(f => 
+      key.<span class="function">toLowerCase</span>().<span class="function">includes</span>(f)
+    ) ? <span class="string">'[REDACTED]'</span> : variables[key];
+    <span class="keyword">return</span> acc;
+  }, {});
+};
+
+<span class="keyword">const</span> errorLink = <span class="function">onError</span>(({ graphQLErrors, operation }) => {
+  <span class="keyword">if</span> (process.env.NODE_ENV === <span class="string">'production'</span>) {
+    <span class="comment">// Only log safe information</span>
+    <span class="function">logError</span>({
+      operationName: operation.operationName,
+      variables: <span class="function">sanitizeVariables</span>(operation.variables),
+      timestamp: <span class="keyword">new</span> <span class="function">Date</span>().<span class="function">toISOString</span>(),
+      <span class="comment">// Never log: full query text, raw variables, stack traces</span>
+    });
+  }
+});</code>
+      </div>
+
+      <div class="warning-box">
+        <h4>⚠️ Never Log These in Production</h4>
+        <ul>
+          <li><strong>Full query strings</strong> - May contain embedded sensitive values</li>
+          <li><strong>Raw variables</strong> - Often contain passwords, tokens, PII</li>
+          <li><strong>Response data</strong> - Could expose user data</li>
+          <li><strong>Stack traces</strong> - Reveal internal architecture</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🔄 14.3 Token Refresh Flow</h2>
+
+      <p>When JWT tokens expire, you need a seamless refresh mechanism that doesn't disrupt user experience:</p>
+
+      <div class="diagram">
+        <h4 style="color: #818cf8; margin-bottom: 25px;">Token Refresh Flow Diagram</h4>
+        <div class="flow-diagram">
+          <div class="flow-box">📤 Request with Expired Token</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-decision">🔍 Server Returns UNAUTHENTICATED</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-box">🔄 Error Link Catches Error</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-box">🎫 Call Refresh Token Endpoint</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-box">💾 Store New Token</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-box">🔁 Retry Original Request</div>
+          <div class="flow-arrow">↓</div>
+          <div style="background: linear-gradient(135deg, #22c55e, #16a34a); padding: 15px 30px; border-radius: 10px; font-weight: 600;">✅ Success!</div>
+        </div>
+      </div>
+
+      <h3>Complete Token Refresh Implementation</h3>
+      <div class="code-block">
+        <code><span class="keyword">import</span> { onError } <span class="keyword">from</span> <span class="string">'@apollo/client/link/error'</span>;
+<span class="keyword">import</span> { fromPromise, ApolloLink } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+
+<span class="comment">// Track refresh state to prevent multiple simultaneous refreshes</span>
+<span class="keyword">let</span> isRefreshing = <span class="keyword">false</span>;
+<span class="keyword">let</span> pendingRequests = [];
+
+<span class="comment">// Function to get new token from your auth server</span>
+<span class="keyword">const</span> <span class="function">refreshToken</span> = <span class="keyword">async</span> () => {
+  <span class="keyword">const</span> refreshToken = localStorage.<span class="function">getItem</span>(<span class="string">'refreshToken'</span>);
+  
+  <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/auth/refresh'</span>, {
+    method: <span class="string">'POST'</span>,
+    headers: { <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span> },
+    body: JSON.<span class="function">stringify</span>({ refreshToken }),
+  });
+  
+  <span class="keyword">if</span> (!response.ok) {
+    <span class="keyword">throw new</span> <span class="function">Error</span>(<span class="string">'Refresh failed'</span>);
+  }
+  
+  <span class="keyword">const</span> { accessToken, refreshToken: newRefresh } = <span class="keyword">await</span> response.<span class="function">json</span>();
+  localStorage.<span class="function">setItem</span>(<span class="string">'token'</span>, accessToken);
+  localStorage.<span class="function">setItem</span>(<span class="string">'refreshToken'</span>, newRefresh);
+  
+  <span class="keyword">return</span> accessToken;
+};
+
+<span class="comment">// Resolve all pending requests after token refresh</span>
+<span class="keyword">const</span> <span class="function">resolvePendingRequests</span> = () => {
+  pendingRequests.<span class="function">forEach</span>(callback => <span class="function">callback</span>());
+  pendingRequests = [];
+};
+
+<span class="keyword">const</span> errorLink = <span class="function">onError</span>(({ graphQLErrors, operation, forward }) => {
+  <span class="keyword">if</span> (graphQLErrors) {
+    <span class="keyword">for</span> (<span class="keyword">const</span> err <span class="keyword">of</span> graphQLErrors) {
+      <span class="keyword">if</span> (err.extensions?.code === <span class="string">'UNAUTHENTICATED'</span>) {
+        
+        <span class="comment">// If already refreshing, queue this request</span>
+        <span class="keyword">if</span> (isRefreshing) {
+          <span class="keyword">return</span> <span class="function">fromPromise</span>(
+            <span class="keyword">new</span> <span class="function">Promise</span>(resolve => {
+              pendingRequests.<span class="function">push</span>(() => <span class="function">resolve</span>());
+            })
+          ).<span class="function">flatMap</span>(() => <span class="function">forward</span>(operation));
+        }
+
+        isRefreshing = <span class="keyword">true</span>;
+
+        <span class="keyword">return</span> <span class="function">fromPromise</span>(
+          <span class="function">refreshToken</span>()
+            .<span class="function">then</span>(newToken => {
+              <span class="comment">// Update operation context with new token</span>
+              <span class="keyword">const</span> oldHeaders = operation.<span class="function">getContext</span>().headers;
+              operation.<span class="function">setContext</span>({
+                headers: {
+                  ...oldHeaders,
+                  authorization: <span class="string">`Bearer ${newToken}`</span>,
+                },
+              });
+              
+              <span class="comment">// Resolve all queued requests</span>
+              <span class="function">resolvePendingRequests</span>();
+              <span class="keyword">return</span> newToken;
+            })
+            .<span class="function">catch</span>(error => {
+              pendingRequests = [];
+              <span class="comment">// Redirect to login on refresh failure</span>
+              window.location.href = <span class="string">'/login'</span>;
+              <span class="keyword">throw</span> error;
+            })
+            .<span class="function">finally</span>(() => {
+              isRefreshing = <span class="keyword">false</span>;
+            })
+        ).<span class="function">flatMap</span>(() => <span class="function">forward</span>(operation));
+      }
+    }
+  }
+});</code>
+      </div>
+
+      <div class="tip-box">
+        <h4>💡 Key Implementation Details</h4>
+        <ul>
+          <li><strong>Queue pending requests:</strong> While refreshing, queue other failing requests instead of triggering multiple refreshes</li>
+          <li><strong>Use fromPromise:</strong> Converts async operations to Observable for Apollo Link chain</li>
+          <li><strong>Retry with forward:</strong> Re-executes the original operation after token refresh</li>
+          <li><strong>Handle refresh failure:</strong> Redirect to login if refresh token is also expired</li>
+        </ul>
+      </div>
+
+      <h3>Auth Link Setup</h3>
+      <div class="code-block">
+        <code><span class="keyword">import</span> { setContext } <span class="keyword">from</span> <span class="string">'@apollo/client/link/context'</span>;
+
+<span class="keyword">const</span> authLink = <span class="function">setContext</span>((_, { headers }) => {
+  <span class="keyword">const</span> token = localStorage.<span class="function">getItem</span>(<span class="string">'token'</span>);
+  
+  <span class="keyword">return</span> {
+    headers: {
+      ...headers,
+      authorization: token ? <span class="string">`Bearer ${token}`</span> : <span class="string">''</span>,
+    },
+  };
+});
+
+<span class="comment">// Complete client setup with proper link order</span>
+<span class="keyword">const</span> client = <span class="keyword">new</span> <span class="function">ApolloClient</span>({
+  link: <span class="function">from</span>([
+    errorLink,    <span class="comment">// 1. Catch errors first</span>
+    authLink,     <span class="comment">// 2. Add auth headers</span>
+    retryLink,    <span class="comment">// 3. Retry logic</span>
+    httpLink,     <span class="comment">// 4. Make HTTP request</span>
+  ]),
+  cache: <span class="keyword">new</span> <span class="function">InMemoryCache</span>(),
+});</code>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

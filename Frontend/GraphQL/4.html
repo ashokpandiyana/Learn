@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 4: Queries with useQuery</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      color: #e4e4e7;
+      line-height: 1.7;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 950px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #f472b6, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle { color: #a1a1aa; font-size: 1.1rem; margin-bottom: 40px; }
+    h2 {
+      color: #f472b6;
+      font-size: 1.6rem;
+      margin: 40px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #3f3f46;
+    }
+    h3 { color: #f9a8d4; font-size: 1.2rem; margin: 25px 0 15px; }
+    h4 { color: #fbcfe8; font-size: 1rem; margin: 20px 0 10px; }
+    p { margin-bottom: 15px; color: #d4d4d8; }
+    .highlight-box {
+      background: linear-gradient(135deg, #831843 0%, #500724 100%);
+      border-left: 4px solid #f472b6;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .warning-box {
+      background: linear-gradient(135deg, #78350f 0%, #451a03 100%);
+      border-left: 4px solid #f59e0b;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .warning-box::before { content: "⚠️ INTERVIEW HIGHLIGHT: "; font-weight: bold; color: #fbbf24; }
+    .tip-box {
+      background: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+      border-left: 4px solid #10b981;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .tip-box::before { content: "📝 PRODUCTION TIP: "; font-weight: bold; color: #34d399; }
+    .concept-box {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e1b4b 100%);
+      border-left: 4px solid #3b82f6;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .concept-box::before { content: "💡 KEY CONCEPT: "; font-weight: bold; color: #60a5fa; }
+    pre {
+      background: #0a0a1a;
+      border: 1px solid #3f3f46;
+      border-radius: 12px;
+      padding: 20px;
+      overflow-x: auto;
+      margin: 15px 0;
+      font-size: 0.88rem;
+    }
+    code { font-family: 'Fira Code', 'Consolas', monospace; }
+    .inline-code {
+      background: #3f3f46;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+    .keyword { color: #c084fc; }
+    .type { color: #38bdf8; }
+    .string { color: #4ade80; }
+    .comment { color: #6b7280; font-style: italic; }
+    .field { color: #fbbf24; }
+    .function { color: #f472b6; }
+    .const { color: #fb923c; }
+    .param { color: #67e8f9; }
+    .diagram {
+      background: #0a0a1a;
+      border-radius: 12px;
+      padding: 30px;
+      margin: 20px 0;
+      text-align: center;
+      overflow-x: auto;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: #1e293b;
+      border-radius: 12px;
+      overflow: hidden;
+      font-size: 0.9rem;
+    }
+    .comparison-table th {
+      background: linear-gradient(90deg, #be185d, #7c3aed);
+      padding: 14px;
+      text-align: left;
+      font-weight: 600;
+    }
+    .comparison-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #334155;
+    }
+    .comparison-table tr:last-child td { border-bottom: none; }
+    .comparison-table code { background: #374151; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
+    ul, ol { margin: 15px 0 15px 25px; }
+    li { margin: 8px 0; color: #d4d4d8; }
+    .return-value {
+      display: inline-block;
+      background: linear-gradient(90deg, #7c3aed, #db2777);
+      padding: 3px 10px;
+      border-radius: 15px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    .option-card {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      border: 1px solid #374151;
+      border-radius: 12px;
+      padding: 18px;
+      margin: 12px 0;
+    }
+    .option-card h4 {
+      color: #f472b6;
+      margin: 0 0 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .option-card p { margin: 0; font-size: 0.9rem; color: #9ca3af; }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .badge-required { background: #dc2626; color: white; }
+    .badge-common { background: #059669; color: white; }
+    .badge-advanced { background: #7c3aed; color: white; }
+    .chapter-nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 1px solid #3f3f46;
+    }
+    .nav-btn {
+      padding: 12px 24px;
+      background: linear-gradient(90deg, #be185d, #7c3aed);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .state-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+    .state-box {
+      padding: 15px 25px;
+      border-radius: 10px;
+      text-align: center;
+      min-width: 120px;
+    }
+    .state-arrow { color: #6b7280; font-size: 1.5rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Chapter 4</h1>
+    <p class="subtitle">Queries with useQuery — Fetching Data the Declarative Way</p>
+
+    <!-- Section 4.1 -->
+    <h2>4.1 Introduction to useQuery</h2>
+    
+    <p><code class="inline-code">useQuery</code> is the primary hook for fetching data in Apollo Client. It's declarative — you describe what data you need, and Apollo handles the fetching, caching, loading states, and re-rendering.</p>
+
+    <div class="highlight-box">
+      <strong>The Magic of useQuery:</strong> When you call useQuery, Apollo Client automatically:
+      <ul style="margin-top: 10px;">
+        <li>Checks the cache first (based on fetch policy)</li>
+        <li>Makes the network request if needed</li>
+        <li>Manages loading/error states</li>
+        <li>Caches the response</li>
+        <li>Re-renders your component when data changes</li>
+      </ul>
+    </div>
+
+    <h3>Basic Syntax</h3>
+    <pre><code><span class="keyword">import</span> { <span class="type">useQuery</span>, <span class="type">gql</span> } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+
+<span class="comment">// Define query outside component (prevents recreation)</span>
+<span class="keyword">const</span> <span class="const">GET_USERS</span> = <span class="function">gql</span><span class="string">`
+  query GetUsers {
+    users {
+      id
+      name
+      email
+    }
+  }
+`</span>;
+
+<span class="keyword">function</span> <span class="function">UserList</span>() {
+  <span class="comment">// Execute query and get result object</span>
+  <span class="keyword">const</span> { <span class="field">loading</span>, <span class="field">error</span>, <span class="field">data</span> } = <span class="function">useQuery</span>(<span class="const">GET_USERS</span>);
+
+  <span class="comment">// Handle loading state</span>
+  <span class="keyword">if</span> (loading) <span class="keyword">return</span> <span class="keyword">&lt;</span>LoadingSpinner <span class="keyword">/&gt;</span>;
+  
+  <span class="comment">// Handle error state</span>
+  <span class="keyword">if</span> (error) <span class="keyword">return</span> <span class="keyword">&lt;</span>ErrorMessage message={error.message} <span class="keyword">/&gt;</span>;
+
+  <span class="comment">// Render data</span>
+  <span class="keyword">return</span> (
+    <span class="keyword">&lt;</span>ul<span class="keyword">&gt;</span>
+      {data.users.<span class="function">map</span>(user => (
+        <span class="keyword">&lt;</span>li <span class="field">key</span>={user.id}<span class="keyword">&gt;</span>{user.name} - {user.email}<span class="keyword">&lt;/</span>li<span class="keyword">&gt;</span>
+      ))}
+    <span class="keyword">&lt;/</span>ul<span class="keyword">&gt;</span>
+  );
+}</code></pre>
+
+    <!-- Section 4.2 -->
+    <h2>4.2 useQuery Return Values — Complete Reference</h2>
+
+    <p>The <code class="inline-code">useQuery</code> hook returns an object with many useful properties:</p>
+
+    <table class="comparison-table">
+      <tr>
+        <th>Property</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td><code>data</code></td>
+        <td>Object | undefined</td>
+        <td>The query result. Undefined until query completes.</td>
+      </tr>
+      <tr>
+        <td><code>loading</code></td>
+        <td>boolean</td>
+        <td>True while query is in flight (first load)</td>
+      </tr>
+      <tr>
+        <td><code>error</code></td>
+        <td>ApolloError | undefined</td>
+        <td>Error object if query failed</td>
+      </tr>
+      <tr>
+        <td><code>networkStatus</code></td>
+        <td>NetworkStatus (1-8)</td>
+        <td>Detailed loading state (requires notifyOnNetworkStatusChange)</td>
+      </tr>
+      <tr>
+        <td><code>refetch</code></td>
+        <td>Function</td>
+        <td>Re-execute query with same or new variables</td>
+      </tr>
+      <tr>
+        <td><code>fetchMore</code></td>
+        <td>Function</td>
+        <td>Fetch additional data (pagination)</td>
+      </tr>
+      <tr>
+        <td><code>startPolling</code></td>
+        <td>Function</td>
+        <td>Start polling at interval (ms)</td>
+      </tr>
+      <tr>
+        <td><code>stopPolling</code></td>
+        <td>Function</td>
+        <td>Stop polling</td>
+      </tr>
+      <tr>
+        <td><code>subscribeToMore</code></td>
+        <td>Function</td>
+        <td>Add subscription to query results</td>
+      </tr>
+      <tr>
+        <td><code>previousData</code></td>
+        <td>Object | undefined</td>
+        <td>Previous result (useful during refetch)</td>
+      </tr>
+      <tr>
+        <td><code>called</code></td>
+        <td>boolean</td>
+        <td>Whether query has been executed</td>
+      </tr>
+      <tr>
+        <td><code>client</code></td>
+        <td>ApolloClient</td>
+        <td>The Apollo Client instance</td>
+      </tr>
+    </table>
+
+    <!-- Section 4.3 -->
+    <h2>4.3 Queries with Variables</h2>
+
+    <p>Most real-world queries need variables. Here's how to pass them:</p>
+
+    <pre><code><span class="keyword">const</span> <span class="const">GET_USER</span> = <span class="function">gql</span><span class="string">`
+  query GetUser($id: ID!) {
+    user(id: $id) {
+      id
+      name
+      email
+      avatar
+      posts {
+        id
+        title
+        createdAt
+      }
+    }
+  }
+`</span>;
+
+<span class="keyword">function</span> <span class="function">UserProfile</span>({ <span class="param">userId</span> }) {
+  <span class="keyword">const</span> { loading, error, data } = <span class="function">useQuery</span>(<span class="const">GET_USER</span>, {
+    <span class="field">variables</span>: { 
+      <span class="field">id</span>: userId 
+    },
+  });
+
+  <span class="keyword">if</span> (loading) <span class="keyword">return</span> <span class="keyword">&lt;</span>ProfileSkeleton <span class="keyword">/&gt;</span>;
+  <span class="keyword">if</span> (error) <span class="keyword">return</span> <span class="keyword">&lt;</span>Error message={error.message} <span class="keyword">/&gt;</span>;
+  <span class="keyword">if</span> (!data?.user) <span class="keyword">return</span> <span class="keyword">&lt;</span>NotFound <span class="keyword">/&gt;</span>;
+
+  <span class="keyword">return</span> (
+    <span class="keyword">&lt;</span>div<span class="keyword">&gt;</span>
+      <span class="keyword">&lt;</span>img <span class="field">src</span>={data.user.avatar} <span class="field">alt</span>={data.user.name} <span class="keyword">/&gt;</span>
+      <span class="keyword">&lt;</span>h1<span class="keyword">&gt;</span>{data.user.name}<span class="keyword">&lt;/</span>h1<span class="keyword">&gt;</span>
+      <span class="keyword">&lt;</span>p<span class="keyword">&gt;</span>{data.user.email}<span class="keyword">&lt;/</span>p<span class="keyword">&gt;</span>
+      <span class="keyword">&lt;</span>h2<span class="keyword">&gt;</span>Posts ({data.user.posts.length})<span class="keyword">&lt;/</span>h2<span class="keyword">&gt;</span>
+      {data.user.posts.<span class="function">map</span>(post => (
+        <span class="keyword">&lt;</span>PostCard <span class="field">key</span>={post.id} <span class="field">post</span>={post} <span class="keyword">/&gt;</span>
+      ))}
+    <span class="keyword">&lt;/</span>div<span class="keyword">&gt;</span>
+  );
+}</code></pre>
+
+    <div class="concept-box">
+      When variables change, Apollo automatically re-fetches the query with the new variables. The cache key includes both the query AND the variables, so different variable combinations are cached separately.
+    </div>
+
+    <!-- Section 4.4 -->
+    <h2>4.4 Fetch Policies — Controlling Cache Behavior</h2>
+
+    <p>Fetch policies determine how the query interacts with the cache. This is one of the most important concepts for interviews!</p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg">
+        <text x="400" y="25" fill="#e4e4e7" font-size="16" font-weight="bold" text-anchor="middle">Fetch Policy Decision Flow</text>
+        
+        <!-- cache-first -->
+        <rect x="20" y="50" width="230" height="80" rx="10" fill="#1e40af" stroke="#3b82f6" stroke-width="2"/>
+        <text x="135" y="75" fill="#60a5fa" font-size="12" font-weight="bold" text-anchor="middle">cache-first (DEFAULT)</text>
+        <text x="135" y="95" fill="#94a3b8" font-size="10" text-anchor="middle">Cache hit? → Return cached</text>
+        <text x="135" y="110" fill="#94a3b8" font-size="10" text-anchor="middle">Cache miss? → Fetch network</text>
+        <text x="135" y="125" fill="#4ade80" font-size="9" text-anchor="middle">✓ Best for mostly static data</text>
+        
+        <!-- cache-and-network -->
+        <rect x="280" y="50" width="230" height="80" rx="10" fill="#065f46" stroke="#10b981" stroke-width="2"/>
+        <text x="395" y="75" fill="#34d399" font-size="12" font-weight="bold" text-anchor="middle">cache-and-network</text>
+        <text x="395" y="95" fill="#94a3b8" font-size="10" text-anchor="middle">Return cache immediately</text>
+        <text x="395" y="110" fill="#94a3b8" font-size="10" text-anchor="middle">THEN fetch & update</text>
+        <text x="395" y="125" fill="#4ade80" font-size="9" text-anchor="middle">✓ Best UX - fast + fresh</text>
+        
+        <!-- network-only -->
+        <rect x="540" y="50" width="230" height="80" rx="10" fill="#7c2d12" stroke="#f97316" stroke-width="2"/>
+        <text x="655" y="75" fill="#fb923c" font-size="12" font-weight="bold" text-anchor="middle">network-only</text>
+        <text x="655" y="95" fill="#94a3b8" font-size="10" text-anchor="middle">Always fetch from network</text>
+        <text x="655" y="110" fill="#94a3b8" font-size="10" text-anchor="middle">Still updates cache</text>
+        <text x="655" y="125" fill="#4ade80" font-size="9" text-anchor="middle">✓ Always fresh, still cached</text>
+        
+        <!-- cache-only -->
+        <rect x="20" y="160" width="230" height="80" rx="10" fill="#4c1d95" stroke="#a78bfa" stroke-width="2"/>
+        <text x="135" y="185" fill="#c4b5fd" font-size="12" font-weight="bold" text-anchor="middle">cache-only</text>
+        <text x="135" y="205" fill="#94a3b8" font-size="10" text-anchor="middle">Read from cache ONLY</text>
+        <text x="135" y="220" fill="#94a3b8" font-size="10" text-anchor="middle">Never makes network request</text>
+        <text x="135" y="235" fill="#4ade80" font-size="9" text-anchor="middle">✓ Offline mode / local state</text>
+        
+        <!-- no-cache -->
+        <rect x="280" y="160" width="230" height="80" rx="10" fill="#7f1d1d" stroke="#ef4444" stroke-width="2"/>
+        <text x="395" y="185" fill="#f87171" font-size="12" font-weight="bold" text-anchor="middle">no-cache</text>
+        <text x="395" y="205" fill="#94a3b8" font-size="10" text-anchor="middle">Always fetch from network</text>
+        <text x="395" y="220" fill="#94a3b8" font-size="10" text-anchor="middle">Does NOT update cache</text>
+        <text x="395" y="235" fill="#4ade80" font-size="9" text-anchor="middle">✓ Sensitive/real-time data</text>
+        
+        <!-- standby -->
+        <rect x="540" y="160" width="230" height="80" rx="10" fill="#374151" stroke="#6b7280" stroke-width="2"/>
+        <text x="655" y="185" fill="#9ca3af" font-size="12" font-weight="bold" text-anchor="middle">standby</text>
+        <text x="655" y="205" fill="#94a3b8" font-size="10" text-anchor="middle">Like cache-first BUT</text>
+        <text x="655" y="220" fill="#94a3b8" font-size="10" text-anchor="middle">Won't auto-update from cache</text>
+        <text x="655" y="235" fill="#4ade80" font-size="9" text-anchor="middle">✓ Manual control needed</text>
+
+        <!-- Recommendation -->
+        <rect x="150" y="270" width="500" height="40" rx="8" fill="#1f2937" stroke="#f472b6" stroke-width="2"/>
+        <text x="400" y="295" fill="#f472b6" font-size="12" font-weight="bold" text-anchor="middle">💡 RECOMMENDATION: Use "cache-and-network" for best UX in most cases</text>
+      </svg>
+    </div>
+
+    <h3>Fetch Policy Usage Examples</h3>
+
+    <pre><code><span class="comment">// Default: cache-first</span>
+<span class="keyword">const</span> { data } = <span class="function">useQuery</span>(<span class="const">GET_USERS</span>);
+
+<span class="comment">// Show cached data immediately, then update with fresh data</span>
+<span class="keyword">const</span> { data } = <span class="function">useQuery</span>(<span class="const">GET_USERS</span>, {
+  <span class="field">fetchPolicy</span>: <span class="string">'cache-and-network'</span>,
+});
+
+<span class="comment">// Always get fresh data (e.g., for dashboards)</span>
+<span class="keyword">const</span> { data } = <span class="function">useQuery</span>(<span class="const">GET_DASHBOARD_STATS</span>, {
+  <span class="field">fetchPolicy</span>: <span class="string">'network-only'</span>,
+});
+
+<span class="comment">// Never cache (e.g., sensitive user data)</span>
+<span class="keyword">const</span> { data } = <span class="function">useQuery</span>(<span class="const">GET_BANK_BALANCE</span>, {
+  <span class="field">fetchPolicy</span>: <span class="string">'no-cache'</span>,
+});
+
+<span class="comment">// Read from cache only (offline support)</span>
+<span class="keyword">const</span> { data } = <span class="function">useQuery</span>(<span class="const">GET_CACHED_SETTINGS</span>, {
+  <span class="field">fetchPolicy</span>: <span class="string">'cache-only'</span>,
+});</code></pre>
+
+    <div class="warning-box">
+      <strong>cache-and-network</strong> is the best choice for most UIs. It shows cached data instantly (great perceived performance) while fetching fresh data in the background. The UI updates automatically when new data arrives.
+    </div>
+
+    <h3>nextFetchPolicy — Change Policy After First Fetch</h3>
+
+    <pre><code><span class="comment">// First fetch: always go to network</span>
+<span class="comment">// Subsequent reads: use cache</span>
+<span class="keyword">const</span> { data } = <span class="function">useQuery</span>(<span class="const">GET_NOTIFICATIONS</span>, {
+  <span class="field">fetchPolicy</span>: <span class="string">'network-only'</span>,      <span class="comment">// First fetch</span>
+  <span class="field">nextFetchPolicy</span>: <span class="string">'cache-first'</span>,   <span class="comment">// After first fetch</span>
+});</code></pre>
+
+    <!-- Section 4.5 -->
+    <h2>4.5 Network Status — Granular Loading States</h2>
+
+    <p>For more detailed loading information, use <code class="inline-code">networkStatus</code> with <code class="inline-code">notifyOnNetworkStatusChange</code>:</p>
+
+    <pre><code><span class="keyword">import</span> { <span class="type">useQuery</span>, <span class="type">NetworkStatus</span> } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+
+<span class="keyword">function</span> <span class="function">UserList</span>() {
+  <span class="keyword">const</span> { data, networkStatus, refetch } = <span class="function">useQuery</span>(<span class="const">GET_USERS</span>, {
+    <span class="field">notifyOnNetworkStatusChange</span>: <span class="keyword">true</span>,  <span class="comment">// Enable detailed status</span>
+  });
+
+  <span class="comment">// Different UI for different states</span>
+  <span class="keyword">if</span> (networkStatus === NetworkStatus.<span class="const">loading</span>) {
+    <span class="keyword">return</span> <span class="keyword">&lt;</span>InitialLoader <span class="keyword">/&gt;</span>;  <span class="comment">// First load</span>
+  }
+  
+  <span class="keyword">if</span> (networkStatus === NetworkStatus.<span class="const">refetch</span>) {
+    <span class="keyword">return</span> <span class="keyword">&lt;</span>RefetchingIndicator <span class="keyword">/&gt;</span>;  <span class="comment">// Refetching</span>
+  }
+  
+  <span class="keyword">if</span> (networkStatus === NetworkStatus.<span class="const">poll</span>) {
+    <span class="comment">// Show data + subtle polling indicator</span>
+    <span class="keyword">return</span> <span class="keyword">&lt;</span>DataWithPollingBadge data={data} <span class="keyword">/&gt;</span>;
+  }
+
+  <span class="keyword">return</span> <span class="keyword">&lt;</span>UserGrid users={data.users} <span class="keyword">/&gt;</span>;
+}</code></pre>
+
+    <table class="comparison-table">
+      <tr>
+        <th>NetworkStatus</th>
+        <th>Value</th>
+        <th>Meaning</th>
+      </tr>
+      <tr><td><code>loading</code></td><td>1</td><td>Initial loading (no data yet)</td></tr>
+      <tr><td><code>setVariables</code></td><td>2</td><td>Variables changed, refetching</td></tr>
+      <tr><td><code>fetchMore</code></td><td>3</td><td>Fetching more (pagination)</td></tr>
+      <tr><td><code>refetch</code></td><td>4</td><td>Refetch triggered</td></tr>
+      <tr><td><code>poll</code></td><td>6</td><td>Polling in progress</td></tr>
+      <tr><td><code>ready</code></td><td>7</td><td>Query complete, data ready</td></tr>
+      <tr><td><code>error</code></td><td>8</td><td>Error occurred</td></tr>
+    </table>
+
+    <!-- Section 4.6 -->
+    <h2>4.6 Polling — Automatic Refresh</h2>
+
+    <p>Polling automatically re-executes your query at a specified interval:</p>
+
+    <pre><code><span class="keyword">function</span> <span class="function">LiveDashboard</span>() {
+  <span class="keyword">const</span> { data, startPolling, stopPolling } = <span class="function">useQuery</span>(<span class="const">GET_METRICS</span>, {
+    <span class="field">pollInterval</span>: 5000,  <span class="comment">// Poll every 5 seconds</span>
+  });
+
+  <span class="comment">// Or control polling dynamically</span>
+  <span class="keyword">const</span> <span class="function">handleVisibilityChange</span> = () => {
+    <span class="keyword">if</span> (document.hidden) {
+      <span class="function">stopPolling</span>();  <span class="comment">// Stop when tab not visible</span>
+    } <span class="keyword">else</span> {
+      <span class="function">startPolling</span>(5000);  <span class="comment">// Resume when visible</span>
+    }
+  };
+
+  <span class="function">useEffect</span>(() => {
+    document.<span class="function">addEventListener</span>(<span class="string">'visibilitychange'</span>, handleVisibilityChange);
+    <span class="keyword">return</span> () => {
+      document.<span class="function">removeEventListener</span>(<span class="string">'visibilitychange'</span>, handleVisibilityChange);
+    };
+  }, []);
+
+  <span class="keyword">return</span> <span class="keyword">&lt;</span>MetricsDashboard data={data} <span class="keyword">/&gt;</span>;
+}</code></pre>
+
+    <div class="tip-box">
+      Always stop polling when the component unmounts or when the tab is not visible. This prevents unnecessary network requests and battery drain on mobile devices.
+    </div>
+
+    <!-- Section 4.7 -->
+    <h2>4.7 Refetch — Manual Re-fetching</h2>
+
+    <pre><code><span class="keyword">function</span> <span class="function">UserList</span>() {
+  <span class="keyword">const</span> { data, loading, refetch } = <span class="function">useQuery</span>(<span class="const">GET_USERS</span>);
+
+  <span class="keyword">const</span> <span class="function">handleRefresh</span> = <span class="keyword">async</span> () => {
+    <span class="keyword">try</span> {
+      <span class="keyword">await</span> <span class="function">refetch</span>();  <span class="comment">// Same variables</span>
+      <span class="function">showToast</span>(<span class="string">'Data refreshed!'</span>);
+    } <span class="keyword">catch</span> (err) {
+      <span class="function">showToast</span>(<span class="string">'Refresh failed'</span>);
+    }
+  };
+
+  <span class="comment">// Refetch with new variables</span>
+  <span class="keyword">const</span> <span class="function">handleFilterChange</span> = (status) => {
+    <span class="function">refetch</span>({ <span class="field">status</span> });  <span class="comment">// Pass new variables</span>
+  };
+
+  <span class="keyword">return</span> (
+    <span class="keyword">&lt;</span>div<span class="keyword">&gt;</span>
+      <span class="keyword">&lt;</span>button <span class="field">onClick</span>={handleRefresh} <span class="field">disabled</span>={loading}<span class="keyword">&gt;</span>
+        {loading ? <span class="string">'Refreshing...'</span> : <span class="string">'Refresh'</span>}
+      <span class="keyword">&lt;/</span>button<span class="keyword">&gt;</span>
+      <span class="keyword">&lt;</span>UserGrid users={data?.users} <span class="keyword">/&gt;</span>
+    <span class="keyword">&lt;/</span>div<span class="keyword">&gt;</span>
+  );
+}</code></pre>
+
+    <!-- Section 4.8 -->
+    <h2>4.8 Skip — Conditional Queries</h2>
+
+    <p>Use <code class="inline-code">skip</code> to conditionally prevent a query from executing:</p>
+
+    <pre><code><span class="keyword">function</span> <span class="function">UserProfile</span>({ <span class="param">userId</span> }) {
+  <span class="comment">// Don't fetch until we have a userId</span>
+  <span class="keyword">const</span> { data, loading } = <span class="function">useQuery</span>(<span class="const">GET_USER</span>, {
+    <span class="field">variables</span>: { <span class="field">id</span>: userId },
+    <span class="field">skip</span>: !userId,  <span class="comment">// Skip if no userId</span>
+  });
+
+  <span class="keyword">if</span> (!userId) <span class="keyword">return</span> <span class="keyword">&lt;</span>SelectUserPrompt <span class="keyword">/&gt;</span>;
+  <span class="keyword">if</span> (loading) <span class="keyword">return</span> <span class="keyword">&lt;</span>Spinner <span class="keyword">/&gt;</span>;
+  
+  <span class="keyword">return</span> <span class="keyword">&lt;</span>Profile user={data?.user} <span class="keyword">/&gt;</span>;
+}
+
+<span class="comment">// Another example: Feature flag</span>
+<span class="keyword">function</span> <span class="function">PremiumFeatures</span>({ <span class="param">isPremiumUser</span> }) {
+  <span class="keyword">const</span> { data } = <span class="function">useQuery</span>(<span class="const">GET_PREMIUM_CONTENT</span>, {
+    <span class="field">skip</span>: !isPremiumUser,  <span class="comment">// Only fetch for premium users</span>
+  });
+
+  <span class="keyword">if</span> (!isPremiumUser) <span class="keyword">return</span> <span class="keyword">&lt;</span>UpgradePrompt <span class="keyword">/&gt;</span>;
+  <span class="keyword">return</span> <span class="keyword">&lt;</span>PremiumContent data={data} <span class="keyword">/&gt;</span>;
+}</code></pre>
+
+    <!-- Section 4.9 -->
+    <h2>4.9 useLazyQuery — Execute on Demand</h2>
+
+    <p>Unlike <code class="inline-code">useQuery</code>, <code class="inline-code">useLazyQuery</code> doesn't execute immediately. You trigger it manually.</p>
+
+    <pre><code><span class="keyword">import</span> { <span class="type">useLazyQuery</span> } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+
+<span class="keyword">function</span> <span class="function">SearchUsers</span>() {
+  <span class="keyword">const</span> [searchTerm, setSearchTerm] = <span class="function">useState</span>(<span class="string">''</span>);
+  
+  <span class="comment">// Returns a tuple: [executeFunction, resultObject]</span>
+  <span class="keyword">const</span> [<span class="function">searchUsers</span>, { loading, data, error, called }] = <span class="function">useLazyQuery</span>(<span class="const">SEARCH_USERS</span>);
+
+  <span class="keyword">const</span> <span class="function">handleSearch</span> = () => {
+    <span class="keyword">if</span> (searchTerm.trim()) {
+      <span class="function">searchUsers</span>({
+        <span class="field">variables</span>: { <span class="field">term</span>: searchTerm },
+      });
+    }
+  };
+
+  <span class="comment">// With async/await</span>
+  <span class="keyword">const</span> <span class="function">handleSearchAsync</span> = <span class="keyword">async</span> () => {
+    <span class="keyword">try</span> {
+      <span class="keyword">const</span> { data } = <span class="keyword">await</span> <span class="function">searchUsers</span>({
+        <span class="field">variables</span>: { <span class="field">term</span>: searchTerm },
+      });
+      console.<span class="function">log</span>(<span class="string">'Found:'</span>, data.searchUsers);
+    } <span class="keyword">catch</span> (err) {
+      console.<span class="function">error</span>(<span class="string">'Search failed'</span>, err);
+    }
+  };
+
+  <span class="keyword">return</span> (
+    <span class="keyword">&lt;</span>div<span class="keyword">&gt;</span>
+      <span class="keyword">&lt;</span>input
+        <span class="field">value</span>={searchTerm}
+        <span class="field">onChange</span>={(e) => <span class="function">setSearchTerm</span>(e.target.value)}
+        <span class="field">placeholder</span>=<span class="string">"Search users..."</span>
+      <span class="keyword">/&gt;</span>
+      <span class="keyword">&lt;</span>button <span class="field">onClick</span>={handleSearch} <span class="field">disabled</span>={loading}<span class="keyword">&gt;</span>
+        {loading ? <span class="string">'Searching...'</span> : <span class="string">'Search'</span>}
+      <span class="keyword">&lt;/</span>button<span class="keyword">&gt;</span>
+      
+      {called && !loading && (
+        <span class="keyword">&lt;</span>SearchResults results={data?.searchUsers} <span class="keyword">/&gt;</span>
+      )}
+    <span class="keyword">&lt;/</span>div<span class="keyword">&gt;</span>
+  );
+}</code></pre>
+
+    <div class="warning-box">
+      Use <code class="inline-code">useLazyQuery</code> for user-triggered actions like search, form submissions, or "load more" buttons. Use <code class="inline-code">useQuery</code> for data that should load automatically when the component mounts.
+    </div>
+
+    <!-- Section 4.10 -->
+    <h2>4.10 Error Handling Strategies</h2>
+
+    <h3>Error Policies</h3>
+
+    <pre><code><span class="keyword">const</span> { data, error } = <span class="function">useQuery</span>(<span class="const">GET_USERS</span>, {
+  <span class="field">errorPolicy</span>: <span class="string">'all'</span>,  <span class="comment">// 'none' | 'ignore' | 'all'</span>
+});
+
+<span class="comment">// 'none' (default): data = undefined on ANY error</span>
+<span class="comment">// 'ignore': data = partial data, errors hidden</span>
+<span class="comment">// 'all': data = partial data, errors available</span></code></pre>
+
+    <h3>Comprehensive Error Handling</h3>
+
+    <pre><code><span class="keyword">function</span> <span class="function">UserProfile</span>({ <span class="param">userId</span> }) {
+  <span class="keyword">const</span> { data, loading, error } = <span class="function">useQuery</span>(<span class="const">GET_USER</span>, {
+    <span class="field">variables</span>: { <span class="field">id</span>: userId },
+    <span class="field">errorPolicy</span>: <span class="string">'all'</span>,
+  });
+
+  <span class="keyword">if</span> (loading) <span class="keyword">return</span> <span class="keyword">&lt;</span>Skeleton <span class="keyword">/&gt;</span>;
+
+  <span class="comment">// Handle specific error types</span>
+  <span class="keyword">if</span> (error) {
+    <span class="comment">// Network error (no connection)</span>
+    <span class="keyword">if</span> (error.networkError) {
+      <span class="keyword">return</span> <span class="keyword">&lt;</span>NetworkErrorUI retry={() => <span class="function">refetch</span>()} <span class="keyword">/&gt;</span>;
+    }
+    
+    <span class="comment">// GraphQL errors</span>
+    <span class="keyword">const</span> <span class="const">notFound</span> = error.graphQLErrors?.<span class="function">some</span>(
+      e => e.extensions?.code === <span class="string">'NOT_FOUND'</span>
+    );
+    
+    <span class="keyword">if</span> (notFound) {
+      <span class="keyword">return</span> <span class="keyword">&lt;</span>UserNotFound <span class="keyword">/&gt;</span>;
+    }
+    
+    <span class="comment">// Generic error</span>
+    <span class="keyword">return</span> <span class="keyword">&lt;</span>ErrorMessage message={error.message} <span class="keyword">/&gt;</span>;
+  }
+
+  <span class="comment">// Render with partial data if using errorPolicy: 'all'</span>
+  <span class="keyword">return</span> <span class="keyword">&lt;</span>Profile user={data?.user} <span class="keyword">/&gt;</span>;
+}</code></pre>
+
+    <!-- Section 4.11 -->
+    <h2>4.11 Complete useQuery Options Reference</h2>
+
+    <pre><code><span class="keyword">const</span> { data, loading, error, refetch, fetchMore, networkStatus } = <span class="function">useQuery</span>(
+  <span class="const">QUERY</span>,
+  {
+    <span class="comment">// Variables to pass to the query</span>
+    <span class="field">variables</span>: { <span class="field">id</span>: <span class="string">'123'</span>, <span class="field">limit</span>: 10 },
+    
+    <span class="comment">// === FETCH POLICIES ===</span>
+    <span class="field">fetchPolicy</span>: <span class="string">'cache-and-network'</span>,
+    <span class="field">nextFetchPolicy</span>: <span class="string">'cache-first'</span>,
+    
+    <span class="comment">// === POLLING ===</span>
+    <span class="field">pollInterval</span>: 5000,  <span class="comment">// ms (0 = disabled)</span>
+    
+    <span class="comment">// === CONDITIONAL EXECUTION ===</span>
+    <span class="field">skip</span>: !userId,  <span class="comment">// Don't execute if true</span>
+    
+    <span class="comment">// === ERROR HANDLING ===</span>
+    <span class="field">errorPolicy</span>: <span class="string">'all'</span>,  <span class="comment">// 'none' | 'ignore' | 'all'</span>
+    
+    <span class="comment">// === CALLBACKS ===</span>
+    <span class="function">onCompleted</span>: (data) => {
+      console.<span class="function">log</span>(<span class="string">'Query completed!'</span>, data);
+    },
+    <span class="function">onError</span>: (error) => {
+      console.<span class="function">error</span>(<span class="string">'Query failed!'</span>, error);
+      <span class="function">logToSentry</span>(error);
+    },
+    
+    <span class="comment">// === NETWORK STATUS ===</span>
+    <span class="field">notifyOnNetworkStatusChange</span>: <span class="keyword">true</span>,  <span class="comment">// Enable networkStatus updates</span>
+    
+    <span class="comment">// === CONTEXT (custom headers, etc.) ===</span>
+    <span class="field">context</span>: {
+      <span class="field">headers</span>: {
+        <span class="string">'X-Custom-Header'</span>: <span class="string">'value'</span>,
+      },
+    },
+    
+    <span class="comment">// === SSR ===</span>
+    <span class="field">ssr</span>: <span class="keyword">true</span>,  <span class="comment">// Execute during SSR (default: true)</span>
+    
+    <span class="comment">// === RETURN PARTIAL DATA ===</span>
+    <span class="field">returnPartialData</span>: <span class="keyword">true</span>,  <span class="comment">// Return cached partial data</span>
+  }
+);</code></pre>
+
+    <div class="chapter-nav">
+      <button class="nav-btn">← Chapter 3: Link Chain</button>
+      <button class="nav-btn">Next: Chapter 5 — Mutations →</button>
+    </div>
+  </div>
+</body>
+</html>

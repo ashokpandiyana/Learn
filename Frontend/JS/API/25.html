@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 25: Geolocation API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+        
+        .concept-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .key-point {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .danger-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box {
+            background: #cfe2ff;
+            border-left: 4px solid #0d6efd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .code-block .comment {
+            color: #6272a4;
+        }
+        
+        .code-block .keyword {
+            color: #ff79c6;
+        }
+        
+        .code-block .string {
+            color: #f1fa8c;
+        }
+        
+        .code-block .function {
+            color: #50fa7b;
+        }
+        
+        .code-block .number {
+            color: #bd93f9;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .demo-section {
+            background: #e7f3ff;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .output {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            min-height: 100px;
+            border: 2px solid #667eea;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+        
+        .property-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .property-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+        }
+        
+        .property-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .property-card .type {
+            color: #764ba2;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .error-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .error-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .error-card h5 {
+            color: #dc3545;
+            margin-bottom: 5px;
+        }
+        
+        .map-placeholder {
+            width: 100%;
+            height: 300px;
+            background: #e9ecef;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+        
+        .location-info {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #667eea;
+        }
+        
+        .location-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .location-item:last-child {
+            border-bottom: none;
+        }
+        
+        .location-label {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .location-value {
+            color: #764ba2;
+        }
+        
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .use-case-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+            transition: transform 0.3s;
+        }
+        
+        .use-case-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .use-case-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 Chapter 25: Geolocation API</h1>
+            <p>Access User's Geographic Location</p>
+        </div>
+        
+        <div class="content">
+            
+            <!-- Introduction -->
+            <div class="section">
+                <h2>🎯 What is the Geolocation API?</h2>
+                
+                <div class="concept-box">
+                    <p><strong>Geolocation API</strong> allows web applications to access the user's geographic location. It provides latitude, longitude, and other positioning data with the user's permission.</p>
+                    
+                    <p style="margin-top: 15px;"><strong>Key Characteristics:</strong></p>
+                    <ul style="margin-left: 25px; margin-top: 10px;">
+                        <li>📍 <strong>Permission-Based:</strong> Requires explicit user consent</li>
+                        <li>🎯 <strong>Accurate:</strong> Uses GPS, WiFi, cell towers, IP</li>
+                        <li>🔒 <strong>HTTPS Only:</strong> Only works on secure connections</li>
+                        <li>📊 <strong>Rich Data:</strong> Latitude, longitude, accuracy, altitude, speed</li>
+                        <li>⚡ <strong>Real-Time:</strong> Can watch position changes</li>
+                        <li>🌐 <strong>Universal:</strong> Works across devices</li>
+                    </ul>
+                </div>
+                
+                <div class="visual-diagram">
+                    <h3>How Geolocation Works</h3>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <div style="display: inline-block; text-align: left;">
+                            <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 10px;">
+                                <strong>1. Request Permission</strong><br>
+                                Browser asks user for location access
+                            </div>
+                            <div style="text-align: center; font-size: 24px; color: #667eea;">↓</div>
+                            <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 10px;">
+                                <strong>2. Determine Location</strong><br>
+                                Uses GPS, WiFi, cell towers, or IP
+                            </div>
+                            <div style="text-align: center; font-size: 24px; color: #667eea;">↓</div>
+                            <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 10px;">
+                                <strong>3. Return Position</strong><br>
+                                Provides coordinates & accuracy
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="danger-box">
+                    <strong>🔒 Privacy & Security:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Only works on HTTPS (except localhost)</li>
+                        <li>User must explicitly grant permission</li>
+                        <li>Permission can be revoked anytime</li>
+                        <li>Be transparent about why you need location</li>
+                        <li>Never share location data without consent</li>
+                    </ul>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 Common Use Cases:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Store locators ("Find nearest store")</li>
+                        <li>Weather apps</li>
+                        <li>Delivery and rideshare apps</li>
+                        <li>Social check-ins</li>
+                        <li>Local search results</li>
+                        <li>Location-based recommendations</li>
+                        <li>Fitness tracking</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Getting Position -->
+            <div class="section">
+                <h2>📍 Getting Current Position</h2>
+                
+                <h3>Basic Usage</h3>
+                <div class="code-block">
+<span class="comment">// Check if geolocation is supported</span>
+<span class="keyword">if</span> (<span class="string">'geolocation'</span> <span class="keyword">in</span> navigator) {
+    console.<span class="function">log</span>(<span class="string">'Geolocation is supported'</span>);
+} <span class="keyword">else</span> {
+    console.<span class="function">error</span>(<span class="string">'Geolocation is not supported'</span>);
+}
+
+<span class="comment">// Get current position</span>
+navigator.geolocation.<span class="function">getCurrentPosition</span>(
+    <span class="comment">// Success callback</span>
+    (position) => {
+        console.<span class="function">log</span>(<span class="string">'Latitude:'</span>, position.coords.latitude);
+        console.<span class="function">log</span>(<span class="string">'Longitude:'</span>, position.coords.longitude);
+        console.<span class="function">log</span>(<span class="string">'Accuracy:'</span>, position.coords.accuracy, <span class="string">'meters'</span>);
+    },
+    <span class="comment">// Error callback</span>
+    (error) => {
+        console.<span class="function">error</span>(<span class="string">'Error:'</span>, error.message);
+    }
+);
+                </div>
+                
+                <h3>With Options</h3>
+                <div class="code-block">
+<span class="comment">// Get position with custom options</span>
+navigator.geolocation.<span class="function">getCurrentPosition</span>(
+    (position) => {
+        <span class="keyword">const</span> { latitude, longitude, accuracy } = position.coords;
+        console.<span class="function">log</span>(<span class="string">`Location: ${latitude}, ${longitude}`</span>);
+        console.<span class="function">log</span>(<span class="string">`Accuracy: ${accuracy}m`</span>);
+    },
+    (error) => {
+        <span class="keyword">switch</span>(error.code) {
+            <span class="keyword">case</span> error.PERMISSION_DENIED:
+                console.<span class="function">error</span>(<span class="string">'User denied permission'</span>);
+                <span class="keyword">break</span>;
+            <span class="keyword">case</span> error.POSITION_UNAVAILABLE:
+                console.<span class="function">error</span>(<span class="string">'Position unavailable'</span>);
+                <span class="keyword">break</span>;
+            <span class="keyword">case</span> error.TIMEOUT:
+                console.<span class="function">error</span>(<span class="string">'Request timeout'</span>);
+                <span class="keyword">break</span>;
+        }
+    },
+    {
+        enableHighAccuracy: <span class="keyword">true</span>,  <span class="comment">// Use GPS if available</span>
+        timeout: <span class="number">5000</span>,              <span class="comment">// Wait max 5 seconds</span>
+        maximumAge: <span class="number">0</span>               <span class="comment">// Don't use cached position</span>
+    }
+);
+                </div>
+                
+                <h3>Options Explained</h3>
+                <div class="property-grid">
+                    <div class="property-card">
+                        <h4>enableHighAccuracy</h4>
+                        <div class="type">Boolean (default: false)</div>
+                        <p>If true, uses GPS for better accuracy. Slower and uses more battery.</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>timeout</h4>
+                        <div class="type">Number (milliseconds)</div>
+                        <p>Maximum time to wait for position. Default: Infinity</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>maximumAge</h4>
+                        <div class="type">Number (milliseconds)</div>
+                        <p>Accept cached position if less than this age. 0 = always get fresh position.</p>
+                    </div>
+                </div>
+                
+                <div class="warning-box">
+                    <strong>⚠️ Performance Trade-offs:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><code>enableHighAccuracy: true</code> - More accurate but slower and drains battery</li>
+                        <li><code>enableHighAccuracy: false</code> - Faster but less accurate (WiFi/cell towers)</li>
+                        <li><code>maximumAge: 0</code> - Always fresh but slower</li>
+                        <li><code>maximumAge: 300000</code> - Use 5-minute cache, faster for repeat requests</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Position Object -->
+            <div class="section">
+                <h2>📦 Position Object</h2>
+                
+                <div class="concept-box">
+                    <p>The position object contains coordinates and metadata about the location.</p>
+                </div>
+                
+                <h3>Position Properties</h3>
+                <div class="property-grid">
+                    <div class="property-card">
+                        <h4>coords.latitude</h4>
+                        <div class="type">Number (degrees)</div>
+                        <p>Geographic latitude (-90 to 90)</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>coords.longitude</h4>
+                        <div class="type">Number (degrees)</div>
+                        <p>Geographic longitude (-180 to 180)</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>coords.accuracy</h4>
+                        <div class="type">Number (meters)</div>
+                        <p>Accuracy of lat/long</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>coords.altitude</h4>
+                        <div class="type">Number | null (meters)</div>
+                        <p>Height above sea level</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>coords.altitudeAccuracy</h4>
+                        <div class="type">Number | null (meters)</div>
+                        <p>Accuracy of altitude</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>coords.heading</h4>
+                        <div class="type">Number | null (degrees)</div>
+                        <p>Direction of travel (0-360, 0=North)</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>coords.speed</h4>
+                        <div class="type">Number | null (m/s)</div>
+                        <p>Speed of travel</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>timestamp</h4>
+                        <div class="type">Number (milliseconds)</div>
+                        <p>When position was acquired</p>
+                    </div>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Accessing all position properties</span>
+navigator.geolocation.<span class="function">getCurrentPosition</span>((position) => {
+    <span class="keyword">const</span> coords = position.coords;
+    
+    console.<span class="function">log</span>(<span class="string">'Latitude:'</span>, coords.latitude);
+    console.<span class="function">log</span>(<span class="string">'Longitude:'</span>, coords.longitude);
+    console.<span class="function">log</span>(<span class="string">'Accuracy:'</span>, coords.accuracy, <span class="string">'meters'</span>);
+    
+    <span class="comment">// May be null if not available</span>
+    <span class="keyword">if</span> (coords.altitude !== <span class="keyword">null</span>) {
+        console.<span class="function">log</span>(<span class="string">'Altitude:'</span>, coords.altitude, <span class="string">'meters'</span>);
+        console.<span class="function">log</span>(<span class="string">'Alt Accuracy:'</span>, coords.altitudeAccuracy, <span class="string">'meters'</span>);
+    }
+    
+    <span class="keyword">if</span> (coords.heading !== <span class="keyword">null</span>) {
+        console.<span class="function">log</span>(<span class="string">'Heading:'</span>, coords.heading, <span class="string">'degrees'</span>);
+    }
+    
+    <span class="keyword">if</span> (coords.speed !== <span class="keyword">null</span>) {
+        console.<span class="function">log</span>(<span class="string">'Speed:'</span>, coords.speed, <span class="string">'m/s'</span>);
+    }
+    
+    <span class="keyword">const</span> date = <span class="keyword">new</span> <span class="function">Date</span>(position.timestamp);
+    console.<span class="function">log</span>(<span class="string">'Time:'</span>, date.<span class="function">toLocaleString</span>());
+});
+                </div>
+            </div>
+            
+            <!-- Error Handling -->
+            <div class="section">
+                <h2>❌ Error Handling</h2>
+                
+                <div class="concept-box">
+                    <p>The error object contains information about why geolocation failed.</p>
+                </div>
+                
+                <h3>Error Codes</h3>
+                <div class="error-grid">
+                    <div class="error-card">
+                        <h5>PERMISSION_DENIED (1)</h5>
+                        <p>User denied location access</p>
+                    </div>
+                    <div class="error-card">
+                        <h5>POSITION_UNAVAILABLE (2)</h5>
+                        <p>Location info unavailable</p>
+                    </div>
+                    <div class="error-card">
+                        <h5>TIMEOUT (3)</h5>
+                        <p>Request timed out</p>
+                    </div>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Comprehensive error handling</span>
+<span class="keyword">function</span> <span class="function">handleLocationError</span>(error) {
+    <span class="keyword">let</span> message;
+    
+    <span class="keyword">switch</span>(error.code) {
+        <span class="keyword">case</span> error.PERMISSION_DENIED:
+            message = <span class="string">'User denied the request for Geolocation.'</span>;
+            <span class="comment">// Show message explaining why you need location</span>
+            <span class="function">showPermissionExplanation</span>();
+            <span class="keyword">break</span>;
+            
+        <span class="keyword">case</span> error.POSITION_UNAVAILABLE:
+            message = <span class="string">'Location information is unavailable.'</span>;
+            <span class="comment">// Maybe offer manual location entry</span>
+            <span class="function">showManualLocationInput</span>();
+            <span class="keyword">break</span>;
+            
+        <span class="keyword">case</span> error.TIMEOUT:
+            message = <span class="string">'The request to get user location timed out.'</span>;
+            <span class="comment">// Offer to retry</span>
+            <span class="function">showRetryButton</span>();
+            <span class="keyword">break</span>;
+            
+        <span class="keyword">default</span>:
+            message = <span class="string">'An unknown error occurred.'</span>;
+    }
+    
+    console.<span class="function">error</span>(message);
+    <span class="function">displayErrorToUser</span>(message);
+}
+
+navigator.geolocation.<span class="function">getCurrentPosition</span>(
+    successCallback,
+    handleLocationError,
+    options
+);
+                </div>
+            </div>
+            
+            <!-- Watching Position -->
+            <div class="section">
+                <h2>👁️ Watching Position (Real-Time Tracking)</h2>
+                
+                <div class="concept-box">
+                    <p><code>watchPosition()</code> continuously monitors the user's location and fires a callback whenever the position changes.</p>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Start watching position</span>
+<span class="keyword">const</span> watchId = navigator.geolocation.<span class="function">watchPosition</span>(
+    (position) => {
+        <span class="keyword">const</span> { latitude, longitude, speed, heading } = position.coords;
+        
+        console.<span class="function">log</span>(<span class="string">`Position: ${latitude}, ${longitude}`</span>);
+        
+        <span class="keyword">if</span> (speed !== <span class="keyword">null</span>) {
+            console.<span class="function">log</span>(<span class="string">`Speed: ${speed} m/s`</span>);
+        }
+        
+        <span class="keyword">if</span> (heading !== <span class="keyword">null</span>) {
+            console.<span class="function">log</span>(<span class="string">`Heading: ${heading}°`</span>);
+        }
+        
+        <span class="comment">// Update map/UI with new position</span>
+        <span class="function">updateMap</span>(latitude, longitude);
+    },
+    (error) => {
+        console.<span class="function">error</span>(<span class="string">'Watch error:'</span>, error.message);
+    },
+    {
+        enableHighAccuracy: <span class="keyword">true</span>,
+        maximumAge: <span class="number">0</span>,
+        timeout: <span class="number">5000</span>
+    }
+);
+
+<span class="comment">// Stop watching when done</span>
+navigator.geolocation.<span class="function">clearWatch</span>(watchId);
+                </div>
+                
+                <h3>Practical Example: Tracking App</h3>
+                <div class="code-block">
+<span class="keyword">class</span> <span class="function">LocationTracker</span> {
+    <span class="keyword">constructor</span>() {
+        <span class="keyword">this</span>.watchId = <span class="keyword">null</span>;
+        <span class="keyword">this</span>.path = [];
+    }
+    
+    <span class="function">startTracking</span>() {
+        <span class="keyword">if</span> (<span class="keyword">this</span>.watchId !== <span class="keyword">null</span>) {
+            console.<span class="function">log</span>(<span class="string">'Already tracking'</span>);
+            <span class="keyword">return</span>;
+        }
+        
+        <span class="keyword">this</span>.watchId = navigator.geolocation.<span class="function">watchPosition</span>(
+            (position) => {
+                <span class="keyword">const</span> point = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                    timestamp: position.timestamp,
+                    accuracy: position.coords.accuracy
+                };
+                
+                <span class="keyword">this</span>.path.<span class="function">push</span>(point);
+                console.<span class="function">log</span>(<span class="string">`Tracking: ${point.lat}, ${point.lng}`</span>);
+                
+                <span class="keyword">this</span>.<span class="function">onUpdate</span>?.(point);
+            },
+            (error) => {
+                console.<span class="function">error</span>(<span class="string">'Tracking error:'</span>, error);
+                <span class="keyword">this</span>.<span class="function">onError</span>?.(error);
+            },
+            {
+                enableHighAccuracy: <span class="keyword">true</span>,
+                maximumAge: <span class="number">0</span>
+            }
+        );
+        
+        console.<span class="function">log</span>(<span class="string">'Tracking started'</span>);
+    }
+    
+    <span class="function">stopTracking</span>() {
+        <span class="keyword">if</span> (<span class="keyword">this</span>.watchId !== <span class="keyword">null</span>) {
+            navigator.geolocation.<span class="function">clearWatch</span>(<span class="keyword">this</span>.watchId);
+            <span class="keyword">this</span>.watchId = <span class="keyword">null</span>;
+            console.<span class="function">log</span>(<span class="string">'Tracking stopped'</span>);
+        }
+    }
+    
+    <span class="function">getDistance</span>() {
+        <span class="comment">// Calculate total distance traveled</span>
+        <span class="keyword">let</span> distance = <span class="number">0</span>;
+        <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i < <span class="keyword">this</span>.path.length; i++) {
+            distance += <span class="keyword">this</span>.<span class="function">haversine</span>(<span class="keyword">this</span>.path[i<span class="number">-1</span>], <span class="keyword">this</span>.path[i]);
+        }
+        <span class="keyword">return</span> distance;
+    }
+    
+    <span class="function">haversine</span>(point1, point2) {
+        <span class="comment">// Calculate distance between two points</span>
+        <span class="keyword">const</span> R = <span class="number">6371e3</span>; <span class="comment">// Earth radius in meters</span>
+        <span class="keyword">const</span> φ1 = point1.lat * Math.PI / <span class="number">180</span>;
+        <span class="keyword">const</span> φ2 = point2.lat * Math.PI / <span class="number">180</span>;
+        <span class="keyword">const</span> Δφ = (point2.lat - point1.lat) * Math.PI / <span class="number">180</span>;
+        <span class="keyword">const</span> Δλ = (point2.lng - point1.lng) * Math.PI / <span class="number">180</span>;
+        
+        <span class="keyword">const</span> a = Math.<span class="function">sin</span>(Δφ/<span class="number">2</span>) * Math.<span class="function">sin</span>(Δφ/<span class="number">2</span>) +
+                  Math.<span class="function">cos</span>(φ1) * Math.<span class="function">cos</span>(φ2) *
+                  Math.<span class="function">sin</span>(Δλ/<span class="number">2</span>) * Math.<span class="function">sin</span>(Δλ/<span class="number">2</span>);
+        <span class="keyword">const</span> c = <span class="number">2</span> * Math.<span class="function">atan2</span>(Math.<span class="function">sqrt</span>(a), Math.<span class="function">sqrt</span>(<span class="number">1</span>-a));
+        
+        <span class="keyword">return</span> R * c;
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> tracker = <span class="keyword">new</span> <span class="function">LocationTracker</span>();
+tracker.onUpdate = (point) => {
+    console.<span class="function">log</span>(<span class="string">'New position:'</span>, point);
+};
+
+tracker.<span class="function">startTracking</span>();
+<span class="comment">// ... later ...</span>
+tracker.<span class="function">stopTracking</span>();
+console.<span class="function">log</span>(<span class="string">'Distance traveled:'</span>, tracker.<span class="function">getDistance</span>(), <span class="string">'meters'</span>);
+                </div>
+            </div>
+            
+            <!-- Practical Examples -->
+            <div class="section">
+                <h2>💼 Practical Examples</h2>
+                
+                <h3>1. Store Locator</h3>
+                <div class="code-block">
+<span class="comment">// Find nearest stores</span>
+<span class="keyword">async function</span> <span class="function">findNearestStores</span>() {
+    <span class="keyword">try</span> {
+        <span class="keyword">const</span> position = <span class="keyword">await new Promise</span>((resolve, reject) => {
+            navigator.geolocation.<span class="function">getCurrentPosition</span>(resolve, reject);
+        });
+        
+        <span class="keyword">const</span> { latitude, longitude } = position.coords;
+        
+        <span class="comment">// Fetch nearby stores</span>
+        <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(
+            <span class="string">`/api/stores/nearby?lat=${latitude}&lng=${longitude}&radius=10`</span>
+        );
+        
+        <span class="keyword">const</span> stores = <span class="keyword">await</span> response.<span class="function">json</span>();
+        <span class="function">displayStores</span>(stores);
+        
+    } <span class="keyword">catch</span> (error) {
+        console.<span class="function">error</span>(<span class="string">'Error finding stores:'</span>, error);
+    }
+}
+                </div>
+                
+                <h3>2. Weather App</h3>
+                <div class="code-block">
+<span class="comment">// Get weather for current location</span>
+<span class="keyword">async function</span> <span class="function">getLocalWeather</span>() {
+    <span class="keyword">return new Promise</span>((resolve, reject) => {
+        navigator.geolocation.<span class="function">getCurrentPosition</span>(
+            <span class="keyword">async</span> (position) => {
+                <span class="keyword">const</span> { latitude, longitude } = position.coords;
+                
+                <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(
+                    <span class="string">`/api/weather?lat=${latitude}&lon=${longitude}`</span>
+                );
+                
+                <span class="keyword">const</span> weather = <span class="keyword">await</span> response.<span class="function">json</span>();
+                <span class="function">resolve</span>(weather);
+            },
+            (error) => {
+                <span class="function">reject</span>(error);
+            },
+            { enableHighAccuracy: <span class="keyword">false</span>, timeout: <span class="number">3000</span> }
+        );
+    });
+}
+                </div>
+                
+                <h3>3. Calculate Distance</h3>
+                <div class="code-block">
+<span class="comment">// Calculate distance between two coordinates</span>
+<span class="keyword">function</span> <span class="function">calculateDistance</span>(lat1, lon1, lat2, lon2) {
+    <span class="keyword">const</span> R = <span class="number">6371</span>; <span class="comment">// Earth's radius in km</span>
+    
+    <span class="keyword">const</span> dLat = (lat2 - lat1) * Math.PI / <span class="number">180</span>;
+    <span class="keyword">const</span> dLon = (lon2 - lon1) * Math.PI / <span class="number">180</span>;
+    
+    <span class="keyword">const</span> a = 
+        Math.<span class="function">sin</span>(dLat / <span class="number">2</span>) * Math.<span class="function">sin</span>(dLat / <span class="number">2</span>) +
+        Math.<span class="function">cos</span>(lat1 * Math.PI / <span class="number">180</span>) * 
+        Math.<span class="function">cos</span>(lat2 * Math.PI / <span class="number">180</span>) *
+        Math.<span class="function">sin</span>(dLon / <span class="number">2</span>) * Math.<span class="function">sin</span>(dLon / <span class="number">2</span>);
+    
+    <span class="keyword">const</span> c = <span class="number">2</span> * Math.<span class="function">atan2</span>(Math.<span class="function">sqrt</span>(a), Math.<span class="function">sqrt</span>(<span class="number">1</span> - a));
+    
+    <span class="keyword">return</span> R * c; <span class="comment">// Distance in km</span>
+}
+
+<span class="comment">// Get distance from user to a point of interest</span>
+navigator.geolocation.<span class="function">getCurrentPosition</span>((position) => {
+    <span class="keyword">const</span> userLat = position.coords.latitude;
+    <span class="keyword">const</span> userLon = position.coords.longitude;
+    
+    <span class="comment">// Distance to Eiffel Tower</span>
+    <span class="keyword">const</span> distance = <span class="function">calculateDistance</span>(
+        userLat, userLon,
+        <span class="number">48.8584</span>, <span class="number">2.2945</span>
+    );
+    
+    console.<span class="function">log</span>(<span class="string">`Distance: ${distance.toFixed(2)} km`</span>);
+});
+                </div>
+            </div>
+            
+            <!-- Interactive Demo -->
+            <div class="section">
+                <h2>🎮 Interactive Demo</h2>
+                
+                <div class="demo-section">
+                    <h3>Try Geolocation API</h3>
+                    <p style="margin-bottom: 15px;">Test the Geolocation API in your browser</p>
+                    
+                    <div class="demo-controls">
+                        <button onclick="getCurrentPos()">Get Current Position</button>
+                        <button onclick="getHighAccuracy()">Get High Accuracy Position</button>
+                        <button onclick="startWatch()" id="watchBtn">Start Watching</button>
+                        <button onclick="stopWatch()" id="stopBtn" disabled>Stop Watching</button>
+                        <button onclick="clearOutput()">Clear</button>
+                    </div>
+                    
+                    <div class="location-info" id="locationInfo" style="display: none;">
+                        <h4 style="color: #667eea; margin-bottom: 15px;">📍 Current Location</h4>
+                        <div id="locationDetails"></div>
+                    </div>
+                    
+                    <div class="output" id="output">Click a button to start...</div>
+                </div>
+            </div>
+            
+            <!-- Best Practices -->
+            <div class="section">
+                <h2>✅ Best Practices</h2>
+                
+                <div class="key-point">
+                    <h3 style="margin-top: 0;">DO ✓</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Check if geolocation is supported</li>
+                        <li>Handle all error cases gracefully</li>
+                        <li>Explain why you need location access</li>
+                        <li>Use appropriate accuracy settings</li>
+                        <li>Cache location when appropriate</li>
+                        <li>Clear watch when no longer needed</li>
+                        <li>Respect user privacy</li>
+                        <li>Only use HTTPS in production</li>
+                    </ul>
+                </div>
+                
+                <div class="warning-box">
+                    <h3 style="margin-top: 0;">DON'T ✗</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Use high accuracy unnecessarily (drains battery)</li>
+                        <li>Request location without explanation</li>
+                        <li>Assume permission will be granted</li>
+                        <li>Store location without encryption</li>
+                        <li>Share location without consent</li>
+                        <li>Forget to handle errors</li>
+                        <li>Use on HTTP (won't work except localhost)</li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        let watchId = null;
+        
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'color: #0d6efd;',
+                success: 'color: #28a745;',
+                error: 'color: #dc3545;',
+                warning: 'color: #ffc107;'
+            };
+            output.innerHTML += `<div style="${colors[type]}">[${timestamp}] ${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function displayLocation(position) {
+            const coords = position.coords;
+            const locationInfo = document.getElementById('locationInfo');
+            const locationDetails = document.getElementById('locationDetails');
+            
+            locationInfo.style.display = 'block';
+            
+            let html = `
+                <div class="location-item">
+                    <span class="location-label">Latitude:</span>
+                    <span class="location-value">${coords.latitude.toFixed(6)}°</span>
+                </div>
+                <div class="location-item">
+                    <span class="location-label">Longitude:</span>
+                    <span class="location-value">${coords.longitude.toFixed(6)}°</span>
+                </div>
+                <div class="location-item">
+                    <span class="location-label">Accuracy:</span>
+                    <span class="location-value">${Math.round(coords.accuracy)}m</span>
+                </div>
+            `;
+            
+            if (coords.altitude !== null) {
+                html += `
+                    <div class="location-item">
+                        <span class="location-label">Altitude:</span>
+                        <span class="location-value">${Math.round(coords.altitude)}m</span>
+                    </div>
+                `;
+            }
+            
+            if (coords.speed !== null) {
+                html += `
+                    <div class="location-item">
+                        <span class="location-label">Speed:</span>
+                        <span class="location-value">${(coords.speed * 3.6).toFixed(2)} km/h</span>
+                    </div>
+                `;
+            }
+            
+            if (coords.heading !== null) {
+                html += `
+                    <div class="location-item">
+                        <span class="location-label">Heading:</span>
+                        <span class="location-value">${Math.round(coords.heading)}°</span>
+                    </div>
+                `;
+            }
+            
+            const date = new Date(position.timestamp);
+            html += `
+                <div class="location-item">
+                    <span class="location-label">Time:</span>
+                    <span class="location-value">${date.toLocaleTimeString()}</span>
+                </div>
+            `;
+            
+            locationDetails.innerHTML = html;
+        }
+        
+        function getCurrentPos() {
+            if (!('geolocation' in navigator)) {
+                log('❌ Geolocation not supported', 'error');
+                return;
+            }
+            
+            log('📍 Getting position...', 'info');
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    log('✓ Position acquired!', 'success');
+                    log(`Coordinates: ${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`, 'info');
+                    log(`Accuracy: ${Math.round(position.coords.accuracy)}m`, 'info');
+                    displayLocation(position);
+                },
+                (error) => {
+                    handleError(error);
+                }
+            );
+        }
+        
+        function getHighAccuracy() {
+            if (!('geolocation' in navigator)) {
+                log('❌ Geolocation not supported', 'error');
+                return;
+            }
+            
+            log('🎯 Getting high accuracy position (this may take longer)...', 'warning');
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    log('✓ High accuracy position acquired!', 'success');
+                    log(`Coordinates: ${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`, 'info');
+                    log(`Accuracy: ${Math.round(position.coords.accuracy)}m`, 'success');
+                    displayLocation(position);
+                },
+                (error) => {
+                    handleError(error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+        
+        function startWatch() {
+            if (watchId !== null) {
+                log('⚠️ Already watching position', 'warning');
+                return;
+            }
+            
+            log('👁️ Starting position watch...', 'info');
+            
+            watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    log(`📍 Position update: ${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`, 'success');
+                    displayLocation(position);
+                },
+                (error) => {
+                    handleError(error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    maximumAge: 0
+                }
+            );
+            
+            document.getElementById('watchBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+        }
+        
+        function stopWatch() {
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+                log('⏹️ Position watch stopped', 'info');
+                
+                document.getElementById('watchBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
+            }
+        }
+        
+        function handleError(error) {
+            let message;
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    message = '❌ Permission denied - User blocked location access';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    message = '❌ Position unavailable - Location information not available';
+                    break;
+                case error.TIMEOUT:
+                    message = '❌ Timeout - Request took too long';
+                    break;
+                default:
+                    message = '❌ Unknown error occurred';
+            }
+            log(message, 'error');
+        }
+        
+        function clearOutput() {
+            document.getElementById('output').innerHTML = '';
+            document.getElementById('locationInfo').style.display = 'none';
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            if ('geolocation' in navigator) {
+                log('✓ Geolocation API is supported', 'success');
+                log('Click a button to get your location', 'info');
+            } else {
+                log('❌ Geolocation API not supported in this browser', 'error');
+            }
+        });
+        
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+            }
+        });
+    </script>
+</body>
+</html>

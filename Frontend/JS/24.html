@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security - Chapter 24</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        header {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .content { padding: 40px; }
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #fa709a;
+        }
+        .section h2 { color: #fa709a; margin-bottom: 20px; font-size: 2em; }
+        .section h3 { color: #fe8a71; margin: 25px 0 15px 0; font-size: 1.5em; }
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .number { color: #d19a66; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+        .warning { background: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .success { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        ul { margin-left: 30px; margin-top: 10px; }
+        li { margin: 8px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔒 Chapter 24: Security Best Practices</h1>
+            <p>Write Secure JavaScript Code</p>
+        </header>
+        
+        <div class="content">
+            <div class="section">
+                <h2>⚠️ 1. XSS (Cross-Site Scripting)</h2>
+                
+                <div class="code-block">
+<code><span class="comment">// ❌ DANGEROUS: Direct HTML injection</span>
+<span class="keyword">const</span> userInput = <span class="string">'&lt;script&gt;alert("XSS")&lt;/script&gt;'</span>;
+element.innerHTML = userInput;  <span class="comment">// Executes script!</span>
+
+<span class="comment">// ✅ SAFE: Use textContent</span>
+element.textContent = userInput;  <span class="comment">// Displays as text</span>
+
+<span class="comment">// ✅ SAFE: Sanitize input</span>
+<span class="keyword">import</span> DOMPurify <span class="keyword">from</span> <span class="string">'dompurify'</span>;
+element.innerHTML = DOMPurify.<span class="function">sanitize</span>(userInput);</code>
+                </div>
+                
+                <div class="warning">
+                    <strong>🚨 Never trust user input!</strong> Always sanitize before displaying.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🛡️ 2. Input Validation</h2>
+                
+                <div class="code-block">
+<code><span class="comment">// Always validate on both client AND server</span>
+<span class="keyword">function</span> <span class="function">validateEmail</span>(email) {
+    <span class="keyword">const</span> regex = <span class="string">/^[^\s@]+@[^\s@]+\.[^\s@]+$/</span>;
+    <span class="keyword">return</span> regex.<span class="function">test</span>(email);
+}
+
+<span class="keyword">function</span> <span class="function">sanitizeInput</span>(input) {
+    <span class="keyword">return</span> input
+        .<span class="function">trim</span>()
+        .<span class="function">replace</span>(<span class="string">/[&lt;&gt;"']/g</span>, <span class="string">''</span>);  <span class="comment">// Remove dangerous chars</span>
+}</code>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔐 3. Authentication & Authorization</h2>
+                
+                <div class="code-block">
+<code><span class="comment">// Store tokens securely</span>
+<span class="comment">// ❌ BAD: localStorage (XSS vulnerable)</span>
+localStorage.<span class="function">setItem</span>(<span class="string">'token'</span>, jwtToken);
+
+<span class="comment">// ✅ BETTER: httpOnly cookies (server-set)</span>
+<span class="comment">// Set by server with httpOnly flag</span>
+
+<span class="comment">// Check authorization</span>
+<span class="keyword">function</span> <span class="function">requireAuth</span>(user, action) {
+    <span class="keyword">if</span> (!user || !user.<span class="function">hasPermission</span>(action)) {
+        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="function">UnauthorizedError</span>();
+    }
+}</code>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🌐 4. HTTPS & CSP</h2>
+                
+                <div class="code-block">
+<code><span class="comment">// Content Security Policy header</span>
+<span class="comment">// Set by server:</span>
+<span class="string">"Content-Security-Policy: default-src 'self'; script-src 'self' https://trusted.cdn.com"</span>
+
+<span class="comment">// Always use HTTPS for sensitive data</span>
+<span class="comment">// Check protocol in code</span>
+<span class="keyword">if</span> (window.location.protocol !== <span class="string">'https:'</span>) {
+    <span class="function">console</span>.<span class="function">warn</span>(<span class="string">'Insecure connection'</span>);
+}</code>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📝 Summary</h2>
+                
+                <div class="success">
+                    <strong>Security Checklist:</strong>
+                    <ul>
+                        <li>✅ Sanitize all user input</li>
+                        <li>✅ Use textContent over innerHTML when possible</li>
+                        <li>✅ Validate input on client AND server</li>
+                        <li>✅ Use HTTPS everywhere</li>
+                        <li>✅ Implement CSP headers</li>
+                        <li>✅ Store tokens in httpOnly cookies</li>
+                        <li>✅ Keep dependencies updated (npm audit)</li>
+                        <li>✅ Never expose sensitive data in client code</li>
+                        <li>✅ Use prepared statements (prevent SQL injection)</li>
+                        <li>✅ Implement rate limiting</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

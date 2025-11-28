@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 30: Canvas API</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .header p { font-size: 1.2em; opacity: 0.95; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 40px; }
+        h2 { color: #fa709a; font-size: 2em; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid #fa709a; }
+        h3 { color: #fee140; font-size: 1.5em; margin: 30px 0 15px 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+        .concept-box { background: #f8f9fa; border-left: 4px solid #fa709a; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .key-point { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .warning-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .info-box { background: #cfe2ff; border-left: 4px solid #0d6efd; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .code-block .comment { color: #6272a4; }
+        .code-block .keyword { color: #ff79c6; }
+        .code-block .string { color: #f1fa8c; }
+        .code-block .function { color: #50fa7b; }
+        .code-block .number { color: #bd93f9; }
+        .demo-section { background: #fff5e6; padding: 30px; border-radius: 10px; margin: 30px 0; }
+        .demo-controls { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; align-items: center; }
+        button {
+            background: #fa709a;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        button:hover { background: #fee140; color: #333; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        canvas {
+            border: 2px solid #fa709a;
+            border-radius: 10px;
+            background: white;
+            display: block;
+            margin: 20px auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; color: #d63384; }
+        .property-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .property-card { background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px solid #fa709a; }
+        .property-card h4 { color: #fa709a; margin-bottom: 10px; }
+        input[type="color"], input[type="range"], input[type="number"] {
+            padding: 5px;
+            border: 2px solid #fa709a;
+            border-radius: 5px;
+        }
+        label { font-weight: bold; margin-right: 10px; color: #fa709a; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Chapter 30: Canvas API</h1>
+            <p>Drawing Graphics with JavaScript</p>
+        </div>
+        
+        <div class="content">
+            
+            <div class="section">
+                <h2>🎯 What is the Canvas API?</h2>
+                
+                <div class="concept-box">
+                    <p><strong>Canvas API</strong> provides a means to draw graphics via JavaScript using the HTML <code>&lt;canvas&gt;</code> element. It's a powerful tool for creating charts, games, animations, image manipulation, and more.</p>
+                    
+                    <p style="margin-top: 15px;"><strong>Key Features:</strong></p>
+                    <ul style="margin-left: 25px; margin-top: 10px;">
+                        <li>🎨 <strong>2D Drawing:</strong> Shapes, paths, text, images</li>
+                        <li>🖼️ <strong>Pixel Manipulation:</strong> Direct pixel access</li>
+                        <li>⚡ <strong>Fast:</strong> Hardware-accelerated rendering</li>
+                        <li>🎬 <strong>Animations:</strong> Frame-by-frame updates</li>
+                        <li>📊 <strong>Data Visualization:</strong> Charts and graphs</li>
+                        <li>🎮 <strong>Games:</strong> 2D game graphics</li>
+                    </ul>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 Common Use Cases:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Charts and data visualization</li>
+                        <li>Image editing and filters</li>
+                        <li>2D games</li>
+                        <li>Signature pads</li>
+                        <li>Diagrams and flowcharts</li>
+                        <li>Animations and effects</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🚀 Getting Started</h2>
+                
+                <h3>Creating a Canvas</h3>
+                <div class="code-block">
+<span class="comment">// HTML</span>
+<span class="comment">// &lt;canvas id="myCanvas" width="800" height="600"&gt;&lt;/canvas&gt;</span>
+
+<span class="comment">// Get canvas and context</span>
+<span class="keyword">const</span> canvas = document.<span class="function">getElementById</span>(<span class="string">'myCanvas'</span>);
+<span class="keyword">const</span> ctx = canvas.<span class="function">getContext</span>(<span class="string">'2d'</span>);
+
+<span class="comment">// Set canvas size</span>
+canvas.width = <span class="number">800</span>;
+canvas.height = <span class="number">600</span>;
+
+<span class="comment">// Get canvas dimensions</span>
+console.<span class="function">log</span>(canvas.width, canvas.height);
+                </div>
+                
+                <div class="warning-box">
+                    <strong>⚠️ Important:</strong> Set canvas size via <code>width</code> and <code>height</code> attributes/properties, NOT CSS! CSS scales the canvas but doesn't change resolution, causing blurry graphics.
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📐 Drawing Shapes</h2>
+                
+                <h3>Rectangles</h3>
+                <div class="code-block">
+<span class="comment">// Filled rectangle</span>
+ctx.fillStyle = <span class="string">'red'</span>;
+ctx.<span class="function">fillRect</span>(x, y, width, height);
+
+<span class="comment">// Stroked (outline) rectangle</span>
+ctx.strokeStyle = <span class="string">'blue'</span>;
+ctx.lineWidth = <span class="number">3</span>;
+ctx.<span class="function">strokeRect</span>(x, y, width, height);
+
+<span class="comment">// Clear rectangle area</span>
+ctx.<span class="function">clearRect</span>(x, y, width, height);
+
+<span class="comment">// Example: Draw squares</span>
+ctx.fillStyle = <span class="string">'#667eea'</span>;
+ctx.<span class="function">fillRect</span>(<span class="number">50</span>, <span class="number">50</span>, <span class="number">100</span>, <span class="number">100</span>);
+
+ctx.strokeStyle = <span class="string">'#764ba2'</span>;
+ctx.lineWidth = <span class="number">5</span>;
+ctx.<span class="function">strokeRect</span>(<span class="number">200</span>, <span class="number">50</span>, <span class="number">100</span>, <span class="number">100</span>);
+                </div>
+                
+                <h3>Paths (Lines, Circles, Custom Shapes)</h3>
+                <div class="code-block">
+<span class="comment">// Drawing a path</span>
+ctx.<span class="function">beginPath</span>();        <span class="comment">// Start new path</span>
+ctx.<span class="function">moveTo</span>(x, y);        <span class="comment">// Move to start point</span>
+ctx.<span class="function">lineTo</span>(x, y);        <span class="comment">// Draw line to point</span>
+ctx.<span class="function">closePath</span>();        <span class="comment">// Close path (optional)</span>
+ctx.<span class="function">stroke</span>();           <span class="comment">// Draw outline</span>
+ctx.<span class="function">fill</span>();             <span class="comment">// Fill shape</span>
+
+<span class="comment">// Example: Triangle</span>
+ctx.<span class="function">beginPath</span>();
+ctx.<span class="function">moveTo</span>(<span class="number">100</span>, <span class="number">50</span>);
+ctx.<span class="function">lineTo</span>(<span class="number">150</span>, <span class="number">150</span>);
+ctx.<span class="function">lineTo</span>(<span class="number">50</span>, <span class="number">150</span>);
+ctx.<span class="function">closePath</span>();
+ctx.fillStyle = <span class="string">'orange'</span>;
+ctx.<span class="function">fill</span>();
+
+<span class="comment">// Circle (using arc)</span>
+ctx.<span class="function">beginPath</span>();
+ctx.<span class="function">arc</span>(x, y, radius, startAngle, endAngle, counterclockwise);
+ctx.<span class="function">stroke</span>();
+
+<span class="comment">// Example: Full circle</span>
+ctx.<span class="function">beginPath</span>();
+ctx.<span class="function">arc</span>(<span class="number">200</span>, <span class="number">200</span>, <span class="number">50</span>, <span class="number">0</span>, Math.PI * <span class="number">2</span>);
+ctx.fillStyle = <span class="string">'blue'</span>;
+ctx.<span class="function">fill</span>();
+
+<span class="comment">// Arc (partial circle)</span>
+ctx.<span class="function">beginPath</span>();
+ctx.<span class="function">arc</span>(<span class="number">300</span>, <span class="number">200</span>, <span class="number">50</span>, <span class="number">0</span>, Math.PI); <span class="comment">// Half circle</span>
+ctx.<span class="function">stroke</span>();
+
+<span class="comment">// Curves</span>
+ctx.<span class="function">beginPath</span>();
+ctx.<span class="function">moveTo</span>(<span class="number">50</span>, <span class="number">50</span>);
+ctx.<span class="function">quadraticCurveTo</span>(cpx, cpy, x, y);     <span class="comment">// Quadratic curve</span>
+ctx.<span class="function">bezierCurveTo</span>(cp1x, cp1y, cp2x, cp2y, x, y); <span class="comment">// Bezier curve</span>
+ctx.<span class="function">stroke</span>();
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🎨 Styling</h2>
+                
+                <div class="code-block">
+<span class="comment">// Fill color</span>
+ctx.fillStyle = <span class="string">'red'</span>;
+ctx.fillStyle = <span class="string">'#ff0000'</span>;
+ctx.fillStyle = <span class="string">'rgb(255, 0, 0)'</span>;
+ctx.fillStyle = <span class="string">'rgba(255, 0, 0, 0.5)'</span>;
+
+<span class="comment">// Stroke color</span>
+ctx.strokeStyle = <span class="string">'blue'</span>;
+
+<span class="comment">// Line width</span>
+ctx.lineWidth = <span class="number">5</span>;
+
+<span class="comment">// Line cap (end of lines)</span>
+ctx.lineCap = <span class="string">'butt'</span>;   <span class="comment">// 'butt', 'round', 'square'</span>
+
+<span class="comment">// Line join (corner style)</span>
+ctx.lineJoin = <span class="string">'miter'</span>;  <span class="comment">// 'miter', 'round', 'bevel'</span>
+
+<span class="comment">// Dashed lines</span>
+ctx.<span class="function">setLineDash</span>([<span class="number">5</span>, <span class="number">10</span>]); <span class="comment">// [dash length, gap length]</span>
+ctx.<span class="function">setLineDash</span>([]);        <span class="comment">// Reset to solid</span>
+
+<span class="comment">// Transparency</span>
+ctx.globalAlpha = <span class="number">0.5</span>; <span class="comment">// 0.0 to 1.0</span>
+
+<span class="comment">// Gradients</span>
+<span class="keyword">const</span> gradient = ctx.<span class="function">createLinearGradient</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">200</span>, <span class="number">0</span>);
+gradient.<span class="function">addColorStop</span>(<span class="number">0</span>, <span class="string">'red'</span>);
+gradient.<span class="function">addColorStop</span>(<span class="number">0.5</span>, <span class="string">'yellow'</span>);
+gradient.<span class="function">addColorStop</span>(<span class="number">1</span>, <span class="string">'blue'</span>);
+ctx.fillStyle = gradient;
+ctx.<span class="function">fillRect</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">200</span>, <span class="number">100</span>);
+
+<span class="comment">// Radial gradient</span>
+<span class="keyword">const</span> radial = ctx.<span class="function">createRadialGradient</span>(<span class="number">100</span>, <span class="number">100</span>, <span class="number">10</span>, <span class="number">100</span>, <span class="number">100</span>, <span class="number">50</span>);
+radial.<span class="function">addColorStop</span>(<span class="number">0</span>, <span class="string">'white'</span>);
+radial.<span class="function">addColorStop</span>(<span class="number">1</span>, <span class="string">'blue'</span>);
+ctx.fillStyle = radial;
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>✏️ Drawing Text</h2>
+                
+                <div class="code-block">
+<span class="comment">// Set font</span>
+ctx.font = <span class="string">'48px serif'</span>;
+ctx.font = <span class="string">'bold 24px Arial'</span>;
+ctx.font = <span class="string">'italic 20px Georgia'</span>;
+
+<span class="comment">// Text alignment</span>
+ctx.textAlign = <span class="string">'start'</span>; <span class="comment">// 'start', 'end', 'left', 'right', 'center'</span>
+
+<span class="comment">// Text baseline</span>
+ctx.textBaseline = <span class="string">'top'</span>; <span class="comment">// 'top', 'hanging', 'middle', 'alphabetic', 'bottom'</span>
+
+<span class="comment">// Draw filled text</span>
+ctx.fillStyle = <span class="string">'black'</span>;
+ctx.<span class="function">fillText</span>(<span class="string">'Hello Canvas!'</span>, x, y);
+ctx.<span class="function">fillText</span>(<span class="string">'Text'</span>, x, y, maxWidth); <span class="comment">// With max width</span>
+
+<span class="comment">// Draw stroked text</span>
+ctx.strokeStyle = <span class="string">'blue'</span>;
+ctx.lineWidth = <span class="number">2</span>;
+ctx.<span class="function">strokeText</span>(<span class="string">'Outlined'</span>, x, y);
+
+<span class="comment">// Measure text</span>
+<span class="keyword">const</span> metrics = ctx.<span class="function">measureText</span>(<span class="string">'Hello'</span>);
+console.<span class="function">log</span>(<span class="string">'Width:'</span>, metrics.width);
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🖼️ Drawing Images</h2>
+                
+                <div class="code-block">
+<span class="comment">// Load image</span>
+<span class="keyword">const</span> img = <span class="keyword">new</span> <span class="function">Image</span>();
+img.<span class="keyword">onload</span> = () => {
+    <span class="comment">// Draw when loaded</span>
+    ctx.<span class="function">drawImage</span>(img, x, y);
+};
+img.src = <span class="string">'image.png'</span>;
+
+<span class="comment">// Draw with size</span>
+ctx.<span class="function">drawImage</span>(img, x, y, width, height);
+
+<span class="comment">// Draw portion of image (sprite sheet)</span>
+ctx.<span class="function">drawImage</span>(
+    img,
+    sx, sy, sWidth, sHeight,  <span class="comment">// Source rectangle</span>
+    dx, dy, dWidth, dHeight   <span class="comment">// Destination rectangle</span>
+);
+
+<span class="comment">// Example: Draw and resize</span>
+<span class="keyword">const</span> image = <span class="keyword">new</span> <span class="function">Image</span>();
+image.<span class="keyword">onload</span> = () => {
+    ctx.<span class="function">drawImage</span>(image, <span class="number">0</span>, <span class="number">0</span>, <span class="number">200</span>, <span class="number">150</span>);
+};
+image.src = <span class="string">'photo.jpg'</span>;
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🔄 Transformations</h2>
+                
+                <div class="code-block">
+<span class="comment">// Translate (move origin)</span>
+ctx.<span class="function">translate</span>(x, y);
+
+<span class="comment">// Rotate (in radians)</span>
+ctx.<span class="function">rotate</span>(angle);
+ctx.<span class="function">rotate</span>(Math.PI / <span class="number">4</span>); <span class="comment">// 45 degrees</span>
+
+<span class="comment">// Scale</span>
+ctx.<span class="function">scale</span>(scaleX, scaleY);
+ctx.<span class="function">scale</span>(<span class="number">2</span>, <span class="number">2</span>); <span class="comment">// Double size</span>
+ctx.<span class="function">scale</span>(<span class="number">-1</span>, <span class="number">1</span>); <span class="comment">// Flip horizontal</span>
+
+<span class="comment">// Save and restore state</span>
+ctx.<span class="function">save</span>();              <span class="comment">// Save current state</span>
+ctx.<span class="function">translate</span>(<span class="number">100</span>, <span class="number">100</span>);
+ctx.<span class="function">rotate</span>(Math.PI / <span class="number">4</span>);
+ctx.<span class="function">fillRect</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">50</span>, <span class="number">50</span>);
+ctx.<span class="function">restore</span>();           <span class="comment">// Restore to saved state</span>
+
+<span class="comment">// Example: Rotate around center</span>
+ctx.<span class="function">save</span>();
+ctx.<span class="function">translate</span>(<span class="number">200</span>, <span class="number">200</span>);     <span class="comment">// Move to center</span>
+ctx.<span class="function">rotate</span>(Math.PI / <span class="number">4</span>);      <span class="comment">// Rotate</span>
+ctx.<span class="function">fillRect</span>(<span class="number">-25</span>, <span class="number">-25</span>, <span class="number">50</span>, <span class="number">50</span>); <span class="comment">// Draw centered</span>
+ctx.<span class="function">restore</span>();
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🎮 Interactive Demo</h2>
+                
+                <div class="demo-section">
+                    <h3>Canvas Drawing Playground</h3>
+                    
+                    <div class="demo-controls">
+                        <label>Tool:</label>
+                        <select id="tool">
+                            <option value="rectangle">Rectangle</option>
+                            <option value="circle">Circle</option>
+                            <option value="line">Line</option>
+                            <option value="text">Text</option>
+                        </select>
+                        
+                        <label>Color:</label>
+                        <input type="color" id="color" value="#667eea">
+                        
+                        <label>Size:</label>
+                        <input type="range" id="size" min="1" max="50" value="5">
+                        <span id="sizeValue">5</span>
+                        
+                        <button onclick="clearCanvas()">Clear</button>
+                        <button onclick="saveCanvas()">Save as Image</button>
+                    </div>
+                    
+                    <canvas id="demoCanvas" width="800" height="400"></canvas>
+                    
+                    <p style="margin-top: 15px; color: #666; text-align: center;">
+                        Click and drag on the canvas to draw
+                    </p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>✅ Best Practices</h2>
+                
+                <div class="key-point">
+                    <h3 style="margin-top: 0;">DO ✓</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Use save() and restore() for transformations</li>
+                        <li>Clear canvas before redrawing animations</li>
+                        <li>Use requestAnimationFrame for smooth animations</li>
+                        <li>Optimize by redrawing only changed areas</li>
+                        <li>Set canvas size via attributes, not CSS</li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('demoCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let startX, startY;
+        
+        document.getElementById('size').addEventListener('input', (e) => {
+            document.getElementById('sizeValue').textContent = e.target.value;
+        });
+        
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const tool = document.getElementById('tool').value;
+            const color = document.getElementById('color').value;
+            const size = parseInt(document.getElementById('size').value);
+            
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = size;
+            
+            if (tool === 'line') {
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                startX = x;
+                startY = y;
+            }
+        });
+        
+        canvas.addEventListener('mouseup', (e) => {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const tool = document.getElementById('tool').value;
+            const color = document.getElementById('color').value;
+            const size = parseInt(document.getElementById('size').value);
+            
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = size;
+            
+            switch(tool) {
+                case 'rectangle':
+                    ctx.fillRect(startX, startY, x - startX, y - startY);
+                    break;
+                case 'circle':
+                    const radius = Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2));
+                    ctx.beginPath();
+                    ctx.arc(startX, startY, radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                case 'text':
+                    ctx.font = `${size * 4}px Arial`;
+                    ctx.fillText('Text', startX, startY);
+                    break;
+            }
+            
+            isDrawing = false;
+        });
+        
+        canvas.addEventListener('mouseleave', () => {
+            isDrawing = false;
+        });
+        
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        function saveCanvas() {
+            const link = document.createElement('a');
+            link.download = 'canvas-drawing.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        window.addEventListener('load', () => {
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        });
+    </script>
+</body>
+</html>

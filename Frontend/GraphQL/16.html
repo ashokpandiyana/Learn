@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 16: Monitoring & Observability</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0c0a1d 0%, #1a0a2e 100%);
+      color: #e4e4e7;
+      line-height: 1.7;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #34d399, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle { color: #a1a1aa; font-size: 1.1rem; margin-bottom: 40px; }
+    .section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    h2 {
+      color: #34d399;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h3 { color: #60a5fa; margin: 25px 0 15px; font-size: 1.2rem; }
+    p { margin-bottom: 15px; color: #d4d4d8; }
+    .code-block {
+      background: #0f0f23;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      border-left: 4px solid #60a5fa;
+    }
+    .code-block code {
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 0.9rem;
+      color: #a5f3fc;
+      white-space: pre;
+    }
+    .comment { color: #6b7280; }
+    .keyword { color: #f472b6; }
+    .string { color: #86efac; }
+    .function { color: #fbbf24; }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 25px 0;
+    }
+    .metric-card {
+      background: linear-gradient(135deg, rgba(52,211,153,0.1), rgba(96,165,250,0.05));
+      border: 1px solid rgba(52,211,153,0.3);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+    .metric-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #34d399;
+    }
+    .metric-label {
+      color: #a1a1aa;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+    .metric-card.warning { border-color: rgba(251,191,36,0.3); }
+    .metric-card.warning .metric-value { color: #fbbf24; }
+    .metric-card.error { border-color: rgba(239,68,68,0.3); }
+    .metric-card.error .metric-value { color: #ef4444; }
+    .diagram {
+      background: #0f0f23;
+      border-radius: 12px;
+      padding: 30px;
+      margin: 25px 0;
+    }
+    .pipeline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .pipeline-step {
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
+      padding: 15px 20px;
+      border-radius: 10px;
+      text-align: center;
+      flex: 1;
+      min-width: 150px;
+    }
+    .pipeline-arrow {
+      color: #60a5fa;
+      font-size: 1.5rem;
+    }
+    .info-box {
+      background: linear-gradient(135deg, rgba(96,165,250,0.1), rgba(59,130,246,0.05));
+      border: 1px solid rgba(96,165,250,0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .info-box h4 { color: #60a5fa; margin-bottom: 10px; }
+    .tip-box {
+      background: linear-gradient(135deg, rgba(52,211,153,0.1), rgba(16,185,129,0.05));
+      border: 1px solid rgba(52,211,153,0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .tip-box h4 { color: #34d399; margin-bottom: 10px; }
+    .warning-box {
+      background: linear-gradient(135deg, rgba(251,191,36,0.1), rgba(245,158,11,0.05));
+      border: 1px solid rgba(251,191,36,0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .warning-box h4 { color: #fbbf24; margin-bottom: 10px; }
+    ul { margin: 15px 0 15px 25px; }
+    li { margin-bottom: 10px; color: #d4d4d8; }
+    .highlight { color: #34d399; font-weight: 600; }
+    .dashboard-mock {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .dashboard-title { color: #60a5fa; font-size: 1.2rem; }
+    .status-badge {
+      background: #22c55e;
+      color: white;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+    .chart-mock {
+      height: 150px;
+      background: linear-gradient(to top, rgba(52,211,153,0.2), transparent);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .chart-line {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #34d399, #60a5fa);
+      transform-origin: left;
+    }
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .tool-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .tool-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(52,211,153,0.5);
+    }
+    .tool-icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    .tool-name {
+      color: #e4e4e7;
+      font-weight: 600;
+    }
+    .tool-desc {
+      color: #a1a1aa;
+      font-size: 0.8rem;
+      margin-top: 5px;
+    }
+    .file-name {
+      background: rgba(96,165,250,0.2);
+      color: #60a5fa;
+      padding: 5px 12px;
+      border-radius: 6px 6px 0 0;
+      font-size: 0.85rem;
+      display: inline-block;
+      margin-bottom: -1px;
+      font-family: 'Fira Code', monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Chapter 16: Monitoring & Observability</h1>
+    <p class="subtitle">Track, Measure, and Optimize Your GraphQL Application</p>
+
+    <div class="section">
+      <h2>🎯 Why Monitoring Matters</h2>
+      
+      <p>GraphQL applications have unique monitoring challenges compared to REST. Each query can have vastly different performance characteristics, making <span class="highlight">per-operation metrics</span> essential.</p>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value">147ms</div>
+          <div class="metric-label">Avg Query Duration</div>
+        </div>
+        <div class="metric-card warning">
+          <div class="metric-value">2.3%</div>
+          <div class="metric-label">Error Rate</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">94%</div>
+          <div class="metric-label">Cache Hit Rate</div>
+        </div>
+        <div class="metric-card error">
+          <div class="metric-value">3</div>
+          <div class="metric-label">Slow Queries</div>
+        </div>
+      </div>
+
+      <h3>Key Metrics to Track</h3>
+      <ul>
+        <li><strong>Query duration:</strong> How long each operation takes</li>
+        <li><strong>Error rates:</strong> Both GraphQL and network errors</li>
+        <li><strong>Cache performance:</strong> Hit/miss ratio</li>
+        <li><strong>Query complexity:</strong> Identify expensive queries</li>
+        <li><strong>Field usage:</strong> Which fields are actually used</li>
+        <li><strong>Client distribution:</strong> Which apps/versions make requests</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>🔮 16.1 Apollo Studio Integration</h2>
+
+      <p>Apollo Studio (formerly Apollo Engine) provides comprehensive GraphQL-specific analytics, schema management, and operation monitoring.</p>
+
+      <div class="dashboard-mock">
+        <div class="dashboard-header">
+          <div class="dashboard-title">📈 Apollo Studio Dashboard</div>
+          <div class="status-badge">● Healthy</div>
+        </div>
+        <div class="metrics-grid" style="margin: 0;">
+          <div class="metric-card" style="margin: 0;">
+            <div class="metric-value" style="font-size: 1.5rem;">1.2M</div>
+            <div class="metric-label">Requests/day</div>
+          </div>
+          <div class="metric-card" style="margin: 0;">
+            <div class="metric-value" style="font-size: 1.5rem;">p95: 234ms</div>
+            <div class="metric-label">Latency</div>
+          </div>
+          <div class="metric-card" style="margin: 0;">
+            <div class="metric-value" style="font-size: 1.5rem;">12</div>
+            <div class="metric-label">Operations</div>
+          </div>
+        </div>
+        <div class="chart-mock" style="margin-top: 15px;">
+          <svg style="width: 100%; height: 100%;" viewBox="0 0 400 150" preserveAspectRatio="none">
+            <path d="M0,120 Q50,100 100,110 T200,80 T300,90 T400,60" fill="none" stroke="#34d399" stroke-width="2"/>
+            <path d="M0,120 Q50,100 100,110 T200,80 T300,90 T400,60 L400,150 L0,150 Z" fill="url(#gradient)" opacity="0.3"/>
+            <defs>
+              <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#34d399;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#34d399;stop-opacity:0" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+
+      <h3>Basic Setup</h3>
+      <div class="code-block">
+        <code><span class="keyword">import</span> { ApolloClient, InMemoryCache } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+
+<span class="keyword">const</span> client = <span class="keyword">new</span> <span class="function">ApolloClient</span>({
+  uri: <span class="string">'https://api.example.com/graphql'</span>,
+  cache: <span class="keyword">new</span> <span class="function">InMemoryCache</span>(),
+  
+  <span class="comment">// Enable DevTools in development</span>
+  connectToDevTools: process.env.NODE_ENV === <span class="string">'development'</span>,
+  
+  <span class="comment">// Name your client for better tracking</span>
+  name: <span class="string">'web-app'</span>,
+  version: <span class="string">'1.2.0'</span>,
+});</code>
+      </div>
+
+      <div class="info-box">
+        <h4>🔧 Apollo Studio Features</h4>
+        <ul>
+          <li><strong>Schema Registry:</strong> Version control for your GraphQL schema</li>
+          <li><strong>Operation Traces:</strong> Detailed timing for each resolver</li>
+          <li><strong>Error Tracking:</strong> Aggregate errors by operation</li>
+          <li><strong>Field Usage:</strong> See which fields are actually queried</li>
+          <li><strong>Performance Alerts:</strong> Get notified of slowdowns</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>⏱️ 16.2 Custom Performance Tracking</h2>
+
+      <p>Build your own performance monitoring using Apollo Links. This gives you complete control over what metrics you collect and where you send them.</p>
+
+      <div class="diagram">
+        <h4 style="color: #60a5fa; margin-bottom: 20px; text-align: center;">Custom Metrics Pipeline</h4>
+        <div class="pipeline">
+          <div class="pipeline-step">📤 GraphQL Request</div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">⏱️ Performance Link</div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">📊 Analytics Service</div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">📈 Dashboard</div>
+        </div>
+      </div>
+
+      <h3>Performance Tracking Link</h3>
+      <div class="file-name">links/performanceLink.ts</div>
+      <div class="code-block">
+        <code><span class="keyword">import</span> { ApolloLink, Operation } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+
+<span class="comment">// Define the shape of our metrics</span>
+<span class="keyword">interface</span> QueryMetrics {
+  operationName: string;
+  operationType: string;
+  duration: number;
+  timestamp: string;
+  variables: Record&lt;string, any&gt;;
+  cacheHit: boolean;
+  status: <span class="string">'success'</span> | <span class="string">'error'</span>;
+  errorMessage?: string;
+}
+
+<span class="comment">// Send metrics to your analytics service</span>
+<span class="keyword">async function</span> <span class="function">sendMetrics</span>(metrics: QueryMetrics) {
+  <span class="comment">// Option 1: Send to custom analytics endpoint</span>
+  <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/api/analytics/graphql'</span>, {
+    method: <span class="string">'POST'</span>,
+    headers: { <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span> },
+    body: JSON.<span class="function">stringify</span>(metrics),
+  });
+
+  <span class="comment">// Option 2: Send to third-party service</span>
+  analytics.<span class="function">track</span>(<span class="string">'graphql_operation'</span>, metrics);
+  
+  <span class="comment">// Option 3: Log to console in development</span>
+  <span class="keyword">if</span> (process.env.NODE_ENV === <span class="string">'development'</span>) {
+    console.<span class="function">log</span>(<span class="string">`[GraphQL] ${metrics.operationName}: ${metrics.duration}ms`</span>);
+  }
+}
+
+<span class="comment">// Extract operation type from query</span>
+<span class="keyword">function</span> <span class="function">getOperationType</span>(operation: Operation): string {
+  <span class="keyword">const</span> definition = operation.query.definitions[0];
+  <span class="keyword">if</span> (definition.kind === <span class="string">'OperationDefinition'</span>) {
+    <span class="keyword">return</span> definition.operation;
+  }
+  <span class="keyword">return</span> <span class="string">'unknown'</span>;
+}
+
+<span class="keyword">export const</span> performanceLink = <span class="keyword">new</span> <span class="function">ApolloLink</span>((operation, forward) => {
+  <span class="comment">// Record start time before request</span>
+  <span class="keyword">const</span> startTime = performance.<span class="function">now</span>();
+  
+  <span class="comment">// Add unique request ID for tracing</span>
+  operation.<span class="function">setContext</span>(({ headers = {} }) => ({
+    headers: {
+      ...headers,
+      <span class="string">'x-request-id'</span>: <span class="string">`${Date.now()}-${Math.random().toString(36).slice(2)}`</span>,
+    },
+  }));
+
+  <span class="keyword">return</span> <span class="function">forward</span>(operation).<span class="function">map</span>(response => {
+    <span class="keyword">const</span> duration = performance.<span class="function">now</span>() - startTime;
+    
+    <span class="comment">// Build metrics object</span>
+    <span class="keyword">const</span> metrics: QueryMetrics = {
+      operationName: operation.operationName || <span class="string">'anonymous'</span>,
+      operationType: <span class="function">getOperationType</span>(operation),
+      duration: Math.<span class="function">round</span>(duration),
+      timestamp: <span class="keyword">new</span> <span class="function">Date</span>().<span class="function">toISOString</span>(),
+      variables: operation.variables,
+      cacheHit: response.data && !response.errors,
+      status: response.errors ? <span class="string">'error'</span> : <span class="string">'success'</span>,
+      errorMessage: response.errors?.[0]?.message,
+    };
+
+    <span class="comment">// Send asynchronously (don't block response)</span>
+    <span class="function">sendMetrics</span>(metrics).<span class="function">catch</span>(console.error);
+
+    <span class="comment">// Log slow queries</span>
+    <span class="keyword">if</span> (duration > 1000) {
+      console.<span class="function">warn</span>(<span class="string">`[Slow Query] ${metrics.operationName}: ${duration}ms`</span>);
+    }
+
+    <span class="keyword">return</span> response;
+  });
+});</code>
+      </div>
+
+      <h3>Cache Hit Rate Tracking</h3>
+      <div class="code-block">
+        <code><span class="keyword">import</span> { ApolloLink } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+
+<span class="comment">// Track cache performance</span>
+<span class="keyword">let</span> cacheHits = 0;
+<span class="keyword">let</span> cacheMisses = 0;
+
+<span class="keyword">export const</span> cacheTrackingLink = <span class="keyword">new</span> <span class="function">ApolloLink</span>((operation, forward) => {
+  <span class="keyword">return</span> <span class="function">forward</span>(operation).<span class="function">map</span>(response => {
+    <span class="comment">// Check if response came from cache</span>
+    <span class="keyword">const</span> context = operation.<span class="function">getContext</span>();
+    
+    <span class="keyword">if</span> (context.response?.fromCache) {
+      cacheHits++;
+    } <span class="keyword">else</span> {
+      cacheMisses++;
+    }
+
+    <span class="comment">// Calculate and log hit rate periodically</span>
+    <span class="keyword">const</span> total = cacheHits + cacheMisses;
+    <span class="keyword">if</span> (total % 100 === 0) {
+      <span class="keyword">const</span> hitRate = ((cacheHits / total) * 100).<span class="function">toFixed</span>(1);
+      console.<span class="function">log</span>(<span class="string">`[Cache] Hit rate: ${hitRate}% (${cacheHits}/${total})`</span>);
+    }
+
+    <span class="keyword">return</span> response;
+  });
+});
+
+<span class="comment">// Export function to get current stats</span>
+<span class="keyword">export function</span> <span class="function">getCacheStats</span>() {
+  <span class="keyword">const</span> total = cacheHits + cacheMisses;
+  <span class="keyword">return</span> {
+    hits: cacheHits,
+    misses: cacheMisses,
+    total,
+    hitRate: total > 0 ? (cacheHits / total) * 100 : 0,
+  };
+}</code>
+      </div>
+
+      <div class="tip-box">
+        <h4>💡 Performance Optimization Tips</h4>
+        <ul>
+          <li><strong>Set thresholds:</strong> Alert when queries exceed 1-2 seconds</li>
+          <li><strong>Track p95/p99:</strong> Average hides outliers; use percentiles</li>
+          <li><strong>Segment by operation:</strong> Different queries have different norms</li>
+          <li><strong>Sample in production:</strong> Don't track every request at scale</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🚨 16.3 Error Tracking Integration</h2>
+
+      <p>Integrate with error tracking services like Sentry, Datadog, or LogRocket to capture and analyze GraphQL errors in production.</p>
+
+      <h3>Sentry Integration</h3>
+      <div class="file-name">links/sentryLink.ts</div>
+      <div class="code-block">
+        <code><span class="keyword">import</span> { onError } <span class="keyword">from</span> <span class="string">'@apollo/client/link/error'</span>;
+<span class="keyword">import</span> * <span class="keyword">as</span> Sentry <span class="keyword">from</span> <span class="string">'@sentry/react'</span>;
+
+<span class="keyword">export const</span> sentryLink = <span class="function">onError</span>(({ 
+  graphQLErrors, 
+  networkError, 
+  operation 
+}) => {
+  <span class="comment">// Extract operation details for context</span>
+  <span class="keyword">const</span> operationContext = {
+    operationName: operation.operationName,
+    variables: operation.variables,
+    <span class="comment">// Sanitize sensitive data before sending</span>
+    query: operation.query.loc?.source.body.<span class="function">slice</span>(0, 500),
+  };
+
+  <span class="comment">// Handle GraphQL Errors</span>
+  <span class="keyword">if</span> (graphQLErrors) {
+    graphQLErrors.<span class="function">forEach</span>((error) => {
+      <span class="comment">// Set error severity based on code</span>
+      <span class="keyword">const</span> severity = error.extensions?.code === <span class="string">'INTERNAL_SERVER_ERROR'</span>
+        ? <span class="string">'error'</span>
+        : <span class="string">'warning'</span>;
+
+      Sentry.<span class="function">withScope</span>((scope) => {
+        <span class="comment">// Add context</span>
+        scope.<span class="function">setTag</span>(<span class="string">'graphql.operation'</span>, operation.operationName);
+        scope.<span class="function">setTag</span>(<span class="string">'graphql.errorCode'</span>, error.extensions?.code);
+        scope.<span class="function">setLevel</span>(severity);
+        
+        <span class="comment">// Add breadcrumb for debugging</span>
+        scope.<span class="function">addBreadcrumb</span>({
+          category: <span class="string">'graphql'</span>,
+          message: <span class="string">`GraphQL Error: ${error.message}`</span>,
+          level: severity,
+          data: operationContext,
+        });
+
+        <span class="comment">// Capture the error</span>
+        Sentry.<span class="function">captureException</span>(
+          <span class="keyword">new</span> <span class="function">Error</span>(<span class="string">`GraphQL Error: ${error.message}`</span>),
+          {
+            extra: {
+              ...operationContext,
+              path: error.path,
+              locations: error.locations,
+            },
+            fingerprint: [
+              <span class="string">'graphql'</span>,
+              operation.operationName,
+              error.extensions?.code || <span class="string">'UNKNOWN'</span>,
+            ],
+          }
+        );
+      });
+    });
+  }
+
+  <span class="comment">// Handle Network Errors</span>
+  <span class="keyword">if</span> (networkError) {
+    Sentry.<span class="function">withScope</span>((scope) => {
+      scope.<span class="function">setTag</span>(<span class="string">'graphql.operation'</span>, operation.operationName);
+      scope.<span class="function">setTag</span>(<span class="string">'error.type'</span>, <span class="string">'network'</span>);
+      scope.<span class="function">setLevel</span>(<span class="string">'error'</span>);
+
+      Sentry.<span class="function">captureException</span>(networkError, {
+        extra: {
+          ...operationContext,
+          statusCode: (networkError <span class="keyword">as</span> any).statusCode,
+        },
+        fingerprint: [
+          <span class="string">'graphql'</span>,
+          <span class="string">'network_error'</span>,
+          operation.operationName,
+        ],
+      });
+    });
+  }
+});</code>
+      </div>
+
+      <h3>Complete Client Setup with All Links</h3>
+      <div class="file-name">lib/apollo-client.ts</div>
+      <div class="code-block">
+        <code><span class="keyword">import</span> { ApolloClient, InMemoryCache, HttpLink, from } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+<span class="keyword">import</span> { performanceLink } <span class="keyword">from</span> <span class="string">'./links/performanceLink'</span>;
+<span class="keyword">import</span> { sentryLink } <span class="keyword">from</span> <span class="string">'./links/sentryLink'</span>;
+<span class="keyword">import</span> { authLink } <span class="keyword">from</span> <span class="string">'./links/authLink'</span>;
+<span class="keyword">import</span> { retryLink } <span class="keyword">from</span> <span class="string">'./links/retryLink'</span>;
+
+<span class="keyword">const</span> httpLink = <span class="keyword">new</span> <span class="function">HttpLink</span>({
+  uri: process.env.NEXT_PUBLIC_GRAPHQL_URL,
+});
+
+<span class="comment">// Link order matters!</span>
+<span class="comment">// 1. Error tracking (captures all errors)</span>
+<span class="comment">// 2. Performance tracking (measures total time)</span>
+<span class="comment">// 3. Auth (adds headers)</span>
+<span class="comment">// 4. Retry (retries failed requests)</span>
+<span class="comment">// 5. HTTP (makes the request)</span>
+
+<span class="keyword">export const</span> client = <span class="keyword">new</span> <span class="function">ApolloClient</span>({
+  link: <span class="function">from</span>([
+    sentryLink,
+    performanceLink,
+    authLink,
+    retryLink,
+    httpLink,
+  ]),
+  cache: <span class="keyword">new</span> <span class="function">InMemoryCache</span>(),
+  name: <span class="string">'my-app'</span>,
+  version: process.env.NEXT_PUBLIC_APP_VERSION,
+});</code>
+      </div>
+
+      <h3>Popular Monitoring Tools</h3>
+      <div class="tools-grid">
+        <div class="tool-card">
+          <div class="tool-icon">🔮</div>
+          <div class="tool-name">Apollo Studio</div>
+          <div class="tool-desc">Native GraphQL monitoring</div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-icon">🐛</div>
+          <div class="tool-name">Sentry</div>
+          <div class="tool-desc">Error tracking & performance</div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-icon">🐕</div>
+          <div class="tool-name">Datadog</div>
+          <div class="tool-desc">Full-stack observability</div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-icon">📹</div>
+          <div class="tool-name">LogRocket</div>
+          <div class="tool-desc">Session replay + logging</div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-icon">📊</div>
+          <div class="tool-name">New Relic</div>
+          <div class="tool-desc">APM & infrastructure</div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-icon">🔥</div>
+          <div class="tool-name">Grafana</div>
+          <div class="tool-desc">Custom dashboards</div>
+        </div>
+      </div>
+
+      <div class="warning-box">
+        <h4>⚠️ Production Monitoring Best Practices</h4>
+        <ul>
+          <li><strong>Sample strategically:</strong> Track 100% of errors, but sample successful requests</li>
+          <li><strong>Sanitize data:</strong> Never send passwords, tokens, or PII to monitoring services</li>
+          <li><strong>Set up alerts:</strong> Get notified when error rates or latency spike</li>
+          <li><strong>Use fingerprinting:</strong> Group similar errors together</li>
+          <li><strong>Track trends:</strong> Compare week-over-week performance</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

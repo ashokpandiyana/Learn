@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 8: Advanced React Patterns</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e4e4e7;
+      line-height: 1.7;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #ef4444, #f97316);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle { color: #94a3b8; font-size: 1.1rem; margin-bottom: 40px; }
+    .section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    h2 {
+      color: #fb7185;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, #ef4444, #f97316);
+      border-radius: 2px;
+    }
+    h3 { color: #fda4af; font-size: 1.2rem; margin: 25px 0 15px; }
+    p { margin-bottom: 15px; color: #cbd5e1; }
+    .code-block {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+      overflow-x: auto;
+      border: 1px solid #334155;
+    }
+    pre { font-family: 'Fira Code', 'Consolas', monospace; font-size: 13px; line-height: 1.6; }
+    .keyword { color: #c678dd; }
+    .type { color: #e5c07b; }
+    .string { color: #98c379; }
+    .number { color: #d19a66; }
+    .comment { color: #5c6370; font-style: italic; }
+    .function { color: #61afef; }
+    .variable { color: #e06c75; }
+    .tag { color: #e06c75; }
+    .attr { color: #d19a66; }
+    .alert {
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+    }
+    .alert-interview { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .alert-tip { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); }
+    .alert-icon { font-size: 1.5rem; }
+    .alert-content h4 { color: #f87171; margin-bottom: 5px; }
+    .alert-tip .alert-content h4 { color: #4ade80; }
+    .visual-box {
+      background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(249,115,22,0.1));
+      border-radius: 12px;
+      padding: 25px;
+      margin: 20px 0;
+      border: 1px solid rgba(251,113,133,0.3);
+    }
+    .visual-title { color: #fb7185; font-weight: 600; margin-bottom: 15px; text-align: center; }
+    .pattern-card {
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+      border-left: 4px solid #ef4444;
+    }
+    .pattern-card h4 { color: #fb7185; margin-bottom: 10px; }
+    ul { padding-left: 25px; margin: 10px 0; }
+    li { margin: 8px 0; color: #cbd5e1; }
+    code { background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+    .nav-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
+    .nav-btn {
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #ef4444, #f97316);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 Chapter 8: Advanced React Patterns</h1>
+    <p class="subtitle">Generic components, HOCs, render props, and polymorphic components</p>
+
+    <!-- Section 8.1 -->
+    <div class="section">
+      <h2>8.1 Generic Components</h2>
+      
+      <p>Generic components accept type parameters, allowing them to work with any data type while maintaining full type safety.</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Generic Table Component</span>
+<span class="keyword">interface</span> <span class="type">Column</span>&lt;<span class="type">T</span>&gt; {
+  <span class="variable">key</span>: <span class="keyword">keyof</span> <span class="type">T</span>;
+  <span class="variable">header</span>: <span class="type">string</span>;
+  <span class="variable">render</span>?: (<span class="variable">value</span>: <span class="type">T</span>[<span class="keyword">keyof</span> <span class="type">T</span>], <span class="variable">item</span>: <span class="type">T</span>) => <span class="type">React</span>.<span class="type">ReactNode</span>;
+}
+
+<span class="keyword">interface</span> <span class="type">TableProps</span>&lt;<span class="type">T</span>&gt; {
+  <span class="variable">data</span>: <span class="type">T</span>[];
+  <span class="variable">columns</span>: <span class="type">Column</span>&lt;<span class="type">T</span>&gt;[];
+  <span class="variable">keyExtractor</span>: (<span class="variable">item</span>: <span class="type">T</span>) => <span class="type">string</span>;
+  <span class="variable">onRowClick</span>?: (<span class="variable">item</span>: <span class="type">T</span>) => <span class="type">void</span>;
+}
+
+<span class="keyword">function</span> <span class="function">Table</span>&lt;<span class="type">T</span>&gt;({ <span class="variable">data</span>, <span class="variable">columns</span>, <span class="variable">keyExtractor</span>, <span class="variable">onRowClick</span> }: <span class="type">TableProps</span>&lt;<span class="type">T</span>&gt;) {
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">table</span>&gt;
+      &lt;<span class="tag">thead</span>&gt;
+        &lt;<span class="tag">tr</span>&gt;
+          {<span class="variable">columns</span>.<span class="function">map</span>(<span class="variable">col</span> => (
+            &lt;<span class="tag">th</span> <span class="attr">key</span>={<span class="type">String</span>(<span class="variable">col</span>.<span class="variable">key</span>)}&gt;{<span class="variable">col</span>.<span class="variable">header</span>}&lt;/<span class="tag">th</span>&gt;
+          ))}
+        &lt;/<span class="tag">tr</span>&gt;
+      &lt;/<span class="tag">thead</span>&gt;
+      &lt;<span class="tag">tbody</span>&gt;
+        {<span class="variable">data</span>.<span class="function">map</span>(<span class="variable">item</span> => (
+          &lt;<span class="tag">tr</span>
+            <span class="attr">key</span>={<span class="function">keyExtractor</span>(<span class="variable">item</span>)}
+            <span class="attr">onClick</span>={() => <span class="variable">onRowClick</span>?.(<span class="variable">item</span>)}
+          &gt;
+            {<span class="variable">columns</span>.<span class="function">map</span>(<span class="variable">col</span> => (
+              &lt;<span class="tag">td</span> <span class="attr">key</span>={<span class="type">String</span>(<span class="variable">col</span>.<span class="variable">key</span>)}&gt;
+                {<span class="variable">col</span>.<span class="variable">render</span>
+                  ? <span class="variable">col</span>.<span class="function">render</span>(<span class="variable">item</span>[<span class="variable">col</span>.<span class="variable">key</span>], <span class="variable">item</span>)
+                  : <span class="type">String</span>(<span class="variable">item</span>[<span class="variable">col</span>.<span class="variable">key</span>])}
+              &lt;/<span class="tag">td</span>&gt;
+            ))}
+          &lt;/<span class="tag">tr</span>&gt;
+        ))}
+      &lt;/<span class="tag">tbody</span>&gt;
+    &lt;/<span class="tag">table</span>&gt;
+  );
+}
+
+<span class="comment">// Usage - TypeScript infers T from data</span>
+<span class="keyword">interface</span> <span class="type">User</span> {
+  <span class="variable">id</span>: <span class="type">string</span>;
+  <span class="variable">name</span>: <span class="type">string</span>;
+  <span class="variable">email</span>: <span class="type">string</span>;
+  <span class="variable">role</span>: <span class="string">'admin'</span> | <span class="string">'user'</span>;
+}
+
+<span class="keyword">const</span> <span class="variable">users</span>: <span class="type">User</span>[] = [
+  { <span class="variable">id</span>: <span class="string">'1'</span>, <span class="variable">name</span>: <span class="string">'Alice'</span>, <span class="variable">email</span>: <span class="string">'alice@test.com'</span>, <span class="variable">role</span>: <span class="string">'admin'</span> },
+];
+
+&lt;<span class="type">Table</span>
+  <span class="attr">data</span>={<span class="variable">users</span>}
+  <span class="attr">keyExtractor</span>={<span class="variable">user</span> => <span class="variable">user</span>.<span class="variable">id</span|}
+  <span class="attr">columns</span>={[
+    { <span class="variable">key</span>: <span class="string">'name'</span>, <span class="variable">header</span>: <span class="string">'Name'</span> },
+    { <span class="variable">key</span>: <span class="string">'email'</span>, <span class="variable">header</span>: <span class="string">'Email'</span> },
+    { 
+      <span class="variable">key</span>: <span class="string">'role'</span>, 
+      <span class="variable">header</span>: <span class="string">'Role'</span>,
+      <span class="variable">render</span>: (<span class="variable">value</span>) => &lt;<span class="tag">span</span> <span class="attr">className</span>={<span class="string">`badge-</span>${<span class="variable">value</span>}<span class="string">`</span>}&gt;{<span class="variable">value</span>}&lt;/<span class="tag">span</span>&gt;
+    },
+  ]}
+  <span class="attr">onRowClick</span>={<span class="variable">user</span> => console.<span class="function">log</span>(<span class="variable">user</span>.<span class="variable">name</span>)}  <span class="comment">// user is typed as User</span>
+/&gt;</pre>
+      </div>
+
+      <div class="alert alert-interview">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+          <h4>Interview Question: Implement a Generic Select Component</h4>
+          <p>This is a very common interview question. Here's the solution:</p>
+        </div>
+      </div>
+
+      <div class="code-block">
+<pre><span class="comment">// Generic Select Component</span>
+<span class="keyword">interface</span> <span class="type">SelectProps</span>&lt;<span class="type">T</span>&gt; {
+  <span class="variable">options</span>: <span class="type">T</span>[];
+  <span class="variable">value</span>: <span class="type">T</span> | <span class="type">null</span>;
+  <span class="variable">onChange</span>: (<span class="variable">value</span>: <span class="type">T</span>) => <span class="type">void</span>;
+  <span class="variable">getLabel</span>: (<span class="variable">option</span>: <span class="type">T</span>) => <span class="type">string</span>;
+  <span class="variable">getValue</span>: (<span class="variable">option</span>: <span class="type">T</span>) => <span class="type">string</span>;
+  <span class="variable">placeholder</span>?: <span class="type">string</span>;
+}
+
+<span class="keyword">function</span> <span class="function">Select</span>&lt;<span class="type">T</span>&gt;({
+  <span class="variable">options</span>,
+  <span class="variable">value</span>,
+  <span class="variable">onChange</span>,
+  <span class="variable">getLabel</span>,
+  <span class="variable">getValue</span>,
+  <span class="variable">placeholder</span> = <span class="string">'Select...'</span>,
+}: <span class="type">SelectProps</span>&lt;<span class="type">T</span>&gt;) {
+  <span class="keyword">const</span> <span class="function">handleChange</span> = (<span class="variable">e</span>: <span class="type">React</span>.<span class="type">ChangeEvent</span>&lt;<span class="type">HTMLSelectElement</span>&gt;) => {
+    <span class="keyword">const</span> <span class="variable">selected</span> = <span class="variable">options</span>.<span class="function">find</span>(<span class="variable">opt</span> => <span class="function">getValue</span>(<span class="variable">opt</span>) === <span class="variable">e</span>.<span class="variable">target</span>.<span class="variable">value</span>);
+    <span class="keyword">if</span> (<span class="variable">selected</span>) <span class="function">onChange</span>(<span class="variable">selected</span>);
+  };
+  
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">select</span>
+      <span class="attr">value</span>={<span class="variable">value</span> ? <span class="function">getValue</span>(<span class="variable">value</span>) : <span class="string">''</span>}
+      <span class="attr">onChange</span>={<span class="function">handleChange</span>}
+    &gt;
+      &lt;<span class="tag">option</span> <span class="attr">value</span>=<span class="string">""</span> <span class="attr">disabled</span>&gt;{<span class="variable">placeholder</span>}&lt;/<span class="tag">option</span>&gt;
+      {<span class="variable">options</span>.<span class="function">map</span>(<span class="variable">option</span> => (
+        &lt;<span class="tag">option</span> <span class="attr">key</span>={<span class="function">getValue</span>(<span class="variable">option</span>)} <span class="attr">value</span>={<span class="function">getValue</span>(<span class="variable">option</span>)}&gt;
+          {<span class="function">getLabel</span>(<span class="variable">option</span>)}
+        &lt;/<span class="tag">option</span>&gt;
+      ))}
+    &lt;/<span class="tag">select</span>&gt;
+  );
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">interface</span> <span class="type">Country</span> { <span class="variable">code</span>: <span class="type">string</span>; <span class="variable">name</span>: <span class="type">string</span>; }
+<span class="keyword">const</span> <span class="variable">countries</span>: <span class="type">Country</span>[] = [
+  { <span class="variable">code</span>: <span class="string">'US'</span>, <span class="variable">name</span>: <span class="string">'United States'</span> },
+  { <span class="variable">code</span>: <span class="string">'UK'</span>, <span class="variable">name</span>: <span class="string">'United Kingdom'</span> },
+];
+
+&lt;<span class="type">Select</span>
+  <span class="attr">options</span>={<span class="variable">countries</span>}
+  <span class="attr">value</span>={<span class="variable">selectedCountry</span>}
+  <span class="attr">onChange</span>={<span class="variable">setSelectedCountry</span>}
+  <span class="attr">getLabel</span>={<span class="variable">c</span> => <span class="variable">c</span>.<span class="variable">name</span>}
+  <span class="attr">getValue</span>={<span class="variable">c</span> => <span class="variable">c</span>.<span class="variable">code</span>}
+/&gt;</pre>
+      </div>
+    </div>
+
+    <!-- Section 8.2 -->
+    <div class="section">
+      <h2>8.2 Higher-Order Components (HOCs)</h2>
+      
+      <p>HOCs are functions that take a component and return a new enhanced component. Typing them correctly is crucial.</p>
+
+      <div class="code-block">
+<pre><span class="keyword">import</span> <span class="type">React</span>, { <span class="type">ComponentType</span> } <span class="keyword">from</span> <span class="string">'react'</span>;
+
+<span class="comment">// withLoading HOC</span>
+<span class="keyword">interface</span> <span class="type">WithLoadingProps</span> {
+  <span class="variable">isLoading</span>: <span class="type">boolean</span>;
+}
+
+<span class="keyword">function</span> <span class="function">withLoading</span>&lt;<span class="type">P</span> <span class="keyword">extends</span> <span class="type">object</span>&gt;(
+  <span class="variable">WrappedComponent</span>: <span class="type">ComponentType</span>&lt;<span class="type">P</span>&gt;
+): <span class="type">ComponentType</span>&lt;<span class="type">P</span> & <span class="type">WithLoadingProps</span>&gt; {
+  <span class="keyword">return</span> <span class="keyword">function</span> <span class="function">WithLoadingComponent</span>({
+    <span class="variable">isLoading</span>,
+    ...<span class="variable">props</span>
+  }: <span class="type">P</span> & <span class="type">WithLoadingProps</span>) {
+    <span class="keyword">if</span> (<span class="variable">isLoading</span>) {
+      <span class="keyword">return</span> &lt;<span class="tag">div</span>&gt;Loading...&lt;/<span class="tag">div</span>&gt;;
+    }
+    <span class="keyword">return</span> &lt;<span class="variable">WrappedComponent</span> {...(<span class="variable">props</span> <span class="keyword">as</span> <span class="type">P</span>)} /&gt;;
+  };
+}
+
+<span class="comment">// withAuth HOC - injects user prop</span>
+<span class="keyword">interface</span> <span class="type">User</span> {
+  <span class="variable">id</span>: <span class="type">string</span>;
+  <span class="variable">name</span>: <span class="type">string</span>;
+}
+
+<span class="keyword">interface</span> <span class="type">InjectedAuthProps</span> {
+  <span class="variable">user</span>: <span class="type">User</span>;
+}
+
+<span class="keyword">function</span> <span class="function">withAuth</span>&lt;<span class="type">P</span> <span class="keyword">extends</span> <span class="type">InjectedAuthProps</span>&gt;(
+  <span class="variable">WrappedComponent</span>: <span class="type">ComponentType</span>&lt;<span class="type">P</span>&gt;
+): <span class="type">ComponentType</span>&lt;<span class="type">Omit</span>&lt;<span class="type">P</span>, <span class="keyword">keyof</span> <span class="type">InjectedAuthProps</span>&gt;&gt; {
+  <span class="keyword">return</span> <span class="keyword">function</span> <span class="function">WithAuthComponent</span>(
+    <span class="variable">props</span>: <span class="type">Omit</span>&lt;<span class="type">P</span>, <span class="keyword">keyof</span> <span class="type">InjectedAuthProps</span>&gt;
+  ) {
+    <span class="comment">// Get user from context/store</span>
+    <span class="keyword">const</span> <span class="variable">user</span>: <span class="type">User</span> = { <span class="variable">id</span>: <span class="string">'1'</span>, <span class="variable">name</span>: <span class="string">'Current User'</span> };
+    
+    <span class="keyword">return</span> &lt;<span class="variable">WrappedComponent</span> {...(<span class="variable">props</span> <span class="keyword">as</span> <span class="type">P</span>)} <span class="attr">user</span>={<span class="variable">user</span>} /&gt;;
+  };
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">interface</span> <span class="type">ProfileProps</span> {
+  <span class="variable">user</span>: <span class="type">User</span>;
+  <span class="variable">showEmail</span>: <span class="type">boolean</span>;
+}
+
+<span class="keyword">function</span> <span class="function">Profile</span>({ <span class="variable">user</span>, <span class="variable">showEmail</span> }: <span class="type">ProfileProps</span>) {
+  <span class="keyword">return</span> &lt;<span class="tag">div</span>&gt;Welcome, {<span class="variable">user</span>.<span class="variable">name</span>}&lt;/<span class="tag">div</span>&gt;;
+}
+
+<span class="keyword">const</span> <span class="variable">AuthenticatedProfile</span> = <span class="function">withAuth</span>(<span class="variable">Profile</span>);
+
+<span class="comment">// user prop is automatically injected!</span>
+&lt;<span class="type">AuthenticatedProfile</span> <span class="attr">showEmail</span>={<span class="keyword">true</span>} /&gt;</pre>
+      </div>
+
+      <div class="alert alert-tip">
+        <span class="alert-icon">💡</span>
+        <div class="alert-content">
+          <h4>Modern Alternative: Custom Hooks</h4>
+          <p>HOCs are less common in modern React. Consider using custom hooks instead, which are easier to type and compose.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 8.3 -->
+    <div class="section">
+      <h2>8.3 Render Props Pattern</h2>
+      
+      <div class="code-block">
+<pre><span class="comment">// Generic Render Props for data fetching</span>
+<span class="keyword">interface</span> <span class="type">FetcherProps</span>&lt;<span class="type">T</span>&gt; {
+  <span class="variable">url</span>: <span class="type">string</span>;
+  <span class="variable">children</span>: (<span class="variable">state</span>: {
+    <span class="variable">data</span>: <span class="type">T</span> | <span class="type">null</span>;
+    <span class="variable">loading</span>: <span class="type">boolean</span>;
+    <span class="variable">error</span>: <span class="type">Error</span> | <span class="type">null</span>;
+    <span class="variable">refetch</span>: () => <span class="type">void</span>;
+  }) => <span class="type">React</span>.<span class="type">ReactNode</span>;
+}
+
+<span class="keyword">function</span> <span class="function">Fetcher</span>&lt;<span class="type">T</span>&gt;({ <span class="variable">url</span>, <span class="variable">children</span> }: <span class="type">FetcherProps</span>&lt;<span class="type">T</span>&gt;) {
+  <span class="keyword">const</span> [<span class="variable">data</span>, <span class="variable">setData</span>] = <span class="function">useState</span>&lt;<span class="type">T</span> | <span class="type">null</span>&gt;(<span class="keyword">null</span>);
+  <span class="keyword">const</span> [<span class="variable">loading</span>, <span class="variable">setLoading</span>] = <span class="function">useState</span>(<span class="keyword">true</span>);
+  <span class="keyword">const</span> [<span class="variable">error</span>, <span class="variable">setError</span>] = <span class="function">useState</span>&lt;<span class="type">Error</span> | <span class="type">null</span>&gt;(<span class="keyword">null</span>);
+  
+  <span class="keyword">const</span> <span class="function">fetchData</span> = <span class="keyword">async</span> () => {
+    <span class="function">setLoading</span>(<span class="keyword">true</span>);
+    <span class="keyword">try</span> {
+      <span class="keyword">const</span> <span class="variable">res</span> = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="variable">url</span>);
+      <span class="keyword">const</span> <span class="variable">json</span> = <span class="keyword">await</span> <span class="variable">res</span>.<span class="function">json</span>();
+      <span class="function">setData</span>(<span class="variable">json</span>);
+    } <span class="keyword">catch</span> (<span class="variable">e</span>) {
+      <span class="function">setError</span>(<span class="variable">e</span> <span class="keyword">as</span> <span class="type">Error</span>);
+    } <span class="keyword">finally</span> {
+      <span class="function">setLoading</span>(<span class="keyword">false</span>);
+    }
+  };
+  
+  <span class="function">useEffect</span>(() => { <span class="function">fetchData</span>(); }, [<span class="variable">url</span>]);
+  
+  <span class="keyword">return</span> &lt;&gt;{<span class="function">children</span>({ <span class="variable">data</span>, <span class="variable">loading</span>, <span class="variable">error</span>, <span class="variable">refetch</span>: <span class="variable">fetchData</span> })}&lt;/&gt;;
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">interface</span> <span class="type">Post</span> { <span class="variable">id</span>: <span class="type">number</span>; <span class="variable">title</span>: <span class="type">string</span>; }
+
+&lt;<span class="type">Fetcher</span>&lt;<span class="type">Post</span>[]&gt; <span class="attr">url</span>=<span class="string">"/api/posts"</span>&gt;
+  {({ <span class="variable">data</span>, <span class="variable">loading</span>, <span class="variable">error</span> }) => (
+    &lt;<span class="tag">div</span>&gt;
+      {<span class="variable">loading</span> && &lt;<span class="tag">p</span>&gt;Loading...&lt;/<span class="tag">p</span>&gt;}
+      {<span class="variable">error</span> && &lt;<span class="tag">p</span>&gt;Error: {<span class="variable">error</span>.<span class="variable">message</span>}&lt;/<span class="tag">p</span>&gt;}
+      {<span class="variable">data</span>?.<span class="function">map</span>(<span class="variable">post</span> => &lt;<span class="tag">h2</span> <span class="attr">key</span>={<span class="variable">post</span>.<span class="variable">id</span>}&gt;{<span class="variable">post</span>.<span class="variable">title</span>}&lt;/<span class="tag">h2</span>&gt;)}
+    &lt;/<span class="tag">div</span>&gt;
+  )}
+&lt;/<span class="type">Fetcher</span>&gt;</pre>
+      </div>
+    </div>
+
+    <!-- Section 8.4 -->
+    <div class="section">
+      <h2>8.4 Polymorphic Components (The "as" Prop)</h2>
+      
+      <p>Polymorphic components can render as different HTML elements or React components while maintaining type safety for their props.</p>
+
+      <div class="code-block">
+<pre><span class="keyword">import</span> <span class="type">React</span>, { <span class="type">ElementType</span>, <span class="type">ComponentPropsWithoutRef</span> } <span class="keyword">from</span> <span class="string">'react'</span>;
+
+<span class="comment">// Type for the "as" prop</span>
+<span class="keyword">type</span> <span class="type">AsProp</span>&lt;<span class="type">C</span> <span class="keyword">extends</span> <span class="type">ElementType</span>&gt; = {
+  <span class="variable">as</span>?: <span class="type">C</span>;
+};
+
+<span class="comment">// Props to omit from the element props (to avoid conflicts)</span>
+<span class="keyword">type</span> <span class="type">PropsToOmit</span>&lt;<span class="type">C</span> <span class="keyword">extends</span> <span class="type">ElementType</span>, <span class="type">P</span>&gt; = <span class="keyword">keyof</span> (<span class="type">AsProp</span>&lt;<span class="type">C</span>&gt; & <span class="type">P</span>);
+
+<span class="comment">// Final polymorphic component props type</span>
+<span class="keyword">type</span> <span class="type">PolymorphicComponentProps</span>&lt;
+  <span class="type">C</span> <span class="keyword">extends</span> <span class="type">ElementType</span>,
+  <span class="type">Props</span> = {}
+&gt; = <span class="type">React</span>.<span class="type">PropsWithChildren</span>&lt;<span class="type">Props</span> & <span class="type">AsProp</span>&lt;<span class="type">C</span>&gt;&gt; &
+  <span class="type">Omit</span>&lt;<span class="type">ComponentPropsWithoutRef</span>&lt;<span class="type">C</span>&gt;, <span class="type">PropsToOmit</span>&lt;<span class="type">C</span>, <span class="type">Props</span>&gt;&gt;;
+
+<span class="comment">// Custom props for our Button</span>
+<span class="keyword">interface</span> <span class="type">ButtonOwnProps</span> {
+  <span class="variable">variant</span>?: <span class="string">'primary'</span> | <span class="string">'secondary'</span> | <span class="string">'danger'</span>;
+  <span class="variable">size</span>?: <span class="string">'sm'</span> | <span class="string">'md'</span> | <span class="string">'lg'</span>;
+}
+
+<span class="comment">// Polymorphic Button type</span>
+<span class="keyword">type</span> <span class="type">ButtonProps</span>&lt;<span class="type">C</span> <span class="keyword">extends</span> <span class="type">ElementType</span> = <span class="string">'button'</span>&gt; = 
+  <span class="type">PolymorphicComponentProps</span>&lt;<span class="type">C</span>, <span class="type">ButtonOwnProps</span>&gt;;
+
+<span class="comment">// The component</span>
+<span class="keyword">function</span> <span class="function">Button</span>&lt;<span class="type">C</span> <span class="keyword">extends</span> <span class="type">ElementType</span> = <span class="string">'button'</span>&gt;({
+  <span class="variable">as</span>,
+  <span class="variable">variant</span> = <span class="string">'primary'</span>,
+  <span class="variable">size</span> = <span class="string">'md'</span>,
+  <span class="variable">className</span>,
+  <span class="variable">children</span>,
+  ...<span class="variable">props</span>
+}: <span class="type">ButtonProps</span>&lt;<span class="type">C</span>&gt;) {
+  <span class="keyword">const</span> <span class="variable">Component</span> = <span class="variable">as</span> || <span class="string">'button'</span>;
+  
+  <span class="keyword">return</span> (
+    &lt;<span class="variable">Component</span>
+      <span class="attr">className</span>={<span class="string">`btn btn-</span>${<span class="variable">variant</span>}<span class="string"> btn-</span>${<span class="variable">size</span>}<span class="string"> </span>${<span class="variable">className</span> || <span class="string">''</span>}<span class="string">`</span>}
+      {...<span class="variable">props</span>}
+    &gt;
+      {<span class="variable">children</span>}
+    &lt;/<span class="variable">Component</span>&gt;
+  );
+}
+
+<span class="comment">// Usage - TypeScript validates props based on "as"</span>
+
+<span class="comment">// As button (default) - onClick is valid</span>
+&lt;<span class="type">Button</span> <span class="attr">variant</span>=<span class="string">"primary"</span> <span class="attr">onClick</span>={() => {}}&gt;
+  Click me
+&lt;/<span class="type">Button</span>&gt;
+
+<span class="comment">// As anchor - href is valid, onClick is valid</span>
+&lt;<span class="type">Button</span> <span class="attr">as</span>=<span class="string">"a"</span> <span class="attr">href</span>=<span class="string">"/home"</span> <span class="attr">variant</span>=<span class="string">"secondary"</span>&gt;
+  Go Home
+&lt;/<span class="type">Button</span>&gt;
+
+<span class="comment">// As Link (from react-router) - "to" prop is valid</span>
+<span class="keyword">import</span> { <span class="type">Link</span> } <span class="keyword">from</span> <span class="string">'react-router-dom'</span>;
+&lt;<span class="type">Button</span> <span class="attr">as</span>={<span class="type">Link</span>} <span class="attr">to</span>=<span class="string">"/dashboard"</span> <span class="attr">variant</span>=<span class="string">"danger"</span>&gt;
+  Dashboard
+&lt;/<span class="type">Button</span>&gt;
+
+<span class="comment">// ❌ Error: href doesn't exist on button</span>
+<span class="comment">// &lt;Button href="/home"&gt;Invalid&lt;/Button&gt;</span></pre>
+      </div>
+
+      <div class="alert alert-interview">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+          <h4>Interview Alert: Why Polymorphic Components?</h4>
+          <p>Essential for design systems - allows a single styled component to render as different elements while maintaining proper HTML semantics and type-safe props.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 8.5 -->
+    <div class="section">
+      <h2>8.5 Discriminated Union Props</h2>
+      
+      <p>Use discriminated unions for props that are mutually exclusive or conditionally required.</p>
+
+      <div class="code-block">
+<pre><span class="comment">// Button that's either a link OR a button, never both</span>
+<span class="keyword">type</span> <span class="type">ButtonProps</span> =
+  | {
+      <span class="variable">variant</span>: <span class="string">'button'</span>;
+      <span class="variable">onClick</span>: () => <span class="type">void</span>;
+      <span class="variable">href</span>?: <span class="type">never</span>;  <span class="comment">// Explicitly disallow href</span>
+    }
+  | {
+      <span class="variable">variant</span>: <span class="string">'link'</span>;
+      <span class="variable">href</span>: <span class="type">string</span>;
+      <span class="variable">onClick</span>?: <span class="type">never</span>;  <span class="comment">// Explicitly disallow onClick</span>
+    };
+
+<span class="keyword">function</span> <span class="function">Button</span>(<span class="variable">props</span>: <span class="type">ButtonProps</span> & { <span class="variable">children</span>: <span class="type">React</span>.<span class="type">ReactNode</span> }) {
+  <span class="keyword">if</span> (<span class="variable">props</span>.<span class="variable">variant</span> === <span class="string">'link'</span>) {
+    <span class="keyword">return</span> &lt;<span class="tag">a</span> <span class="attr">href</span>={<span class="variable">props</span>.<span class="variable">href</span>}&gt;{<span class="variable">props</span>.<span class="variable">children</span>}&lt;/<span class="tag">a</span>&gt;;
+  }
+  <span class="keyword">return</span> &lt;<span class="tag">button</span> <span class="attr">onClick</span>={<span class="variable">props</span>.<span class="variable">onClick</span>}&gt;{<span class="variable">props</span>.<span class="variable">children</span>}&lt;/<span class="tag">button</span>&gt;;
+}
+
+<span class="comment">// ✅ Valid</span>
+&lt;<span class="type">Button</span> <span class="attr">variant</span>=<span class="string">"button"</span> <span class="attr">onClick</span>={() => {}}&gt;Click&lt;/<span class="type">Button</span>&gt;
+&lt;<span class="type">Button</span> <span class="attr">variant</span>=<span class="string">"link"</span> <span class="attr">href</span>=<span class="string">"/home"</span>&gt;Home&lt;/<span class="type">Button</span>&gt;
+
+<span class="comment">// ❌ Error: onClick not allowed with variant="link"</span>
+<span class="comment">// &lt;Button variant="link" href="/home" onClick={() => {}}&gt;X&lt;/Button&gt;</span>
+
+<span class="comment">// ❌ Error: href required when variant="link"</span>
+<span class="comment">// &lt;Button variant="link"&gt;Missing href&lt;/Button&gt;</span></pre>
+      </div>
+
+      <div class="pattern-card">
+        <h4>📋 Pattern: Conditional Required Props</h4>
+        <div class="code-block">
+<pre><span class="comment">// If isAsync is true, onComplete is required</span>
+<span class="keyword">type</span> <span class="type">FormProps</span> =
+  | { <span class="variable">isAsync</span>?: <span class="keyword">false</span>; <span class="variable">onComplete</span>?: <span class="type">never</span> }
+  | { <span class="variable">isAsync</span>: <span class="keyword">true</span>; <span class="variable">onComplete</span>: () => <span class="type">void</span> };
+
+<span class="comment">// ✅ Valid combinations</span>
+&lt;<span class="type">Form</span> /&gt;
+&lt;<span class="type">Form</span> <span class="attr">isAsync</span>={<span class="keyword">false</span>} /&gt;
+&lt;<span class="type">Form</span> <span class="attr">isAsync</span>={<span class="keyword">true</span>} <span class="attr">onComplete</span>={() => {}} /&gt;
+
+<span class="comment">// ❌ Error: onComplete required when isAsync is true</span>
+<span class="comment">// &lt;Form isAsync={true} /&gt;</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="nav-btn">← Chapter 7</button>
+      <button class="nav-btn">Chapter 9: Forms →</button>
+    </div>
+  </div>
+</body>
+</html>

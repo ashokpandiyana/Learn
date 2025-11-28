@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 40: Performance APIs</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e4e4e4; line-height: 1.7; padding: 40px 20px; min-height: 100vh; }
+    .container { max-width: 950px; margin: 0 auto; }
+    h1 { font-size: 2.5rem; background: linear-gradient(90deg, #f59e0b, #ef4444, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+    .subtitle { color: #888; font-size: 1.1rem; margin-bottom: 40px; }
+    h2 { color: #f59e0b; font-size: 1.6rem; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #ef444433; }
+    h3 { color: #ef4444; font-size: 1.2rem; margin: 25px 0 15px; }
+    p { margin-bottom: 16px; color: #ccc; }
+    .concept-box { background: linear-gradient(135deg, #2d2a1a 0%, #0f172a 100%); border-radius: 16px; padding: 25px; margin: 25px 0; border-left: 4px solid #f59e0b; }
+    .warning { background: linear-gradient(135deg, #4a2c2c 0%, #3d1f1f 100%); border-left-color: #ef4444; }
+    .tip { background: linear-gradient(135deg, #1f4a2c 0%, #1f3d2a 100%); border-left-color: #4ade80; }
+    .info { background: linear-gradient(135deg, #2d1b4e 0%, #0f172a 100%); border-left-color: #8b5cf6; }
+    code { background: #0d1117; padding: 3px 8px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em; color: #f59e0b; }
+    pre { background: #0d1117; border-radius: 12px; padding: 20px; overflow-x: auto; margin: 20px 0; border: 1px solid #ffffff15; }
+    pre code { padding: 0; background: none; }
+    .keyword { color: #c792ea; }
+    .function { color: #82aaff; }
+    .string { color: #c3e88d; }
+    .comment { color: #676e95; }
+    .number { color: #f78c6c; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ffffff15; }
+    th { background: #f59e0b33; color: #f59e0b; }
+    tr:hover { background: #ffffff08; }
+    .interactive-demo { background: #0d1117; border-radius: 16px; padding: 25px; margin: 30px 0; border: 1px solid #ef444444; }
+    button { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #0f172a; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.2s; margin: 5px; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px #f59e0b55; }
+    button.secondary { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+    button.tertiary { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+    .metric-card { background: linear-gradient(135deg, #1e293b, #0f172a); padding: 20px; border-radius: 12px; border: 1px solid #ffffff10; text-align: center; }
+    .metric-value { font-size: 2rem; font-weight: bold; font-family: monospace; margin-bottom: 5px; }
+    .metric-value.good { color: #4ade80; }
+    .metric-value.warning { color: #f59e0b; }
+    .metric-value.bad { color: #ef4444; }
+    .metric-label { font-size: 0.85rem; color: #888; }
+    .metric-target { font-size: 0.75rem; color: #666; margin-top: 5px; }
+    .timeline-bar { background: #1e293b; border-radius: 8px; padding: 15px; margin: 15px 0; }
+    .timeline-segment { height: 30px; display: flex; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+    .segment { display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; color: white; min-width: 30px; }
+    .segment.dns { background: #3b82f6; }
+    .segment.tcp { background: #8b5cf6; }
+    .segment.ttfb { background: #f59e0b; }
+    .segment.download { background: #4ade80; }
+    .segment.dom { background: #ef4444; }
+    .timeline-legend { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; font-size: 0.85rem; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-color { width: 16px; height: 16px; border-radius: 3px; }
+    ul { margin-left: 25px; margin-bottom: 15px; }
+    li { margin-bottom: 8px; color: #ccc; }
+    .cwv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 30px 0; }
+    .cwv-card { background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 16px; padding: 25px; text-align: center; border: 2px solid; }
+    .cwv-card.lcp { border-color: #4ade80; }
+    .cwv-card.fid { border-color: #3b82f6; }
+    .cwv-card.cls { border-color: #f59e0b; }
+    .cwv-name { font-size: 1.5rem; font-weight: bold; margin-bottom: 5px; }
+    .cwv-card.lcp .cwv-name { color: #4ade80; }
+    .cwv-card.fid .cwv-name { color: #3b82f6; }
+    .cwv-card.cls .cwv-name { color: #f59e0b; }
+    .cwv-full { font-size: 0.85rem; color: #888; margin-bottom: 15px; }
+    .cwv-value { font-size: 2.5rem; font-weight: bold; font-family: monospace; }
+    .cwv-target { font-size: 0.8rem; margin-top: 10px; padding: 5px 15px; background: #ffffff10; border-radius: 20px; display: inline-block; }
+    .marks-list { background: #1e293b; border-radius: 10px; padding: 15px; max-height: 200px; overflow-y: auto; margin: 15px 0; }
+    .mark-entry { display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #ffffff10; font-family: monospace; font-size: 0.9rem; }
+    .mark-name { color: #f59e0b; }
+    .mark-time { color: #4ade80; }
+    .resources-table { background: #1e293b; border-radius: 10px; overflow: hidden; margin: 15px 0; }
+    .resource-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; padding: 10px 15px; border-bottom: 1px solid #ffffff10; font-size: 0.85rem; }
+    .resource-row.header { background: #0f172a; font-weight: bold; color: #f59e0b; }
+    .resource-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #888; }
+    @media (max-width: 768px) {
+      .cwv-grid { grid-template-columns: 1fr; }
+      .resource-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚡ Chapter 40: Performance APIs</h1>
+    <p class="subtitle">Measuring, Monitoring, and Optimizing Web Performance</p>
+
+    <h2>🎯 What are Performance APIs?</h2>
+    <p>The <strong>Performance APIs</strong> provide precise timing information about page loading, resource fetching, and custom events. They're essential for measuring Core Web Vitals, identifying bottlenecks, and optimizing user experience.</p>
+
+    <div class="concept-box">
+      <h3>💡 Key APIs Overview</h3>
+      <ul style="margin-top: 10px; margin-left: 20px;">
+        <li><strong>Navigation Timing:</strong> Page load metrics (DNS, TCP, TTFB, DOM)</li>
+        <li><strong>Resource Timing:</strong> Individual resource loading times</li>
+        <li><strong>User Timing:</strong> Custom marks and measures</li>
+        <li><strong>Paint Timing:</strong> First Paint, First Contentful Paint</li>
+        <li><strong>Performance Observer:</strong> Async performance monitoring</li>
+        <li><strong>Memory API:</strong> JavaScript heap usage</li>
+      </ul>
+    </div>
+
+    <h2>📊 Core Web Vitals</h2>
+    <p>Google's essential metrics for user experience:</p>
+
+    <div class="cwv-grid">
+      <div class="cwv-card lcp">
+        <div class="cwv-name">LCP</div>
+        <div class="cwv-full">Largest Contentful Paint</div>
+        <div class="cwv-value" id="lcp-value">--</div>
+        <div class="cwv-target">Target: &lt; 2.5s</div>
+      </div>
+      <div class="cwv-card fid">
+        <div class="cwv-name">FID</div>
+        <div class="cwv-full">First Input Delay</div>
+        <div class="cwv-value" id="fid-value">--</div>
+        <div class="cwv-target">Target: &lt; 100ms</div>
+      </div>
+      <div class="cwv-card cls">
+        <div class="cwv-name">CLS</div>
+        <div class="cwv-full">Cumulative Layout Shift</div>
+        <div class="cwv-value" id="cls-value">--</div>
+        <div class="cwv-target">Target: &lt; 0.1</div>
+      </div>
+    </div>
+
+    <h2>⏱️ Navigation Timing</h2>
+    <p>Complete page load breakdown:</p>
+
+    <div class="interactive-demo">
+      <div class="timeline-bar">
+        <div class="timeline-segment" id="nav-timeline">
+          <div class="segment dns" style="flex: 1;">DNS</div>
+          <div class="segment tcp" style="flex: 1;">TCP</div>
+          <div class="segment ttfb" style="flex: 2;">TTFB</div>
+          <div class="segment download" style="flex: 2;">Download</div>
+          <div class="segment dom" style="flex: 3;">DOM Processing</div>
+        </div>
+        <div class="timeline-legend">
+          <div class="legend-item"><div class="legend-color" style="background:#3b82f6;"></div> DNS Lookup</div>
+          <div class="legend-item"><div class="legend-color" style="background:#8b5cf6;"></div> TCP Connection</div>
+          <div class="legend-item"><div class="legend-color" style="background:#f59e0b;"></div> Time to First Byte</div>
+          <div class="legend-item"><div class="legend-color" style="background:#4ade80;"></div> Content Download</div>
+          <div class="legend-item"><div class="legend-color" style="background:#ef4444;"></div> DOM Processing</div>
+        </div>
+      </div>
+      
+      <div class="metrics-grid" id="nav-metrics">
+        <!-- Filled by JS -->
+      </div>
+      
+      <button onclick="measureNavigation()">📊 Measure Navigation Timing</button>
+    </div>
+
+    <pre><code><span class="comment">// Get navigation timing</span>
+<span class="keyword">const</span> nav = performance.<span class="function">getEntriesByType</span>(<span class="string">'navigation'</span>)[<span class="number">0</span>];
+
+<span class="comment">// Key timing metrics</span>
+<span class="keyword">const</span> dns = nav.domainLookupEnd - nav.domainLookupStart;
+<span class="keyword">const</span> tcp = nav.connectEnd - nav.connectStart;
+<span class="keyword">const</span> ttfb = nav.responseStart - nav.requestStart;
+<span class="keyword">const</span> download = nav.responseEnd - nav.responseStart;
+<span class="keyword">const</span> domParsing = nav.domInteractive - nav.responseEnd;
+<span class="keyword">const</span> domContentLoaded = nav.domContentLoadedEventEnd - nav.startTime;
+<span class="keyword">const</span> loadComplete = nav.loadEventEnd - nav.startTime;
+
+console.<span class="function">log</span>(<span class="string">`DNS: ${dns}ms`</span>);
+console.<span class="function">log</span>(<span class="string">`TCP: ${tcp}ms`</span>);
+console.<span class="function">log</span>(<span class="string">`Time to First Byte: ${ttfb}ms`</span>);
+console.<span class="function">log</span>(<span class="string">`Download: ${download}ms`</span>);
+console.<span class="function">log</span>(<span class="string">`DOM Parsing: ${domParsing}ms`</span>);
+console.<span class="function">log</span>(<span class="string">`DOMContentLoaded: ${domContentLoaded}ms`</span>);
+console.<span class="function">log</span>(<span class="string">`Full Load: ${loadComplete}ms`</span>);</code></pre>
+
+    <h2>📍 User Timing (Custom Marks & Measures)</h2>
+    <div class="interactive-demo">
+      <p>Create custom performance markers:</p>
+      
+      <div>
+        <button onclick="createMark()">📍 Create Mark</button>
+        <button onclick="createMeasure()" class="secondary">📏 Create Measure</button>
+        <button onclick="simulateTask()" class="tertiary">⚙️ Simulate Task</button>
+        <button onclick="clearMarks()">🗑️ Clear All</button>
+      </div>
+      
+      <div class="marks-list" id="marks-list">
+        <div style="color: #888; text-align: center; padding: 20px;">No marks yet. Click "Create Mark" to add one.</div>
+      </div>
+    </div>
+
+    <pre><code><span class="comment">// Create performance marks</span>
+performance.<span class="function">mark</span>(<span class="string">'task-start'</span>);
+
+<span class="comment">// ... do some work ...</span>
+<span class="keyword">await</span> <span class="function">heavyOperation</span>();
+
+performance.<span class="function">mark</span>(<span class="string">'task-end'</span>);
+
+<span class="comment">// Measure duration between marks</span>
+performance.<span class="function">measure</span>(
+    <span class="string">'task-duration'</span>,    <span class="comment">// Measure name</span>
+    <span class="string">'task-start'</span>,       <span class="comment">// Start mark</span>
+    <span class="string">'task-end'</span>          <span class="comment">// End mark</span>
+);
+
+<span class="comment">// Get measures</span>
+<span class="keyword">const</span> measures = performance.<span class="function">getEntriesByName</span>(<span class="string">'task-duration'</span>);
+console.<span class="function">log</span>(<span class="string">`Task took: ${measures[0].duration}ms`</span>);
+
+<span class="comment">// Get all marks</span>
+<span class="keyword">const</span> marks = performance.<span class="function">getEntriesByType</span>(<span class="string">'mark'</span>);
+
+<span class="comment">// Clear marks and measures</span>
+performance.<span class="function">clearMarks</span>();
+performance.<span class="function">clearMeasures</span>();</code></pre>
+
+    <h2>📦 Resource Timing</h2>
+    <div class="interactive-demo">
+      <p>Monitor individual resource loading times:</p>
+      
+      <div class="resources-table">
+        <div class="resource-row header">
+          <span>Resource</span>
+          <span>Type</span>
+          <span>Size</span>
+          <span>Duration</span>
+        </div>
+        <div id="resources-list">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+      
+      <button onclick="measureResources()">🔄 Refresh Resources</button>
+    </div>
+
+    <pre><code><span class="comment">// Get all resource timings</span>
+<span class="keyword">const</span> resources = performance.<span class="function">getEntriesByType</span>(<span class="string">'resource'</span>);
+
+resources.<span class="function">forEach</span>(resource => {
+    console.<span class="function">log</span>(<span class="string">`${resource.name}`</span>);
+    console.<span class="function">log</span>(<span class="string">`  Type: ${resource.initiatorType}`</span>);  <span class="comment">// script, css, img, fetch</span>
+    console.<span class="function">log</span>(<span class="string">`  Duration: ${resource.duration}ms`</span>);
+    console.<span class="function">log</span>(<span class="string">`  Transfer Size: ${resource.transferSize} bytes`</span>);
+    
+    <span class="comment">// Detailed breakdown</span>
+    <span class="keyword">const</span> dns = resource.domainLookupEnd - resource.domainLookupStart;
+    <span class="keyword">const</span> tcp = resource.connectEnd - resource.connectStart;
+    <span class="keyword">const</span> ttfb = resource.responseStart - resource.requestStart;
+    <span class="keyword">const</span> download = resource.responseEnd - resource.responseStart;
+});</code></pre>
+
+    <h2>👀 Performance Observer</h2>
+    <p>Asynchronously observe performance entries:</p>
+
+    <pre><code><span class="comment">// Create observer for specific entry types</span>
+<span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="function">PerformanceObserver</span>((list) => {
+    <span class="keyword">for</span> (<span class="keyword">const</span> entry <span class="keyword">of</span> list.<span class="function">getEntries</span>()) {
+        console.<span class="function">log</span>(entry.name, entry.duration);
+    }
+});
+
+<span class="comment">// Observe specific types</span>
+observer.<span class="function">observe</span>({ 
+    type: <span class="string">'measure'</span>, 
+    buffered: <span class="keyword">true</span>   <span class="comment">// Include past entries</span>
+});
+
+<span class="comment">// Or multiple types</span>
+observer.<span class="function">observe</span>({ 
+    entryTypes: [<span class="string">'mark'</span>, <span class="string">'measure'</span>, <span class="string">'resource'</span>] 
+});
+
+<span class="comment">// Stop observing</span>
+observer.<span class="function">disconnect</span>();</code></pre>
+
+    <h2>📈 Measuring Core Web Vitals</h2>
+    <pre><code><span class="comment">// Largest Contentful Paint (LCP)</span>
+<span class="keyword">new</span> <span class="function">PerformanceObserver</span>((list) => {
+    <span class="keyword">const</span> entries = list.<span class="function">getEntries</span>();
+    <span class="keyword">const</span> lcp = entries[entries.length - <span class="number">1</span>];  <span class="comment">// Last is final LCP</span>
+    console.<span class="function">log</span>(<span class="string">'LCP:'</span>, lcp.startTime, <span class="string">'ms'</span>);
+    console.<span class="function">log</span>(<span class="string">'Element:'</span>, lcp.element);
+}).<span class="function">observe</span>({ type: <span class="string">'largest-contentful-paint'</span>, buffered: <span class="keyword">true</span> });
+
+<span class="comment">// First Input Delay (FID)</span>
+<span class="keyword">new</span> <span class="function">PerformanceObserver</span>((list) => {
+    <span class="keyword">const</span> entry = list.<span class="function">getEntries</span>()[<span class="number">0</span>];
+    <span class="keyword">const</span> fid = entry.processingStart - entry.startTime;
+    console.<span class="function">log</span>(<span class="string">'FID:'</span>, fid, <span class="string">'ms'</span>);
+}).<span class="function">observe</span>({ type: <span class="string">'first-input'</span>, buffered: <span class="keyword">true</span> });
+
+<span class="comment">// Cumulative Layout Shift (CLS)</span>
+<span class="keyword">let</span> clsScore = <span class="number">0</span>;
+<span class="keyword">new</span> <span class="function">PerformanceObserver</span>((list) => {
+    <span class="keyword">for</span> (<span class="keyword">const</span> entry <span class="keyword">of</span> list.<span class="function">getEntries</span>()) {
+        <span class="keyword">if</span> (!entry.hadRecentInput) {  <span class="comment">// Ignore user-caused shifts</span>
+            clsScore += entry.value;
+        }
+    }
+    console.<span class="function">log</span>(<span class="string">'CLS:'</span>, clsScore);
+}).<span class="function">observe</span>({ type: <span class="string">'layout-shift'</span>, buffered: <span class="keyword">true</span> });</code></pre>
+
+    <h2>💾 Memory API</h2>
+    <pre><code><span class="comment">// Check memory usage (Chrome only)</span>
+<span class="keyword">if</span> (performance.memory) {
+    console.<span class="function">log</span>(<span class="string">'JS Heap Size Limit:'</span>, 
+        (performance.memory.jsHeapSizeLimit / <span class="number">1048576</span>).<span class="function">toFixed</span>(<span class="number">2</span>), <span class="string">'MB'</span>);
+    console.<span class="function">log</span>(<span class="string">'Total JS Heap Size:'</span>, 
+        (performance.memory.totalJSHeapSize / <span class="number">1048576</span>).<span class="function">toFixed</span>(<span class="number">2</span>), <span class="string">'MB'</span>);
+    console.<span class="function">log</span>(<span class="string">'Used JS Heap Size:'</span>, 
+        (performance.memory.usedJSHeapSize / <span class="number">1048576</span>).<span class="function">toFixed</span>(<span class="number">2</span>), <span class="string">'MB'</span>);
+}</code></pre>
+
+    <h2>🛠️ Real-World Analytics Example</h2>
+    <pre><code><span class="keyword">class</span> <span class="function">PerformanceTracker</span> {
+    <span class="function">constructor</span>() {
+        <span class="keyword">this</span>.metrics = {};
+        <span class="keyword">this</span>.<span class="function">init</span>();
+    }
+    
+    <span class="function">init</span>() {
+        <span class="comment">// Track LCP</span>
+        <span class="keyword">new</span> <span class="function">PerformanceObserver</span>((list) => {
+            <span class="keyword">const</span> entries = list.<span class="function">getEntries</span>();
+            <span class="keyword">this</span>.metrics.lcp = entries[entries.length - <span class="number">1</span>].startTime;
+        }).<span class="function">observe</span>({ type: <span class="string">'largest-contentful-paint'</span>, buffered: <span class="keyword">true</span> });
+        
+        <span class="comment">// Track FID</span>
+        <span class="keyword">new</span> <span class="function">PerformanceObserver</span>((list) => {
+            <span class="keyword">const</span> entry = list.<span class="function">getEntries</span>()[<span class="number">0</span>];
+            <span class="keyword">this</span>.metrics.fid = entry.processingStart - entry.startTime;
+        }).<span class="function">observe</span>({ type: <span class="string">'first-input'</span>, buffered: <span class="keyword">true</span> });
+        
+        <span class="comment">// Track CLS</span>
+        <span class="keyword">this</span>.metrics.cls = <span class="number">0</span>;
+        <span class="keyword">new</span> <span class="function">PerformanceObserver</span>((list) => {
+            <span class="keyword">for</span> (<span class="keyword">const</span> entry <span class="keyword">of</span> list.<span class="function">getEntries</span>()) {
+                <span class="keyword">if</span> (!entry.hadRecentInput) {
+                    <span class="keyword">this</span>.metrics.cls += entry.value;
+                }
+            }
+        }).<span class="function">observe</span>({ type: <span class="string">'layout-shift'</span>, buffered: <span class="keyword">true</span> });
+        
+        <span class="comment">// Send metrics when page is hidden</span>
+        document.<span class="function">addEventListener</span>(<span class="string">'visibilitychange'</span>, () => {
+            <span class="keyword">if</span> (document.hidden) {
+                <span class="keyword">this</span>.<span class="function">sendMetrics</span>();
+            }
+        });
+    }
+    
+    <span class="function">sendMetrics</span>() {
+        <span class="keyword">const</span> nav = performance.<span class="function">getEntriesByType</span>(<span class="string">'navigation'</span>)[<span class="number">0</span>];
+        
+        <span class="keyword">const</span> data = {
+            ...<span class="keyword">this</span>.metrics,
+            ttfb: nav?.responseStart - nav?.requestStart,
+            domLoad: nav?.domContentLoadedEventEnd - nav?.startTime,
+            fullLoad: nav?.loadEventEnd - nav?.startTime,
+            url: location.href
+        };
+        
+        navigator.<span class="function">sendBeacon</span>(<span class="string">'/analytics'</span>, JSON.<span class="function">stringify</span>(data));
+    }
+}
+
+<span class="keyword">const</span> tracker = <span class="keyword">new</span> <span class="function">PerformanceTracker</span>();</code></pre>
+
+    <div class="concept-box tip">
+      <h3>✅ Performance Best Practices</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li>Use <code>buffered: true</code> to capture metrics that occurred before observer setup</li>
+        <li>Send metrics on <code>visibilitychange</code> to capture users who close tabs</li>
+        <li>Use <code>navigator.sendBeacon()</code> for reliable delivery</li>
+        <li>For CLS, only count shifts without recent user input</li>
+        <li>For LCP, use the last entry (it can change as page loads)</li>
+        <li>Monitor long tasks (&gt;50ms) to identify performance bottlenecks</li>
+      </ul>
+    </div>
+
+    <div class="concept-box warning">
+      <h3>⚠️ Browser Support Notes</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li><code>performance.memory</code> is Chrome-only</li>
+        <li>Check <code>PerformanceObserver.supportedEntryTypes</code> before observing</li>
+        <li>Some metrics (LCP, FID, CLS) require specific entry type support</li>
+        <li>Always wrap in try-catch for graceful fallbacks</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Measure navigation timing
+    function measureNavigation() {
+      const nav = performance.getEntriesByType('navigation')[0];
+      if (!nav) return;
+      
+      const metrics = [
+        { label: 'DNS Lookup', value: (nav.domainLookupEnd - nav.domainLookupStart).toFixed(0), unit: 'ms' },
+        { label: 'TCP Connection', value: (nav.connectEnd - nav.connectStart).toFixed(0), unit: 'ms' },
+        { label: 'Time to First Byte', value: (nav.responseStart - nav.requestStart).toFixed(0), unit: 'ms' },
+        { label: 'Content Download', value: (nav.responseEnd - nav.responseStart).toFixed(0), unit: 'ms' },
+        { label: 'DOM Interactive', value: (nav.domInteractive - nav.startTime).toFixed(0), unit: 'ms' },
+        { label: 'DOM Content Loaded', value: (nav.domContentLoadedEventEnd - nav.startTime).toFixed(0), unit: 'ms' },
+        { label: 'Full Page Load', value: (nav.loadEventEnd - nav.startTime).toFixed(0), unit: 'ms' }
+      ];
+      
+      const container = document.getElementById('nav-metrics');
+      container.innerHTML = metrics.map(m => `
+        <div class="metric-card">
+          <div class="metric-value ${parseInt(m.value) < 100 ? 'good' : parseInt(m.value) < 500 ? 'warning' : 'bad'}">${m.value}${m.unit}</div>
+          <div class="metric-label">${m.label}</div>
+        </div>
+      `).join('');
+    }
+    
+    // User timing demo
+    let markCount = 0;
+    
+    function createMark() {
+      markCount++;
+      const markName = `mark-${markCount}`;
+      performance.mark(markName);
+      updateMarksList();
+    }
+    
+    function createMeasure() {
+      const marks = performance.getEntriesByType('mark');
+      if (marks.length < 2) {
+        alert('Need at least 2 marks to create a measure!');
+        return;
+      }
+      const last = marks[marks.length - 1].name;
+      const secondLast = marks[marks.length - 2].name;
+      performance.measure(`measure-${secondLast}-to-${last}`, secondLast, last);
+      updateMarksList();
+    }
+    
+    async function simulateTask() {
+      performance.mark('task-start');
+      
+      // Simulate heavy work
+      await new Promise(r => setTimeout(r, 500 + Math.random() * 500));
+      
+      performance.mark('task-end');
+      performance.measure('simulated-task', 'task-start', 'task-end');
+      updateMarksList();
+    }
+    
+    function clearMarks() {
+      performance.clearMarks();
+      performance.clearMeasures();
+      markCount = 0;
+      updateMarksList();
+    }
+    
+    function updateMarksList() {
+      const marks = performance.getEntriesByType('mark');
+      const measures = performance.getEntriesByType('measure');
+      const container = document.getElementById('marks-list');
+      
+      if (marks.length === 0 && measures.length === 0) {
+        container.innerHTML = '<div style="color: #888; text-align: center; padding: 20px;">No marks yet.</div>';
+        return;
+      }
+      
+      let html = '';
+      marks.forEach(m => {
+        html += `<div class="mark-entry"><span class="mark-name">📍 ${m.name}</span><span class="mark-time">${m.startTime.toFixed(2)}ms</span></div>`;
+      });
+      measures.forEach(m => {
+        html += `<div class="mark-entry"><span class="mark-name">📏 ${m.name}</span><span class="mark-time">${m.duration.toFixed(2)}ms</span></div>`;
+      });
+      
+      container.innerHTML = html;
+    }
+    
+    // Resource timing
+    function measureResources() {
+      const resources = performance.getEntriesByType('resource').slice(-10);
+      const container = document.getElementById('resources-list');
+      
+      container.innerHTML = resources.map(r => {
+        const name = r.name.split('/').pop().substring(0, 30);
+        const size = r.transferSize ? (r.transferSize / 1024).toFixed(1) + ' KB' : '-';
+        return `
+          <div class="resource-row">
+            <span class="resource-name" title="${r.name}">${name}</span>
+            <span>${r.initiatorType}</span>
+            <span>${size}</span>
+            <span style="color: ${r.duration < 100 ? '#4ade80' : r.duration < 500 ? '#f59e0b' : '#ef4444'}">${r.duration.toFixed(0)}ms</span>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    // Core Web Vitals observers
+    try {
+      // LCP
+      new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        const lcp = entries[entries.length - 1];
+        document.getElementById('lcp-value').textContent = (lcp.startTime / 1000).toFixed(2) + 's';
+        document.getElementById('lcp-value').className = 'cwv-value ' + (lcp.startTime < 2500 ? 'good' : lcp.startTime < 4000 ? 'warning' : 'bad');
+      }).observe({ type: 'largest-contentful-paint', buffered: true });
+    } catch (e) {}
+    
+    try {
+      // FID
+      new PerformanceObserver((list) => {
+        const entry = list.getEntries()[0];
+        const fid = entry.processingStart - entry.startTime;
+        document.getElementById('fid-value').textContent = fid.toFixed(0) + 'ms';
+        document.getElementById('fid-value').className = 'cwv-value ' + (fid < 100 ? 'good' : fid < 300 ? 'warning' : 'bad');
+      }).observe({ type: 'first-input', buffered: true });
+    } catch (e) {}
+    
+    try {
+      // CLS
+      let clsValue = 0;
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          if (!entry.hadRecentInput) {
+            clsValue += entry.value;
+          }
+        }
+        document.getElementById('cls-value').textContent = clsValue.toFixed(3);
+        document.getElementById('cls-value').className = 'cwv-value ' + (clsValue < 0.1 ? 'good' : clsValue < 0.25 ? 'warning' : 'bad');
+      }).observe({ type: 'layout-shift', buffered: true });
+    } catch (e) {}
+    
+    // Initialize
+    measureNavigation();
+    measureResources();
+  </script>
+</body>
+</html>

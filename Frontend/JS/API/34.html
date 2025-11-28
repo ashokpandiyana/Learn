@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 34: Shadow DOM</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: #e4e4e4; line-height: 1.7; padding: 40px 20px; min-height: 100vh; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2.5rem; background: linear-gradient(90deg, #a78bfa, #818cf8, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+    .subtitle { color: #888; font-size: 1.1rem; margin-bottom: 40px; }
+    h2 { color: #a78bfa; font-size: 1.6rem; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #818cf833; }
+    h3 { color: #818cf8; font-size: 1.2rem; margin: 25px 0 15px; }
+    p { margin-bottom: 16px; color: #ccc; }
+    .concept-box { background: linear-gradient(135deg, #2d1b69 0%, #1e1b4b 100%); border-radius: 16px; padding: 25px; margin: 25px 0; border-left: 4px solid #a78bfa; }
+    .warning { background: linear-gradient(135deg, #4a2c2c 0%, #3d1f1f 100%); border-left-color: #ff6b6b; }
+    .tip { background: linear-gradient(135deg, #1f4a2c 0%, #1f3d2a 100%); border-left-color: #4ade80; }
+    .info { background: linear-gradient(135deg, #1e3a5f 0%, #1e1b4b 100%); border-left-color: #60a5fa; }
+    code { background: #0d1117; padding: 3px 8px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em; color: #a78bfa; }
+    pre { background: #0d1117; border-radius: 12px; padding: 20px; overflow-x: auto; margin: 20px 0; border: 1px solid #ffffff15; }
+    pre code { padding: 0; background: none; }
+    .keyword { color: #c792ea; }
+    .function { color: #82aaff; }
+    .string { color: #c3e88d; }
+    .comment { color: #676e95; }
+    .number { color: #f78c6c; }
+    .tag { color: #f07178; }
+    .attr { color: #ffcb6b; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ffffff15; }
+    th { background: #a78bfa33; color: #a78bfa; }
+    tr:hover { background: #ffffff08; }
+    .interactive-demo { background: #0d1117; border-radius: 16px; padding: 25px; margin: 30px 0; border: 1px solid #818cf844; }
+    button { background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.2s; margin: 5px; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px #a78bfa55; }
+    button.secondary { background: linear-gradient(135deg, #818cf8, #6366f1); }
+    .diagram { background: #0d1117; border-radius: 16px; padding: 30px; margin: 30px 0; }
+    .tree-container { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .tree-node { background: linear-gradient(135deg, #2d1b69, #1e1b4b); padding: 12px 20px; border-radius: 8px; border: 2px solid #818cf8; text-align: center; min-width: 120px; }
+    .tree-node.shadow { border-color: #a78bfa; background: linear-gradient(135deg, #4c1d95, #2d1b69); border-style: dashed; }
+    .tree-node.slot { border-color: #4ade80; background: linear-gradient(135deg, #064e3b, #1e1b4b); }
+    .tree-children { display: flex; gap: 20px; margin-top: 15px; flex-wrap: wrap; justify-content: center; }
+    .tree-connector { width: 2px; height: 20px; background: #818cf8; margin: 0 auto; }
+    .shadow-boundary { border: 2px dashed #a78bfa; border-radius: 12px; padding: 15px; margin: 10px; background: #a78bfa11; }
+    .demo-output { background: #1a1a2e; border-radius: 10px; padding: 20px; margin: 15px 0; min-height: 100px; }
+    .comparison-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 20px 0; }
+    .compare-box { background: #1a1a2e; padding: 20px; border-radius: 12px; border: 1px solid #818cf833; }
+    .compare-box h4 { color: #a78bfa; margin-bottom: 15px; }
+    .compare-box .result { background: #0d1117; padding: 15px; border-radius: 8px; margin-top: 10px; }
+    ul { margin-left: 25px; margin-bottom: 15px; }
+    li { margin-bottom: 8px; color: #ccc; }
+    .mode-toggle { display: flex; gap: 10px; margin: 15px 0; }
+    .mode-btn { padding: 10px 20px; border-radius: 8px; border: 2px solid #818cf8; background: transparent; color: #818cf8; cursor: pointer; transition: all 0.2s; }
+    .mode-btn.active { background: #818cf8; color: white; }
+    .selector-demo { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+    .selector-box { background: #1a1a2e; padding: 20px; border-radius: 12px; }
+    .selector-box h5 { color: #818cf8; margin-bottom: 10px; }
+    .host-element { background: linear-gradient(135deg, #2d1b69, #1e1b4b); border: 2px solid #a78bfa; border-radius: 12px; padding: 20px; margin: 10px 0; }
+    .slotted-content { background: #4ade8022; border: 1px dashed #4ade80; padding: 10px; border-radius: 6px; margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌑 Chapter 34: Shadow DOM</h1>
+    <p class="subtitle">Encapsulation and Isolation for Web Components</p>
+
+    <h2>🎯 What is Shadow DOM?</h2>
+    <p>The <strong>Shadow DOM</strong> is a web standard that provides encapsulation for JavaScript, CSS, and HTML. It allows you to attach a hidden, separate DOM tree to an element, creating a boundary that isolates the component's internal structure and styles from the rest of the page.</p>
+
+    <div class="concept-box">
+      <h3>💡 Why Shadow DOM?</h3>
+      <p>Before Shadow DOM, there was no way to truly encapsulate a component:</p>
+      <ul style="margin-top: 10px; margin-left: 20px;">
+        <li>CSS could leak in and break your component's styles</li>
+        <li>Your component's CSS could affect the rest of the page</li>
+        <li>JavaScript could accidentally modify your internal DOM</li>
+        <li>ID collisions could cause unexpected behavior</li>
+      </ul>
+      <p style="margin-top:15px;">Shadow DOM solves all of these problems by creating a true encapsulation boundary.</p>
+    </div>
+
+    <h2>🌳 Understanding the DOM Tree</h2>
+    <div class="diagram">
+      <div class="tree-container">
+        <div class="tree-node">Document</div>
+        <div class="tree-connector"></div>
+        <div class="tree-children">
+          <div>
+            <div class="tree-node">&lt;my-card&gt; (Host)</div>
+            <div class="tree-connector"></div>
+            <div class="shadow-boundary">
+              <div style="text-align:center;color:#a78bfa;margin-bottom:10px;font-size:0.9rem;">Shadow Root</div>
+              <div class="tree-children">
+                <div class="tree-node shadow">&lt;style&gt;</div>
+                <div class="tree-node shadow">&lt;header&gt;</div>
+                <div class="tree-node slot">&lt;slot&gt;</div>
+              </div>
+            </div>
+          </div>
+          <div class="tree-node">&lt;div&gt;</div>
+        </div>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:20px;height:20px;border:2px solid #818cf8;border-radius:4px;"></div> Light DOM</div>
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:20px;height:20px;border:2px dashed #a78bfa;border-radius:4px;"></div> Shadow DOM</div>
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:20px;height:20px;border:2px solid #4ade80;border-radius:4px;"></div> Slot</div>
+      </div>
+    </div>
+
+    <h2>📝 Creating Shadow DOM</h2>
+    <pre><code><span class="comment">// Get the host element</span>
+<span class="keyword">const</span> host = document.<span class="function">querySelector</span>(<span class="string">'.my-component'</span>);
+
+<span class="comment">// Attach a shadow root</span>
+<span class="keyword">const</span> shadow = host.<span class="function">attachShadow</span>({ 
+    mode: <span class="string">'open'</span>    <span class="comment">// or 'closed'</span>
+});
+
+<span class="comment">// Add content to the shadow root</span>
+shadow.innerHTML = <span class="string">`
+    &lt;style&gt;
+        /* These styles are SCOPED to this shadow DOM only! */
+        p { color: purple; font-weight: bold; }
+        .container { padding: 20px; background: #f0f0f0; }
+    &lt;/style&gt;
+    
+    &lt;div class="container"&gt;
+        &lt;p&gt;I'm inside the Shadow DOM!&lt;/p&gt;
+        &lt;slot&gt;&lt;/slot&gt;  &lt;!-- Light DOM content goes here --&gt;
+    &lt;/div&gt;
+`</span>;</code></pre>
+
+    <h2>🔓 Open vs Closed Mode</h2>
+    <table>
+      <tr>
+        <th>Mode</th>
+        <th>Access</th>
+        <th>Use Case</th>
+      </tr>
+      <tr>
+        <td><code>mode: 'open'</code></td>
+        <td><code>element.shadowRoot</code> returns the shadow root</td>
+        <td>Most components - allows external access if needed</td>
+      </tr>
+      <tr>
+        <td><code>mode: 'closed'</code></td>
+        <td><code>element.shadowRoot</code> returns <code>null</code></td>
+        <td>Maximum encapsulation - no external access</td>
+      </tr>
+    </table>
+
+    <pre><code><span class="comment">// Open mode - shadowRoot is accessible</span>
+<span class="keyword">const</span> openShadow = element.<span class="function">attachShadow</span>({ mode: <span class="string">'open'</span> });
+console.<span class="function">log</span>(element.shadowRoot);  <span class="comment">// Returns the shadow root</span>
+
+<span class="comment">// Closed mode - shadowRoot is hidden</span>
+<span class="keyword">const</span> closedShadow = element.<span class="function">attachShadow</span>({ mode: <span class="string">'closed'</span> });
+console.<span class="function">log</span>(element.shadowRoot);  <span class="comment">// Returns null</span>
+
+<span class="comment">// But you can still keep a reference internally</span>
+<span class="keyword">class</span> <span class="function">MyComponent</span> <span class="keyword">extends</span> HTMLElement {
+    #shadow;  <span class="comment">// Private field</span>
+    
+    <span class="function">constructor</span>() {
+        <span class="keyword">super</span>();
+        <span class="keyword">this</span>.#shadow = <span class="keyword">this</span>.<span class="function">attachShadow</span>({ mode: <span class="string">'closed'</span> });
+    }
+}</code></pre>
+
+    <h2>🎮 Interactive Demo: Shadow DOM Encapsulation</h2>
+    <div class="interactive-demo">
+      <p>See how Shadow DOM encapsulates styles. The global CSS below doesn't affect the shadow DOM component:</p>
+      
+      <style>
+        /* Global styles that WON'T affect shadow DOM */
+        .demo-output p { color: red !important; font-size: 24px !important; }
+        .demo-output .title { background: yellow !important; }
+      </style>
+      
+      <div class="demo-output" id="shadow-demo">
+        <!-- Shadow DOM will be attached here -->
+      </div>
+      
+      <div style="margin-top:15px;">
+        <p style="color:#888;font-size:0.9rem;">Global CSS rule: <code>p { color: red !important; font-size: 24px !important; }</code></p>
+        <p style="color:#888;font-size:0.9rem;">But the Shadow DOM paragraph is purple and normal-sized! 🎉</p>
+      </div>
+    </div>
+
+    <h2>📍 Slots: Content Projection</h2>
+    <p>Slots allow you to pass content from the "Light DOM" (outside) into specific places in the Shadow DOM:</p>
+
+    <pre><code><span class="comment">// Shadow DOM template with slots</span>
+shadow.innerHTML = <span class="string">`
+    &lt;style&gt;
+        .card { border: 2px solid purple; padding: 20px; }
+        .header { background: purple; color: white; padding: 10px; }
+        .footer { background: #eee; padding: 10px; font-size: 0.9em; }
+    &lt;/style&gt;
+    
+    &lt;div class="card"&gt;
+        &lt;div class="header"&gt;
+            &lt;slot name="title"&gt;Default Title&lt;/slot&gt;
+        &lt;/div&gt;
+        
+        &lt;div class="body"&gt;
+            &lt;slot&gt;Default content goes here&lt;/slot&gt;
+        &lt;/div&gt;
+        
+        &lt;div class="footer"&gt;
+            &lt;slot name="footer"&gt;&lt;/slot&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+`</span>;
+
+<span class="comment">// HTML usage (Light DOM)</span>
+<span class="comment">// &lt;my-card&gt;</span>
+<span class="comment">//     &lt;span slot="title"&gt;My Custom Title&lt;/span&gt;</span>
+<span class="comment">//     &lt;p&gt;This goes into the default slot&lt;/p&gt;</span>
+<span class="comment">//     &lt;span slot="footer"&gt;Footer content&lt;/span&gt;</span>
+<span class="comment">// &lt;/my-card&gt;</span></code></pre>
+
+    <h2>🎨 Styling in Shadow DOM</h2>
+    
+    <h3>Special Selectors</h3>
+    <pre><code><span class="comment">/* Inside Shadow DOM stylesheet */</span>
+
+<span class="comment">/* :host - Select the host element itself */</span>
+<span class="tag">:host</span> {
+    display: block;
+    border: 2px solid purple;
+}
+
+<span class="comment">/* :host() - Select host with specific selector */</span>
+<span class="tag">:host(.active)</span> {
+    border-color: green;
+}
+
+<span class="tag">:host([disabled])</span> {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+<span class="comment">/* :host-context() - Match based on ancestor */</span>
+<span class="tag">:host-context(.dark-theme)</span> {
+    background: #333;
+    color: white;
+}
+
+<span class="comment">/* ::slotted() - Style slotted (light DOM) content */</span>
+<span class="tag">::slotted(p)</span> {
+    color: purple;
+    font-size: 1.2em;
+}
+
+<span class="tag">::slotted(.highlight)</span> {
+    background: yellow;
+}</code></pre>
+
+    <div class="concept-box info">
+      <h3>📌 Styling Limitations</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li><code>::slotted()</code> can only select direct children, not descendants</li>
+        <li>Slotted elements keep their light DOM styles, with shadow styles added</li>
+        <li>CSS custom properties (variables) DO cross the shadow boundary!</li>
+      </ul>
+    </div>
+
+    <h3>CSS Custom Properties (Cross Boundary)</h3>
+    <pre><code><span class="comment">/* In the main document */</span>
+<span class="tag">my-card</span> {
+    --card-bg: #f0f0ff;
+    --card-text: #333;
+    --card-border: purple;
+}
+
+<span class="comment">/* Inside Shadow DOM - these inherit! */</span>
+<span class="tag">.card</span> {
+    background: <span class="function">var</span>(--card-bg, white);
+    color: <span class="function">var</span>(--card-text, black);
+    border-color: <span class="function">var</span>(--card-border, gray);
+}</code></pre>
+
+    <h2>🎯 ::part() - Exposing Internal Elements</h2>
+    <pre><code><span class="comment">// Shadow DOM with parts</span>
+shadow.innerHTML = <span class="string">`
+    &lt;style&gt;
+        .btn { padding: 10px 20px; border: none; cursor: pointer; }
+    &lt;/style&gt;
+    
+    &lt;button part="button action-btn" class="btn"&gt;
+        Click Me
+    &lt;/button&gt;
+`</span>;
+
+<span class="comment">/* In external CSS - can now style the exposed part */</span>
+<span class="tag">my-button::part(button)</span> {
+    background: purple;
+    color: white;
+}
+
+<span class="tag">my-button::part(action-btn)</span> {
+    font-weight: bold;
+}</code></pre>
+
+    <h2>🔄 Event Retargeting</h2>
+    <p>Events from Shadow DOM are "retargeted" to appear as if they came from the host element:</p>
+
+    <pre><code><span class="comment">// Inside shadow DOM</span>
+shadow.innerHTML = <span class="string">'&lt;button id="inner-btn"&gt;Click&lt;/button&gt;'</span>;
+
+<span class="comment">// Outside - listening on the host</span>
+host.<span class="function">addEventListener</span>(<span class="string">'click'</span>, (e) => {
+    console.<span class="function">log</span>(e.target);           <span class="comment">// The host element (retargeted!)</span>
+    console.<span class="function">log</span>(e.composedPath());   <span class="comment">// Full path including shadow DOM</span>
+    <span class="comment">// [button#inner-btn, shadow-root, my-component, body, html, document, Window]</span>
+});
+
+<span class="comment">// To get the actual original target:</span>
+<span class="keyword">const</span> actualTarget = e.<span class="function">composedPath</span>()[<span class="number">0</span>];</code></pre>
+
+    <div class="concept-box warning">
+      <h3>⚠️ Event Bubbling and composed</h3>
+      <p>Not all events cross the shadow boundary! Events have a <code>composed</code> property:</p>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li><code>composed: true</code> - Events cross shadow boundaries (click, focus, input, etc.)</li>
+        <li><code>composed: false</code> - Events stay within shadow DOM</li>
+      </ul>
+      <pre style="margin-top:15px;"><code><span class="comment">// Custom events need composed: true to bubble out</span>
+<span class="keyword">const</span> event = <span class="keyword">new</span> <span class="function">CustomEvent</span>(<span class="string">'my-event'</span>, {
+    bubbles: <span class="keyword">true</span>,
+    composed: <span class="keyword">true</span>  <span class="comment">// Required to cross shadow boundary!</span>
+});</code></pre>
+    </div>
+
+    <h2>🎮 Interactive Slot Demo</h2>
+    <div class="interactive-demo">
+      <p>This custom card component uses named slots:</p>
+      <div id="slot-demo"></div>
+    </div>
+
+    <h2>📋 Shadow DOM Best Practices</h2>
+    <div class="concept-box tip">
+      <h3>✅ Do's</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li>Use CSS custom properties for theming - they cross the shadow boundary</li>
+        <li>Expose <code>part</code> attributes for customizable internal elements</li>
+        <li>Use <code>mode: 'open'</code> unless you have a specific reason not to</li>
+        <li>Provide meaningful default slot content</li>
+        <li>Use <code>:host</code> for component-level styles</li>
+      </ul>
+    </div>
+
+    <div class="concept-box warning">
+      <h3>❌ Don'ts</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li>Don't rely on global CSS frameworks inside shadow DOM</li>
+        <li>Don't forget that <code>::slotted()</code> only selects direct children</li>
+        <li>Don't use <code>mode: 'closed'</code> thinking it provides security (it doesn't)</li>
+        <li>Don't put critical accessibility features only in shadow DOM</li>
+      </ul>
+    </div>
+
+    <h2>🌐 Browser-Native Shadow DOM</h2>
+    <p>Some browser elements already use Shadow DOM internally:</p>
+    <pre><code><span class="comment">// These elements have internal shadow DOM:</span>
+<span class="comment">// &lt;input type="range"&gt;</span>
+<span class="comment">// &lt;video controls&gt;</span>
+<span class="comment">// &lt;details&gt;&lt;summary&gt;</span>
+<span class="comment">// &lt;select&gt;</span>
+
+<span class="comment">// You can see them in DevTools by enabling</span>
+<span class="comment">// "Show user agent shadow DOM" in settings</span></code></pre>
+  </div>
+
+  <script>
+    // Shadow DOM encapsulation demo
+    const shadowHost = document.getElementById('shadow-demo');
+    const shadow = shadowHost.attachShadow({ mode: 'open' });
+    shadow.innerHTML = `
+      <style>
+        p { color: purple; font-weight: bold; margin: 0; }
+        .title { background: #a78bfa33; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .container { padding: 15px; background: #1e1b4b; border-radius: 8px; }
+      </style>
+      <div class="container">
+        <div class="title">🔒 Shadow DOM Component</div>
+        <p>I'm styled by Shadow DOM CSS only!</p>
+        <p>Global red color doesn't affect me!</p>
+      </div>
+    `;
+
+    // Slot demo
+    class SlotCard extends HTMLElement {
+      constructor() {
+        super();
+        const shadow = this.attachShadow({ mode: 'open' });
+        shadow.innerHTML = `
+          <style>
+            .card { border: 2px solid #a78bfa; border-radius: 12px; overflow: hidden; background: #1a1a2e; }
+            .header { background: linear-gradient(135deg, #a78bfa, #818cf8); color: white; padding: 15px; }
+            .body { padding: 20px; }
+            .footer { background: #0d1117; padding: 10px 15px; font-size: 0.9em; color: #888; }
+            ::slotted([slot="title"]) { margin: 0; font-size: 1.2em; }
+            ::slotted(p) { margin: 10px 0; }
+          </style>
+          <div class="card">
+            <div class="header">
+              <slot name="title">Default Title</slot>
+            </div>
+            <div class="body">
+              <slot>Default content...</slot>
+            </div>
+            <div class="footer">
+              <slot name="footer">No footer provided</slot>
+            </div>
+          </div>
+        `;
+      }
+    }
+    customElements.define('slot-card', SlotCard);
+
+    document.getElementById('slot-demo').innerHTML = `
+      <slot-card>
+        <h3 slot="title">🎴 Custom Card Title</h3>
+        <p>This paragraph is in the default slot!</p>
+        <p>And so is this one!</p>
+        <span slot="footer">📅 Posted on Nov 27, 2025</span>
+      </slot-card>
+    `;
+  </script>
+</body>
+</html>

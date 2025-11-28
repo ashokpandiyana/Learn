@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 13: Testing GraphQL React Apps</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #14532d 100%);
+      color: #e4e4e7;
+      line-height: 1.7;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 950px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #22c55e, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle { color: #a1a1aa; font-size: 1.1rem; margin-bottom: 40px; }
+    h2 {
+      color: #22c55e;
+      font-size: 1.6rem;
+      margin: 40px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #3f3f46;
+    }
+    h3 { color: #4ade80; font-size: 1.2rem; margin: 25px 0 15px; }
+    h4 { color: #86efac; font-size: 1rem; margin: 20px 0 10px; }
+    p { margin-bottom: 15px; color: #d4d4d8; }
+    .highlight-box {
+      background: linear-gradient(135deg, #14532d 0%, #052e16 100%);
+      border-left: 4px solid #22c55e;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .warning-box {
+      background: linear-gradient(135deg, #78350f 0%, #451a03 100%);
+      border-left: 4px solid #f59e0b;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .warning-box::before { content: "⚠️ INTERVIEW HIGHLIGHT: "; font-weight: bold; color: #fbbf24; }
+    .tip-box {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e1b4b 100%);
+      border-left: 4px solid #3b82f6;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .tip-box::before { content: "📝 TESTING TIP: "; font-weight: bold; color: #60a5fa; }
+    .test-box {
+      background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%);
+      border-left: 4px solid #ef4444;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .test-box::before { content: "🧪 TEST CASE: "; font-weight: bold; color: #f87171; }
+    pre {
+      background: #0a0a15;
+      border: 1px solid #3f3f46;
+      border-radius: 12px;
+      padding: 20px;
+      overflow-x: auto;
+      margin: 15px 0;
+      font-size: 0.85rem;
+    }
+    code { font-family: 'Fira Code', 'Consolas', monospace; }
+    .inline-code {
+      background: #3f3f46;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+    .keyword { color: #c084fc; }
+    .type { color: #38bdf8; }
+    .string { color: #4ade80; }
+    .comment { color: #6b7280; font-style: italic; }
+    .field { color: #fbbf24; }
+    .function { color: #f472b6; }
+    .const { color: #fb923c; }
+    .test-fn { color: #22c55e; }
+    .expect { color: #f472b6; }
+    .chapter-nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 1px solid #3f3f46;
+    }
+    .nav-btn {
+      padding: 12px 24px;
+      background: linear-gradient(90deg, #15803d, #0891b2);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    ul { margin: 15px 0 15px 25px; }
+    li { margin: 8px 0; color: #d4d4d8; }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: #1e293b;
+      border-radius: 12px;
+      overflow: hidden;
+      font-size: 0.9rem;
+    }
+    .comparison-table th {
+      background: linear-gradient(90deg, #15803d, #0891b2);
+      padding: 14px;
+      text-align: left;
+      font-weight: 600;
+    }
+    .comparison-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #334155;
+    }
+    .comparison-table tr:last-child td { border-bottom: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Chapter 13</h1>
+    <p class="subtitle">Testing GraphQL React Apps — Ensuring Quality and Reliability</p>
+
+    <!-- Section 13.1 -->
+    <h2>13.1 Testing Strategy Overview</h2>
+    
+    <p>Testing GraphQL React applications requires mocking the Apollo Client and its network layer. The <code class="inline-code">MockedProvider</code> component is the foundation of all Apollo testing.</p>
+
+    <div class="highlight-box">
+      <strong>Testing Layers:</strong>
+      <ul style="margin-top: 10px;">
+        <li><strong>Unit Tests:</strong> Test custom hooks in isolation</li>
+        <li><strong>Component Tests:</strong> Test components with mocked GraphQL</li>
+        <li><strong>Integration Tests:</strong> Test user flows across components</li>
+        <li><strong>E2E Tests:</strong> Test against real or mock server</li>
+      </ul>
+    </div>
+
+    <!-- Section 13.2 -->
+    <h2>13.2 MockedProvider Basics</h2>
+
+    <pre><code><span class="keyword">import</span> { <span class="type">MockedProvider</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/testing'</span>;
+<span class="keyword">import</span> { <span class="function">render</span>, <span class="function">screen</span>, <span class="function">waitFor</span> } <span class="keyword">from</span> <span class="string">'@testing-library/react'</span>;
+<span class="keyword">import</span> { <span class="type">UserProfile</span> } <span class="keyword">from</span> <span class="string">'./UserProfile'</span>;
+<span class="keyword">import</span> { <span class="const">GET_USER</span> } <span class="keyword">from</span> <span class="string">'@/graphql/queries/user'</span>;
+
+<span class="comment">// Define mock responses</span>
+<span class="keyword">const</span> <span class="const">mocks</span> = [
+  {
+    <span class="field">request</span>: {
+      <span class="field">query</span>: <span class="const">GET_USER</span>,
+      <span class="field">variables</span>: { <span class="field">id</span>: <span class="string">'1'</span> },
+    },
+    <span class="field">result</span>: {
+      <span class="field">data</span>: {
+        <span class="field">user</span>: {
+          <span class="field">__typename</span>: <span class="string">'User'</span>,
+          <span class="field">id</span>: <span class="string">'1'</span>,
+          <span class="field">name</span>: <span class="string">'John Doe'</span>,
+          <span class="field">email</span>: <span class="string">'john@example.com'</span>,
+          <span class="field">avatar</span>: <span class="string">'https://example.com/avatar.jpg'</span>,
+        },
+      },
+    },
+  },
+];
+
+<span class="test-fn">describe</span>(<span class="string">'UserProfile'</span>, () => {
+  <span class="test-fn">it</span>(<span class="string">'renders user data after loading'</span>, <span class="keyword">async</span> () => {
+    <span class="function">render</span>(
+      <span class="keyword">&lt;</span><span class="type">MockedProvider</span> <span class="field">mocks</span>={mocks} <span class="field">addTypename</span>={<span class="keyword">false</span>}<span class="keyword">&gt;</span>
+        <span class="keyword">&lt;</span><span class="type">UserProfile</span> <span class="field">userId</span>=<span class="string">"1"</span> <span class="keyword">/&gt;</span>
+      <span class="keyword">&lt;/</span><span class="type">MockedProvider</span><span class="keyword">&gt;</span>
+    );
+
+    <span class="comment">// Initially shows loading state</span>
+    <span class="expect">expect</span>(screen.<span class="function">getByText</span>(<span class="string">'Loading...'</span>)).<span class="function">toBeInTheDocument</span>();
+
+    <span class="comment">// Wait for data to load</span>
+    <span class="keyword">await</span> <span class="function">waitFor</span>(() => {
+      <span class="expect">expect</span>(screen.<span class="function">getByText</span>(<span class="string">'John Doe'</span>)).<span class="function">toBeInTheDocument</span>();
+    });
+
+    <span class="expect">expect</span>(screen.<span class="function">getByText</span>(<span class="string">'john@example.com'</span>)).<span class="function">toBeInTheDocument</span>();
+  });
+});</code></pre>
+
+    <div class="warning-box">
+      Set <code class="inline-code">addTypename={false}</code> on MockedProvider if your mocks don't include <code class="inline-code">__typename</code>. Otherwise, ensure EVERY object in your mock has the correct <code class="inline-code">__typename</code> field.
+    </div>
+
+    <!-- Section 13.3 -->
+    <h2>13.3 Testing Queries</h2>
+
+    <pre><code><span class="keyword">import</span> { <span class="type">MockedProvider</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/testing'</span>;
+<span class="keyword">import</span> { <span class="function">render</span>, <span class="function">screen</span>, <span class="function">waitFor</span> } <span class="keyword">from</span> <span class="string">'@testing-library/react'</span>;
+
+<span class="keyword">const</span> <span class="const">GET_POSTS</span> = <span class="function">gql</span><span class="string">`
+  query GetPosts($limit: Int!) {
+    posts(limit: $limit) {
+      id
+      title
+      author { id name }
+    }
+  }
+`</span>;
+
+<span class="keyword">const</span> <span class="const">postsQueryMock</span> = {
+  <span class="field">request</span>: {
+    <span class="field">query</span>: <span class="const">GET_POSTS</span>,
+    <span class="field">variables</span>: { <span class="field">limit</span>: 10 },
+  },
+  <span class="field">result</span>: {
+    <span class="field">data</span>: {
+      <span class="field">posts</span>: [
+        {
+          <span class="field">__typename</span>: <span class="string">'Post'</span>,
+          <span class="field">id</span>: <span class="string">'1'</span>,
+          <span class="field">title</span>: <span class="string">'First Post'</span>,
+          <span class="field">author</span>: { <span class="field">__typename</span>: <span class="string">'User'</span>, <span class="field">id</span>: <span class="string">'1'</span>, <span class="field">name</span>: <span class="string">'Alice'</span> },
+        },
+        {
+          <span class="field">__typename</span>: <span class="string">'Post'</span>,
+          <span class="field">id</span>: <span class="string">'2'</span>,
+          <span class="field">title</span>: <span class="string">'Second Post'</span>,
+          <span class="field">author</span>: { <span class="field">__typename</span>: <span class="string">'User'</span>, <span class="field">id</span>: <span class="string">'2'</span>, <span class="field">name</span>: <span class="string">'Bob'</span> },
+        },
+      ],
+    },
+  },
+};
+
+<span class="test-fn">describe</span>(<span class="string">'PostList'</span>, () => {
+  <span class="test-fn">it</span>(<span class="string">'renders all posts'</span>, <span class="keyword">async</span> () => {
+    <span class="function">render</span>(
+      <span class="keyword">&lt;</span><span class="type">MockedProvider</span> <span class="field">mocks</span>={[postsQueryMock]}<span class="keyword">&gt;</span>
+        <span class="keyword">&lt;</span><span class="type">PostList</span> <span class="field">limit</span>={10} <span class="keyword">/&gt;</span>
+      <span class="keyword">&lt;/</span><span class="type">MockedProvider</span><span class="keyword">&gt;</span>
+    );
+
+    <span class="keyword">await</span> <span class="function">waitFor</span>(() => {
+      <span class="expect">expect</span>(screen.<span class="function">getByText</span>(<span class="string">'First Post'</span>)).<span class="function">toBeInTheDocument</span>();
+      <span class="expect">expect</span>(screen.<span class="function">getByText</span>(<span class="string">'Second Post'</span>)).<span class="function">toBeInTheDocument</span>();
+    });
+
+    <span class="comment">// Verify author names are displayed</span>
+    <span class="expect">expect</span>(screen.<span class="function">getByText</span>(<span class="string">'Alice'</span>)).<span class="function">toBeInTheDocument</span>();
+    <span class="expect">expect</span>(screen.<span class="function">getByText</span>(<span class="string">'Bob'</span>)).<span class="function">toBeInTheDocument</span>();
+  });
+
+  <span class="test-fn">it</span>(<span class="string">'shows empty state when no posts'</span>, <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> emptyMock = {
+      ...postsQueryMock,
+      <span class="field">result</span>: { <span class="field">data</span>: { <span class="field">posts</span>: [] } },
+    };
+
+    <span class="function">render</span>(
+      <span class="keyword">&lt;</span><span class="type">MockedProvider</span> <span class="field">mocks</span>={[emptyMock]}<span class="keyword">&gt;</span>
+        <span class="keyword">&lt;</span><span class="type">PostList</span> <span class="field">limit</span>={10} <span class="keyword">/&gt;</span>
+      <span class="keyword">&lt;/</span><span class="type">MockedProvider</span><span class="keyword">&gt;</span>
+    );
+
+    <span class="keyword">await</span> <span class="function">waitFor</span>(() => {
+      <span class="expect">expect</span>(screen.<span class="function">getByText</span>(<span class="string">'No posts yet'</span>)).<span class="function">toBeInTheDocument</span>();
+    });
+  });
+});</code></pre>
+
+    <!-- Section 13.4 -->
+    <h2>13.4 Testing Mutations</h2>
+
+    <pre><code><span class="keyword">import</span> <span class="function">userEvent</span> <span class="keyword">from</span> <span class="string">'@testing-library/user-event'</span>;
+
+<span class="keyword">const</span> <span class="const">CREATE_POST</span> = <span class="function">gql</span><span class="string">`
+  mutation CreatePost($input: CreatePostInput!) {
+    createPost(input: $input) {
+      id
+      title
+      content
+    }
+  }
+`</span>;
+
+<span class="keyword">const</span> <span class="const">createPostMock</span> = {
+  <span class="field">request</span>: {
+    <span class="field">query</span>: <span class="const">CREATE_POST</span>,
+    <span class="field">variables</span>: {
+      <span class="field">input</span>: {
+        <span class="field">title</span>: <span class="string">'Test Post'</span>,
+        <span class="field">content</span>: <span class="string">'Test content'</span>,
+      },
+    },
+  },
+  <span class="field">result</span>: {
+    <span class="field">data</span>: {
+      <span class="field">createPost</span>: {
+        <span class="field">__typename</span>: <span class="string">'Post'</span>,
+        <span class="field">id</span>: <span class="string">'new-post-id'</span>,
+        <span class="field">title</span>: <span class="string">'Test Post'</span>,
+        <span class="field">content</span>: <span class="string">'Test content'</span>,
+      },
+    },
+  },
+};
+
+<span class="test-fn">describe</span>(<span class="string">'CreatePostForm'</span>, () => {
+  <span class="test-fn">it</span>(<span class="string">'creates a post successfully'</span>, <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> user = <span class="function">userEvent</span>.<span class="function">setup</span>();
+    <span class="keyword">const</span> onSuccess = jest.<span class="function">fn</span>();
+
+    <span class="function">render</span>(
+      <span class="keyword">&lt;</span><span class="type">MockedProvider</span> <span class="field">mocks</span>={[createPostMock]}<span class="keyword">&gt;</span>
+        <span class="keyword">&lt;</span><span class="type">CreatePostForm</span> <span class="field">onSuccess</span>={onSuccess} <span class="keyword">/&gt;</span>
+      <span class="keyword">&lt;/</span><span class="type">MockedProvider</span><span class="keyword">&gt;</span>
+    );
+
+    <span class="comment">// Fill in the form</span>
+    <span class="keyword">await</span> user.<span class="function">type</span>(screen.<span class="function">getByLabelText</span>(<span class="string">'Title'</span>), <span class="string">'Test Post'</span>);
+    <span class="keyword">await</span> user.<span class="function">type</span>(screen.<span class="function">getByLabelText</span>(<span class="string">'Content'</span>), <span class="string">'Test content'</span>);
+
+    <span class="comment">// Submit the form</span>
+    <span class="keyword">await</span> user.<span class="function">click</span>(screen.<span class="function">getByRole</span>(<span class="string">'button'</span>, { <span class="field">name</span>: <span class="string">'Create'</span> }));
+
+    <span class="comment">// Verify success callback was called</span>
+    <span class="keyword">await</span> <span class="function">waitFor</span>(() => {
+      <span class="expect">expect</span>(onSuccess).<span class="function">toHaveBeenCalledWith</span>({
+        <span class="field">id</span>: <span class="string">'new-post-id'</span>,
+        <span class="field">title</span>: <span class="string">'Test Post'</span>,
+        <span class="field">content</span>: <span class="string">'Test content'</span>,
+      });
+    });
+  });
+
+  <span class="test-fn">it</span>(<span class="string">'shows loading state during submission'</span>, <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> user = <span class="function">userEvent</span>.<span class="function">setup</span>();
+
+    <span class="comment">// Add delay to mock to test loading state</span>
+    <span class="keyword">const</span> slowMock = {
+      ...createPostMock,
+      <span class="field">delay</span>: 100,  <span class="comment">// 100ms delay</span>
+    };
+
+    <span class="function">render</span>(
+      <span class="keyword">&lt;</span><span class="type">MockedProvider</span> <span class="field">mocks</span>={[slowMock]}<span class="keyword">&gt;</span>
+        <span class="keyword">&lt;</span><span class="type">CreatePostForm</span> <span class="keyword">/&gt;</span>
+      <span class="keyword">&lt;/</span><span class="type">MockedProvider</span><span class="keyword">&gt;</span>
+    );
+
+    <span class="keyword">await</span> user.<span class="function">type</span>(screen.<span class="function">getByLabelText</span>(<span class="string">'Title'</span>), <span class="string">'Test Post'</span>);
+    <span class="keyword">await</span> user.<span class="function">type</span>(screen.<span class="function">getByLabelText</span>(<span class="string">'Content'</span>), <span class="string">'Test content'</span>);
+    <span class="keyword">await</span> user.<span class="function">click</span>(screen.<span class="function">getByRole</span>(<span class="string">'button'</span>, { <span class="field">name</span>: <span class="string">'Create'</span> }));
+
+    <span class="comment">// Button should be disabled and show loading</span>
+    <span class="expect">expect</span>(screen.<span class="function">getByRole</span>(<span class="string">'button'</span>)).<span class="function">toBeDisabled</span>();
+    <span class="expect">expect</span>(screen.<span class="function">getByText</span>(<span class="string">'Creating...'</span>)).<span class="function">toBeInTheDocument</span>();
+  });
+});</code></pre>
+
+    <!-- Section 13.5 -->
+    <h2>13.5 Testing Error States</h2>
+
+    <pre><code><span class="test-fn">describe</span>(<span class="string">'Error Handling'</span>, () => {
+  <span class="test-fn">it</span>(<span class="string">'handles network errors'</span>, <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> networkErrorMock = {
+      <span class="field">request</span>: {
+        <span class="field">query</span>: <span class="const">GET_USER</span>,
+        <span class="field">variables</span>: { <span class="field">id</span>: <span class="string">'1'</span> },
+      },
+      <span class="field">error</span>: <span class="keyword">new</span> <span class="type">Error</span>(<span class="string">'Network error'</span>),
+    };
+
+    <span class="function">render</span>(
+      <span class="keyword">&lt;</span><span class="type">MockedProvider</span> <span class="field">mocks</span>={[networkErrorMock]}<span class="keyword">&gt;</span>
+        <span class="keyword">&lt;</span><span class="type">UserProfile</span> <span class="field">userId</span>=<span class="string">"1"</span> <span class="keyword">/&gt;</span>
+      <span class="keyword">&lt;/</span><span class="type">MockedProvider</span><span class="keyword">&gt;</span>
+    );
+
+    <span class="keyword">await</span> <span class="function">waitFor</span>(() => {
+      <span class="expect">expect</span>(screen.<span class="function">getByText</span>(<span class="string">/network error/i</span>)).<span class="function">toBeInTheDocument</span>();
+    });
+
+    <span class="comment">// Verify retry button exists</span>
+    <span class="expect">expect</span>(screen.<span class="function">getByRole</span>(<span class="string">'button'</span>, { <span class="field">name</span>: <span class="string">/retry/i</span> })).<span class="function">toBeInTheDocument</span>();
+  });
+
+  <span class="test-fn">it</span>(<span class="string">'handles GraphQL errors'</span>, <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> graphqlErrorMock = {
+      <span class="field">request</span>: {
+        <span class="field">query</span>: <span class="const">GET_USER</span>,
+        <span class="field">variables</span>: { <span class="field">id</span>: <span class="string">'999'</span> },
+      },
+      <span class="field">result</span>: {
+        <span class="field">errors</span>: [
+          {
+            <span class="field">message</span>: <span class="string">'User not found'</span>,
+            <span class="field">extensions</span>: { <span class="field">code</span>: <span class="string">'NOT_FOUND'</span> },
+          },
+        ],
+      },
+    };
+
+    <span class="function">render</span>(
+      <span class="keyword">&lt;</span><span class="type">MockedProvider</span> <span class="field">mocks</span>={[graphqlErrorMock]}<span class="keyword">&gt;</span>
+        <span class="keyword">&lt;</span><span class="type">UserProfile</span> <span class="field">userId</span>=<span class="string">"999"</span> <span class="keyword">/&gt;</span>
+      <span class="keyword">&lt;/</span><span class="type">MockedProvider</span><span class="keyword">&gt;</span>
+    );
+
+    <span class="keyword">await</span> <span class="function">waitFor</span>(() => {
+      <span class="expect">expect</span>(screen.<span class="function">getByText</span>(<span class="string">'User not found'</span>)).<span class="function">toBeInTheDocument</span>();
+    });
+  });
+
+  <span class="test-fn">it</span>(<span class="string">'handles mutation validation errors'</span>, <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> user = <span class="function">userEvent</span>.<span class="function">setup</span>();
+    
+    <span class="keyword">const</span> validationErrorMock = {
+      <span class="field">request</span>: {
+        <span class="field">query</span>: <span class="const">CREATE_POST</span>,
+        <span class="field">variables</span>: { <span class="field">input</span>: { <span class="field">title</span>: <span class="string">''</span>, <span class="field">content</span>: <span class="string">'content'</span> } },
+      },
+      <span class="field">result</span>: {
+        <span class="field">errors</span>: [
+          {
+            <span class="field">message</span>: <span class="string">'Validation failed'</span>,
+            <span class="field">extensions</span>: {
+              <span class="field">code</span>: <span class="string">'BAD_USER_INPUT'</span>,
+              <span class="field">validationErrors</span>: {
+                <span class="field">title</span>: <span class="string">'Title is required'</span>,
+              },
+            },
+          },
+        ],
+      },
+    };
+
+    <span class="function">render</span>(
+      <span class="keyword">&lt;</span><span class="type">MockedProvider</span> <span class="field">mocks</span>={[validationErrorMock]}<span class="keyword">&gt;</span>
+        <span class="keyword">&lt;</span><span class="type">CreatePostForm</span> <span class="keyword">/&gt;</span>
+      <span class="keyword">&lt;/</span><span class="type">MockedProvider</span><span class="keyword">&gt;</span>
+    );
+
+    <span class="keyword">await</span> user.<span class="function">type</span>(screen.<span class="function">getByLabelText</span>(<span class="string">'Content'</span>), <span class="string">'content'</span>);
+    <span class="keyword">await</span> user.<span class="function">click</span>(screen.<span class="function">getByRole</span>(<span class="string">'button'</span>, { <span class="field">name</span>: <span class="string">'Create'</span> }));
+
+    <span class="keyword">await</span> <span class="function">waitFor</span>(() => {
+      <span class="expect">expect</span>(screen.<span class="function">getByText</span>(<span class="string">'Title is required'</span>)).<span class="function">toBeInTheDocument</span>();
+    });
+  });
+});</code></pre>
+
+    <!-- Section 13.6 -->
+    <h2>13.6 Testing Custom Hooks</h2>
+
+    <pre><code><span class="keyword">import</span> { <span class="function">renderHook</span>, <span class="function">waitFor</span> } <span class="keyword">from</span> <span class="string">'@testing-library/react'</span>;
+<span class="keyword">import</span> { <span class="type">MockedProvider</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/testing'</span>;
+<span class="keyword">import</span> { <span class="function">useUser</span> } <span class="keyword">from</span> <span class="string">'@/hooks/useUser'</span>;
+
+<span class="keyword">const</span> <span class="function">wrapper</span> = ({ <span class="param">children</span>, <span class="param">mocks</span> }) => (
+  <span class="keyword">&lt;</span><span class="type">MockedProvider</span> <span class="field">mocks</span>={mocks} <span class="field">addTypename</span>={<span class="keyword">false</span>}<span class="keyword">&gt;</span>
+    {children}
+  <span class="keyword">&lt;/</span><span class="type">MockedProvider</span><span class="keyword">&gt;</span>
+);
+
+<span class="test-fn">describe</span>(<span class="string">'useUser hook'</span>, () => {
+  <span class="test-fn">it</span>(<span class="string">'returns user data'</span>, <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> mocks = [
+      {
+        <span class="field">request</span>: { <span class="field">query</span>: <span class="const">GET_USER</span>, <span class="field">variables</span>: { <span class="field">id</span>: <span class="string">'1'</span> } },
+        <span class="field">result</span>: {
+          <span class="field">data</span>: {
+            <span class="field">user</span>: { <span class="field">id</span>: <span class="string">'1'</span>, <span class="field">name</span>: <span class="string">'John'</span>, <span class="field">email</span>: <span class="string">'john@test.com'</span> },
+          },
+        },
+      },
+    ];
+
+    <span class="keyword">const</span> { result } = <span class="function">renderHook</span>(() => <span class="function">useUser</span>(<span class="string">'1'</span>), {
+      <span class="function">wrapper</span>: ({ children }) => <span class="function">wrapper</span>({ children, mocks }),
+    });
+
+    <span class="comment">// Initially loading</span>
+    <span class="expect">expect</span>(result.current.loading).<span class="function">toBe</span>(<span class="keyword">true</span>);
+    <span class="expect">expect</span>(result.current.user).<span class="function">toBeNull</span>();
+
+    <span class="comment">// After loading</span>
+    <span class="keyword">await</span> <span class="function">waitFor</span>(() => {
+      <span class="expect">expect</span>(result.current.loading).<span class="function">toBe</span>(<span class="keyword">false</span>);
+    });
+
+    <span class="expect">expect</span>(result.current.user).<span class="function">toEqual</span>({
+      <span class="field">id</span>: <span class="string">'1'</span>,
+      <span class="field">name</span>: <span class="string">'John'</span>,
+      <span class="field">email</span>: <span class="string">'john@test.com'</span>,
+    });
+    <span class="expect">expect</span>(result.current.isNotFound).<span class="function">toBe</span>(<span class="keyword">false</span>);
+  });
+
+  <span class="test-fn">it</span>(<span class="string">'handles not found state'</span>, <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> mocks = [
+      {
+        <span class="field">request</span>: { <span class="field">query</span>: <span class="const">GET_USER</span>, <span class="field">variables</span>: { <span class="field">id</span>: <span class="string">'999'</span> } },
+        <span class="field">result</span>: { <span class="field">data</span>: { <span class="field">user</span>: <span class="keyword">null</span> } },
+      },
+    ];
+
+    <span class="keyword">const</span> { result } = <span class="function">renderHook</span>(() => <span class="function">useUser</span>(<span class="string">'999'</span>), {
+      <span class="function">wrapper</span>: ({ children }) => <span class="function">wrapper</span>({ children, mocks }),
+    });
+
+    <span class="keyword">await</span> <span class="function">waitFor</span>(() => {
+      <span class="expect">expect</span>(result.current.loading).<span class="function">toBe</span>(<span class="keyword">false</span>);
+    });
+
+    <span class="expect">expect</span>(result.current.user).<span class="function">toBeNull</span>();
+    <span class="expect">expect</span>(result.current.isNotFound).<span class="function">toBe</span>(<span class="keyword">true</span>);
+  });
+});</code></pre>
+
+    <!-- Section 13.7 -->
+    <h2>13.7 Testing with Cache</h2>
+
+    <pre><code><span class="keyword">import</span> { <span class="type">InMemoryCache</span> } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+
+<span class="test-fn">describe</span>(<span class="string">'Cache interactions'</span>, () => {
+  <span class="test-fn">it</span>(<span class="string">'uses cached data'</span>, <span class="keyword">async</span> () => {
+    <span class="comment">// Pre-populate cache</span>
+    <span class="keyword">const</span> cache = <span class="keyword">new</span> <span class="function">InMemoryCache</span>();
+    cache.<span class="function">writeQuery</span>({
+      <span class="field">query</span>: <span class="const">GET_USER</span>,
+      <span class="field">variables</span>: { <span class="field">id</span>: <span class="string">'1'</span> },
+      <span class="field">data</span>: {
+        <span class="field">user</span>: {
+          <span class="field">__typename</span>: <span class="string">'User'</span>,
+          <span class="field">id</span>: <span class="string">'1'</span>,
+          <span class="field">name</span>: <span class="string">'Cached User'</span>,
+          <span class="field">email</span>: <span class="string">'cached@test.com'</span>,
+        },
+      },
+    });
+
+    <span class="function">render</span>(
+      <span class="keyword">&lt;</span><span class="type">MockedProvider</span> <span class="field">cache</span>={cache} <span class="field">mocks</span>={[]}<span class="keyword">&gt;</span>
+        <span class="keyword">&lt;</span><span class="type">UserProfile</span> <span class="field">userId</span>=<span class="string">"1"</span> <span class="keyword">/&gt;</span>
+      <span class="keyword">&lt;/</span><span class="type">MockedProvider</span><span class="keyword">&gt;</span>
+    );
+
+    <span class="comment">// Should render cached data immediately (no loading state)</span>
+    <span class="expect">expect</span>(screen.<span class="function">getByText</span>(<span class="string">'Cached User'</span>)).<span class="function">toBeInTheDocument</span>();
+  });
+
+  <span class="test-fn">it</span>(<span class="string">'updates cache after mutation'</span>, <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> user = <span class="function">userEvent</span>.<span class="function">setup</span>();
+    <span class="keyword">const</span> cache = <span class="keyword">new</span> <span class="function">InMemoryCache</span>();
+
+    <span class="keyword">const</span> mocks = [
+      {
+        <span class="field">request</span>: {
+          <span class="field">query</span>: <span class="const">UPDATE_USER</span>,
+          <span class="field">variables</span>: { <span class="field">id</span>: <span class="string">'1'</span>, <span class="field">name</span>: <span class="string">'Updated Name'</span> },
+        },
+        <span class="field">result</span>: {
+          <span class="field">data</span>: {
+            <span class="field">updateUser</span>: {
+              <span class="field">__typename</span>: <span class="string">'User'</span>,
+              <span class="field">id</span>: <span class="string">'1'</span>,
+              <span class="field">name</span>: <span class="string">'Updated Name'</span>,
+            },
+          },
+        },
+      },
+    ];
+
+    <span class="function">render</span>(
+      <span class="keyword">&lt;</span><span class="type">MockedProvider</span> <span class="field">cache</span>={cache} <span class="field">mocks</span>={mocks}<span class="keyword">&gt;</span>
+        <span class="keyword">&lt;</span><span class="type">EditUserForm</span> <span class="field">userId</span>=<span class="string">"1"</span> <span class="keyword">/&gt;</span>
+      <span class="keyword">&lt;/</span><span class="type">MockedProvider</span><span class="keyword">&gt;</span>
+    );
+
+    <span class="keyword">await</span> user.<span class="function">clear</span>(screen.<span class="function">getByLabelText</span>(<span class="string">'Name'</span>));
+    <span class="keyword">await</span> user.<span class="function">type</span>(screen.<span class="function">getByLabelText</span>(<span class="string">'Name'</span>), <span class="string">'Updated Name'</span>);
+    <span class="keyword">await</span> user.<span class="function">click</span>(screen.<span class="function">getByRole</span>(<span class="string">'button'</span>, { <span class="field">name</span>: <span class="string">'Save'</span> }));
+
+    <span class="keyword">await</span> <span class="function">waitFor</span>(() => {
+      <span class="comment">// Verify cache was updated</span>
+      <span class="keyword">const</span> cachedUser = cache.<span class="function">readFragment</span>({
+        <span class="field">id</span>: <span class="string">'User:1'</span>,
+        <span class="field">fragment</span>: <span class="function">gql</span><span class="string">`fragment U on User { id name }`</span>,
+      });
+      <span class="expect">expect</span>(cachedUser.name).<span class="function">toBe</span>(<span class="string">'Updated Name'</span>);
+    });
+  });
+});</code></pre>
+
+    <!-- Section 13.8 -->
+    <h2>13.8 Test Utilities & Helpers</h2>
+
+    <pre><code><span class="comment">// test-utils.tsx</span>
+<span class="keyword">import</span> { <span class="type">MockedProvider</span>, <span class="type">MockedResponse</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/testing'</span>;
+<span class="keyword">import</span> { <span class="function">render</span>, <span class="type">RenderOptions</span> } <span class="keyword">from</span> <span class="string">'@testing-library/react'</span>;
+<span class="keyword">import</span> { <span class="type">ReactElement</span> } <span class="keyword">from</span> <span class="string">'react'</span>;
+
+<span class="keyword">interface</span> <span class="type">CustomRenderOptions</span> <span class="keyword">extends</span> <span class="type">RenderOptions</span> {
+  <span class="field">mocks</span>?: <span class="type">MockedResponse</span>[];
+  <span class="field">cache</span>?: <span class="type">InMemoryCache</span>;
+}
+
+<span class="keyword">export function</span> <span class="function">renderWithApollo</span>(
+  ui: <span class="type">ReactElement</span>,
+  { mocks = [], cache, ...options }: <span class="type">CustomRenderOptions</span> = {}
+) {
+  <span class="keyword">function</span> <span class="function">Wrapper</span>({ children }: { children: <span class="type">React.ReactNode</span> }) {
+    <span class="keyword">return</span> (
+      <span class="keyword">&lt;</span><span class="type">MockedProvider</span> 
+        <span class="field">mocks</span>={mocks} 
+        <span class="field">cache</span>={cache}
+        <span class="field">addTypename</span>={<span class="keyword">false</span>}
+      <span class="keyword">&gt;</span>
+        {children}
+      <span class="keyword">&lt;/</span><span class="type">MockedProvider</span><span class="keyword">&gt;</span>
+    );
+  }
+
+  <span class="keyword">return</span> {
+    ...render(ui, { <span class="field">wrapper</span>: Wrapper, ...options }),
+  };
+}
+
+<span class="comment">// Mock factory helpers</span>
+<span class="keyword">export function</span> <span class="function">createUserMock</span>(overrides = {}) {
+  <span class="keyword">return</span> {
+    <span class="field">__typename</span>: <span class="string">'User'</span>,
+    <span class="field">id</span>: <span class="string">'1'</span>,
+    <span class="field">name</span>: <span class="string">'Test User'</span>,
+    <span class="field">email</span>: <span class="string">'test@example.com'</span>,
+    <span class="field">avatar</span>: <span class="keyword">null</span>,
+    ...overrides,
+  };
+}
+
+<span class="keyword">export function</span> <span class="function">createGetUserMock</span>(userId: <span class="type">string</span>, userData = {}) {
+  <span class="keyword">return</span> {
+    <span class="field">request</span>: {
+      <span class="field">query</span>: <span class="const">GET_USER</span>,
+      <span class="field">variables</span>: { <span class="field">id</span>: userId },
+    },
+    <span class="field">result</span>: {
+      <span class="field">data</span>: {
+        <span class="field">user</span>: <span class="function">createUserMock</span>({ <span class="field">id</span>: userId, ...userData }),
+      },
+    },
+  };
+}
+
+<span class="comment">// Usage:</span>
+<span class="comment">// renderWithApollo(&lt;UserProfile userId="1" /&gt;, {</span>
+<span class="comment">//   mocks: [createGetUserMock('1', { name: 'Custom Name' })],</span>
+<span class="comment">// });</span></code></pre>
+
+    <div class="tip-box">
+      Create mock factories for your common data types. This reduces duplication and makes tests easier to maintain when your schema changes.
+    </div>
+
+    <!-- Section 13.9 -->
+    <h2>13.9 Testing Checklist</h2>
+
+    <table class="comparison-table">
+      <tr>
+        <th>Test Type</th>
+        <th>What to Test</th>
+        <th>Priority</th>
+      </tr>
+      <tr>
+        <td>Loading States</td>
+        <td>Skeleton/spinner displays during fetch</td>
+        <td>🔥🔥🔥</td>
+      </tr>
+      <tr>
+        <td>Success States</td>
+        <td>Data renders correctly</td>
+        <td>🔥🔥🔥</td>
+      </tr>
+      <tr>
+        <td>Empty States</td>
+        <td>Appropriate UI when no data</td>
+        <td>🔥🔥</td>
+      </tr>
+      <tr>
+        <td>Network Errors</td>
+        <td>Error UI + retry functionality</td>
+        <td>🔥🔥🔥</td>
+      </tr>
+      <tr>
+        <td>GraphQL Errors</td>
+        <td>Specific error handling (404, 403)</td>
+        <td>🔥🔥</td>
+      </tr>
+      <tr>
+        <td>Mutation Success</td>
+        <td>Callbacks, UI updates, cache</td>
+        <td>🔥🔥🔥</td>
+      </tr>
+      <tr>
+        <td>Validation Errors</td>
+        <td>Field-level error display</td>
+        <td>🔥🔥</td>
+      </tr>
+      <tr>
+        <td>Optimistic UI</td>
+        <td>Immediate update + rollback</td>
+        <td>🔥</td>
+      </tr>
+    </table>
+
+    <div class="warning-box">
+      Always test the <strong>user experience</strong>, not implementation details. Test what the user sees and does, not internal Apollo Client behavior.
+    </div>
+
+    <div class="chapter-nav">
+      <button class="nav-btn">← Chapter 12: Architecture</button>
+      <button class="nav-btn">Next: Chapter 14 — Security →</button>
+    </div>
+  </div>
+</body>
+</html>

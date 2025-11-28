@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 36: Template & Content Elements</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e4e4e4; line-height: 1.7; padding: 40px 20px; min-height: 100vh; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2.5rem; background: linear-gradient(90deg, #06b6d4, #8b5cf6, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+    .subtitle { color: #888; font-size: 1.1rem; margin-bottom: 40px; }
+    h2 { color: #06b6d4; font-size: 1.6rem; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #8b5cf633; }
+    h3 { color: #8b5cf6; font-size: 1.2rem; margin: 25px 0 15px; }
+    p { margin-bottom: 16px; color: #ccc; }
+    .concept-box { background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%); border-radius: 16px; padding: 25px; margin: 25px 0; border-left: 4px solid #06b6d4; }
+    .warning { background: linear-gradient(135deg, #4a2c2c 0%, #3d1f1f 100%); border-left-color: #ff6b6b; }
+    .tip { background: linear-gradient(135deg, #1f4a2c 0%, #1f3d2a 100%); border-left-color: #4ade80; }
+    .info { background: linear-gradient(135deg, #2d1b4e 0%, #0f172a 100%); border-left-color: #8b5cf6; }
+    code { background: #0d1117; padding: 3px 8px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em; color: #06b6d4; }
+    pre { background: #0d1117; border-radius: 12px; padding: 20px; overflow-x: auto; margin: 20px 0; border: 1px solid #ffffff15; }
+    pre code { padding: 0; background: none; }
+    .keyword { color: #c792ea; }
+    .function { color: #82aaff; }
+    .string { color: #c3e88d; }
+    .comment { color: #676e95; }
+    .number { color: #f78c6c; }
+    .tag { color: #f07178; }
+    .attr { color: #ffcb6b; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ffffff15; }
+    th { background: #06b6d433; color: #06b6d4; }
+    tr:hover { background: #ffffff08; }
+    .interactive-demo { background: #0d1117; border-radius: 16px; padding: 25px; margin: 30px 0; border: 1px solid #8b5cf644; }
+    button { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.2s; margin: 5px; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px #06b6d455; }
+    button.secondary { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    button.tertiary { background: linear-gradient(135deg, #ec4899, #db2777); }
+    .demo-output { background: #1e293b; border-radius: 10px; padding: 20px; margin: 15px 0; min-height: 80px; }
+    .diagram { background: #0d1117; border-radius: 16px; padding: 30px; margin: 30px 0; }
+    .template-visual { display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap; }
+    .template-box { background: linear-gradient(135deg, #1e3a5f, #0f172a); padding: 20px; border-radius: 12px; border: 2px dashed #06b6d4; text-align: center; min-width: 150px; }
+    .clone-box { background: linear-gradient(135deg, #2d1b4e, #0f172a); padding: 20px; border-radius: 12px; border: 2px solid #8b5cf6; text-align: center; min-width: 150px; }
+    .arrow { font-size: 2rem; color: #4ade80; }
+    ul { margin-left: 25px; margin-bottom: 15px; }
+    li { margin-bottom: 8px; color: #ccc; }
+    .slot-diagram { display: flex; flex-direction: column; gap: 15px; align-items: center; }
+    .slot-host { background: linear-gradient(135deg, #1e3a5f, #0f172a); padding: 20px; border-radius: 12px; border: 2px solid #06b6d4; width: 100%; max-width: 400px; }
+    .slot-shadow { background: #0d1117; padding: 15px; border-radius: 8px; margin: 10px 0; border: 1px dashed #8b5cf6; }
+    .slot-placeholder { background: #ec489933; border: 2px dashed #ec4899; padding: 10px; border-radius: 6px; text-align: center; margin: 10px 0; }
+    .slot-content { background: #4ade8033; border: 2px solid #4ade80; padding: 10px; border-radius: 6px; text-align: center; }
+    .card-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0; }
+    .template-card { background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 12px; overflow: hidden; border: 1px solid #ffffff15; }
+    .template-card img { width: 100%; height: 120px; object-fit: cover; background: linear-gradient(135deg, #06b6d4, #8b5cf6); }
+    .template-card .content { padding: 15px; }
+    .template-card h4 { color: #06b6d4; margin-bottom: 8px; }
+    .template-card p { font-size: 0.9rem; color: #94a3b8; margin: 0; }
+    .comparison-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 20px 0; }
+    .compare-box { background: #1e293b; padding: 20px; border-radius: 12px; }
+    .compare-box h4 { color: #8b5cf6; margin-bottom: 15px; }
+    .perf-bar { height: 20px; border-radius: 4px; margin: 10px 0; }
+    .perf-bar.fast { background: linear-gradient(90deg, #4ade80, #22c55e); width: 30%; }
+    .perf-bar.slow { background: linear-gradient(90deg, #ef4444, #dc2626); width: 90%; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📋 Chapter 36: Template & Content Elements</h1>
+    <p class="subtitle">Reusable HTML Blueprints and Content Projection</p>
+
+    <h2>🎯 What is the Template Element?</h2>
+    <p>The <code>&lt;template&gt;</code> element is a mechanism for holding HTML that is not to be rendered immediately when a page loads, but can be instantiated later using JavaScript. It's essentially a blueprint for creating DOM content.</p>
+
+    <div class="concept-box">
+      <h3>💡 Key Characteristics</h3>
+      <ul style="margin-top: 10px; margin-left: 20px;">
+        <li><strong>Inert:</strong> Content inside <code>&lt;template&gt;</code> is not rendered</li>
+        <li><strong>No side effects:</strong> Scripts don't run, images don't load, styles don't apply</li>
+        <li><strong>Clonable:</strong> Can be cloned multiple times efficiently</li>
+        <li><strong>Valid HTML:</strong> Can contain any valid HTML, even elements that would normally require specific parents</li>
+      </ul>
+    </div>
+
+    <h2>📝 Basic Template Usage</h2>
+    <pre><code><span class="comment">&lt;!-- Define the template in HTML --&gt;</span>
+<span class="tag">&lt;template</span> <span class="attr">id</span>=<span class="string">"card-template"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="string">"card"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;img</span> <span class="attr">src</span>=<span class="string">""</span> <span class="attr">alt</span>=<span class="string">""</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;h3</span> <span class="attr">class</span>=<span class="string">"title"</span><span class="tag">&gt;&lt;/h3&gt;</span>
+        <span class="tag">&lt;p</span> <span class="attr">class</span>=<span class="string">"description"</span><span class="tag">&gt;&lt;/p&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/template&gt;</span>
+
+<span class="comment">&lt;!-- Container for cards --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="string">"card-container"</span><span class="tag">&gt;&lt;/div&gt;</span></code></pre>
+
+    <pre><code><span class="comment">// Get the template</span>
+<span class="keyword">const</span> template = document.<span class="function">getElementById</span>(<span class="string">'card-template'</span>);
+
+<span class="comment">// Clone the template content</span>
+<span class="keyword">const</span> clone = template.content.<span class="function">cloneNode</span>(<span class="keyword">true</span>);
+
+<span class="comment">// Modify the clone</span>
+clone.<span class="function">querySelector</span>(<span class="string">'.title'</span>).textContent = <span class="string">'My Card Title'</span>;
+clone.<span class="function">querySelector</span>(<span class="string">'.description'</span>).textContent = <span class="string">'Card description here'</span>;
+clone.<span class="function">querySelector</span>(<span class="string">'img'</span>).src = <span class="string">'image.jpg'</span>;
+
+<span class="comment">// Append to DOM</span>
+document.<span class="function">getElementById</span>(<span class="string">'card-container'</span>).<span class="function">appendChild</span>(clone);</code></pre>
+
+    <h2>🎨 Visual: How Templates Work</h2>
+    <div class="diagram">
+      <div class="template-visual">
+        <div class="template-box">
+          <div style="font-size:2rem;margin-bottom:10px;">📋</div>
+          <code>&lt;template&gt;</code>
+          <div style="font-size:0.8rem;color:#888;margin-top:5px;">Hidden Blueprint</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="clone-box">
+          <div style="font-size:2rem;margin-bottom:10px;">📄</div>
+          <code>cloneNode(true)</code>
+          <div style="font-size:0.8rem;color:#888;margin-top:5px;">DocumentFragment</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="clone-box" style="border-color:#4ade80;">
+          <div style="font-size:2rem;margin-bottom:10px;">🌐</div>
+          <code>appendChild()</code>
+          <div style="font-size:0.8rem;color:#888;margin-top:5px;">Live DOM</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>🎮 Interactive Demo: Template Cloning</h2>
+    <div class="interactive-demo">
+      <template id="demo-card-template">
+        <div class="template-card">
+          <div style="height:80px;background:linear-gradient(135deg,#06b6d4,#8b5cf6);"></div>
+          <div class="content">
+            <h4 class="card-title">Title</h4>
+            <p class="card-desc">Description</p>
+          </div>
+        </div>
+      </template>
+      
+      <div>
+        <button onclick="addCard()">➕ Add Card from Template</button>
+        <button onclick="addMultiple()" class="secondary">📦 Add 5 Cards</button>
+        <button onclick="clearCards()" class="tertiary">🗑️ Clear All</button>
+      </div>
+      
+      <div class="card-list" id="card-container"></div>
+      <div style="margin-top:10px;color:#888;font-size:0.9rem;">
+        Cards created: <span id="card-count">0</span>
+      </div>
+    </div>
+
+    <h2>📊 Template vs innerHTML Performance</h2>
+    <div class="comparison-grid">
+      <div class="compare-box">
+        <h4>✅ Using Template</h4>
+        <div class="perf-bar fast"></div>
+        <ul style="margin-top:15px;">
+          <li>Pre-parsed once by browser</li>
+          <li>Cloning is very fast</li>
+          <li>No HTML parsing on each use</li>
+          <li>Type-safe DOM manipulation</li>
+        </ul>
+      </div>
+      <div class="compare-box">
+        <h4>❌ Using innerHTML</h4>
+        <div class="perf-bar slow"></div>
+        <ul style="margin-top:15px;">
+          <li>HTML parsed every time</li>
+          <li>XSS vulnerability risk</li>
+          <li>Destroys existing event listeners</li>
+          <li>String concatenation mess</li>
+        </ul>
+      </div>
+    </div>
+
+    <pre><code><span class="comment">// ❌ Slow and unsafe</span>
+<span class="keyword">for</span> (<span class="keyword">const</span> item <span class="keyword">of</span> items) {
+    container.innerHTML += <span class="string">`
+        &lt;div class="card"&gt;
+            &lt;h3&gt;${item.title}&lt;/h3&gt;  &lt;!-- XSS risk! --&gt;
+        &lt;/div&gt;
+    `</span>;  <span class="comment">// Re-parses ALL cards every iteration!</span>
+}
+
+<span class="comment">// ✅ Fast and safe</span>
+<span class="keyword">const</span> template = document.<span class="function">getElementById</span>(<span class="string">'card-template'</span>);
+<span class="keyword">const</span> fragment = document.<span class="function">createDocumentFragment</span>();
+
+<span class="keyword">for</span> (<span class="keyword">const</span> item <span class="keyword">of</span> items) {
+    <span class="keyword">const</span> clone = template.content.<span class="function">cloneNode</span>(<span class="keyword">true</span>);
+    clone.<span class="function">querySelector</span>(<span class="string">'h3'</span>).textContent = item.title;  <span class="comment">// Safe!</span>
+    fragment.<span class="function">appendChild</span>(clone);
+}
+
+container.<span class="function">appendChild</span>(fragment);  <span class="comment">// Single DOM update!</span></code></pre>
+
+    <h2>🔌 Slot Element: Content Projection</h2>
+    <p>The <code>&lt;slot&gt;</code> element is used within Shadow DOM to create placeholders where external content (from the "Light DOM") can be inserted.</p>
+
+    <div class="diagram">
+      <div class="slot-diagram">
+        <div class="slot-host">
+          <div style="color:#06b6d4;font-weight:bold;margin-bottom:10px;">🏠 Host Element (Light DOM)</div>
+          <code>&lt;my-card&gt;</code>
+          <div class="slot-content">
+            <code>&lt;span slot="title"&gt;Hello!&lt;/span&gt;</code>
+          </div>
+          <div class="slot-content">
+            <code>&lt;p&gt;Default slot content&lt;/p&gt;</code>
+          </div>
+          <code>&lt;/my-card&gt;</code>
+        </div>
+        
+        <div style="font-size:2rem;color:#4ade80;">↓</div>
+        
+        <div class="slot-host" style="border-color:#8b5cf6;">
+          <div style="color:#8b5cf6;font-weight:bold;margin-bottom:10px;">🌑 Shadow DOM</div>
+          <div class="slot-shadow">
+            <code>&lt;header&gt;</code>
+            <div class="slot-placeholder">
+              <code>&lt;slot name="title"&gt;</code>
+              <div style="font-size:0.8rem;color:#ec4899;margin-top:5px;">Named slot receives: "Hello!"</div>
+            </div>
+            <code>&lt;/header&gt;</code>
+            <code>&lt;main&gt;</code>
+            <div class="slot-placeholder">
+              <code>&lt;slot&gt;</code>
+              <div style="font-size:0.8rem;color:#ec4899;margin-top:5px;">Default slot receives: &lt;p&gt; content</div>
+            </div>
+            <code>&lt;/main&gt;</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>📝 Slot Types</h2>
+    <table>
+      <tr>
+        <th>Slot Type</th>
+        <th>Syntax</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td><strong>Default Slot</strong></td>
+        <td><code>&lt;slot&gt;&lt;/slot&gt;</code></td>
+        <td>Receives all content without a <code>slot</code> attribute</td>
+      </tr>
+      <tr>
+        <td><strong>Named Slot</strong></td>
+        <td><code>&lt;slot name="header"&gt;&lt;/slot&gt;</code></td>
+        <td>Receives content with <code>slot="header"</code></td>
+      </tr>
+      <tr>
+        <td><strong>Fallback Content</strong></td>
+        <td><code>&lt;slot&gt;Default&lt;/slot&gt;</code></td>
+        <td>Shows if no content is provided</td>
+      </tr>
+    </table>
+
+    <h2>🛠️ Complete Slot Example</h2>
+    <pre><code><span class="keyword">class</span> <span class="function">InfoCard</span> <span class="keyword">extends</span> HTMLElement {
+    <span class="function">constructor</span>() {
+        <span class="keyword">super</span>();
+        <span class="keyword">this</span>.<span class="function">attachShadow</span>({ mode: <span class="string">'open'</span> });
+        <span class="keyword">this</span>.shadowRoot.innerHTML = <span class="string">`
+            &lt;style&gt;
+                :host {
+                    display: block;
+                    border: 2px solid #06b6d4;
+                    border-radius: 12px;
+                    overflow: hidden;
+                }
+                .header {
+                    background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+                    padding: 15px;
+                    color: white;
+                }
+                .body {
+                    padding: 20px;
+                }
+                .footer {
+                    background: #f1f5f9;
+                    padding: 10px 15px;
+                    font-size: 0.9em;
+                    color: #64748b;
+                }
+                
+                /* Style slotted content */
+                ::slotted(h2) {
+                    margin: 0;
+                    font-size: 1.5rem;
+                }
+                ::slotted(p) {
+                    margin: 10px 0 0;
+                }
+            &lt;/style&gt;
+            
+            &lt;div class="header"&gt;
+                &lt;slot name="header"&gt;
+                    &lt;h2&gt;Default Header&lt;/h2&gt;
+                &lt;/slot&gt;
+            &lt;/div&gt;
+            
+            &lt;div class="body"&gt;
+                &lt;slot&gt;
+                    &lt;p&gt;No content provided&lt;/p&gt;
+                &lt;/slot&gt;
+            &lt;/div&gt;
+            
+            &lt;div class="footer"&gt;
+                &lt;slot name="footer"&gt;
+                    Default footer
+                &lt;/slot&gt;
+            &lt;/div&gt;
+        `</span>;
+    }
+}
+
+customElements.<span class="function">define</span>(<span class="string">'info-card'</span>, InfoCard);</code></pre>
+
+    <pre><code><span class="comment">&lt;!-- Usage in HTML --&gt;</span>
+<span class="tag">&lt;info-card&gt;</span>
+    <span class="tag">&lt;h2</span> <span class="attr">slot</span>=<span class="string">"header"</span><span class="tag">&gt;</span>🎉 Welcome!<span class="tag">&lt;/h2&gt;</span>
+    
+    <span class="tag">&lt;p&gt;</span>This paragraph goes into the default slot.<span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;p&gt;</span>And so does this one!<span class="tag">&lt;/p&gt;</span>
+    
+    <span class="tag">&lt;span</span> <span class="attr">slot</span>=<span class="string">"footer"</span><span class="tag">&gt;</span>📅 Posted today<span class="tag">&lt;/span&gt;</span>
+<span class="tag">&lt;/info-card&gt;</span></code></pre>
+
+    <h2>🎮 Interactive Slot Demo</h2>
+    <div class="interactive-demo">
+      <div class="demo-output" id="slot-demo"></div>
+    </div>
+
+    <h2>🔍 Slot API Methods</h2>
+    <pre><code><span class="comment">// Get assigned nodes for a slot</span>
+<span class="keyword">const</span> slot = shadowRoot.<span class="function">querySelector</span>(<span class="string">'slot[name="header"]'</span>);
+<span class="keyword">const</span> assignedNodes = slot.<span class="function">assignedNodes</span>();      <span class="comment">// All nodes</span>
+<span class="keyword">const</span> assignedElements = slot.<span class="function">assignedElements</span>(); <span class="comment">// Elements only</span>
+
+<span class="comment">// Include fallback content</span>
+<span class="keyword">const</span> withFallback = slot.<span class="function">assignedNodes</span>({ flatten: <span class="keyword">true</span> });
+
+<span class="comment">// Get the slot an element is assigned to</span>
+<span class="keyword">const</span> element = document.<span class="function">querySelector</span>(<span class="string">'[slot="header"]'</span>);
+element.assignedSlot;  <span class="comment">// The slot element</span>
+
+<span class="comment">// Listen for slot changes</span>
+slot.<span class="function">addEventListener</span>(<span class="string">'slotchange'</span>, (e) => {
+    console.<span class="function">log</span>(<span class="string">'Slot content changed!'</span>);
+    console.<span class="function">log</span>(<span class="string">'New nodes:'</span>, e.target.<span class="function">assignedNodes</span>());
+});</code></pre>
+
+    <h2>🎯 Template + Custom Element Pattern</h2>
+    <pre><code><span class="comment">// Define template in HTML or JavaScript</span>
+<span class="keyword">const</span> template = document.<span class="function">createElement</span>(<span class="string">'template'</span>);
+template.innerHTML = <span class="string">`
+    &lt;style&gt;
+        .container { padding: 20px; border: 1px solid #ccc; }
+        .title { color: #06b6d4; }
+    &lt;/style&gt;
+    &lt;div class="container"&gt;
+        &lt;h3 class="title"&gt;&lt;slot name="title"&gt;Untitled&lt;/slot&gt;&lt;/h3&gt;
+        &lt;div class="content"&gt;
+            &lt;slot&gt;No content&lt;/slot&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+`</span>;
+
+<span class="keyword">class</span> <span class="function">MyWidget</span> <span class="keyword">extends</span> HTMLElement {
+    <span class="function">constructor</span>() {
+        <span class="keyword">super</span>();
+        <span class="keyword">const</span> shadow = <span class="keyword">this</span>.<span class="function">attachShadow</span>({ mode: <span class="string">'open'</span> });
+        
+        <span class="comment">// Use the template - efficient for many instances!</span>
+        shadow.<span class="function">appendChild</span>(template.content.<span class="function">cloneNode</span>(<span class="keyword">true</span>));
+    }
+}
+
+customElements.<span class="function">define</span>(<span class="string">'my-widget'</span>, MyWidget);</code></pre>
+
+    <h2>📋 Best Practices</h2>
+    <div class="concept-box tip">
+      <h3>✅ Template Best Practices</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li><strong>Use templates for repeated content:</strong> Cards, list items, table rows</li>
+        <li><strong>Define templates in HTML when possible:</strong> Better for large templates</li>
+        <li><strong>Use DocumentFragment for batch inserts:</strong> Collect clones, then append once</li>
+        <li><strong>Clone with <code>cloneNode(true)</code>:</strong> The <code>true</code> means deep clone</li>
+        <li><strong>Modify clones before inserting:</strong> Fill in data, set attributes</li>
+      </ul>
+    </div>
+
+    <div class="concept-box info">
+      <h3>📌 Slot Best Practices</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li><strong>Provide meaningful fallback content:</strong> Users see something if they forget to pass content</li>
+        <li><strong>Use named slots for specific areas:</strong> header, footer, actions, icon</li>
+        <li><strong>Use default slot for main content:</strong> Most flexible approach</li>
+        <li><strong>Style slotted content with <code>::slotted()</code>:</strong> Remember it only selects direct children</li>
+        <li><strong>Listen for <code>slotchange</code>:</strong> React when slotted content changes</li>
+      </ul>
+    </div>
+
+    <h2>🌐 Browser Support</h2>
+    <div class="concept-box">
+      <p>Both <code>&lt;template&gt;</code> and <code>&lt;slot&gt;</code> have excellent browser support:</p>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li>✅ Chrome 26+</li>
+        <li>✅ Firefox 22+</li>
+        <li>✅ Safari 8+</li>
+        <li>✅ Edge 13+</li>
+        <li>✅ All modern browsers</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Template demo
+    let cardCount = 0;
+    const template = document.getElementById('demo-card-template');
+    const container = document.getElementById('card-container');
+    const countEl = document.getElementById('card-count');
+    
+    const titles = ['Amazing Feature', 'Cool Widget', 'Super Tool', 'Awesome Plugin', 'Great Module'];
+    const descs = ['Makes everything better', 'Solves all problems', 'Works like magic', 'Fast and reliable', 'Simply the best'];
+    
+    function addCard() {
+      const clone = template.content.cloneNode(true);
+      const idx = cardCount % titles.length;
+      clone.querySelector('.card-title').textContent = titles[idx];
+      clone.querySelector('.card-desc').textContent = descs[idx];
+      container.appendChild(clone);
+      cardCount++;
+      countEl.textContent = cardCount;
+    }
+    
+    function addMultiple() {
+      const fragment = document.createDocumentFragment();
+      for (let i = 0; i < 5; i++) {
+        const clone = template.content.cloneNode(true);
+        const idx = (cardCount + i) % titles.length;
+        clone.querySelector('.card-title').textContent = titles[idx];
+        clone.querySelector('.card-desc').textContent = descs[idx];
+        fragment.appendChild(clone);
+      }
+      container.appendChild(fragment);
+      cardCount += 5;
+      countEl.textContent = cardCount;
+    }
+    
+    function clearCards() {
+      container.innerHTML = '';
+      cardCount = 0;
+      countEl.textContent = 0;
+    }
+
+    // Slot demo
+    class DemoInfoCard extends HTMLElement {
+      constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.shadowRoot.innerHTML = `
+          <style>
+            :host { display: block; border: 2px solid #06b6d4; border-radius: 12px; overflow: hidden; background: #1e293b; }
+            .header { background: linear-gradient(135deg, #06b6d4, #8b5cf6); padding: 15px; }
+            .body { padding: 20px; }
+            .footer { background: #0f172a; padding: 10px 15px; font-size: 0.9em; color: #64748b; }
+            ::slotted(h3) { margin: 0; color: white; }
+            ::slotted(p) { margin: 10px 0 0; color: #ccc; }
+          </style>
+          <div class="header">
+            <slot name="header"><h3>Default Header</h3></slot>
+          </div>
+          <div class="body">
+            <slot><p style="color:#888;">No content provided</p></slot>
+          </div>
+          <div class="footer">
+            <slot name="footer">Default footer text</slot>
+          </div>
+        `;
+      }
+    }
+    customElements.define('demo-info-card', DemoInfoCard);
+    
+    document.getElementById('slot-demo').innerHTML = `
+      <demo-info-card>
+        <h3 slot="header">🎨 Custom Header via Slot</h3>
+        <p>This content is projected into the default slot.</p>
+        <p>Multiple elements can go into the same slot!</p>
+        <span slot="footer">📌 Custom footer content</span>
+      </demo-info-card>
+    `;
+  </script>
+</body>
+</html>

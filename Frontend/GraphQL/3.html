@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 3: Apollo Link Chain</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0c0c1d 0%, #1a0a2e 100%);
+      color: #e4e4e7;
+      line-height: 1.7;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #10b981, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle { color: #a1a1aa; font-size: 1.1rem; margin-bottom: 40px; }
+    h2 {
+      color: #10b981;
+      font-size: 1.6rem;
+      margin: 40px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #3f3f46;
+    }
+    h3 { color: #34d399; font-size: 1.2rem; margin: 25px 0 15px; }
+    h4 { color: #6ee7b7; font-size: 1rem; margin: 20px 0 10px; }
+    p { margin-bottom: 15px; color: #d4d4d8; }
+    .highlight-box {
+      background: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+      border-left: 4px solid #10b981;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .warning-box {
+      background: linear-gradient(135deg, #78350f 0%, #451a03 100%);
+      border-left: 4px solid #f59e0b;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .warning-box::before { content: "⚠️ INTERVIEW HIGHLIGHT: "; font-weight: bold; color: #fbbf24; }
+    .tip-box {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e1b4b 100%);
+      border-left: 4px solid #3b82f6;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .tip-box::before { content: "📝 PRODUCTION TIP: "; font-weight: bold; color: #60a5fa; }
+    .danger-box {
+      background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%);
+      border-left: 4px solid #ef4444;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .danger-box::before { content: "🚨 COMMON MISTAKE: "; font-weight: bold; color: #f87171; }
+    pre {
+      background: #0a0a15;
+      border: 1px solid #3f3f46;
+      border-radius: 12px;
+      padding: 20px;
+      overflow-x: auto;
+      margin: 15px 0;
+    }
+    code {
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 0.9rem;
+    }
+    .inline-code {
+      background: #3f3f46;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+    .keyword { color: #c084fc; }
+    .type { color: #38bdf8; }
+    .string { color: #4ade80; }
+    .comment { color: #6b7280; font-style: italic; }
+    .field { color: #fbbf24; }
+    .function { color: #f472b6; }
+    .const { color: #fb923c; }
+    .diagram {
+      background: #0a0a15;
+      border-radius: 12px;
+      padding: 30px;
+      margin: 20px 0;
+      text-align: center;
+      overflow-x: auto;
+    }
+    .link-card {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      border: 1px solid #374151;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+    }
+    .link-card h4 {
+      color: #10b981;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .link-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+    .badge-required { background: #dc2626; color: white; }
+    .badge-optional { background: #2563eb; color: white; }
+    .badge-common { background: #059669; color: white; }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: #1f2937;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .comparison-table th {
+      background: linear-gradient(90deg, #065f46, #064e3b);
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+    }
+    .comparison-table td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #374151;
+    }
+    .comparison-table tr:last-child td { border-bottom: none; }
+    ul { margin: 15px 0 15px 25px; }
+    li { margin: 8px 0; color: #d4d4d8; }
+    .flow-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+      padding: 20px;
+      background: #0a0a15;
+      border-radius: 12px;
+    }
+    .flow-box {
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+    .flow-arrow {
+      color: #6b7280;
+      font-size: 1.5rem;
+    }
+    .chapter-nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 1px solid #3f3f46;
+    }
+    .nav-btn {
+      padding: 12px 24px;
+      background: linear-gradient(90deg, #065f46, #10b981);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .use-case {
+      background: #1f2937;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 10px 0;
+    }
+    .use-case strong { color: #10b981; }
+    .code-filename {
+      background: #1f2937;
+      padding: 8px 15px;
+      border-radius: 8px 8px 0 0;
+      font-size: 0.85rem;
+      color: #9ca3af;
+      border-bottom: 1px solid #374151;
+    }
+    .code-filename + pre {
+      margin-top: 0;
+      border-radius: 0 0 12px 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Chapter 3</h1>
+    <p class="subtitle">Apollo Link Chain — Middleware Magic for GraphQL Operations</p>
+
+    <!-- Introduction -->
+    <h2>3.1 Understanding Apollo Links</h2>
+    
+    <p>Apollo Links are the middleware system for Apollo Client. They form a chain that processes every GraphQL operation, allowing you to modify requests, handle responses, implement retry logic, add authentication, and much more.</p>
+
+    <div class="highlight-box">
+      <strong>Think of it like Express middleware:</strong> Just as Express middleware intercepts HTTP requests, Apollo Links intercept GraphQL operations. Each link can inspect, modify, or even completely handle an operation before passing it to the next link.
+    </div>
+
+    <h3>How the Link Chain Works</h3>
+
+    <div class="diagram">
+      <svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- Title -->
+        <text x="400" y="25" fill="#e4e4e7" font-size="14" font-weight="bold" text-anchor="middle">Request Flow (→) &amp; Response Flow (←)</text>
+        
+        <!-- Request arrow -->
+        <line x1="50" y1="80" x2="750" y2="80" stroke="#10b981" stroke-width="2" marker-end="url(#greenArrow)"/>
+        <text x="400" y="70" fill="#10b981" font-size="11" text-anchor="middle">REQUEST →</text>
+        
+        <!-- Response arrow -->
+        <line x1="750" y1="120" x2="50" y2="120" stroke="#3b82f6" stroke-width="2" marker-end="url(#blueArrow)"/>
+        <text x="400" y="145" fill="#3b82f6" font-size="11" text-anchor="middle">← RESPONSE</text>
+        
+        <!-- Links -->
+        <rect x="80" y="85" width="100" height="30" rx="5" fill="#374151"/>
+        <text x="130" y="105" fill="#f59e0b" font-size="10" text-anchor="middle">ErrorLink</text>
+        
+        <rect x="200" y="85" width="100" height="30" rx="5" fill="#374151"/>
+        <text x="250" y="105" fill="#a78bfa" font-size="10" text-anchor="middle">AuthLink</text>
+        
+        <rect x="320" y="85" width="100" height="30" rx="5" fill="#374151"/>
+        <text x="370" y="105" fill="#ec4899" font-size="10" text-anchor="middle">RetryLink</text>
+        
+        <rect x="440" y="85" width="100" height="30" rx="5" fill="#374151"/>
+        <text x="490" y="105" fill="#14b8a6" font-size="10" text-anchor="middle">LogLink</text>
+        
+        <rect x="560" y="85" width="100" height="30" rx="5" fill="#10b981"/>
+        <text x="610" y="105" fill="white" font-size="10" text-anchor="middle">HttpLink</text>
+        
+        <rect x="680" y="85" width="80" height="30" rx="5" fill="#1e40af"/>
+        <text x="720" y="105" fill="white" font-size="10" text-anchor="middle">Server</text>
+        
+        <!-- Numbers -->
+        <circle cx="130" cy="165" r="12" fill="#374151"/>
+        <text x="130" y="169" fill="white" font-size="10" text-anchor="middle">1</text>
+        
+        <circle cx="250" cy="165" r="12" fill="#374151"/>
+        <text x="250" y="169" fill="white" font-size="10" text-anchor="middle">2</text>
+        
+        <circle cx="370" cy="165" r="12" fill="#374151"/>
+        <text x="370" y="169" fill="white" font-size="10" text-anchor="middle">3</text>
+        
+        <circle cx="490" cy="165" r="12" fill="#374151"/>
+        <text x="490" y="169" fill="white" font-size="10" text-anchor="middle">4</text>
+        
+        <circle cx="610" cy="165" r="12" fill="#10b981"/>
+        <text x="610" y="169" fill="white" font-size="10" text-anchor="middle">5</text>
+        
+        <defs>
+          <marker id="greenArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#10b981"/>
+          </marker>
+          <marker id="blueArrow" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+            <polygon points="10 0, 0 3.5, 10 7" fill="#3b82f6"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="warning-box">
+      <strong>Key Concept:</strong> Links are executed in ORDER for requests (left → right) and in REVERSE for responses (right → left). The last link must be a "terminating link" (like HttpLink) that actually sends the request.
+    </div>
+
+    <!-- Section 3.2 -->
+    <h2>3.2 Common Link Types Reference</h2>
+
+    <table class="comparison-table">
+      <tr>
+        <th>Link</th>
+        <th>Package</th>
+        <th>Purpose</th>
+      </tr>
+      <tr>
+        <td><code class="inline-code">HttpLink</code></td>
+        <td>@apollo/client</td>
+        <td>Send queries over HTTP (terminating)</td>
+      </tr>
+      <tr>
+        <td><code class="inline-code">ErrorLink</code></td>
+        <td>@apollo/client/link/error</td>
+        <td>Global error handling & logging</td>
+      </tr>
+      <tr>
+        <td><code class="inline-code">AuthLink</code></td>
+        <td>@apollo/client/link/context</td>
+        <td>Add authentication headers</td>
+      </tr>
+      <tr>
+        <td><code class="inline-code">RetryLink</code></td>
+        <td>@apollo/client/link/retry</td>
+        <td>Retry failed requests</td>
+      </tr>
+      <tr>
+        <td><code class="inline-code">WebSocketLink</code></td>
+        <td>@apollo/client/link/ws</td>
+        <td>Real-time subscriptions (terminating)</td>
+      </tr>
+      <tr>
+        <td><code class="inline-code">BatchHttpLink</code></td>
+        <td>@apollo/client/link/batch-http</td>
+        <td>Batch multiple operations (terminating)</td>
+      </tr>
+      <tr>
+        <td><code class="inline-code">PersistedQueryLink</code></td>
+        <td>@apollo/client/link/persisted-queries</td>
+        <td>APQ - send query hashes</td>
+      </tr>
+    </table>
+
+    <!-- Section 3.3 -->
+    <h2>3.3 Building the Link Chain — Step by Step</h2>
+
+    <h3>Basic Chain Setup</h3>
+
+    <div class="code-filename">📄 src/lib/apollo-client.js</div>
+    <pre><code><span class="keyword">import</span> {
+  <span class="type">ApolloClient</span>,
+  <span class="type">InMemoryCache</span>,
+  <span class="type">HttpLink</span>,
+  <span class="type">from</span>,  <span class="comment">// Utility to combine links</span>
+} <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+<span class="keyword">import</span> { <span class="type">onError</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/link/error'</span>;
+<span class="keyword">import</span> { <span class="type">RetryLink</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/link/retry'</span>;
+
+<span class="comment">// 1️⃣ HTTP Link (Terminating - must be last)</span>
+<span class="keyword">const</span> <span class="const">httpLink</span> = <span class="keyword">new</span> <span class="function">HttpLink</span>({
+  <span class="field">uri</span>: <span class="string">'https://api.example.com/graphql'</span>,
+  <span class="field">credentials</span>: <span class="string">'include'</span>,  <span class="comment">// Send cookies</span>
+  <span class="field">headers</span>: {
+    <span class="string">'X-Custom-Header'</span>: <span class="string">'value'</span>,
+  },
+});
+
+<span class="comment">// 2️⃣ Error Link (Handle errors globally)</span>
+<span class="keyword">const</span> <span class="const">errorLink</span> = <span class="function">onError</span>(({ graphQLErrors, networkError }) => {
+  <span class="keyword">if</span> (graphQLErrors) {
+    graphQLErrors.<span class="function">forEach</span>(({ message, locations, path }) => {
+      console.<span class="function">error</span>(
+        <span class="string">`[GraphQL Error]: </span>${message}<span class="string">`</span>
+      );
+    });
+  }
+  
+  <span class="keyword">if</span> (networkError) {
+    console.<span class="function">error</span>(<span class="string">`[Network Error]: </span>${networkError}<span class="string">`</span>);
+  }
+});
+
+<span class="comment">// 3️⃣ Retry Link (Retry failed requests)</span>
+<span class="keyword">const</span> <span class="const">retryLink</span> = <span class="keyword">new</span> <span class="function">RetryLink</span>({
+  <span class="field">delay</span>: {
+    <span class="field">initial</span>: 300,     <span class="comment">// Start with 300ms delay</span>
+    <span class="field">max</span>: 3000,        <span class="comment">// Max 3 seconds</span>
+    <span class="field">jitter</span>: <span class="keyword">true</span>,     <span class="comment">// Add randomness</span>
+  },
+  <span class="field">attempts</span>: {
+    <span class="field">max</span>: 3,           <span class="comment">// Try 3 times max</span>
+    <span class="function">retryIf</span>: (error) => !!error,
+  },
+});
+
+<span class="comment">// 4️⃣ Combine Links (ORDER MATTERS!)</span>
+<span class="keyword">const</span> <span class="const">client</span> = <span class="keyword">new</span> <span class="function">ApolloClient</span>({
+  <span class="field">link</span>: <span class="function">from</span>([
+    errorLink,    <span class="comment">// 1st: Catch errors from all subsequent links</span>
+    retryLink,    <span class="comment">// 2nd: Retry before giving up</span>
+    httpLink,     <span class="comment">// Last: Send the actual request</span>
+  ]),
+  <span class="field">cache</span>: <span class="keyword">new</span> <span class="function">InMemoryCache</span>(),
+});</code></pre>
+
+    <div class="tip-box">
+      Always place <code class="inline-code">errorLink</code> first so it can catch errors from ALL subsequent links. Place terminating links (<code class="inline-code">httpLink</code>, <code class="inline-code">wsLink</code>) at the end.
+    </div>
+
+    <!-- Section 3.4 -->
+    <h2>3.4 Authentication Link — Deep Dive</h2>
+
+    <p>Authentication is crucial in production apps. The AuthLink adds authorization headers to every request.</p>
+
+    <div class="link-card">
+      <h4>🔐 setContext Function <span class="link-badge badge-common">COMMON</span></h4>
+      <p>Creates a link that modifies the context of each operation, typically used to add headers.</p>
+    </div>
+
+    <h3>Basic Token Authentication</h3>
+
+    <pre><code><span class="keyword">import</span> { <span class="type">setContext</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/link/context'</span>;
+
+<span class="keyword">const</span> <span class="const">authLink</span> = <span class="function">setContext</span>((operation, { headers }) => {
+  <span class="comment">// Get token from storage</span>
+  <span class="keyword">const</span> <span class="const">token</span> = localStorage.<span class="function">getItem</span>(<span class="string">'accessToken'</span>);
+  
+  <span class="comment">// Return new context with updated headers</span>
+  <span class="keyword">return</span> {
+    <span class="field">headers</span>: {
+      ...headers,  <span class="comment">// Keep existing headers</span>
+      <span class="field">authorization</span>: token ? <span class="string">`Bearer </span>${token}<span class="string">`</span> : <span class="string">''</span>,
+    },
+  };
+});
+
+<span class="comment">// Add to link chain BEFORE httpLink</span>
+<span class="keyword">const</span> <span class="const">client</span> = <span class="keyword">new</span> <span class="function">ApolloClient</span>({
+  <span class="field">link</span>: <span class="function">from</span>([authLink, httpLink]),
+  <span class="field">cache</span>: <span class="keyword">new</span> <span class="function">InMemoryCache</span>(),
+});</code></pre>
+
+    <h3>Advanced: Async Token Retrieval</h3>
+
+    <pre><code><span class="comment">// For tokens stored in async storage or requiring refresh</span>
+<span class="keyword">const</span> <span class="const">authLink</span> = <span class="function">setContext</span>(<span class="keyword">async</span> (_, { headers }) => {
+  <span class="comment">// Could be async - e.g., from IndexedDB, secure storage, etc.</span>
+  <span class="keyword">const</span> <span class="const">token</span> = <span class="keyword">await</span> <span class="function">getTokenFromSecureStorage</span>();
+  
+  <span class="comment">// Check if token needs refresh</span>
+  <span class="keyword">if</span> (<span class="function">isTokenExpired</span>(token)) {
+    <span class="keyword">const</span> <span class="const">newToken</span> = <span class="keyword">await</span> <span class="function">refreshToken</span>();
+    <span class="keyword">await</span> <span class="function">saveTokenToSecureStorage</span>(newToken);
+    <span class="keyword">return</span> {
+      <span class="field">headers</span>: { ...headers, <span class="field">authorization</span>: <span class="string">`Bearer </span>${newToken}<span class="string">`</span> },
+    };
+  }
+  
+  <span class="keyword">return</span> {
+    <span class="field">headers</span>: { ...headers, <span class="field">authorization</span>: <span class="string">`Bearer </span>${token}<span class="string">`</span> },
+  };
+});</code></pre>
+
+    <h3>Adding Multiple Custom Headers</h3>
+
+    <pre><code><span class="keyword">const</span> <span class="const">headersLink</span> = <span class="function">setContext</span>((operation, { headers }) => {
+  <span class="keyword">return</span> {
+    <span class="field">headers</span>: {
+      ...headers,
+      <span class="string">'authorization'</span>: <span class="string">`Bearer </span>${<span class="function">getToken</span>()}<span class="string">`</span>,
+      <span class="string">'x-client-name'</span>: <span class="string">'my-web-app'</span>,
+      <span class="string">'x-client-version'</span>: <span class="string">'1.0.0'</span>,
+      <span class="string">'x-request-id'</span>: <span class="function">generateRequestId</span>(),  <span class="comment">// For tracing</span>
+      <span class="string">'accept-language'</span>: navigator.language,
+    },
+  };
+});</code></pre>
+
+    <!-- Section 3.5 -->
+    <h2>3.5 Error Link — Comprehensive Error Handling</h2>
+
+    <p>The Error Link is your centralized error handling solution. It catches both GraphQL errors (from your API) and network errors (connection issues).</p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg">
+        <text x="350" y="25" fill="#e4e4e7" font-size="14" font-weight="bold" text-anchor="middle">Error Types in GraphQL</text>
+        
+        <!-- GraphQL Errors -->
+        <rect x="50" y="50" width="280" height="110" rx="10" fill="#1e3a5f" stroke="#3b82f6"/>
+        <text x="190" y="75" fill="#60a5fa" font-size="13" font-weight="bold" text-anchor="middle">GraphQL Errors</text>
+        <text x="70" y="100" fill="#94a3b8" font-size="11">• Validation errors</text>
+        <text x="70" y="118" fill="#94a3b8" font-size="11">• Authentication/Authorization</text>
+        <text x="70" y="136" fill="#94a3b8" font-size="11">• Resolver errors</text>
+        <text x="70" y="154" fill="#94a3b8" font-size="11">• Business logic errors</text>
+        
+        <!-- Network Errors -->
+        <rect x="370" y="50" width="280" height="110" rx="10" fill="#3f1f1f" stroke="#ef4444"/>
+        <text x="510" y="75" fill="#f87171" font-size="13" font-weight="bold" text-anchor="middle">Network Errors</text>
+        <text x="390" y="100" fill="#94a3b8" font-size="11">• No internet connection</text>
+        <text x="390" y="118" fill="#94a3b8" font-size="11">• Server unreachable (500, 503)</text>
+        <text x="390" y="136" fill="#94a3b8" font-size="11">• CORS errors</text>
+        <text x="390" y="154" fill="#94a3b8" font-size="11">• Timeout errors</text>
+      </svg>
+    </div>
+
+    <h3>Complete Error Link Implementation</h3>
+
+    <pre><code><span class="keyword">import</span> { <span class="type">onError</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/link/error'</span>;
+<span class="keyword">import</span> { <span class="type">fromPromise</span> } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+
+<span class="keyword">const</span> <span class="const">errorLink</span> = <span class="function">onError</span>(({
+  graphQLErrors,
+  networkError,
+  operation,
+  forward,
+}) => {
+  <span class="comment">// ═══════════════════════════════════════════</span>
+  <span class="comment">// HANDLE GRAPHQL ERRORS</span>
+  <span class="comment">// ═══════════════════════════════════════════</span>
+  <span class="keyword">if</span> (graphQLErrors) {
+    <span class="keyword">for</span> (<span class="keyword">const</span> err <span class="keyword">of</span> graphQLErrors) {
+      <span class="keyword">const</span> { message, locations, path, extensions } = err;
+      
+      console.<span class="function">error</span>(
+        <span class="string">`[GraphQL Error]: </span>${message}<span class="string">`</span>,
+        <span class="string">`\nPath: </span>${path}<span class="string">`</span>,
+        <span class="string">`\nLocation: </span>${JSON.<span class="function">stringify</span>(locations)}<span class="string">`</span>
+      );
+
+      <span class="comment">// Handle specific error codes</span>
+      <span class="keyword">switch</span> (extensions?.code) {
+        <span class="keyword">case</span> <span class="string">'UNAUTHENTICATED'</span>:
+          <span class="comment">// Token expired - try to refresh</span>
+          <span class="keyword">return</span> <span class="function">fromPromise</span>(
+            <span class="function">refreshToken</span>().<span class="function">catch</span>(() => {
+              <span class="comment">// Refresh failed - redirect to login</span>
+              localStorage.<span class="function">clear</span>();
+              window.location.href = <span class="string">'/login'</span>;
+              <span class="keyword">return</span> <span class="keyword">null</span>;
+            })
+          ).<span class="function">filter</span>(value => Boolean(value))
+           .<span class="function">flatMap</span>(() => <span class="function">forward</span>(operation));  <span class="comment">// Retry</span>
+
+        <span class="keyword">case</span> <span class="string">'FORBIDDEN'</span>:
+          <span class="comment">// User doesn't have permission</span>
+          <span class="function">showNotification</span>(<span class="string">'You do not have permission'</span>);
+          <span class="keyword">break</span>;
+
+        <span class="keyword">case</span> <span class="string">'BAD_USER_INPUT'</span>:
+          <span class="comment">// Validation error - let component handle it</span>
+          <span class="keyword">break</span>;
+
+        <span class="keyword">default</span>:
+          <span class="comment">// Log to error tracking service</span>
+          <span class="function">logToSentry</span>(err, { operation: operation.operationName });
+      }
+    }
+  }
+
+  <span class="comment">// ═══════════════════════════════════════════</span>
+  <span class="comment">// HANDLE NETWORK ERRORS</span>
+  <span class="comment">// ═══════════════════════════════════════════</span>
+  <span class="keyword">if</span> (networkError) {
+    console.<span class="function">error</span>(<span class="string">`[Network Error]: </span>${networkError}<span class="string">`</span>);
+    
+    <span class="comment">// Check specific status codes</span>
+    <span class="keyword">if</span> (<span class="string">'statusCode'</span> <span class="keyword">in</span> networkError) {
+      <span class="keyword">switch</span> (networkError.statusCode) {
+        <span class="keyword">case</span> 401:
+          window.location.href = <span class="string">'/login'</span>;
+          <span class="keyword">break</span>;
+        <span class="keyword">case</span> 503:
+          <span class="function">showNotification</span>(<span class="string">'Service temporarily unavailable'</span>);
+          <span class="keyword">break</span>;
+        <span class="keyword">case</span> 500:
+          <span class="function">showNotification</span>(<span class="string">'Server error. Please try again.'</span>);
+          <span class="keyword">break</span>;
+      }
+    }
+    
+    <span class="comment">// Offline detection</span>
+    <span class="keyword">if</span> (!navigator.onLine) {
+      <span class="function">showNotification</span>(<span class="string">'You appear to be offline'</span>);
+    }
+  }
+});</code></pre>
+
+    <div class="warning-box">
+      The ErrorLink's <code class="inline-code">forward(operation)</code> function allows you to retry the operation. This is essential for implementing automatic token refresh — when you get an UNAUTHENTICATED error, refresh the token and retry.
+    </div>
+
+    <!-- Section 3.6 -->
+    <h2>3.6 Retry Link — Resilient Network Handling</h2>
+
+    <div class="link-card">
+      <h4>🔄 RetryLink <span class="link-badge badge-common">COMMON</span></h4>
+      <p>Automatically retry failed operations with exponential backoff and jitter.</p>
+    </div>
+
+    <pre><code><span class="keyword">import</span> { <span class="type">RetryLink</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/link/retry'</span>;
+
+<span class="keyword">const</span> <span class="const">retryLink</span> = <span class="keyword">new</span> <span class="function">RetryLink</span>({
+  <span class="comment">// Delay configuration</span>
+  <span class="field">delay</span>: {
+    <span class="field">initial</span>: 300,      <span class="comment">// First retry after 300ms</span>
+    <span class="field">max</span>: 5000,         <span class="comment">// Maximum delay 5 seconds</span>
+    <span class="field">jitter</span>: <span class="keyword">true</span>,      <span class="comment">// Randomize to prevent thundering herd</span>
+  },
+  
+  <span class="comment">// Attempt configuration</span>
+  <span class="field">attempts</span>: {
+    <span class="field">max</span>: 5,            <span class="comment">// Maximum 5 attempts</span>
+    
+    <span class="comment">// Custom retry logic</span>
+    <span class="function">retryIf</span>: (error, operation) => {
+      <span class="comment">// Don't retry mutations (could cause duplicates)</span>
+      <span class="keyword">const</span> <span class="const">isMutation</span> = operation.query.definitions.<span class="function">some</span>(
+        def => def.kind === <span class="string">'OperationDefinition'</span> && 
+               def.operation === <span class="string">'mutation'</span>
+      );
+      
+      <span class="keyword">if</span> (isMutation) <span class="keyword">return</span> <span class="keyword">false</span>;
+      
+      <span class="comment">// Only retry network errors, not GraphQL errors</span>
+      <span class="keyword">return</span> !!error;
+    },
+  },
+});</code></pre>
+
+    <div class="danger-box">
+      Be careful retrying mutations! They can cause duplicate operations (double payments, duplicate posts, etc.). Either disable retry for mutations or implement idempotency on your server.
+    </div>
+
+    <!-- Section 3.7 -->
+    <h2>3.7 WebSocket Link — Real-time Subscriptions</h2>
+
+    <p>For real-time features like chat, notifications, or live updates, you need WebSocket support.</p>
+
+    <h3>Setting Up Split Link</h3>
+
+    <p>We use <code class="inline-code">split</code> to route operations: subscriptions go through WebSocket, everything else through HTTP.</p>
+
+    <pre><code><span class="keyword">import</span> { <span class="type">split</span>, <span class="type">HttpLink</span> } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+<span class="keyword">import</span> { <span class="type">GraphQLWsLink</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/link/subscriptions'</span>;
+<span class="keyword">import</span> { <span class="type">createClient</span> } <span class="keyword">from</span> <span class="string">'graphql-ws'</span>;
+<span class="keyword">import</span> { <span class="type">getMainDefinition</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/utilities'</span>;
+
+<span class="comment">// HTTP Link for queries and mutations</span>
+<span class="keyword">const</span> <span class="const">httpLink</span> = <span class="keyword">new</span> <span class="function">HttpLink</span>({
+  <span class="field">uri</span>: <span class="string">'https://api.example.com/graphql'</span>,
+});
+
+<span class="comment">// WebSocket Link for subscriptions</span>
+<span class="keyword">const</span> <span class="const">wsLink</span> = <span class="keyword">new</span> <span class="function">GraphQLWsLink</span>(
+  <span class="function">createClient</span>({
+    <span class="field">url</span>: <span class="string">'wss://api.example.com/graphql'</span>,
+    
+    <span class="comment">// Authentication for WebSocket</span>
+    <span class="field">connectionParams</span>: {
+      <span class="function">authToken</span>: () => localStorage.<span class="function">getItem</span>(<span class="string">'token'</span>),
+    },
+    
+    <span class="comment">// Reconnection settings</span>
+    <span class="field">shouldRetry</span>: () => <span class="keyword">true</span>,
+    <span class="field">retryAttempts</span>: 5,
+    
+    <span class="comment">// Lifecycle hooks</span>
+    <span class="field">on</span>: {
+      <span class="function">connected</span>: () => console.<span class="function">log</span>(<span class="string">'WebSocket connected'</span>),
+      <span class="function">closed</span>: () => console.<span class="function">log</span>(<span class="string">'WebSocket closed'</span>),
+      <span class="function">error</span>: (err) => console.<span class="function">error</span>(<span class="string">'WebSocket error'</span>, err),
+    },
+  })
+);
+
+<span class="comment">// Split based on operation type</span>
+<span class="keyword">const</span> <span class="const">splitLink</span> = <span class="function">split</span>(
+  ({ query }) => {
+    <span class="keyword">const</span> <span class="const">definition</span> = <span class="function">getMainDefinition</span>(query);
+    <span class="keyword">return</span> (
+      definition.kind === <span class="string">'OperationDefinition'</span> &&
+      definition.operation === <span class="string">'subscription'</span>
+    );
+  },
+  wsLink,    <span class="comment">// If true → use WebSocket</span>
+  httpLink,  <span class="comment">// If false → use HTTP</span>
+);
+
+<span class="comment">// Use in client</span>
+<span class="keyword">const</span> <span class="const">client</span> = <span class="keyword">new</span> <span class="function">ApolloClient</span>({
+  <span class="field">link</span>: <span class="function">from</span>([errorLink, authLink, splitLink]),
+  <span class="field">cache</span>: <span class="keyword">new</span> <span class="function">InMemoryCache</span>(),
+});</code></pre>
+
+    <div class="diagram">
+      <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+        <text x="350" y="25" fill="#e4e4e7" font-size="14" font-weight="bold" text-anchor="middle">Split Link Routing</text>
+        
+        <!-- Operation -->
+        <rect x="50" y="70" width="120" height="50" rx="8" fill="#374151"/>
+        <text x="110" y="100" fill="white" font-size="12" text-anchor="middle">GraphQL</text>
+        <text x="110" y="115" fill="white" font-size="12" text-anchor="middle">Operation</text>
+        
+        <!-- Arrow to split -->
+        <line x1="170" y1="95" x2="250" y2="95" stroke="#6b7280" stroke-width="2" marker-end="url(#splitArrow)"/>
+        
+        <!-- Split diamond -->
+        <polygon points="300,95 350,60 400,95 350,130" fill="#4c1d95" stroke="#8b5cf6" stroke-width="2"/>
+        <text x="350" y="100" fill="white" font-size="10" text-anchor="middle">split()</text>
+        
+        <!-- Subscription path -->
+        <line x1="400" y1="77" x2="480" y2="50" stroke="#10b981" stroke-width="2"/>
+        <rect x="480" y="30" width="140" height="40" rx="8" fill="#065f46"/>
+        <text x="550" y="55" fill="white" font-size="11" text-anchor="middle">WebSocketLink</text>
+        <text x="430" y="50" fill="#10b981" font-size="9">subscription</text>
+        
+        <!-- Query/Mutation path -->
+        <line x1="400" y1="113" x2="480" y2="140" stroke="#3b82f6" stroke-width="2"/>
+        <rect x="480" y="120" width="140" height="40" rx="8" fill="#1e40af"/>
+        <text x="550" y="145" fill="white" font-size="11" text-anchor="middle">HttpLink</text>
+        <text x="420" y="145" fill="#3b82f6" font-size="9">query / mutation</text>
+        
+        <defs>
+          <marker id="splitArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#6b7280"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+
+    <!-- Section 3.8 -->
+    <h2>3.8 Custom Links — Build Your Own Middleware</h2>
+
+    <p>You can create custom links for logging, analytics, performance tracking, and more.</p>
+
+    <h3>Logging Link</h3>
+    <pre><code><span class="keyword">import</span> { <span class="type">ApolloLink</span> } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+
+<span class="keyword">const</span> <span class="const">loggingLink</span> = <span class="keyword">new</span> <span class="function">ApolloLink</span>((operation, forward) => {
+  <span class="keyword">const</span> <span class="const">startTime</span> = Date.<span class="function">now</span>();
+  <span class="keyword">const</span> <span class="const">operationName</span> = operation.operationName;
+  
+  console.<span class="function">log</span>(<span class="string">`🚀 [GraphQL] Starting: </span>${operationName}<span class="string">`</span>);
+  
+  <span class="comment">// forward() passes the operation to the next link</span>
+  <span class="keyword">return</span> <span class="function">forward</span>(operation).<span class="function">map</span>(response => {
+    <span class="keyword">const</span> <span class="const">duration</span> = Date.<span class="function">now</span>() - startTime;
+    console.<span class="function">log</span>(<span class="string">`✅ [GraphQL] Completed: </span>${operationName}<span class="string"> (</span>${duration}<span class="string">ms)`</span>);
+    <span class="keyword">return</span> response;
+  });
+});</code></pre>
+
+    <h3>Performance Tracking Link</h3>
+    <pre><code><span class="keyword">const</span> <span class="const">performanceLink</span> = <span class="keyword">new</span> <span class="function">ApolloLink</span>((operation, forward) => {
+  <span class="keyword">const</span> <span class="const">startTime</span> = performance.<span class="function">now</span>();
+  
+  <span class="keyword">return</span> <span class="function">forward</span>(operation).<span class="function">map</span>(response => {
+    <span class="keyword">const</span> <span class="const">duration</span> = performance.<span class="function">now</span>() - startTime;
+    
+    <span class="comment">// Send to analytics</span>
+    analytics.<span class="function">track</span>(<span class="string">'graphql_operation'</span>, {
+      <span class="field">operationName</span>: operation.operationName,
+      <span class="field">operationType</span>: operation.query.definitions[0]?.operation,
+      <span class="field">duration</span>,
+      <span class="field">variables</span>: operation.variables,
+    });
+    
+    <span class="comment">// Log slow queries</span>
+    <span class="keyword">if</span> (duration > 2000) {
+      console.<span class="function">warn</span>(<span class="string">`⚠️ Slow query: </span>${operation.operationName}<span class="string"> (</span>${duration}<span class="string">ms)`</span>);
+    }
+    
+    <span class="keyword">return</span> response;
+  });
+});</code></pre>
+
+    <!-- Section 3.9 -->
+    <h2>3.9 Complete Production Link Chain</h2>
+
+    <p>Here's a complete, production-ready link chain combining everything we've learned:</p>
+
+    <div class="code-filename">📄 src/lib/apollo-client.js (Complete)</div>
+    <pre><code><span class="keyword">import</span> {
+  <span class="type">ApolloClient</span>,
+  <span class="type">InMemoryCache</span>,
+  <span class="type">HttpLink</span>,
+  <span class="type">ApolloLink</span>,
+  <span class="type">from</span>,
+  <span class="type">split</span>,
+} <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+<span class="keyword">import</span> { <span class="type">onError</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/link/error'</span>;
+<span class="keyword">import</span> { <span class="type">setContext</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/link/context'</span>;
+<span class="keyword">import</span> { <span class="type">RetryLink</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/link/retry'</span>;
+<span class="keyword">import</span> { <span class="type">GraphQLWsLink</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/link/subscriptions'</span>;
+<span class="keyword">import</span> { <span class="type">createClient</span> } <span class="keyword">from</span> <span class="string">'graphql-ws'</span>;
+<span class="keyword">import</span> { <span class="type">getMainDefinition</span> } <span class="keyword">from</span> <span class="string">'@apollo/client/utilities'</span>;
+
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+<span class="comment">// 1️⃣ ERROR LINK - First in chain to catch all errors</span>
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+<span class="keyword">const</span> <span class="const">errorLink</span> = <span class="function">onError</span>(({ graphQLErrors, networkError }) => {
+  <span class="keyword">if</span> (graphQLErrors) {
+    graphQLErrors.<span class="function">forEach</span>(({ message, extensions }) => {
+      <span class="keyword">if</span> (extensions?.code === <span class="string">'UNAUTHENTICATED'</span>) {
+        localStorage.<span class="function">removeItem</span>(<span class="string">'token'</span>);
+        window.location.href = <span class="string">'/login'</span>;
+      }
+    });
+  }
+  <span class="keyword">if</span> (networkError) {
+    console.<span class="function">error</span>(<span class="string">'[Network]'</span>, networkError);
+  }
+});
+
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+<span class="comment">// 2️⃣ AUTH LINK - Add token to every request</span>
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+<span class="keyword">const</span> <span class="const">authLink</span> = <span class="function">setContext</span>((_, { headers }) => ({
+  <span class="field">headers</span>: {
+    ...headers,
+    <span class="field">authorization</span>: localStorage.<span class="function">getItem</span>(<span class="string">'token'</span>) 
+      ? <span class="string">`Bearer </span>${localStorage.<span class="function">getItem</span>(<span class="string">'token'</span>)}<span class="string">`</span> 
+      : <span class="string">''</span>,
+  },
+}));
+
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+<span class="comment">// 3️⃣ RETRY LINK - Retry failed queries (not mutations)</span>
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+<span class="keyword">const</span> <span class="const">retryLink</span> = <span class="keyword">new</span> <span class="function">RetryLink</span>({
+  <span class="field">delay</span>: { <span class="field">initial</span>: 300, <span class="field">max</span>: 3000, <span class="field">jitter</span>: <span class="keyword">true</span> },
+  <span class="field">attempts</span>: {
+    <span class="field">max</span>: 3,
+    <span class="function">retryIf</span>: (error, op) => {
+      <span class="keyword">const</span> <span class="const">def</span> = op.query.definitions[0];
+      <span class="keyword">return</span> !!error && def.operation !== <span class="string">'mutation'</span>;
+    },
+  },
+});
+
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+<span class="comment">// 4️⃣ HTTP LINK - Terminating link for queries/mutations</span>
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+<span class="keyword">const</span> <span class="const">httpLink</span> = <span class="keyword">new</span> <span class="function">HttpLink</span>({
+  <span class="field">uri</span>: process.env.REACT_APP_API_URL,
+  <span class="field">credentials</span>: <span class="string">'include'</span>,
+});
+
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+<span class="comment">// 5️⃣ WEBSOCKET LINK - For subscriptions</span>
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+<span class="keyword">const</span> <span class="const">wsLink</span> = <span class="keyword">new</span> <span class="function">GraphQLWsLink</span>(
+  <span class="function">createClient</span>({
+    <span class="field">url</span>: process.env.REACT_APP_WS_URL,
+    <span class="field">connectionParams</span>: () => ({
+      <span class="field">authToken</span>: localStorage.<span class="function">getItem</span>(<span class="string">'token'</span>),
+    }),
+  })
+);
+
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+<span class="comment">// 6️⃣ SPLIT LINK - Route to WS or HTTP</span>
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+<span class="keyword">const</span> <span class="const">splitLink</span> = <span class="function">split</span>(
+  ({ query }) => {
+    <span class="keyword">const</span> <span class="const">def</span> = <span class="function">getMainDefinition</span>(query);
+    <span class="keyword">return</span> def.kind === <span class="string">'OperationDefinition'</span> && 
+           def.operation === <span class="string">'subscription'</span>;
+  },
+  wsLink,
+  httpLink
+);
+
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+<span class="comment">// 7️⃣ COMBINE ALL LINKS (ORDER MATTERS!)</span>
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+<span class="keyword">export const</span> <span class="const">client</span> = <span class="keyword">new</span> <span class="function">ApolloClient</span>({
+  <span class="field">link</span>: <span class="function">from</span>([
+    errorLink,     <span class="comment">// 1st: Catch all errors</span>
+    authLink,      <span class="comment">// 2nd: Add auth headers</span>
+    retryLink,     <span class="comment">// 3rd: Retry on failure</span>
+    splitLink,     <span class="comment">// 4th: Route to WS or HTTP</span>
+  ]),
+  <span class="field">cache</span>: <span class="keyword">new</span> <span class="function">InMemoryCache</span>(),
+  <span class="field">connectToDevTools</span>: process.env.NODE_ENV === <span class="string">'development'</span>,
+});</code></pre>
+
+    <div class="warning-box">
+      <strong>Link Chain Order Cheat Sheet:</strong>
+      <div class="flow-container" style="background: transparent; padding: 10px 0;">
+        <div class="flow-box" style="background: #dc2626;">ErrorLink</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #7c3aed;">AuthLink</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #2563eb;">RetryLink</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #059669;">HttpLink</div>
+      </div>
+      Error first (catch all) → Auth (add headers) → Retry (resilience) → HTTP (send request)
+    </div>
+
+    <div class="chapter-nav">
+      <button class="nav-btn">← Chapter 2: Apollo Setup</button>
+      <button class="nav-btn">Next: Chapter 4 — useQuery →</button>
+    </div>
+  </div>
+</body>
+</html>

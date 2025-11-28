@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 19: Intersection Observer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+        
+        .concept-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .key-point {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box {
+            background: #cfe2ff;
+            border-left: 4px solid #0d6efd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .code-block .comment {
+            color: #6272a4;
+        }
+        
+        .code-block .keyword {
+            color: #ff79c6;
+        }
+        
+        .code-block .string {
+            color: #f1fa8c;
+        }
+        
+        .code-block .function {
+            color: #50fa7b;
+        }
+        
+        .code-block .number {
+            color: #bd93f9;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .demo-section {
+            background: #e7f3ff;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .demo-box {
+            background: white;
+            border: 2px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            color: #666;
+            transition: all 0.3s;
+        }
+        
+        .demo-box.visible {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .spacer {
+            height: 400px;
+            background: #f8f9fa;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            color: #999;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-weight: 600;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+        
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .use-case-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+            transition: transform 0.3s;
+        }
+        
+        .use-case-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .use-case-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .property-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .property-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .property-card dt {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .property-card dd {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .lazy-image {
+            width: 100%;
+            height: 200px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            margin: 10px 0;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        .lazy-image.loaded {
+            opacity: 1;
+        }
+        
+        .lazy-image img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 10px;
+        }
+        
+        .stats {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #667eea;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-value {
+            color: #764ba2;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👁️ Chapter 19: Intersection Observer</h1>
+            <p>Efficiently Detect Element Visibility</p>
+        </div>
+        
+        <div class="content">
+            
+            <!-- Introduction -->
+            <div class="section">
+                <h2>🎯 What is Intersection Observer?</h2>
+                
+                <div class="concept-box">
+                    <p><strong>Intersection Observer API</strong> provides a way to asynchronously observe changes in the intersection of a target element with an ancestor element or the viewport. It's incredibly efficient and solves many common visibility detection problems.</p>
+                    
+                    <p style="margin-top: 15px;"><strong>Key Benefits:</strong></p>
+                    <ul style="margin-left: 25px; margin-top: 10px;">
+                        <li>⚡ <strong>Performance:</strong> More efficient than scroll listeners</li>
+                        <li>🎯 <strong>Asynchronous:</strong> Doesn't block main thread</li>
+                        <li>📊 <strong>Precise:</strong> Tells you exactly how much is visible</li>
+                        <li>🔧 <strong>Configurable:</strong> Custom thresholds and root margins</li>
+                        <li>🎨 <strong>Versatile:</strong> Lazy loading, animations, analytics</li>
+                        <li>🚀 <strong>Easy:</strong> Simple API, powerful results</li>
+                    </ul>
+                </div>
+                
+                <div class="visual-diagram">
+                    <h3>How It Works</h3>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <div style="background: white; padding: 30px; border-radius: 10px; display: inline-block;">
+                            <div style="border: 3px solid #667eea; padding: 20px; position: relative;">
+                                <div style="font-weight: bold; margin-bottom: 15px;">Viewport / Root Element</div>
+                                <div style="border: 2px dashed #764ba2; padding: 15px; background: #e7f3ff;">
+                                    <div style="text-align: center;">Target Element</div>
+                                    <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                                        Observer tracks when this enters/exits<br>
+                                        and how much is visible
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="text-align: center; color: #666; margin-top: 20px;">
+                        Callback fires when target crosses threshold(s)
+                    </p>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 Perfect For:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Lazy loading images and content</li>
+                        <li>Infinite scrolling</li>
+                        <li>Animations on scroll</li>
+                        <li>Ad viewability tracking</li>
+                        <li>Analytics (time in viewport)</li>
+                        <li>Auto-playing videos when visible</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Creating Observer -->
+            <div class="section">
+                <h2>🚀 Creating an Observer</h2>
+                
+                <h3>Basic Setup</h3>
+                <div class="code-block">
+<span class="comment">// Create Intersection Observer</span>
+<span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>((entries, observer) => {
+    <span class="comment">// Callback function</span>
+    entries.<span class="function">forEach</span>(entry => {
+        <span class="keyword">if</span> (entry.isIntersecting) {
+            console.<span class="function">log</span>(<span class="string">'Element is visible!'</span>, entry.target);
+        } <span class="keyword">else</span> {
+            console.<span class="function">log</span>(<span class="string">'Element is hidden'</span>, entry.target);
+        }
+    });
+});
+
+<span class="comment">// Start observing elements</span>
+<span class="keyword">const</span> element = document.<span class="function">querySelector</span>(<span class="string">'.target'</span>);
+observer.<span class="function">observe</span>(element);
+
+<span class="comment">// Observe multiple elements</span>
+document.<span class="function">querySelectorAll</span>(<span class="string">'.lazy-image'</span>).<span class="function">forEach</span>(img => {
+    observer.<span class="function">observe</span>(img);
+});
+                </div>
+                
+                <h3>With Options</h3>
+                <div class="code-block">
+<span class="comment">// Create observer with custom options</span>
+<span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>(
+    (entries) => {
+        entries.<span class="function">forEach</span>(entry => {
+            console.<span class="function">log</span>(<span class="string">'Intersection ratio:'</span>, entry.intersectionRatio);
+        });
+    },
+    {
+        <span class="comment">// Root element (null = viewport)</span>
+        root: <span class="keyword">null</span>,
+        
+        <span class="comment">// Margin around root (can be negative)</span>
+        rootMargin: <span class="string">'0px'</span>,
+        
+        <span class="comment">// Trigger at specific visibility percentages</span>
+        threshold: [<span class="number">0</span>, <span class="number">0.25</span>, <span class="number">0.5</span>, <span class="number">0.75</span>, <span class="number">1</span>]
+        <span class="comment">// 0 = any pixel visible</span>
+        <span class="comment">// 0.5 = 50% visible</span>
+        <span class="comment">// 1 = 100% visible</span>
+    }
+);
+                </div>
+                
+                <h3>Understanding Options</h3>
+                <div class="property-grid">
+                    <div class="property-card">
+                        <dt>root</dt>
+                        <dd>Element to use as viewport. Default: browser viewport (null)</dd>
+                    </div>
+                    <div class="property-card">
+                        <dt>rootMargin</dt>
+                        <dd>Margin around root. Syntax like CSS margin. Can be negative.</dd>
+                    </div>
+                    <div class="property-card">
+                        <dt>threshold</dt>
+                        <dd>Number or array (0-1). When to trigger callback based on % visible.</dd>
+                    </div>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Examples of different configurations</span>
+
+<span class="comment">// 1. Trigger 100px before element enters viewport</span>
+<span class="keyword">const</span> early = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>(callback, {
+    rootMargin: <span class="string">'100px'</span> <span class="comment">// Load early</span>
+});
+
+<span class="comment">// 2. Trigger only when 50% visible</span>
+<span class="keyword">const</span> halfVisible = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>(callback, {
+    threshold: <span class="number">0.5</span>
+});
+
+<span class="comment">// 3. Trigger at multiple points (smooth animations)</span>
+<span class="keyword">const</span> smooth = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>(callback, {
+    threshold: [<span class="number">0</span>, <span class="number">0.1</span>, <span class="number">0.2</span>, <span class="number">0.3</span>, <span class="number">0.4</span>, <span class="number">0.5</span>, <span class="number">0.6</span>, <span class="number">0.7</span>, <span class="number">0.8</span>, <span class="number">0.9</span>, <span class="number">1</span>]
+});
+
+<span class="comment">// 4. Custom scrollable container</span>
+<span class="keyword">const</span> container = document.<span class="function">querySelector</span>(<span class="string">'.scroll-container'</span>);
+<span class="keyword">const</span> inContainer = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>(callback, {
+    root: container
+});
+                </div>
+            </div>
+            
+            <!-- Entry Object -->
+            <div class="section">
+                <h2>📦 IntersectionObserverEntry Object</h2>
+                
+                <div class="concept-box">
+                    <p>Each entry in the callback contains detailed information about the intersection.</p>
+                </div>
+                
+                <div class="property-grid">
+                    <div class="property-card">
+                        <dt>target</dt>
+                        <dd>The observed element</dd>
+                    </div>
+                    <div class="property-card">
+                        <dt>isIntersecting</dt>
+                        <dd>Boolean - is element intersecting?</dd>
+                    </div>
+                    <div class="property-card">
+                        <dt>intersectionRatio</dt>
+                        <dd>Number (0-1) - how much is visible</dd>
+                    </div>
+                    <div class="property-card">
+                        <dt>intersectionRect</dt>
+                        <dd>Bounds of visible portion</dd>
+                    </div>
+                    <div class="property-card">
+                        <dt>boundingClientRect</dt>
+                        <dd>Element's bounds</dd>
+                    </div>
+                    <div class="property-card">
+                        <dt>rootBounds</dt>
+                        <dd>Root element's bounds</dd>
+                    </div>
+                    <div class="property-card">
+                        <dt>time</dt>
+                        <dd>Timestamp when change occurred</dd>
+                    </div>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Accessing entry properties</span>
+<span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>((entries) => {
+    entries.<span class="function">forEach</span>(entry => {
+        console.<span class="function">log</span>({
+            element: entry.target,
+            visible: entry.isIntersecting,
+            visiblePercent: entry.intersectionRatio * <span class="number">100</span>,
+            visibleArea: entry.intersectionRect,
+            elementBounds: entry.boundingClientRect,
+            time: entry.time
+        });
+        
+        <span class="comment">// Check specific visibility</span>
+        <span class="keyword">if</span> (entry.intersectionRatio >= <span class="number">0.75</span>) {
+            console.<span class="function">log</span>(<span class="string">'Element is 75%+ visible!'</span>);
+        }
+    });
+});
+                </div>
+            </div>
+            
+            <!-- Common Patterns -->
+            <div class="section">
+                <h2>🎯 Common Use Cases & Patterns</h2>
+                
+                <h3>1. Lazy Loading Images</h3>
+                <div class="code-block">
+<span class="comment">// HTML: &lt;img data-src="image.jpg" alt="Lazy loaded"&gt;</span>
+
+<span class="keyword">const</span> imageObserver = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>((entries, observer) => {
+    entries.<span class="function">forEach</span>(entry => {
+        <span class="keyword">if</span> (entry.isIntersecting) {
+            <span class="keyword">const</span> img = entry.target;
+            
+            <span class="comment">// Load the image</span>
+            img.src = img.dataset.src;
+            
+            <span class="comment">// Optional: add loaded class for fade-in</span>
+            img.<span class="function">addEventListener</span>(<span class="string">'load'</span>, () => {
+                img.classList.<span class="function">add</span>(<span class="string">'loaded'</span>);
+            });
+            
+            <span class="comment">// Stop observing this image</span>
+            observer.<span class="function">unobserve</span>(img);
+        }
+    });
+}, {
+    rootMargin: <span class="string">'50px'</span> <span class="comment">// Load slightly before visible</span>
+});
+
+<span class="comment">// Observe all lazy images</span>
+document.<span class="function">querySelectorAll</span>(<span class="string">'img[data-src]'</span>).<span class="function">forEach</span>(img => {
+    imageObserver.<span class="function">observe</span>(img);
+});
+                </div>
+                
+                <h3>2. Infinite Scroll</h3>
+                <div class="code-block">
+<span class="comment">// Add sentinel element at bottom of list</span>
+<span class="comment">// &lt;div class="sentinel"&gt;&lt;/div&gt;</span>
+
+<span class="keyword">const</span> sentinel = document.<span class="function">querySelector</span>(<span class="string">'.sentinel'</span>);
+
+<span class="keyword">const</span> infiniteScroll = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>((entries) => {
+    entries.<span class="function">forEach</span>(entry => {
+        <span class="keyword">if</span> (entry.isIntersecting) {
+            console.<span class="function">log</span>(<span class="string">'Loading more content...'</span>);
+            <span class="function">loadMoreItems</span>();
+        }
+    });
+}, {
+    rootMargin: <span class="string">'100px'</span> <span class="comment">// Load before reaching bottom</span>
+});
+
+infiniteScroll.<span class="function">observe</span>(sentinel);
+
+<span class="keyword">async function</span> <span class="function">loadMoreItems</span>() {
+    <span class="keyword">const</span> items = <span class="keyword">await</span> <span class="function">fetchItems</span>();
+    <span class="function">appendToList</span>(items);
+}
+                </div>
+                
+                <h3>3. Scroll Animations</h3>
+                <div class="code-block">
+<span class="comment">// Trigger animations when elements become visible</span>
+<span class="keyword">const</span> animateOnScroll = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>((entries) => {
+    entries.<span class="function">forEach</span>(entry => {
+        <span class="keyword">if</span> (entry.isIntersecting) {
+            <span class="comment">// Add animation class</span>
+            entry.target.classList.<span class="function">add</span>(<span class="string">'animate-in'</span>);
+            
+            <span class="comment">// Optional: stop observing after animation</span>
+            animateOnScroll.<span class="function">unobserve</span>(entry.target);
+        }
+    });
+}, {
+    threshold: <span class="number">0.2</span> <span class="comment">// Trigger when 20% visible</span>
+});
+
+<span class="comment">// Observe all elements with data-animate attribute</span>
+document.<span class="function">querySelectorAll</span>(<span class="string">'[data-animate]'</span>).<span class="function">forEach</span>(el => {
+    animateOnScroll.<span class="function">observe</span>(el);
+});
+                </div>
+                
+                <h3>4. Video Auto-Play</h3>
+                <div class="code-block">
+<span class="comment">// Auto-play videos when visible, pause when hidden</span>
+<span class="keyword">const</span> videoObserver = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>((entries) => {
+    entries.<span class="function">forEach</span>(entry => {
+        <span class="keyword">const</span> video = entry.target;
+        
+        <span class="keyword">if</span> (entry.isIntersecting) {
+            video.<span class="function">play</span>();
+        } <span class="keyword">else</span> {
+            video.<span class="function">pause</span>();
+        }
+    });
+}, {
+    threshold: <span class="number">0.5</span> <span class="comment">// Play when 50% visible</span>
+});
+
+document.<span class="function">querySelectorAll</span>(<span class="string">'video[data-autoplay]'</span>).<span class="function">forEach</span>(video => {
+    videoObserver.<span class="function">observe</span>(video);
+});
+                </div>
+                
+                <h3>5. Analytics / Viewability Tracking</h3>
+                <div class="code-block">
+<span class="comment">// Track when ads/content are viewed</span>
+<span class="keyword">const</span> viewabilityObserver = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>((entries) => {
+    entries.<span class="function">forEach</span>(entry => {
+        <span class="keyword">if</span> (entry.isIntersecting) {
+            <span class="comment">// Track impression</span>
+            <span class="function">trackImpression</span>(entry.target.dataset.adId);
+            
+            <span class="comment">// Stop observing after first view</span>
+            viewabilityObserver.<span class="function">unobserve</span>(entry.target);
+        }
+    });
+}, {
+    threshold: <span class="number">0.5</span>, <span class="comment">// 50% visible</span>
+    rootMargin: <span class="string">'0px'</span>
+});
+
+<span class="comment">// Track time in viewport</span>
+<span class="keyword">const</span> timeTracker = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>((entries) => {
+    entries.<span class="function">forEach</span>(entry => {
+        <span class="keyword">if</span> (entry.isIntersecting) {
+            entry.target.viewStartTime = Date.<span class="function">now</span>();
+        } <span class="keyword">else if</span> (entry.target.viewStartTime) {
+            <span class="keyword">const</span> viewTime = Date.<span class="function">now</span>() - entry.target.viewStartTime;
+            <span class="function">trackViewTime</span>(entry.target.dataset.contentId, viewTime);
+            <span class="keyword">delete</span> entry.target.viewStartTime;
+        }
+    });
+});
+                </div>
+                
+                <h3>6. Progressive Image Loading</h3>
+                <div class="code-block">
+<span class="comment">// Load low-res first, then high-res when visible</span>
+<span class="keyword">const</span> progressiveLoad = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>((entries, observer) => {
+    entries.<span class="function">forEach</span>(entry => {
+        <span class="keyword">if</span> (entry.isIntersecting) {
+            <span class="keyword">const</span> img = entry.target;
+            <span class="keyword">const</span> highResSrc = img.dataset.srcHigh;
+            
+            <span class="comment">// Create high-res image</span>
+            <span class="keyword">const</span> highRes = <span class="keyword">new</span> <span class="function">Image</span>();
+            highRes.<span class="keyword">onload</span> = () => {
+                img.src = highResSrc;
+                img.classList.<span class="function">add</span>(<span class="string">'loaded-high-res'</span>);
+            };
+            highRes.src = highResSrc;
+            
+            observer.<span class="function">unobserve</span>(img);
+        }
+    });
+});
+                </div>
+            </div>
+            
+            <!-- Observer Methods -->
+            <div class="section">
+                <h2>🔧 Observer Methods</h2>
+                
+                <div class="code-block">
+<span class="comment">// Create observer</span>
+<span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>(callback, options);
+
+<span class="comment">// Start observing an element</span>
+observer.<span class="function">observe</span>(element);
+
+<span class="comment">// Stop observing an element</span>
+observer.<span class="function">unobserve</span>(element);
+
+<span class="comment">// Stop observing all elements</span>
+observer.<span class="function">disconnect</span>();
+
+<span class="comment">// Get all entries immediately (no waiting)</span>
+<span class="keyword">const</span> entries = observer.<span class="function">takeRecords</span>();
+                </div>
+                
+                <div class="key-point">
+                    <strong>💡 When to Use Each Method:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><code>observe(el)</code> - Start watching element</li>
+                        <li><code>unobserve(el)</code> - Stop watching specific element (e.g., after loading)</li>
+                        <li><code>disconnect()</code> - Stop all observations (e.g., component cleanup)</li>
+                        <li><code>takeRecords()</code> - Get pending entries before disconnect</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Performance Tips -->
+            <div class="section">
+                <h2>⚡ Performance Best Practices</h2>
+                
+                <div class="key-point">
+                    <h3 style="margin-top: 0;">✅ DO</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Reuse observers for similar elements</li>
+                        <li>Unobserve elements after one-time actions</li>
+                        <li>Use appropriate threshold values</li>
+                        <li>Set rootMargin to preload content</li>
+                        <li>Disconnect observers when no longer needed</li>
+                        <li>Use for visibility detection instead of scroll events</li>
+                    </ul>
+                </div>
+                
+                <div class="warning-box">
+                    <h3 style="margin-top: 0;">❌ DON'T</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Create separate observer for each element</li>
+                        <li>Perform heavy computations in callback</li>
+                        <li>Forget to disconnect when done</li>
+                        <li>Use too many threshold points unnecessarily</li>
+                        <li>Use for rapid-fire events (use requestAnimationFrame)</li>
+                    </ul>
+                </div>
+                
+                <h3>Reusing Observers</h3>
+                <div class="code-block">
+<span class="comment">// ❌ BAD: Create observer for each image</span>
+images.<span class="function">forEach</span>(img => {
+    <span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>((entries) => {
+        <span class="comment">// Handle single image</span>
+    });
+    observer.<span class="function">observe</span>(img);
+});
+
+<span class="comment">// ✅ GOOD: One observer for all images</span>
+<span class="keyword">const</span> imageObserver = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>((entries) => {
+    entries.<span class="function">forEach</span>(entry => {
+        <span class="comment">// Handle each image</span>
+    });
+});
+
+images.<span class="function">forEach</span>(img => imageObserver.<span class="function">observe</span>(img));
+                </div>
+            </div>
+            
+            <!-- Interactive Demo -->
+            <div class="section">
+                <h2>🎮 Interactive Demo</h2>
+                
+                <div class="demo-section">
+                    <h3>Intersection Observer in Action</h3>
+                    <p style="margin-bottom: 15px;">Scroll down to see boxes animate when they become visible</p>
+                    
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Boxes Observed:</span>
+                            <span class="stat-value" id="observedCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Currently Visible:</span>
+                            <span class="stat-value" id="visibleCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Intersections:</span>
+                            <span class="stat-value" id="intersectionCount">0</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="resetDemo()">Reset Demo</button>
+                    <button onclick="scrollToNext()">Scroll to Next Box</button>
+                </div>
+                
+                <div class="spacer">👇 Scroll Down 👇</div>
+                
+                <div class="demo-box" data-box="1">
+                    <span class="status">Box 1 - Not Visible Yet</span>
+                </div>
+                
+                <div class="spacer">Keep Scrolling...</div>
+                
+                <div class="demo-box" data-box="2">
+                    <span class="status">Box 2 - Not Visible Yet</span>
+                </div>
+                
+                <div class="spacer">Almost There...</div>
+                
+                <div class="demo-box" data-box="3">
+                    <span class="status">Box 3 - Not Visible Yet</span>
+                </div>
+                
+                <div class="spacer">Last One!</div>
+                
+                <div class="demo-box" data-box="4">
+                    <span class="status">Box 4 - Not Visible Yet</span>
+                </div>
+                
+                <div class="spacer">👆 Scroll Back Up 👆</div>
+            </div>
+            
+            <!-- Browser Support -->
+            <div class="section">
+                <h2>🌐 Browser Support & Polyfills</h2>
+                
+                <div class="info-box">
+                    <strong>Browser Support:</strong> All modern browsers support Intersection Observer. For older browsers (IE11, older Safari), use a polyfill.
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Check for support</span>
+<span class="keyword">if</span> (<span class="string">'IntersectionObserver'</span> <span class="keyword">in</span> window) {
+    <span class="comment">// Use Intersection Observer</span>
+    <span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="function">IntersectionObserver</span>(callback);
+} <span class="keyword">else</span> {
+    <span class="comment">// Fallback for old browsers</span>
+    <span class="comment">// Use scroll events or immediately load all content</span>
+    <span class="function">loadAllImages</span>();
+}
+
+<span class="comment">// Load polyfill dynamically if needed</span>
+<span class="keyword">if</span> (!(<span class="string">'IntersectionObserver'</span> <span class="keyword">in</span> window)) {
+    <span class="keyword">await</span> <span class="keyword">import</span>(<span class="string">'intersection-observer'</span>);
+}
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        let observedCount = 0;
+        let visibleCount = 0;
+        let intersectionCount = 0;
+        
+        // Create observer for demo boxes
+        const demoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                intersectionCount++;
+                updateStats();
+                
+                const box = entry.target;
+                const status = box.querySelector('.status');
+                const boxNum = box.dataset.box;
+                
+                if (entry.isIntersecting) {
+                    box.classList.add('visible');
+                    status.textContent = `Box ${boxNum} - ✓ VISIBLE! (${Math.round(entry.intersectionRatio * 100)}% shown)`;
+                    visibleCount++;
+                } else {
+                    box.classList.remove('visible');
+                    status.textContent = `Box ${boxNum} - Not Visible Yet`;
+                    visibleCount--;
+                }
+                
+                updateStats();
+            });
+        }, {
+            threshold: [0, 0.25, 0.5, 0.75, 1],
+            rootMargin: '0px'
+        });
+        
+        // Observe all demo boxes
+        function initDemo() {
+            document.querySelectorAll('.demo-box').forEach(box => {
+                demoObserver.observe(box);
+                observedCount++;
+            });
+            updateStats();
+        }
+        
+        function updateStats() {
+            document.getElementById('observedCount').textContent = observedCount;
+            document.getElementById('visibleCount').textContent = Math.max(0, visibleCount);
+            document.getElementById('intersectionCount').textContent = intersectionCount;
+        }
+        
+        function resetDemo() {
+            // Reset visibility
+            document.querySelectorAll('.demo-box').forEach(box => {
+                box.classList.remove('visible');
+                box.querySelector('.status').textContent = `Box ${box.dataset.box} - Not Visible Yet`;
+            });
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Reset counters
+            visibleCount = 0;
+            intersectionCount = 0;
+            updateStats();
+        }
+        
+        function scrollToNext() {
+            const boxes = Array.from(document.querySelectorAll('.demo-box'));
+            const nextBox = boxes.find(box => !box.classList.contains('visible'));
+            
+            if (nextBox) {
+                nextBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                // All visible, scroll to first
+                boxes[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+        
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            initDemo();
+        });
+        
+        // Cleanup on unload
+        window.addEventListener('beforeunload', () => {
+            demoObserver.disconnect();
+        });
+    </script>
+</body>
+</html>

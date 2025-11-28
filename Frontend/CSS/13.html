@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 14: Cross-Browser Compatibility - Interactive Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 20px;
+            color: #333;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .section-title {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        /* Browser Detection Display */
+        .browser-info {
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .browser-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .browser-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .browser-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .browser-name {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .browser-version {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        /* Feature Support Table */
+        .support-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+        
+        .support-table th,
+        .support-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .support-table th {
+            background: #f3f4f6;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .support-yes {
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        .support-no {
+            color: var(--danger);
+            font-weight: bold;
+        }
+        
+        .support-partial {
+            color: var(--warning);
+            font-weight: bold;
+        }
+        
+        /* Fallback Demonstration */
+        .fallback-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .demo-box {
+            border: 2px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        
+        .demo-label {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .fallback-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Modern feature with fallback */
+        .gradient-text-demo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);  /* Fallback */
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Grid with flexbox fallback */
+        .grid-fallback {
+            display: flex;  /* Fallback */
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        @supports (display: grid) {
+            .grid-fallback {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .grid-item {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            flex: 0 0 calc(33.333% - 10px);  /* Fallback sizing */
+        }
+        
+        /* Prefix Examples */
+        .prefix-demo {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            
+            /* Prefixed properties */
+            -webkit-transform: rotate(0deg);
+            -moz-transform: rotate(0deg);
+            -ms-transform: rotate(0deg);
+            transform: rotate(0deg);
+            
+            -webkit-transition: -webkit-transform 0.5s ease;
+            -moz-transition: -moz-transform 0.5s ease;
+            -ms-transition: -ms-transform 0.5s ease;
+            transition: transform 0.5s ease;
+        }
+        
+        .prefix-demo:hover {
+            -webkit-transform: rotate(45deg) scale(1.1);
+            -moz-transform: rotate(45deg) scale(1.1);
+            -ms-transform: rotate(45deg) scale(1.1);
+            transform: rotate(45deg) scale(1.1);
+        }
+        
+        /* Code Output */
+        .code-output {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        
+        .property { color: #56b6c2; }
+        .value { color: #98c379; }
+        .comment { color: #5c6370; font-style: italic; }
+        .keyword { color: #c678dd; }
+        .selector { color: #e06c75; }
+        
+        .info-badge {
+            display: inline-block;
+            background: var(--warning);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .highlight-box {
+            background: #fff3cd;
+            border-left: 4px solid var(--warning);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        /* Status badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .status-supported {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-not-supported {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .status-partial {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Chapter 14: Cross-Browser Compatibility - Interactive Demonstrations</h1>
+        
+        <!-- Browser Detection -->
+        <div class="section">
+            <h2 class="section-title">1. Your Browser Information</h2>
+            
+            <div class="browser-info">
+                <div class="browser-grid">
+                    <div class="browser-card">
+                        <div class="browser-icon" id="browser-icon">🌐</div>
+                        <div class="browser-name" id="browser-name">Detecting...</div>
+                        <div class="browser-version" id="browser-version">Version: ...</div>
+                    </div>
+                    
+                    <div class="browser-card">
+                        <div class="browser-icon">💻</div>
+                        <div class="browser-name">Platform</div>
+                        <div class="browser-version" id="platform-info">...</div>
+                    </div>
+                    
+                    <div class="browser-card">
+                        <div class="browser-icon">📱</div>
+                        <div class="browser-name">Device Type</div>
+                        <div class="browser-version" id="device-type">...</div>
+                    </div>
+                    
+                    <div class="browser-card">
+                        <div class="browser-icon">🎨</div>
+                        <div class="browser-name">Rendering Engine</div>
+                        <div class="browser-version" id="engine-info">...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Feature Support -->
+        <div class="section">
+            <h2 class="section-title">2. CSS Feature Support <span class="info-badge">Your Browser</span></h2>
+            
+            <table class="support-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Your Browser</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>CSS Grid</strong></td>
+                        <td id="support-grid"></td>
+                        <td>Modern layout system</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Flexbox</strong></td>
+                        <td id="support-flex"></td>
+                        <td>Flexible box layout</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CSS Variables</strong></td>
+                        <td id="support-vars"></td>
+                        <td>Custom properties</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CSS Grid Gap</strong></td>
+                        <td id="support-gap"></td>
+                        <td>Grid spacing property</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sticky Position</strong></td>
+                        <td id="support-sticky"></td>
+                        <td>position: sticky</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Backdrop Filter</strong></td>
+                        <td id="support-backdrop"></td>
+                        <td>Glassmorphism effect</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Container Queries</strong></td>
+                        <td id="support-container"></td>
+                        <td>Modern responsive</td>
+                    </tr>
+                    <tr>
+                        <td><strong>:has() Selector</strong></td>
+                        <td id="support-has"></td>
+                        <td>Parent selector</td>
+                    </tr>
+                    <tr>
+                        <td><strong>aspect-ratio</strong></td>
+                        <td id="support-aspect"></td>
+                        <td>Aspect ratio property</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CSS Nesting</strong></td>
+                        <td id="support-nesting"></td>
+                        <td>Native nesting</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="highlight-box">
+                💡 This table shows what YOUR current browser supports. Test in different browsers to see variations!
+            </div>
+        </div>
+        
+        <!-- Vendor Prefix Demo -->
+        <div class="section">
+            <h2 class="section-title">3. Vendor Prefix Examples <span class="info-badge">Hover!</span></h2>
+            
+            <div class="fallback-demo">
+                <div class="demo-box">
+                    <div class="demo-label">Transform with Prefixes</div>
+                    <div class="fallback-container">
+                        <div class="prefix-demo">Hover</div>
+                    </div>
+                    <div class="code-output" style="font-size: 0.75rem;">
+<span class="selector">.element</span> {
+    <span class="property">-webkit-transform</span>: <span class="value">rotate(45deg)</span>;
+    <span class="property">-moz-transform</span>: <span class="value">rotate(45deg)</span>;
+    <span class="property">-ms-transform</span>: <span class="value">rotate(45deg)</span>;
+    <span class="property">transform</span>: <span class="value">rotate(45deg)</span>;  <span class="comment">/* Standard last! */</span>
+}
+                    </div>
+                </div>
+                
+                <div class="demo-box">
+                    <div class="demo-label">Gradient Text (Webkit)</div>
+                    <div class="fallback-container">
+                        <div class="gradient-text-demo">GRADIENT</div>
+                    </div>
+                    <div class="code-output" style="font-size: 0.75rem;">
+<span class="property">background</span>: <span class="value">linear-gradient(45deg, blue, red)</span>;
+<span class="property">-webkit-background-clip</span>: <span class="value">text</span>;
+<span class="property">background-clip</span>: <span class="value">text</span>;
+<span class="property">-webkit-text-fill-color</span>: <span class="value">transparent</span>;
+                    </div>
+                </div>
+                
+                <div class="demo-box">
+                    <div class="demo-label">Grid with Fallback</div>
+                    <div class="fallback-container" style="padding: 10px;">
+                        <div class="grid-fallback">
+                            <div class="grid-item" style="font-size: 0.85rem;">1</div>
+                            <div class="grid-item" style="font-size: 0.85rem;">2</div>
+                            <div class="grid-item" style="font-size: 0.85rem;">3</div>
+                        </div>
+                    </div>
+                    <div class="code-output" style="font-size: 0.75rem;">
+<span class="selector">.container</span> {
+    <span class="property">display</span>: <span class="value">flex</span>;  <span class="comment">/* Fallback */</span>
+}
+<span class="keyword">@supports</span> (display: grid) {
+    <span class="selector">.container</span> {
+        <span class="property">display</span>: <span class="value">grid</span>;  <span class="comment">/* Enhanced */</span>
+    }
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progressive Enhancement -->
+        <div class="section">
+            <h2 class="section-title">4. Progressive Enhancement Strategy</h2>
+            
+            <div class="demo-box">
+                <div class="demo-label">Feature Detection with @supports</div>
+                <div class="code-output">
+<span class="comment">/* Base styles (work everywhere) */</span>
+<span class="selector">.container</span> {
+    <span class="property">display</span>: <span class="value">block</span>;
+}
+
+<span class="comment">/* Enhanced for flexbox support */</span>
+<span class="keyword">@supports</span> (display: flex) {
+    <span class="selector">.container</span> {
+        <span class="property">display</span>: <span class="value">flex</span>;
+        <span class="property">gap</span>: <span class="value">20px</span>;
+    }
+}
+
+<span class="comment">/* Further enhanced for grid support */</span>
+<span class="keyword">@supports</span> (display: grid) {
+    <span class="selector">.container</span> {
+        <span class="property">display</span>: <span class="value">grid</span>;
+        <span class="property">grid-template-columns</span>: <span class="value">repeat(auto-fit, minmax(250px, 1fr))</span>;
+    }
+}
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <div class="demo-label">Backdrop Filter with Fallback</div>
+                <div id="backdrop-demo" style="position: relative; height: 300px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: rgba(255, 255, 255, 0.7); padding: 30px; border-radius: 12px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+                        <h3 style="margin: 0; color: var(--primary);">Glassmorphism</h3>
+                        <p style="margin: 10px 0 0 0;">Backdrop blur if supported</p>
+                    </div>
+                </div>
+                <div id="backdrop-support-msg" style="margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: bold; text-align: center;"></div>
+            </div>
+        </div>
+        
+        <!-- Browser-Specific Fixes -->
+        <div class="section">
+            <h2 class="section-title">5. Common Browser-Specific Fixes</h2>
+            
+            <div class="demo-box">
+                <div class="demo-label">Safari Flexbox Fix</div>
+                <div class="code-output">
+<span class="comment">/* Safari flex shrinking bug */</span>
+<span class="selector">.flex-item</span> {
+    <span class="property">flex</span>: <span class="value">1</span>;
+    <span class="property">min-width</span>: <span class="value">0</span>;  <span class="comment">/* Safari fix */</span>
+}
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <div class="demo-label">iOS Input Zoom Prevention</div>
+                <div class="code-output">
+<span class="comment">/* Prevent zoom on focus in iOS */</span>
+<span class="selector">input, select, textarea</span> {
+    <span class="property">font-size</span>: <span class="value">16px</span>;  <span class="comment">/* Must be >= 16px */</span>
+}
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <div class="demo-label">IE11 Flexbox Fix</div>
+                <div class="code-output">
+<span class="comment">/* IE11 flex bug - needs all 3 values */</span>
+<span class="selector">.flex-item</span> {
+    <span class="property">flex</span>: <span class="value">1 1 auto</span>;  <span class="comment">/* NOT just: flex: 1 */</span>
+}
+
+<span class="comment">/* IE11 min-height flex bug */</span>
+<span class="selector">.flex-container</span> {
+    <span class="property">display</span>: <span class="value">flex</span>;
+    <span class="property">flex-direction</span>: <span class="value">column</span>;
+}
+<span class="selector">.flex-item</span> {
+    <span class="property">min-height</span>: <span class="value">1px</span>;  <span class="comment">/* IE11 fix */</span>
+}
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <div class="demo-label">Remove Default Styling (Cross-Browser)</div>
+                <div class="code-output">
+<span class="comment">/* Remove default appearance */</span>
+<span class="selector">input, button, select</span> {
+    <span class="property">-webkit-appearance</span>: <span class="value">none</span>;
+    <span class="property">-moz-appearance</span>: <span class="value">none</span>;
+    <span class="property">appearance</span>: <span class="value">none</span>;
+}
+
+<span class="comment">/* iOS tap highlight */</span>
+<span class="selector">button, a</span> {
+    <span class="property">-webkit-tap-highlight-color</span>: <span class="value">rgba(0,0,0,0)</span>;
+}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Autoprefixer Example -->
+        <div class="section">
+            <h2 class="section-title">6. Autoprefixer (Recommended Tool)</h2>
+            
+            <div class="highlight-box">
+                💡 <strong>Don't manually add prefixes!</strong> Use Autoprefixer to automatically add vendor prefixes based on your browser support targets.
+            </div>
+            
+            <div class="demo-box">
+                <div class="demo-label">What You Write:</div>
+                <div class="code-output">
+<span class="selector">.element</span> {
+    <span class="property">display</span>: <span class="value">flex</span>;
+    <span class="property">transform</span>: <span class="value">rotate(45deg)</span>;
+    <span class="property">transition</span>: <span class="value">all 0.3s ease</span>;
+}
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <div class="demo-label">What Autoprefixer Outputs:</div>
+                <div class="code-output">
+<span class="selector">.element</span> {
+    <span class="property">display</span>: <span class="value">-webkit-box</span>;
+    <span class="property">display</span>: <span class="value">-ms-flexbox</span>;
+    <span class="property">display</span>: <span class="value">flex</span>;
+    <span class="property">-webkit-transform</span>: <span class="value">rotate(45deg)</span>;
+    <span class="property">-ms-transform</span>: <span class="value">rotate(45deg)</span>;
+    <span class="property">transform</span>: <span class="value">rotate(45deg)</span>;
+    <span class="property">-webkit-transition</span>: <span class="value">all 0.3s ease</span>;
+    <span class="property">transition</span>: <span class="value">all 0.3s ease</span>;
+}
+                </div>
+            </div>
+            
+            <div class="demo-box">
+                <div class="demo-label">Setup (PostCSS)</div>
+                <div class="code-output">
+<span class="comment">// package.json</span>
+{
+  <span class="property">"browserslist"</span>: [
+    <span class="value">"last 2 versions"</span>,
+    <span class="value">"> 1%"</span>,
+    <span class="value">"not dead"</span>
+  ]
+}
+
+<span class="comment">// postcss.config.js</span>
+module.exports = {
+  plugins: [
+    require(<span class="value">'autoprefixer'</span>)
+  ]
+}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Key Takeaways -->
+        <div class="section" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white;">
+            <h2 class="section-title" style="color: white; border-bottom-color: white;">🎯 Key Takeaways</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Use Autoprefixer:</strong> Don't manually add vendor prefixes
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Progressive Enhancement:</strong> Base styles + @supports for modern features
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Feature Detection:</strong> Use @supports, not browser detection
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Test on Real Browsers:</strong> Don't rely only on DevTools emulation
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Standard Property Last:</strong> Vendor prefixes first, standard last
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Check caniuse.com:</strong> Verify browser support before using features
+                </li>
+                <li style="padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    ✓ <strong>Safari Fixes:</strong> min-width: 0 for flex items, -webkit prefixes for many features
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Browser Detection
+        function detectBrowser() {
+            const ua = navigator.userAgent;
+            let browserName = 'Unknown';
+            let browserIcon = '🌐';
+            let engine = 'Unknown';
+            
+            if (ua.indexOf('Firefox') > -1) {
+                browserName = 'Firefox';
+                browserIcon = '🦊';
+                engine = 'Gecko';
+            } else if (ua.indexOf('Edg') > -1) {
+                browserName = 'Edge';
+                browserIcon = '🌊';
+                engine = 'Blink';
+            } else if (ua.indexOf('Chrome') > -1) {
+                browserName = 'Chrome';
+                browserIcon = '🟢';
+                engine = 'Blink';
+            } else if (ua.indexOf('Safari') > -1) {
+                browserName = 'Safari';
+                browserIcon = '🧭';
+                engine = 'WebKit';
+            } else if (ua.indexOf('Opera') > -1 || ua.indexOf('OPR') > -1) {
+                browserName = 'Opera';
+                browserIcon = '🔴';
+                engine = 'Blink';
+            }
+            
+            document.getElementById('browser-icon').textContent = browserIcon;
+            document.getElementById('browser-name').textContent = browserName;
+            
+            // Get version
+            const version = ua.match(/(Firefox|Chrome|Safari|Edge|OPR)\/(\d+)/);
+            if (version) {
+                document.getElementById('browser-version').textContent = 'Version: ' + version[2];
+            }
+            
+            // Platform
+            const platform = navigator.platform;
+            document.getElementById('platform-info').textContent = platform;
+            
+            // Device type
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+            document.getElementById('device-type').textContent = isMobile ? 'Mobile/Tablet' : 'Desktop';
+            
+            // Engine
+            document.getElementById('engine-info').textContent = engine;
+        }
+        
+        // Feature Detection
+        function checkFeatureSupport() {
+            const features = [
+                { id: 'support-grid', test: 'display', value: 'grid' },
+                { id: 'support-flex', test: 'display', value: 'flex' },
+                { id: 'support-vars', test: '--test', value: 'test' },
+                { id: 'support-gap', test: 'gap', value: '10px' },
+                { id: 'support-sticky', test: 'position', value: 'sticky' },
+                { id: 'support-backdrop', test: 'backdrop-filter', value: 'blur(10px)' },
+                { id: 'support-container', test: 'container-type', value: 'inline-size' },
+                { id: 'support-aspect', test: 'aspect-ratio', value: '16/9' }
+            ];
+            
+            features.forEach(feature => {
+                const supported = CSS.supports(feature.test, feature.value);
+                const element = document.getElementById(feature.id);
+                
+                if (supported) {
+                    element.innerHTML = '<span class="support-yes">✓ Supported</span>';
+                } else {
+                    element.innerHTML = '<span class="support-no">✗ Not Supported</span>';
+                }
+            });
+            
+            // :has() selector check
+            try {
+                document.querySelector(':has(div)');
+                document.getElementById('support-has').innerHTML = '<span class="support-yes">✓ Supported</span>';
+            } catch (e) {
+                document.getElementById('support-has').innerHTML = '<span class="support-no">✗ Not Supported</span>';
+            }
+            
+            // CSS Nesting check (tricky)
+            const nestingSupported = CSS.supports('selector(&)');
+            const nestElement = document.getElementById('support-nesting');
+            if (nestingSupported) {
+                nestElement.innerHTML = '<span class="support-yes">✓ Supported</span>';
+            } else {
+                nestElement.innerHTML = '<span class="support-no">✗ Not Supported</span>';
+            }
+            
+            // Backdrop filter message
+            const backdropSupported = CSS.supports('backdrop-filter', 'blur(10px)');
+            const backdropMsg = document.getElementById('backdrop-support-msg');
+            
+            if (backdropSupported) {
+                backdropMsg.style.background = '#d1fae5';
+                backdropMsg.style.color = '#065f46';
+                backdropMsg.textContent = '✓ Your browser supports backdrop-filter! You should see the blur effect above.';
+            } else {
+                backdropMsg.style.background = '#fee2e2';
+                backdropMsg.style.color = '#991b1b';
+                backdropMsg.textContent = '✗ Your browser doesn\'t support backdrop-filter. You see the fallback (solid background).';
+            }
+        }
+        
+        // Initialize
+        detectBrowser();
+        checkFeatureSupport();
+    </script>
+</body>
+</html>

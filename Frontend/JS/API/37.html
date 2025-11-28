@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 37: Ranges & Selections</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #e4e4e4; line-height: 1.7; padding: 40px 20px; min-height: 100vh; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2.5rem; background: linear-gradient(90deg, #f9a826, #ee5a24, #ea2027); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+    .subtitle { color: #888; font-size: 1.1rem; margin-bottom: 40px; }
+    h2 { color: #f9a826; font-size: 1.6rem; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #ee5a2433; }
+    h3 { color: #ee5a24; font-size: 1.2rem; margin: 25px 0 15px; }
+    p { margin-bottom: 16px; color: #ccc; }
+    .concept-box { background: linear-gradient(135deg, #2d2a1a 0%, #1a1a2e 100%); border-radius: 16px; padding: 25px; margin: 25px 0; border-left: 4px solid #f9a826; }
+    .warning { background: linear-gradient(135deg, #4a2c2c 0%, #3d1f1f 100%); border-left-color: #ea2027; }
+    .tip { background: linear-gradient(135deg, #1f4a2c 0%, #1f3d2a 100%); border-left-color: #4ade80; }
+    .info { background: linear-gradient(135deg, #1e3a5f 0%, #1a1a2e 100%); border-left-color: #60a5fa; }
+    code { background: #0d1117; padding: 3px 8px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em; color: #f9a826; }
+    pre { background: #0d1117; border-radius: 12px; padding: 20px; overflow-x: auto; margin: 20px 0; border: 1px solid #ffffff15; }
+    pre code { padding: 0; background: none; }
+    .keyword { color: #c792ea; }
+    .function { color: #82aaff; }
+    .string { color: #c3e88d; }
+    .comment { color: #676e95; }
+    .number { color: #f78c6c; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ffffff15; }
+    th { background: #f9a82633; color: #f9a826; }
+    tr:hover { background: #ffffff08; }
+    .interactive-demo { background: #0d1117; border-radius: 16px; padding: 25px; margin: 30px 0; border: 1px solid #f9a82644; }
+    button { background: linear-gradient(135deg, #f9a826 0%, #ee5a24 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.2s; margin: 5px; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px #f9a82655; }
+    button.secondary { background: linear-gradient(135deg, #ee5a24, #ea2027); }
+    button.tertiary { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+    .demo-text { background: #1a1a2e; border-radius: 10px; padding: 20px; margin: 15px 0; font-size: 1.1rem; line-height: 2; user-select: text; }
+    .demo-text::selection { background: #f9a82666; }
+    .diagram { background: #0d1117; border-radius: 16px; padding: 30px; margin: 30px 0; }
+    .range-visual { font-family: monospace; font-size: 1.2rem; background: #1a1a2e; padding: 20px; border-radius: 10px; margin: 15px 0; position: relative; }
+    .range-visual .text { color: #888; }
+    .range-visual .selected { background: #f9a82644; color: #f9a826; padding: 2px 0; border-radius: 3px; }
+    .range-visual .marker { color: #ea2027; font-weight: bold; }
+    .info-box { background: #1a1a2e; padding: 15px; border-radius: 8px; margin: 15px 0; }
+    .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ffffff10; flex-wrap: wrap; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: #ee5a24; }
+    .info-value { color: #4ade80; font-family: monospace; }
+    ul { margin-left: 25px; margin-bottom: 15px; }
+    li { margin-bottom: 8px; color: #ccc; }
+    .editable-area { background: #1a1a2e; border: 2px solid #f9a82644; border-radius: 10px; padding: 20px; min-height: 100px; margin: 15px 0; }
+    .editable-area:focus { outline: none; border-color: #f9a826; }
+    .highlight-yellow { background: #f9a82666; }
+    .highlight-green { background: #4ade8066; }
+    .highlight-red { background: #ea202766; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>✂️ Chapter 37: Ranges & Selections</h1>
+    <p class="subtitle">Programmatically Working with Text Selection and DOM Ranges</p>
+
+    <h2>🎯 What are Ranges and Selections?</h2>
+    <p>The <strong>Selection API</strong> and <strong>Range API</strong> allow you to programmatically work with text selections in the browser. You can read what the user has selected, create selections programmatically, and manipulate portions of the DOM.</p>
+
+    <div class="concept-box">
+      <h3>💡 Key Concepts</h3>
+      <ul style="margin-top: 10px; margin-left: 20px;">
+        <li><strong>Selection:</strong> Represents the user's current selection (what they've highlighted)</li>
+        <li><strong>Range:</strong> Represents a contiguous part of the document (start point to end point)</li>
+        <li>A Selection can contain multiple Ranges (in Firefox), but usually just one</li>
+        <li>Ranges can span across multiple DOM nodes</li>
+      </ul>
+    </div>
+
+    <h2>🔍 The Selection Object</h2>
+    <p>Access the current selection using <code>window.getSelection()</code>:</p>
+
+    <pre><code><span class="comment">// Get the current selection</span>
+<span class="keyword">const</span> selection = window.<span class="function">getSelection</span>();
+
+<span class="comment">// Key properties</span>
+selection.<span class="function">toString</span>();        <span class="comment">// Selected text as string</span>
+selection.rangeCount;        <span class="comment">// Number of ranges (usually 1)</span>
+selection.anchorNode;        <span class="comment">// Node where selection started</span>
+selection.anchorOffset;      <span class="comment">// Offset within anchor node</span>
+selection.focusNode;         <span class="comment">// Node where selection ended</span>
+selection.focusOffset;       <span class="comment">// Offset within focus node</span>
+selection.isCollapsed;       <span class="comment">// true if no text selected (cursor only)</span>
+
+<span class="comment">// Get the Range object</span>
+<span class="keyword">const</span> range = selection.<span class="function">getRangeAt</span>(<span class="number">0</span>);</code></pre>
+
+    <h2>🎮 Interactive Demo: Reading Selection</h2>
+    <div class="interactive-demo">
+      <p>Select some text in the box below, then click "Get Selection Info":</p>
+      
+      <div class="demo-text" id="selectable-text">
+        The quick brown fox jumps over the lazy dog. This is a sample paragraph with multiple sentences. Select any portion of this text to see the Selection API in action!
+      </div>
+      
+      <button onclick="getSelectionInfo()">📋 Get Selection Info</button>
+      <button onclick="clearSelection()" class="secondary">🗑️ Clear Selection</button>
+      
+      <div class="info-box" id="selection-info">
+        <div class="info-row">
+          <span class="info-label">Selected Text:</span>
+          <span class="info-value" id="sel-text">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Range Count:</span>
+          <span class="info-value" id="sel-count">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Is Collapsed:</span>
+          <span class="info-value" id="sel-collapsed">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Anchor Offset:</span>
+          <span class="info-value" id="sel-anchor">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Focus Offset:</span>
+          <span class="info-value" id="sel-focus">-</span>
+        </div>
+      </div>
+    </div>
+
+    <h2>📏 The Range Object</h2>
+    <p>A Range represents a fragment of a document that can contain nodes and parts of text nodes:</p>
+
+    <div class="diagram">
+      <div class="range-visual">
+        <span class="text">The quick </span><span class="marker">|</span><span class="selected">brown fox jumps</span><span class="marker">|</span><span class="text"> over the lazy dog.</span>
+      </div>
+      <div style="text-align:center;margin-top:10px;color:#888;">
+        <span style="color:#ea2027;">|</span> = Start/End boundary &nbsp;&nbsp; 
+        <span style="color:#f9a826;">Highlighted</span> = Range content
+      </div>
+    </div>
+
+    <pre><code><span class="comment">// Create a new Range</span>
+<span class="keyword">const</span> range = document.<span class="function">createRange</span>();
+
+<span class="comment">// Setting range boundaries</span>
+range.<span class="function">setStart</span>(node, offset);       <span class="comment">// Set start point</span>
+range.<span class="function">setEnd</span>(node, offset);         <span class="comment">// Set end point</span>
+range.<span class="function">setStartBefore</span>(node);         <span class="comment">// Start before a node</span>
+range.<span class="function">setStartAfter</span>(node);          <span class="comment">// Start after a node</span>
+range.<span class="function">setEndBefore</span>(node);           <span class="comment">// End before a node</span>
+range.<span class="function">setEndAfter</span>(node);            <span class="comment">// End after a node</span>
+
+<span class="comment">// Select entire node contents</span>
+range.<span class="function">selectNode</span>(node);             <span class="comment">// Include the node itself</span>
+range.<span class="function">selectNodeContents</span>(node);     <span class="comment">// Only the contents</span>
+
+<span class="comment">// Collapse to a single point</span>
+range.<span class="function">collapse</span>(<span class="keyword">true</span>);               <span class="comment">// Collapse to start</span>
+range.<span class="function">collapse</span>(<span class="keyword">false</span>);              <span class="comment">// Collapse to end</span></code></pre>
+
+    <h2>📊 Range Properties</h2>
+    <table>
+      <tr><th>Property</th><th>Description</th></tr>
+      <tr><td><code>startContainer</code></td><td>Node where the range starts</td></tr>
+      <tr><td><code>startOffset</code></td><td>Offset within the start container</td></tr>
+      <tr><td><code>endContainer</code></td><td>Node where the range ends</td></tr>
+      <tr><td><code>endOffset</code></td><td>Offset within the end container</td></tr>
+      <tr><td><code>commonAncestorContainer</code></td><td>Deepest node containing both boundaries</td></tr>
+      <tr><td><code>collapsed</code></td><td>True if start and end are the same point</td></tr>
+    </table>
+
+    <h2>🛠️ Range Manipulation Methods</h2>
+    <pre><code><span class="comment">// Extract and modify content</span>
+<span class="keyword">const</span> fragment = range.<span class="function">extractContents</span>();   <span class="comment">// Remove and return</span>
+<span class="keyword">const</span> clone = range.<span class="function">cloneContents</span>();       <span class="comment">// Copy without removing</span>
+range.<span class="function">deleteContents</span>();                    <span class="comment">// Delete content</span>
+
+<span class="comment">// Insert content</span>
+range.<span class="function">insertNode</span>(newNode);                  <span class="comment">// Insert at start</span>
+range.<span class="function">surroundContents</span>(wrapperElement);     <span class="comment">// Wrap selection</span>
+
+<span class="comment">// Comparison</span>
+range.<span class="function">compareBoundaryPoints</span>(how, sourceRange);
+<span class="comment">// how: Range.START_TO_START, START_TO_END, END_TO_END, END_TO_START</span>
+
+<span class="comment">// Get bounding rectangle</span>
+<span class="keyword">const</span> rect = range.<span class="function">getBoundingClientRect</span>();
+<span class="keyword">const</span> rects = range.<span class="function">getClientRects</span>();      <span class="comment">// Multiple lines</span>
+
+<span class="comment">// String representation</span>
+range.<span class="function">toString</span>();                          <span class="comment">// Text content</span></code></pre>
+
+    <h2>🎮 Interactive Demo: Text Highlighting</h2>
+    <div class="interactive-demo">
+      <p>Select text and apply highlighting:</p>
+      
+      <div class="editable-area" id="highlight-area" contenteditable="true">
+        This is an editable area where you can select text and apply different highlight colors. Try selecting some words and clicking the highlight buttons below. You can also type and edit this text!
+      </div>
+      
+      <div>
+        <button onclick="highlightSelection('yellow')">🟡 Yellow</button>
+        <button onclick="highlightSelection('green')" class="tertiary">🟢 Green</button>
+        <button onclick="highlightSelection('red')" class="secondary">🔴 Red</button>
+        <button onclick="removeHighlights()">🧹 Clear Highlights</button>
+      </div>
+    </div>
+
+    <h2>📝 Selection Methods</h2>
+    <pre><code><span class="keyword">const</span> selection = window.<span class="function">getSelection</span>();
+
+<span class="comment">// Modify selection</span>
+selection.<span class="function">collapse</span>(node, offset);        <span class="comment">// Collapse to point</span>
+selection.<span class="function">extend</span>(node, offset);          <span class="comment">// Extend selection</span>
+selection.<span class="function">selectAllChildren</span>(node);       <span class="comment">// Select all in node</span>
+selection.<span class="function">collapseToStart</span>();             <span class="comment">// Collapse to start</span>
+selection.<span class="function">collapseToEnd</span>();               <span class="comment">// Collapse to end</span>
+
+<span class="comment">// Range manipulation</span>
+selection.<span class="function">addRange</span>(range);                <span class="comment">// Add a range</span>
+selection.<span class="function">removeRange</span>(range);             <span class="comment">// Remove a range</span>
+selection.<span class="function">removeAllRanges</span>();              <span class="comment">// Clear selection</span>
+
+<span class="comment">// Check if node is in selection</span>
+selection.<span class="function">containsNode</span>(node, partialContainment);</code></pre>
+
+    <h2>🎯 Practical Example: Select All in Input</h2>
+    <pre><code><span class="comment">// Select all text in an input/textarea</span>
+<span class="keyword">function</span> <span class="function">selectAllText</span>(element) {
+    element.<span class="function">focus</span>();
+    element.<span class="function">select</span>();  <span class="comment">// For input/textarea</span>
+}
+
+<span class="comment">// Select specific range in input</span>
+<span class="keyword">function</span> <span class="function">selectRange</span>(input, start, end) {
+    input.<span class="function">focus</span>();
+    input.<span class="function">setSelectionRange</span>(start, end);
+}
+
+<span class="comment">// Select text in contenteditable</span>
+<span class="keyword">function</span> <span class="function">selectTextInElement</span>(element) {
+    <span class="keyword">const</span> range = document.<span class="function">createRange</span>();
+    range.<span class="function">selectNodeContents</span>(element);
+    
+    <span class="keyword">const</span> selection = window.<span class="function">getSelection</span>();
+    selection.<span class="function">removeAllRanges</span>();
+    selection.<span class="function">addRange</span>(range);
+}</code></pre>
+
+    <h2>🎮 Demo: Programmatic Selection</h2>
+    <div class="interactive-demo">
+      <p>Click buttons to create selections programmatically:</p>
+      
+      <div class="demo-text" id="programmatic-text">
+        <span id="word1">Hello</span> <span id="word2">World</span>! This is a <span id="word3">demonstration</span> of <span id="word4">programmatic</span> text selection.
+      </div>
+      
+      <div>
+        <button onclick="selectWord('word1')">Select "Hello"</button>
+        <button onclick="selectWord('word2')" class="secondary">Select "World"</button>
+        <button onclick="selectWord('word3')" class="tertiary">Select "demonstration"</button>
+        <button onclick="selectRange2()">Select Range</button>
+      </div>
+    </div>
+
+    <h2>📋 Copy to Clipboard with Selection</h2>
+    <pre><code><span class="comment">// Copy selected text</span>
+<span class="keyword">async function</span> <span class="function">copySelection</span>() {
+    <span class="keyword">const</span> selection = window.<span class="function">getSelection</span>();
+    <span class="keyword">const</span> text = selection.<span class="function">toString</span>();
+    
+    <span class="keyword">if</span> (text) {
+        <span class="keyword">await</span> navigator.clipboard.<span class="function">writeText</span>(text);
+        console.<span class="function">log</span>(<span class="string">'Copied:'</span>, text);
+    }
+}
+
+<span class="comment">// Copy specific element's text</span>
+<span class="keyword">async function</span> <span class="function">copyElementText</span>(element) {
+    <span class="keyword">const</span> range = document.<span class="function">createRange</span>();
+    range.<span class="function">selectNodeContents</span>(element);
+    
+    <span class="keyword">const</span> selection = window.<span class="function">getSelection</span>();
+    selection.<span class="function">removeAllRanges</span>();
+    selection.<span class="function">addRange</span>(range);
+    
+    <span class="keyword">await</span> navigator.clipboard.<span class="function">writeText</span>(selection.<span class="function">toString</span>());
+    selection.<span class="function">removeAllRanges</span>();
+}</code></pre>
+
+    <h2>🎯 Real-World Use Cases</h2>
+    <div class="concept-box tip">
+      <h3>Common Applications</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li><strong>Text Editors:</strong> Rich text formatting, find & replace</li>
+        <li><strong>Highlighting Tools:</strong> Note-taking apps, PDF readers</li>
+        <li><strong>Quote Selection:</strong> "Share this quote" features</li>
+        <li><strong>Autocomplete:</strong> Inserting suggestions at cursor position</li>
+        <li><strong>Code Editors:</strong> Syntax highlighting, bracket matching</li>
+        <li><strong>Tooltip Positioning:</strong> Show tooltips near selected text</li>
+      </ul>
+    </div>
+
+    <div class="concept-box warning">
+      <h3>⚠️ Important Considerations</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li><strong>surroundContents() limitation:</strong> Throws error if range spans partial element boundaries</li>
+        <li><strong>Browser differences:</strong> Firefox supports multiple ranges, others don't</li>
+        <li><strong>Performance:</strong> Avoid frequent range operations in large documents</li>
+        <li><strong>User experience:</strong> Don't programmatically clear user's selection unexpectedly</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Selection info demo
+    function getSelectionInfo() {
+      const selection = window.getSelection();
+      document.getElementById('sel-text').textContent = selection.toString() || '(nothing selected)';
+      document.getElementById('sel-count').textContent = selection.rangeCount;
+      document.getElementById('sel-collapsed').textContent = selection.isCollapsed;
+      document.getElementById('sel-anchor').textContent = selection.anchorOffset;
+      document.getElementById('sel-focus').textContent = selection.focusOffset;
+    }
+    
+    function clearSelection() {
+      window.getSelection().removeAllRanges();
+      getSelectionInfo();
+    }
+
+    // Highlighting demo
+    function highlightSelection(color) {
+      const selection = window.getSelection();
+      if (selection.rangeCount === 0 || selection.isCollapsed) return;
+      
+      const range = selection.getRangeAt(0);
+      const span = document.createElement('span');
+      span.className = `highlight-${color}`;
+      
+      try {
+        range.surroundContents(span);
+      } catch (e) {
+        // Handle partial selection across elements
+        const fragment = range.extractContents();
+        span.appendChild(fragment);
+        range.insertNode(span);
+      }
+      
+      selection.removeAllRanges();
+    }
+    
+    function removeHighlights() {
+      const area = document.getElementById('highlight-area');
+      const highlights = area.querySelectorAll('[class^="highlight-"]');
+      highlights.forEach(h => {
+        const parent = h.parentNode;
+        while (h.firstChild) {
+          parent.insertBefore(h.firstChild, h);
+        }
+        parent.removeChild(h);
+      });
+    }
+
+    // Programmatic selection demo
+    function selectWord(id) {
+      const element = document.getElementById(id);
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+    
+    function selectRange2() {
+      const container = document.getElementById('programmatic-text');
+      const range = document.createRange();
+      
+      // Select from "World" to "demonstration"
+      const word2 = document.getElementById('word2');
+      const word3 = document.getElementById('word3');
+      
+      range.setStart(word2.firstChild, 0);
+      range.setEnd(word3.firstChild, word3.textContent.length);
+      
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  </script>
+</body>
+</html>

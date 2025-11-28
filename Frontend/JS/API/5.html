@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 5: Attributes & Properties</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.7;
+            color: #1a1a2e;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #fcd34d;
+        }
+        h2 {
+            font-size: 1.5rem;
+            color: #92400e;
+            margin: 35px 0 20px;
+            padding-left: 15px;
+            border-left: 4px solid #f59e0b;
+        }
+        h3 { font-size: 1.2rem; color: #b45309; margin: 25px 0 15px; }
+        h4 { font-size: 1.05rem; color: #92400e; margin: 20px 0 12px; }
+        p { margin-bottom: 15px; color: #374151; }
+        .concept-box {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .warning-box {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .warning-box::before {
+            content: "⚠️ Common Gotcha";
+            font-weight: bold;
+            color: #dc2626;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .key-point {
+            background: linear-gradient(135deg, #fefce8 0%, #fef08a 100%);
+            border-left: 4px solid #eab308;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .key-point::before {
+            content: "🔑 Key Point";
+            font-weight: bold;
+            color: #a16207;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .interview-tip {
+            background: linear-gradient(135deg, #eff6ff 0%, #bfdbfe 100%);
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .interview-tip::before {
+            content: "💼 Interview Insight";
+            font-weight: bold;
+            color: #1d4ed8;
+            display: block;
+            margin-bottom: 10px;
+        }
+        pre {
+            background: #78350f;
+            color: #fef3c7;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+        .inline-code {
+            background: #fef3c7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #92400e;
+            font-family: 'Fira Code', monospace;
+        }
+        .keyword { color: #c4b5fd; }
+        .string { color: #86efac; }
+        .comment { color: #fcd34d; font-style: italic; }
+        .function { color: #7dd3fc; }
+        .variable { color: #fca5a5; }
+        .property { color: #fdba74; }
+        .result { color: #86efac; }
+        .diagram {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #fde68a;
+        }
+        .comparison-table tr:hover { background: #fffbeb; }
+        ul, ol { margin: 15px 0 15px 25px; color: #374151; }
+        li { margin-bottom: 8px; }
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+            margin: 40px 0;
+        }
+        .vs-box {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            margin: 25px 0;
+            align-items: start;
+        }
+        .vs-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .vs-card.attribute {
+            border-top: 4px solid #3b82f6;
+        }
+        .vs-card.property {
+            border-top: 4px solid #10b981;
+        }
+        .vs-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #d97706;
+        }
+        .vs-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .vs-card.attribute .vs-title { color: #1d4ed8; }
+        .vs-card.property .vs-title { color: #059669; }
+        @media (max-width: 700px) {
+            .vs-box {
+                grid-template-columns: 1fr;
+            }
+            .vs-divider { padding: 10px 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chapter 5: Attributes & Properties</h1>
+        <p class="subtitle">Understanding the Crucial Difference Between HTML Attributes and DOM Properties</p>
+        
+        <div class="concept-box">
+            <p>This chapter covers one of the <strong>most confusing</strong> topics in DOM manipulation. Many developers use "attribute" and "property" interchangeably, but they're fundamentally different concepts. Understanding this distinction is crucial for interviews and bug-free code.</p>
+        </div>
+        
+        <!-- Section 5.1 -->
+        <h2>5.1 Attributes vs Properties — The Core Difference</h2>
+        
+        <div class="vs-box">
+            <div class="vs-card attribute">
+                <div class="vs-title">HTML Attributes</div>
+                <ul>
+                    <li>Defined <strong>in HTML markup</strong></li>
+                    <li>Values are always <strong>strings</strong></li>
+                    <li>Accessed via <span class="inline-code">getAttribute()</span></li>
+                    <li>Represent the <strong>initial</strong> value</li>
+                    <li>Visible in HTML source</li>
+                </ul>
+            </div>
+            <div class="vs-divider">vs</div>
+            <div class="vs-card property">
+                <div class="vs-title">DOM Properties</div>
+                <ul>
+                    <li>Defined <strong>on JavaScript objects</strong></li>
+                    <li>Values can be <strong>any type</strong></li>
+                    <li>Accessed via <span class="inline-code">element.property</span></li>
+                    <li>Represent the <strong>current</strong> value</li>
+                    <li>May differ from HTML</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="diagram">
+            <h3 style="margin-bottom: 20px;">How Attributes Become Properties</h3>
+            <svg viewBox="0 0 700 200" style="max-width: 700px;">
+                <!-- HTML Box -->
+                <rect x="50" y="50" width="200" height="100" rx="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+                <text x="150" y="80" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e40af">HTML Attribute</text>
+                <text x="150" y="105" text-anchor="middle" font-family="monospace" font-size="11" fill="#1d4ed8">&lt;input value="hello"&gt;</text>
+                <text x="150" y="130" text-anchor="middle" font-size="10" fill="#3b82f6">Initial value in markup</text>
+                
+                <!-- Arrow -->
+                <path d="M260 100 L340 100" stroke="#f59e0b" stroke-width="3" marker-end="url(#arrow)"/>
+                <text x="300" y="85" text-anchor="middle" font-size="10" fill="#d97706">Browser parses</text>
+                
+                <!-- DOM Box -->
+                <rect x="350" y="50" width="200" height="100" rx="10" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+                <text x="450" y="80" text-anchor="middle" font-size="13" font-weight="bold" fill="#065f46">DOM Property</text>
+                <text x="450" y="105" text-anchor="middle" font-family="monospace" font-size="11" fill="#047857">input.value = "hello"</text>
+                <text x="450" y="130" text-anchor="middle" font-size="10" fill="#10b981">Current live value</text>
+                
+                <!-- User types -->
+                <rect x="560" y="70" width="120" height="60" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                <text x="620" y="95" text-anchor="middle" font-size="10" fill="#92400e">User types:</text>
+                <text x="620" y="115" text-anchor="middle" font-family="monospace" font-size="11" fill="#b45309">"world"</text>
+                
+                <defs>
+                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
+                    </marker>
+                </defs>
+            </svg>
+        </div>
+        
+<pre><span class="comment">// HTML: &lt;input id="username" type="text" value="hello"&gt;</span>
+
+<span class="keyword">const</span> input = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'username'</span>);
+
+<span class="comment">// Initially, attribute and property are the same</span>
+<span class="variable">console</span>.<span class="function">log</span>(input.<span class="function">getAttribute</span>(<span class="string">'value'</span>));  <span class="result">// "hello" (attribute)</span>
+<span class="variable">console</span>.<span class="function">log</span>(input.<span class="property">value</span>);                  <span class="result">// "hello" (property)</span>
+
+<span class="comment">// User types "world" in the input field...</span>
+
+<span class="comment">// Now they differ!</span>
+<span class="variable">console</span>.<span class="function">log</span>(input.<span class="function">getAttribute</span>(<span class="string">'value'</span>));  <span class="result">// "hello" (still initial!)</span>
+<span class="variable">console</span>.<span class="function">log</span>(input.<span class="property">value</span>);                  <span class="result">// "world" (current value!)</span>
+
+<span class="comment">// The attribute is the DEFAULT value</span>
+<span class="comment">// The property is the CURRENT value</span></pre>
+
+        <div class="key-point">
+            <strong>The Key Insight:</strong>
+            <ul>
+                <li><strong>Attribute</strong> = What's written in HTML (the default/initial value)</li>
+                <li><strong>Property</strong> = What's in the DOM object (the current/live value)</li>
+            </ul>
+            For most cases, use <strong>properties</strong>. Use attributes when you need the initial HTML value or for non-standard attributes.
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 5.2 -->
+        <h2>5.2 Attribute Methods</h2>
+        
+<pre><span class="keyword">const</span> element = <span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'div'</span>);
+
+<span class="comment">// ━━━━━━━━━━ GET attribute ━━━━━━━━━━</span>
+element.<span class="function">getAttribute</span>(<span class="string">'id'</span>);           <span class="comment">// Returns string or null</span>
+element.<span class="function">getAttribute</span>(<span class="string">'class'</span>);        <span class="comment">// "my-class"</span>
+element.<span class="function">getAttribute</span>(<span class="string">'data-custom'</span>);  <span class="comment">// Custom attributes work too</span>
+
+<span class="comment">// ━━━━━━━━━━ SET attribute ━━━━━━━━━━</span>
+element.<span class="function">setAttribute</span>(<span class="string">'id'</span>, <span class="string">'newId'</span>);
+element.<span class="function">setAttribute</span>(<span class="string">'class'</span>, <span class="string">'new-class'</span>);
+element.<span class="function">setAttribute</span>(<span class="string">'data-user-id'</span>, <span class="string">'123'</span>);
+
+<span class="comment">// ━━━━━━━━━━ CHECK if attribute exists ━━━━━━━━━━</span>
+element.<span class="function">hasAttribute</span>(<span class="string">'disabled'</span>);      <span class="comment">// true or false</span>
+element.<span class="function">hasAttribute</span>(<span class="string">'id'</span>);            <span class="comment">// true</span>
+
+<span class="comment">// ━━━━━━━━━━ REMOVE attribute ━━━━━━━━━━</span>
+element.<span class="function">removeAttribute</span>(<span class="string">'disabled'</span>);
+element.<span class="function">removeAttribute</span>(<span class="string">'class'</span>);
+
+<span class="comment">// ━━━━━━━━━━ TOGGLE attribute (boolean attributes) ━━━━━━━━━━</span>
+element.<span class="function">toggleAttribute</span>(<span class="string">'disabled'</span>);        <span class="comment">// Add if missing, remove if present</span>
+element.<span class="function">toggleAttribute</span>(<span class="string">'disabled'</span>, <span class="keyword">true</span>);  <span class="comment">// Force add</span>
+element.<span class="function">toggleAttribute</span>(<span class="string">'disabled'</span>, <span class="keyword">false</span>); <span class="comment">// Force remove</span>
+
+<span class="comment">// ━━━━━━━━━━ GET ALL attributes ━━━━━━━━━━</span>
+element.<span class="property">attributes</span>;                       <span class="comment">// NamedNodeMap of all attributes</span>
+element.<span class="function">getAttributeNames</span>();              <span class="comment">// Array of attribute names</span>
+
+<span class="comment">// Loop through all attributes</span>
+<span class="keyword">for</span> (<span class="keyword">const</span> attr <span class="keyword">of</span> element.<span class="property">attributes</span>) {
+    <span class="variable">console</span>.<span class="function">log</span>(attr.<span class="property">name</span>, attr.<span class="property">value</span>);
+}</pre>
+
+        <h3>When Attributes and Properties Don't Match Names:</h3>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>HTML Attribute</th>
+                    <th>DOM Property</th>
+                    <th>Note</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="inline-code">class</span></td>
+                    <td><span class="inline-code">className</span></td>
+                    <td>"class" is reserved in JS</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">for</span> (label)</td>
+                    <td><span class="inline-code">htmlFor</span></td>
+                    <td>"for" is reserved in JS</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">colspan</span></td>
+                    <td><span class="inline-code">colSpan</span></td>
+                    <td>camelCase in JS</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">tabindex</span></td>
+                    <td><span class="inline-code">tabIndex</span></td>
+                    <td>camelCase in JS</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">readonly</span></td>
+                    <td><span class="inline-code">readOnly</span></td>
+                    <td>camelCase in JS</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 5.3 -->
+        <h2>5.3 Data Attributes (dataset)</h2>
+        
+        <div class="concept-box">
+            <p>Data attributes (<span class="inline-code">data-*</span>) let you store custom data on HTML elements. They're perfect for passing data to JavaScript without using hidden inputs or global variables.</p>
+        </div>
+        
+<pre><span class="comment">// HTML:</span>
+<span class="comment">// &lt;div id="user" </span>
+<span class="comment">//      data-user-id="123"</span>
+<span class="comment">//      data-role="admin"</span>
+<span class="comment">//      data-is-active="true"</span>
+<span class="comment">//      data-lastLoginDate="2024-01-15"&gt;</span>
+<span class="comment">// &lt;/div&gt;</span>
+
+<span class="keyword">const</span> user = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'user'</span>);
+
+<span class="comment">// ━━━━━━━━━━ Reading data attributes ━━━━━━━━━━</span>
+<span class="comment">// data-user-id → dataset.userId (camelCase conversion!)</span>
+user.<span class="property">dataset</span>.<span class="property">userId</span>;         <span class="result">// "123"</span>
+user.<span class="property">dataset</span>.<span class="property">role</span>;           <span class="result">// "admin"</span>
+user.<span class="property">dataset</span>.<span class="property">isActive</span>;       <span class="result">// "true" (string, not boolean!)</span>
+user.<span class="property">dataset</span>.<span class="property">lastlogindate</span>;  <span class="result">// "2024-01-15"</span>
+
+<span class="comment">// ━━━━━━━━━━ Setting data attributes ━━━━━━━━━━</span>
+user.<span class="property">dataset</span>.<span class="property">newProp</span> = <span class="string">'value'</span>;    <span class="comment">// Creates data-new-prop</span>
+user.<span class="property">dataset</span>.<span class="property">userId</span> = <span class="string">'456'</span>;      <span class="comment">// Updates data-user-id</span>
+
+<span class="comment">// ━━━━━━━━━━ Deleting data attributes ━━━━━━━━━━</span>
+<span class="keyword">delete</span> user.<span class="property">dataset</span>.<span class="property">role</span>;           <span class="comment">// Removes data-role</span>
+
+<span class="comment">// ━━━━━━━━━━ Check existence ━━━━━━━━━━</span>
+<span class="string">'userId'</span> <span class="keyword">in</span> user.<span class="property">dataset</span>;          <span class="result">// true</span>
+
+<span class="comment">// ━━━━━━━━━━ Alternative: getAttribute ━━━━━━━━━━</span>
+user.<span class="function">getAttribute</span>(<span class="string">'data-user-id'</span>);  <span class="result">// "123"</span></pre>
+
+        <div class="warning-box">
+            <strong>Dataset values are ALWAYS strings!</strong>
+<pre style="margin-top: 10px;"><span class="comment">// HTML: &lt;div data-count="42" data-active="true"&gt;</span>
+
+<span class="keyword">typeof</span> element.<span class="property">dataset</span>.<span class="property">count</span>;   <span class="result">// "string" (not number!)</span>
+<span class="keyword">typeof</span> element.<span class="property">dataset</span>.<span class="property">active</span>;  <span class="result">// "string" (not boolean!)</span>
+
+<span class="comment">// You must parse them yourself:</span>
+<span class="keyword">const</span> count = <span class="function">parseInt</span>(element.<span class="property">dataset</span>.<span class="property">count</span>, <span class="variable">10</span>);
+<span class="keyword">const</span> active = element.<span class="property">dataset</span>.<span class="property">active</span> === <span class="string">'true'</span>;
+
+<span class="comment">// Or for JSON data:</span>
+<span class="comment">// &lt;div data-config='{"limit": 10, "enabled": true}'&gt;</span>
+<span class="keyword">const</span> config = <span class="variable">JSON</span>.<span class="function">parse</span>(element.<span class="property">dataset</span>.<span class="property">config</span>);</pre>
+        </div>
+        
+        <h3>Name Conversion Rules:</h3>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>HTML Attribute</th>
+                    <th>JavaScript Property</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="inline-code">data-id</span></td>
+                    <td><span class="inline-code">dataset.id</span></td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">data-user-id</span></td>
+                    <td><span class="inline-code">dataset.userId</span></td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">data-is-active</span></td>
+                    <td><span class="inline-code">dataset.isActive</span></td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">data-XMLParser</span></td>
+                    <td><span class="inline-code">dataset.xmlparser</span> (lowercased!)</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 5.4 -->
+        <h2>5.4 Class Manipulation (classList)</h2>
+        
+        <div class="concept-box">
+            <p>The <span class="inline-code">classList</span> property provides a powerful API for working with CSS classes. It's much better than manipulating the <span class="inline-code">className</span> string directly.</p>
+        </div>
+        
+<pre><span class="comment">// HTML: &lt;div id="box" class="card active highlighted"&gt;</span>
+
+<span class="keyword">const</span> box = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'box'</span>);
+
+<span class="comment">// ━━━━━━━━━━ className (old way - avoid!) ━━━━━━━━━━</span>
+box.<span class="property">className</span>;                    <span class="result">// "card active highlighted"</span>
+box.<span class="property">className</span> = <span class="string">'new-class'</span>;      <span class="comment">// REPLACES all classes!</span>
+box.<span class="property">className</span> += <span class="string">' another'</span>;     <span class="comment">// Append (but awkward)</span>
+
+<span class="comment">// ━━━━━━━━━━ classList (modern - recommended!) ━━━━━━━━━━</span>
+
+<span class="comment">// ADD classes</span>
+box.<span class="property">classList</span>.<span class="function">add</span>(<span class="string">'new-class'</span>);
+box.<span class="property">classList</span>.<span class="function">add</span>(<span class="string">'class1'</span>, <span class="string">'class2'</span>, <span class="string">'class3'</span>);  <span class="comment">// Multiple at once!</span>
+
+<span class="comment">// REMOVE classes</span>
+box.<span class="property">classList</span>.<span class="function">remove</span>(<span class="string">'active'</span>);
+box.<span class="property">classList</span>.<span class="function">remove</span>(<span class="string">'class1'</span>, <span class="string">'class2'</span>);  <span class="comment">// Multiple!</span>
+
+<span class="comment">// TOGGLE classes</span>
+box.<span class="property">classList</span>.<span class="function">toggle</span>(<span class="string">'active'</span>);           <span class="comment">// Returns new state (boolean)</span>
+box.<span class="property">classList</span>.<span class="function">toggle</span>(<span class="string">'active'</span>, <span class="keyword">true</span>);     <span class="comment">// Force ADD</span>
+box.<span class="property">classList</span>.<span class="function">toggle</span>(<span class="string">'active'</span>, <span class="keyword">false</span>);    <span class="comment">// Force REMOVE</span>
+box.<span class="property">classList</span>.<span class="function">toggle</span>(<span class="string">'dark'</span>, isDarkMode);  <span class="comment">// Conditional</span>
+
+<span class="comment">// CHECK if class exists</span>
+box.<span class="property">classList</span>.<span class="function">contains</span>(<span class="string">'card'</span>);          <span class="result">// true</span>
+box.<span class="property">classList</span>.<span class="function">contains</span>(<span class="string">'nonexistent'</span>);   <span class="result">// false</span>
+
+<span class="comment">// REPLACE one class with another</span>
+box.<span class="property">classList</span>.<span class="function">replace</span>(<span class="string">'old-class'</span>, <span class="string">'new-class'</span>);
+
+<span class="comment">// Other useful properties/methods</span>
+box.<span class="property">classList</span>.<span class="property">length</span>;                    <span class="comment">// Number of classes</span>
+box.<span class="property">classList</span>.<span class="function">item</span>(<span class="variable">0</span>);                   <span class="comment">// First class name</span>
+box.<span class="property">classList</span>.<span class="property">value</span>;                     <span class="comment">// Same as className</span>
+[...box.<span class="property">classList</span>];                     <span class="comment">// Convert to array</span></pre>
+
+        <h3>Practical classList Examples:</h3>
+        
+<pre><span class="comment">// Toggle menu open/closed</span>
+menuButton.<span class="function">addEventListener</span>(<span class="string">'click'</span>, () => {
+    menu.<span class="property">classList</span>.<span class="function">toggle</span>(<span class="string">'open'</span>);
+});
+
+<span class="comment">// Conditional class based on state</span>
+element.<span class="property">classList</span>.<span class="function">toggle</span>(<span class="string">'error'</span>, !isValid);
+element.<span class="property">classList</span>.<span class="function">toggle</span>(<span class="string">'loading'</span>, isLoading);
+
+<span class="comment">// Remove all state classes, then add the right one</span>
+button.<span class="property">classList</span>.<span class="function">remove</span>(<span class="string">'pending'</span>, <span class="string">'success'</span>, <span class="string">'error'</span>);
+button.<span class="property">classList</span>.<span class="function">add</span>(currentState);
+
+<span class="comment">// Check before action</span>
+<span class="keyword">if</span> (!card.<span class="property">classList</span>.<span class="function">contains</span>(<span class="string">'flipped'</span>)) {
+    card.<span class="property">classList</span>.<span class="function">add</span>(<span class="string">'flipped'</span>);
+}</pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 5.5 -->
+        <h2>5.5 Style Manipulation</h2>
+        
+        <div class="concept-box">
+            <p>You can manipulate element styles directly via JavaScript. Remember: <span class="inline-code">element.style</span> only accesses <strong>inline styles</strong>, not styles from CSS files!</p>
+        </div>
+        
+<pre><span class="keyword">const</span> box = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'box'</span>);
+
+<span class="comment">// ━━━━━━━━━━ Setting inline styles ━━━━━━━━━━</span>
+<span class="comment">// CSS property names become camelCase in JS!</span>
+box.<span class="property">style</span>.<span class="property">backgroundColor</span> = <span class="string">'red'</span>;      <span class="comment">// background-color</span>
+box.<span class="property">style</span>.<span class="property">fontSize</span> = <span class="string">'20px'</span>;            <span class="comment">// font-size</span>
+box.<span class="property">style</span>.<span class="property">marginTop</span> = <span class="string">'10px'</span>;           <span class="comment">// margin-top</span>
+box.<span class="property">style</span>.<span class="property">border</span> = <span class="string">'1px solid black'</span>;   <span class="comment">// shorthand works</span>
+box.<span class="property">style</span>.<span class="property">display</span> = <span class="string">'none'</span>;             <span class="comment">// hide element</span>
+box.<span class="property">style</span>.<span class="property">display</span> = <span class="string">''</span>;                 <span class="comment">// remove inline, use CSS</span>
+
+<span class="comment">// ━━━━━━━━━━ Set multiple styles at once ━━━━━━━━━━</span>
+box.<span class="property">style</span>.<span class="property">cssText</span> = <span class="string">'color: red; font-size: 20px;'</span>;
+<span class="comment">// ⚠️ This REPLACES all inline styles!</span>
+
+<span class="comment">// Or use Object.assign</span>
+<span class="variable">Object</span>.<span class="function">assign</span>(box.<span class="property">style</span>, {
+    color: <span class="string">'blue'</span>,
+    fontSize: <span class="string">'18px'</span>,
+    padding: <span class="string">'10px'</span>
+});
+
+<span class="comment">// ━━━━━━━━━━ CSS Custom Properties (Variables) ━━━━━━━━━━</span>
+box.<span class="property">style</span>.<span class="function">setProperty</span>(<span class="string">'--main-color'</span>, <span class="string">'blue'</span>);
+box.<span class="property">style</span>.<span class="function">setProperty</span>(<span class="string">'--spacing'</span>, <span class="string">'20px'</span>);
+
+<span class="comment">// ━━━━━━━━━━ Reading inline styles ━━━━━━━━━━</span>
+box.<span class="property">style</span>.<span class="property">backgroundColor</span>;               <span class="comment">// Only inline styles!</span>
+box.<span class="property">style</span>.<span class="function">getPropertyValue</span>(<span class="string">'color'</span>);
+
+<span class="comment">// ━━━━━━━━━━ Removing inline styles ━━━━━━━━━━</span>
+box.<span class="property">style</span>.<span class="property">backgroundColor</span> = <span class="string">''</span>;          <span class="comment">// Remove single</span>
+box.<span class="property">style</span>.<span class="function">removeProperty</span>(<span class="string">'color'</span>);
+box.<span class="property">style</span>.<span class="property">cssText</span> = <span class="string">''</span>;                   <span class="comment">// Remove all</span>
+box.<span class="function">removeAttribute</span>(<span class="string">'style'</span>);            <span class="comment">// Remove style attribute</span></pre>
+
+        <h3>Getting Computed Styles:</h3>
+        
+<pre><span class="comment">// element.style only shows INLINE styles!</span>
+<span class="comment">// To get the ACTUAL applied styles, use getComputedStyle:</span>
+
+<span class="keyword">const</span> box = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'box'</span>);
+
+<span class="comment">// Get all computed styles</span>
+<span class="keyword">const</span> styles = <span class="function">getComputedStyle</span>(box);
+
+<span class="comment">// Read computed values</span>
+styles.<span class="property">backgroundColor</span>;              <span class="comment">// "rgb(255, 0, 0)"</span>
+styles.<span class="property">fontSize</span>;                     <span class="comment">// "16px" (computed px value)</span>
+styles.<span class="property">display</span>;                      <span class="comment">// "block"</span>
+styles.<span class="function">getPropertyValue</span>(<span class="string">'margin-top'</span>);
+
+<span class="comment">// Get pseudo-element styles</span>
+<span class="keyword">const</span> beforeStyles = <span class="function">getComputedStyle</span>(box, <span class="string">'::before'</span>);
+beforeStyles.<span class="property">content</span>;
+
+<span class="comment">// ⚠️ getComputedStyle is READ-ONLY!</span>
+styles.<span class="property">color</span> = <span class="string">'blue'</span>;  <span class="comment">// Does nothing! Use element.style instead</span></pre>
+
+        <div class="key-point">
+            <strong>element.style vs getComputedStyle:</strong>
+            <ul>
+                <li><span class="inline-code">element.style</span> — Read/write inline styles only</li>
+                <li><span class="inline-code">getComputedStyle()</span> — Read-only, shows final computed values from all sources (CSS files, inline, inherited)</li>
+            </ul>
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 5.6 -->
+        <h2>5.6 Boolean Attributes</h2>
+        
+        <p>Some attributes are "boolean" — their presence alone means true, absence means false.</p>
+        
+<pre><span class="comment">// HTML: &lt;input type="checkbox" checked disabled readonly&gt;</span>
+
+<span class="keyword">const</span> checkbox = <span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'input'</span>);
+
+<span class="comment">// ━━━━━━━━━━ PROPERTIES (preferred for boolean attrs) ━━━━━━━━━━</span>
+checkbox.<span class="property">checked</span>;     <span class="result">// true (boolean)</span>
+checkbox.<span class="property">disabled</span>;    <span class="result">// true (boolean)</span>
+checkbox.<span class="property">readOnly</span>;    <span class="result">// true (boolean)</span>
+
+<span class="comment">// Setting via property</span>
+checkbox.<span class="property">checked</span> = <span class="keyword">false</span>;
+checkbox.<span class="property">disabled</span> = <span class="keyword">true</span>;
+
+<span class="comment">// ━━━━━━━━━━ ATTRIBUTES (different behavior!) ━━━━━━━━━━</span>
+checkbox.<span class="function">getAttribute</span>(<span class="string">'checked'</span>);   <span class="result">// "" (empty string, not true!)</span>
+checkbox.<span class="function">getAttribute</span>(<span class="string">'disabled'</span>);  <span class="result">// "" (empty string)</span>
+
+<span class="comment">// For boolean attrs, presence = true, absence = false</span>
+checkbox.<span class="function">hasAttribute</span>(<span class="string">'checked'</span>);   <span class="result">// true</span>
+checkbox.<span class="function">hasAttribute</span>(<span class="string">'disabled'</span>);  <span class="result">// true</span>
+
+<span class="comment">// Setting via attribute</span>
+checkbox.<span class="function">setAttribute</span>(<span class="string">'disabled'</span>, <span class="string">''</span>);     <span class="comment">// Enable disabled</span>
+checkbox.<span class="function">removeAttribute</span>(<span class="string">'disabled'</span>);      <span class="comment">// Disable</span>
+
+<span class="comment">// toggleAttribute is perfect for boolean attributes!</span>
+checkbox.<span class="function">toggleAttribute</span>(<span class="string">'disabled'</span>);      <span class="comment">// Toggle on/off</span>
+checkbox.<span class="function">toggleAttribute</span>(<span class="string">'disabled'</span>, <span class="keyword">true</span>); <span class="comment">// Force enable</span></pre>
+
+        <div class="warning-box">
+            <strong>Don't use string 'false' for boolean attributes!</strong>
+<pre style="margin-top: 10px;"><span class="comment">// ❌ WRONG - This still DISABLES the element!</span>
+checkbox.<span class="function">setAttribute</span>(<span class="string">'disabled'</span>, <span class="string">'false'</span>);
+<span class="comment">// The presence of the attribute (any value) = disabled</span>
+
+<span class="comment">// ✅ CORRECT ways to enable:</span>
+checkbox.<span class="property">disabled</span> = <span class="keyword">false</span>;           <span class="comment">// Use property</span>
+checkbox.<span class="function">removeAttribute</span>(<span class="string">'disabled'</span>); <span class="comment">// Remove attribute</span></pre>
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <h2>Chapter 5 Summary</h2>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Attribute Approach</th>
+                    <th>Property Approach</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Get value</td>
+                    <td><span class="inline-code">getAttribute('name')</span></td>
+                    <td><span class="inline-code">element.name</span></td>
+                </tr>
+                <tr>
+                    <td>Set value</td>
+                    <td><span class="inline-code">setAttribute('name', 'val')</span></td>
+                    <td><span class="inline-code">element.name = 'val'</span></td>
+                </tr>
+                <tr>
+                    <td>Check exists</td>
+                    <td><span class="inline-code">hasAttribute('name')</span></td>
+                    <td><span class="inline-code">'name' in element</span></td>
+                </tr>
+                <tr>
+                    <td>Remove</td>
+                    <td><span class="inline-code">removeAttribute('name')</span></td>
+                    <td><span class="inline-code">element.name = null</span> (varies)</td>
+                </tr>
+                <tr>
+                    <td>Custom data</td>
+                    <td><span class="inline-code">getAttribute('data-x')</span></td>
+                    <td><span class="inline-code">element.dataset.x</span></td>
+                </tr>
+                <tr>
+                    <td>Classes</td>
+                    <td><span class="inline-code">getAttribute('class')</span></td>
+                    <td><span class="inline-code">element.classList</span></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="interview-tip">
+            <strong>Top Interview Questions:</strong>
+            <ol>
+                <li>What's the difference between attributes and properties?</li>
+                <li>When would getAttribute('value') differ from element.value?</li>
+                <li>How do data attributes work? What type do they return?</li>
+                <li>How do you toggle a class on an element?</li>
+                <li>What's the difference between element.style and getComputedStyle?</li>
+                <li>How do boolean attributes work in HTML?</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

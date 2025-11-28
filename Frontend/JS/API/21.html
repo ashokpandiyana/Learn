@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 21: Resize Observer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: #e4e4e4; line-height: 1.7; padding: 40px 20px; min-height: 100vh; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2.5rem; background: linear-gradient(90deg, #f472b6, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+    .subtitle { color: #888; font-size: 1.1rem; margin-bottom: 40px; }
+    h2 { color: #f472b6; font-size: 1.6rem; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #c084fc33; }
+    h3 { color: #a78bfa; font-size: 1.2rem; margin: 25px 0 15px; }
+    p { margin-bottom: 16px; color: #ccc; }
+    .concept-box { background: linear-gradient(135deg, #3b1d5c 0%, #1e1b4b 100%); border-radius: 16px; padding: 25px; margin: 25px 0; border-left: 4px solid #f472b6; }
+    .warning { background: linear-gradient(135deg, #4a2c2c 0%, #3d1f1f 100%); border-left-color: #ff6b6b; }
+    .tip { background: linear-gradient(135deg, #1f4a2c 0%, #1f3d2a 100%); border-left-color: #4ade80; }
+    .comparison { background: linear-gradient(135deg, #1e3a5f 0%, #1e1b4b 100%); border-left-color: #60a5fa; }
+    code { background: #0d1117; padding: 3px 8px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em; color: #e879f9; }
+    pre { background: #0d1117; border-radius: 12px; padding: 20px; overflow-x: auto; margin: 20px 0; border: 1px solid #ffffff15; }
+    pre code { padding: 0; background: none; }
+    .keyword { color: #c792ea; }
+    .function { color: #82aaff; }
+    .string { color: #c3e88d; }
+    .comment { color: #676e95; }
+    .number { color: #f78c6c; }
+    .diagram { background: #0d1117; border-radius: 16px; padding: 30px; margin: 30px 0; }
+    .box-model { display: flex; justify-content: center; align-items: center; flex-direction: column; }
+    .box-layer { display: flex; justify-content: center; align-items: center; padding: 20px; border: 3px dashed; border-radius: 8px; position: relative; }
+    .box-layer::before { position: absolute; top: -12px; left: 10px; background: #0d1117; padding: 0 8px; font-size: 0.8rem; font-weight: bold; }
+    .border-box { border-color: #f472b6; width: 280px; height: 180px; }
+    .border-box::before { content: 'Border Box'; color: #f472b6; }
+    .content-box { border-color: #4ade80; width: 200px; height: 100px; background: #4ade8022; }
+    .content-box::before { content: 'Content Box'; color: #4ade80; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ffffff15; }
+    th { background: #c084fc33; color: #f472b6; }
+    tr:hover { background: #ffffff08; }
+    .interactive-demo { background: #0d1117; border-radius: 16px; padding: 25px; margin: 30px 0; border: 1px solid #c084fc44; }
+    .resizable-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin: 20px 0; }
+    .resizable-box { background: linear-gradient(135deg, #c084fc33, #f472b644); border: 2px solid #c084fc; border-radius: 12px; resize: both; overflow: auto; min-width: 100px; min-height: 80px; width: 200px; height: 150px; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 10px; }
+    .size-display { font-family: monospace; font-size: 1.1rem; color: #f472b6; font-weight: bold; }
+    .box-type { font-size: 0.8rem; color: #a78bfa; margin-top: 5px; }
+    .log-output { background: #0a0a15; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.85rem; max-height: 150px; overflow-y: auto; margin-top: 15px; }
+    .log-entry { padding: 5px 0; border-bottom: 1px solid #ffffff10; color: #4ade80; }
+    button { background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; margin: 5px; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px #c084fc55; }
+    .use-case-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0; }
+    .use-case { background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); padding: 20px; border-radius: 12px; border: 1px solid #c084fc33; }
+    .use-case h4 { color: #f472b6; margin-bottom: 10px; }
+    .chart-demo { background: linear-gradient(135deg, #1e1b4b, #0f172a); border-radius: 12px; padding: 20px; resize: horizontal; overflow: auto; min-width: 200px; max-width: 100%; margin: 20px 0; border: 2px solid #c084fc44; }
+    .chart-bars { display: flex; align-items: flex-end; justify-content: space-around; height: 150px; gap: 10px; }
+    .bar { background: linear-gradient(to top, #c084fc, #f472b6); border-radius: 4px 4px 0 0; transition: width 0.3s; min-width: 20px; }
+    ul { margin-left: 25px; margin-bottom: 15px; }
+    li { margin-bottom: 8px; color: #ccc; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📐 Chapter 21: Resize Observer</h1>
+    <p class="subtitle">Efficiently Monitoring Element Size Changes</p>
+
+    <h2>🎯 What is Resize Observer?</h2>
+    <p>The <strong>Resize Observer API</strong> allows you to monitor changes to an element's size. Unlike the <code>window.resize</code> event which only fires when the viewport changes, Resize Observer watches individual elements—catching size changes caused by CSS, content updates, or layout shifts.</p>
+
+    <div class="concept-box">
+      <h3>💡 Why Not Just Use window.resize?</h3>
+      <p>The <code>resize</code> event only fires when the browser window changes size. But elements can change size for many reasons:</p>
+      <ul style="margin-top: 10px; margin-left: 20px;">
+        <li>CSS media queries or container queries</li>
+        <li>Content being added or removed</li>
+        <li>Flexbox/Grid layout recalculations</li>
+        <li>User interactions (collapsing sidebars, etc.)</li>
+        <li>Animations and transitions</li>
+      </ul>
+    </div>
+
+    <h2>📦 Understanding Box Models</h2>
+    <p>Resize Observer can report sizes in different box models. Understanding these is crucial:</p>
+
+    <div class="diagram">
+      <div class="box-model">
+        <div class="box-layer border-box">
+          <div class="box-layer content-box">
+            <span style="color:#fff;font-size:0.9rem;">Your Content</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:center;gap:40px;margin-top:20px;flex-wrap:wrap;">
+        <div style="text-align:center;">
+          <div style="color:#f472b6;font-weight:bold;">Border Box</div>
+          <div style="color:#888;font-size:0.9rem;">content + padding + border</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="color:#4ade80;font-weight:bold;">Content Box</div>
+          <div style="color:#888;font-size:0.9rem;">content only</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>📝 Basic Usage</h2>
+    <pre><code><span class="comment">// Create a Resize Observer</span>
+<span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="function">ResizeObserver</span>((entries) => {
+    <span class="keyword">for</span> (<span class="keyword">const</span> entry <span class="keyword">of</span> entries) {
+        <span class="comment">// Get the content box size</span>
+        <span class="keyword">const</span> { width, height } = entry.contentRect;
+        
+        console.<span class="function">log</span>(<span class="string">`Element resized to: ${width}x${height}`</span>);
+    }
+});
+
+<span class="comment">// Start observing an element</span>
+<span class="keyword">const</span> element = document.<span class="function">querySelector</span>(<span class="string">'.my-element'</span>);
+observer.<span class="function">observe</span>(element);
+
+<span class="comment">// Later: stop observing</span>
+observer.<span class="function">unobserve</span>(element);
+
+<span class="comment">// Or disconnect completely</span>
+observer.<span class="function">disconnect</span>();</code></pre>
+
+    <h2>📊 The ResizeObserverEntry Object</h2>
+    <p>Each entry in the callback provides detailed size information:</p>
+
+    <table>
+      <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>target</code></td><td>Element</td><td>The observed element</td></tr>
+      <tr><td><code>contentRect</code></td><td>DOMRectReadOnly</td><td>Content box dimensions (legacy)</td></tr>
+      <tr><td><code>borderBoxSize</code></td><td>Array</td><td>Border box size (block & inline)</td></tr>
+      <tr><td><code>contentBoxSize</code></td><td>Array</td><td>Content box size (block & inline)</td></tr>
+      <tr><td><code>devicePixelContentBoxSize</code></td><td>Array</td><td>Size in device pixels</td></tr>
+    </table>
+
+    <h3>Understanding Size Properties</h3>
+    <pre><code><span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="function">ResizeObserver</span>((entries) => {
+    <span class="keyword">for</span> (<span class="keyword">const</span> entry <span class="keyword">of</span> entries) {
+        <span class="comment">// Legacy: contentRect (still widely used)</span>
+        <span class="keyword">const</span> { width, height, top, left } = entry.contentRect;
+        
+        <span class="comment">// Modern: borderBoxSize (returns array for fragments)</span>
+        <span class="keyword">const</span> borderBox = entry.borderBoxSize[<span class="number">0</span>];
+        console.<span class="function">log</span>(<span class="string">'Border box:'</span>, 
+            borderBox.inlineSize,  <span class="comment">// width in LTR</span>
+            borderBox.blockSize    <span class="comment">// height in LTR</span>
+        );
+        
+        <span class="comment">// Content box (excludes padding)</span>
+        <span class="keyword">const</span> contentBox = entry.contentBoxSize[<span class="number">0</span>];
+        console.<span class="function">log</span>(<span class="string">'Content box:'</span>, 
+            contentBox.inlineSize, 
+            contentBox.blockSize
+        );
+        
+        <span class="comment">// Device pixels (useful for canvas)</span>
+        <span class="keyword">if</span> (entry.devicePixelContentBoxSize) {
+            <span class="keyword">const</span> devicePixels = entry.devicePixelContentBoxSize[<span class="number">0</span>];
+            console.<span class="function">log</span>(<span class="string">'Device pixels:'</span>,
+                devicePixels.inlineSize,
+                devicePixels.blockSize
+            );
+        }
+    }
+});</code></pre>
+
+    <div class="concept-box comparison">
+      <h3>📏 inlineSize vs blockSize</h3>
+      <p>These properties are writing-mode aware:</p>
+      <ul style="margin-top: 10px; margin-left: 20px;">
+        <li><strong>inlineSize:</strong> Size in the inline direction (width in horizontal writing modes)</li>
+        <li><strong>blockSize:</strong> Size in the block direction (height in horizontal writing modes)</li>
+      </ul>
+      <p style="margin-top:10px;">This is important for internationalization—in vertical writing modes (like some East Asian scripts), these values swap!</p>
+    </div>
+
+    <h2>🎮 Interactive Demo</h2>
+    <div class="interactive-demo">
+      <p>Drag the corners of these boxes to resize them. Watch the observer report size changes:</p>
+      <div class="resizable-container">
+        <div class="resizable-box" id="box1">
+          <div class="size-display" id="size1">200 × 150</div>
+          <div class="box-type">Content Box</div>
+        </div>
+        <div class="resizable-box" id="box2" style="padding: 20px; border-width: 5px;">
+          <div class="size-display" id="size2">200 × 150</div>
+          <div class="box-type">With Padding</div>
+        </div>
+      </div>
+      <div class="log-output" id="resize-log"></div>
+    </div>
+
+    <h2>🛠️ Practical Examples</h2>
+
+    <h3>Example 1: Responsive Charts</h3>
+    <pre><code><span class="keyword">class</span> <span class="function">ResponsiveChart</span> {
+    <span class="function">constructor</span>(container) {
+        <span class="keyword">this</span>.container = container;
+        <span class="keyword">this</span>.canvas = container.<span class="function">querySelector</span>(<span class="string">'canvas'</span>);
+        
+        <span class="comment">// Resize chart when container changes</span>
+        <span class="keyword">this</span>.observer = <span class="keyword">new</span> <span class="function">ResizeObserver</span>(entries => {
+            <span class="keyword">const</span> { width, height } = entries[<span class="number">0</span>].contentRect;
+            <span class="keyword">this</span>.<span class="function">resize</span>(width, height);
+        });
+        
+        <span class="keyword">this</span>.observer.<span class="function">observe</span>(container);
+    }
+    
+    <span class="function">resize</span>(width, height) {
+        <span class="comment">// Update canvas size</span>
+        <span class="keyword">this</span>.canvas.width = width * devicePixelRatio;
+        <span class="keyword">this</span>.canvas.height = height * devicePixelRatio;
+        <span class="keyword">this</span>.canvas.style.width = width + <span class="string">'px'</span>;
+        <span class="keyword">this</span>.canvas.style.height = height + <span class="string">'px'</span>;
+        
+        <span class="comment">// Redraw chart</span>
+        <span class="keyword">this</span>.<span class="function">draw</span>();
+    }
+    
+    <span class="function">destroy</span>() {
+        <span class="keyword">this</span>.observer.<span class="function">disconnect</span>();
+    }
+}</code></pre>
+
+    <h3>Live Chart Demo</h3>
+    <p>Resize this container horizontally to see the chart adapt:</p>
+    <div class="chart-demo" id="chart-container">
+      <div class="chart-bars" id="chart-bars">
+        <div class="bar" style="height: 60%;"></div>
+        <div class="bar" style="height: 80%;"></div>
+        <div class="bar" style="height: 45%;"></div>
+        <div class="bar" style="height: 90%;"></div>
+        <div class="bar" style="height: 70%;"></div>
+        <div class="bar" style="height: 55%;"></div>
+        <div class="bar" style="height: 85%;"></div>
+      </div>
+      <div style="text-align: center; margin-top: 10px; font-family: monospace; color: #c084fc;" id="chart-size">Width: 100%</div>
+    </div>
+
+    <h3>Example 2: Container Queries (Polyfill Style)</h3>
+    <pre><code><span class="keyword">const</span> container = document.<span class="function">querySelector</span>(<span class="string">'.card-container'</span>);
+
+<span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="function">ResizeObserver</span>(entries => {
+    <span class="keyword">const</span> { width } = entries[<span class="number">0</span>].contentRect;
+    <span class="keyword">const</span> target = entries[<span class="number">0</span>].target;
+    
+    <span class="comment">// Apply size-based classes</span>
+    target.classList.<span class="function">remove</span>(<span class="string">'small'</span>, <span class="string">'medium'</span>, <span class="string">'large'</span>);
+    
+    <span class="keyword">if</span> (width < <span class="number">300</span>) {
+        target.classList.<span class="function">add</span>(<span class="string">'small'</span>);
+    } <span class="keyword">else if</span> (width < <span class="number">600</span>) {
+        target.classList.<span class="function">add</span>(<span class="string">'medium'</span>);
+    } <span class="keyword">else</span> {
+        target.classList.<span class="function">add</span>(<span class="string">'large'</span>);
+    }
+});
+
+observer.<span class="function">observe</span>(container);</code></pre>
+
+    <h3>Example 3: Virtual Scrolling</h3>
+    <pre><code><span class="keyword">class</span> <span class="function">VirtualList</span> {
+    <span class="function">constructor</span>(container, items, itemHeight) {
+        <span class="keyword">this</span>.container = container;
+        <span class="keyword">this</span>.items = items;
+        <span class="keyword">this</span>.itemHeight = itemHeight;
+        
+        <span class="comment">// Recalculate visible items when container resizes</span>
+        <span class="keyword">this</span>.resizeObserver = <span class="keyword">new</span> <span class="function">ResizeObserver</span>(entries => {
+            <span class="keyword">const</span> { height } = entries[<span class="number">0</span>].contentRect;
+            <span class="keyword">this</span>.visibleCount = Math.<span class="function">ceil</span>(height / <span class="keyword">this</span>.itemHeight) + <span class="number">1</span>;
+            <span class="keyword">this</span>.<span class="function">render</span>();
+        });
+        
+        <span class="keyword">this</span>.resizeObserver.<span class="function">observe</span>(container);
+    }
+    
+    <span class="function">render</span>() {
+        <span class="comment">// Only render visible items</span>
+        <span class="keyword">const</span> scrollTop = <span class="keyword">this</span>.container.scrollTop;
+        <span class="keyword">const</span> startIndex = Math.<span class="function">floor</span>(scrollTop / <span class="keyword">this</span>.itemHeight);
+        <span class="keyword">const</span> visibleItems = <span class="keyword">this</span>.items.<span class="function">slice</span>(
+            startIndex, 
+            startIndex + <span class="keyword">this</span>.visibleCount
+        );
+        <span class="comment">// ... render visible items</span>
+    }
+}</code></pre>
+
+    <h2>🎯 Common Use Cases</h2>
+    <div class="use-case-grid">
+      <div class="use-case">
+        <h4>📊 Responsive Charts</h4>
+        <p>Automatically resize and redraw charts when their container changes size.</p>
+      </div>
+      <div class="use-case">
+        <h4>🎨 Canvas Sizing</h4>
+        <p>Keep canvas resolution in sync with display size for crisp rendering.</p>
+      </div>
+      <div class="use-case">
+        <h4>📱 Container Queries</h4>
+        <p>Apply different styles based on element size, not viewport size.</p>
+      </div>
+      <div class="use-case">
+        <h4>📜 Virtual Scrolling</h4>
+        <p>Calculate how many items fit in view for efficient rendering.</p>
+      </div>
+      <div class="use-case">
+        <h4>🖼️ Image Galleries</h4>
+        <p>Recalculate masonry layouts when container width changes.</p>
+      </div>
+      <div class="use-case">
+        <h4>💬 Chat Bubbles</h4>
+        <p>Scroll to bottom when new messages change container height.</p>
+      </div>
+    </div>
+
+    <h2>⚡ Performance Tips</h2>
+    <div class="concept-box tip">
+      <h3>✅ Best Practices</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li><strong>Debounce expensive operations:</strong> The callback can fire rapidly during resize animations</li>
+        <li><strong>Use a single observer:</strong> One observer can watch multiple elements efficiently</li>
+        <li><strong>Disconnect when done:</strong> Always clean up in component unmount/destroy</li>
+        <li><strong>Avoid layout thrashing:</strong> Batch DOM reads before writes in your callback</li>
+      </ul>
+    </div>
+
+    <pre><code><span class="comment">// Debounced resize handling</span>
+<span class="keyword">let</span> resizeTimeout;
+
+<span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="function">ResizeObserver</span>(entries => {
+    <span class="comment">// Clear previous timeout</span>
+    <span class="function">clearTimeout</span>(resizeTimeout);
+    
+    <span class="comment">// Debounce: wait 100ms after last resize</span>
+    resizeTimeout = <span class="function">setTimeout</span>(() => {
+        <span class="keyword">for</span> (<span class="keyword">const</span> entry <span class="keyword">of</span> entries) {
+            <span class="function">handleResize</span>(entry);
+        }
+    }, <span class="number">100</span>);
+});</code></pre>
+
+    <div class="concept-box warning">
+      <h3>⚠️ Avoid Infinite Loops!</h3>
+      <p>Be careful not to cause a resize in your resize callback—this can create an infinite loop. For example, don't set explicit width/height on the observed element based on its current size without guards.</p>
+    </div>
+  </div>
+
+  <script>
+    const log = document.getElementById('resize-log');
+    const box1 = document.getElementById('box1');
+    const box2 = document.getElementById('box2');
+    const size1 = document.getElementById('size1');
+    const size2 = document.getElementById('size2');
+
+    const boxObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        const id = entry.target.id;
+        
+        if (id === 'box1') {
+          size1.textContent = `${Math.round(width)} × ${Math.round(height)}`;
+        } else if (id === 'box2') {
+          size2.textContent = `${Math.round(width)} × ${Math.round(height)}`;
+        }
+        
+        const logEntry = document.createElement('div');
+        logEntry.className = 'log-entry';
+        logEntry.textContent = `[${id}] ${Math.round(width)} × ${Math.round(height)}`;
+        log.prepend(logEntry);
+        
+        if (log.children.length > 10) {
+          log.removeChild(log.lastChild);
+        }
+      }
+    });
+
+    boxObserver.observe(box1);
+    boxObserver.observe(box2);
+
+    // Chart demo
+    const chartContainer = document.getElementById('chart-container');
+    const chartBars = document.getElementById('chart-bars');
+    const chartSize = document.getElementById('chart-size');
+
+    const chartObserver = new ResizeObserver(entries => {
+      const { width } = entries[0].contentRect;
+      chartSize.textContent = `Width: ${Math.round(width)}px`;
+      
+      const bars = chartBars.querySelectorAll('.bar');
+      const barWidth = Math.max(10, (width - (bars.length * 10)) / bars.length);
+      bars.forEach(bar => {
+        bar.style.width = `${barWidth}px`;
+      });
+    });
+
+    chartObserver.observe(chartContainer);
+  </script>
+</body>
+</html>

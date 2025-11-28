@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 20: Mutation Observer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #e4e4e4; line-height: 1.7; padding: 40px 20px; min-height: 100vh; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2.5rem; background: linear-gradient(90deg, #00d4ff, #7b2cbf); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+    .subtitle { color: #888; font-size: 1.1rem; margin-bottom: 40px; }
+    h2 { color: #00d4ff; font-size: 1.6rem; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #7b2cbf33; }
+    h3 { color: #bf7bff; font-size: 1.2rem; margin: 25px 0 15px; }
+    p { margin-bottom: 16px; color: #ccc; }
+    .concept-box { background: linear-gradient(135deg, #1e3a5f 0%, #2d1b4e 100%); border-radius: 16px; padding: 25px; margin: 25px 0; border-left: 4px solid #00d4ff; }
+    .warning { background: linear-gradient(135deg, #4a2c2c 0%, #3d1f1f 100%); border-left-color: #ff6b6b; }
+    .tip { background: linear-gradient(135deg, #1f4a2c 0%, #1f3d2a 100%); border-left-color: #4ade80; }
+    code { background: #0d1b2a; padding: 3px 8px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em; color: #7dd3fc; }
+    pre { background: #0d1b2a; border-radius: 12px; padding: 20px; overflow-x: auto; margin: 20px 0; border: 1px solid #ffffff15; }
+    pre code { padding: 0; background: none; }
+    .keyword { color: #c792ea; }
+    .function { color: #82aaff; }
+    .string { color: #c3e88d; }
+    .comment { color: #676e95; }
+    .number { color: #f78c6c; }
+    .diagram { background: #0d1b2a; border-radius: 16px; padding: 30px; margin: 30px 0; text-align: center; }
+    .flow-container { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; }
+    .flow-box { background: linear-gradient(135deg, #7b2cbf 0%, #5b21b6 100%); padding: 15px 25px; border-radius: 10px; font-weight: 600; color: white; min-width: 140px; }
+    .flow-arrow { color: #00d4ff; font-size: 1.5rem; }
+    .observer-visual { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+    .dom-tree { background: #1a1a3e; padding: 20px; border-radius: 12px; border: 2px dashed #7b2cbf; }
+    .tree-node { background: #2d4a7c; padding: 10px 20px; border-radius: 8px; margin: 5px; display: inline-block; }
+    .tree-node.watched { border: 2px solid #00d4ff; box-shadow: 0 0 15px #00d4ff44; }
+    .mutation-types { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+    .mutation-card { background: linear-gradient(135deg, #2d1b4e 0%, #1e1e3f 100%); padding: 20px; border-radius: 12px; border: 1px solid #ffffff15; }
+    .mutation-card h4 { color: #00d4ff; margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ffffff15; }
+    th { background: #7b2cbf33; color: #00d4ff; }
+    tr:hover { background: #ffffff08; }
+    .interactive-demo { background: #0d1b2a; border-radius: 16px; padding: 25px; margin: 30px 0; border: 1px solid #7b2cbf44; }
+    .demo-area { background: #1a1a3e; padding: 20px; border-radius: 10px; min-height: 100px; margin: 15px 0; }
+    button { background: linear-gradient(135deg, #7b2cbf 0%, #5b21b6 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; transition: transform 0.2s, box-shadow 0.2s; margin: 5px; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px #7b2cbf55; }
+    .log-output { background: #0a0a15; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.85rem; max-height: 200px; overflow-y: auto; margin-top: 15px; }
+    .log-entry { padding: 5px 0; border-bottom: 1px solid #ffffff10; color: #4ade80; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📡 Chapter 20: Mutation Observer</h1>
+    <p class="subtitle">Detecting and Responding to DOM Changes in Real-Time</p>
+
+    <h2>🎯 What is Mutation Observer?</h2>
+    <p>The <strong>Mutation Observer API</strong> provides a way to watch for changes being made to the DOM tree. It's designed as a replacement for the older, deprecated Mutation Events, offering better performance and more flexibility.</p>
+    
+    <div class="concept-box">
+      <h3>💡 Key Concept</h3>
+      <p>Think of Mutation Observer as a "security camera" for your DOM. It sits quietly watching specific elements, and whenever something changes (children added/removed, attributes modified, text changed), it records all the changes and reports them to you in a batch.</p>
+    </div>
+
+    <h2>🔄 How It Works</h2>
+    <div class="diagram">
+      <div class="flow-container">
+        <div class="flow-box">Create Observer</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">Configure Options</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">Start Observing</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">Mutations Detected</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">Callback Fired</div>
+      </div>
+    </div>
+
+    <h2>📝 Creating a Mutation Observer</h2>
+    <p>The constructor takes a callback function that will be executed whenever observed mutations occur:</p>
+    
+    <pre><code><span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="function">MutationObserver</span>((mutations, observer) => {
+    <span class="comment">// mutations: Array of MutationRecord objects</span>
+    <span class="comment">// observer: The MutationObserver instance itself</span>
+    
+    mutations.<span class="function">forEach</span>(mutation => {
+        console.<span class="function">log</span>(<span class="string">'Mutation type:'</span>, mutation.type);
+        console.<span class="function">log</span>(<span class="string">'Target element:'</span>, mutation.target);
+    });
+});</code></pre>
+
+    <h2>⚙️ Configuration Options</h2>
+    <p>When you start observing, you must specify what types of mutations to watch for:</p>
+
+    <pre><code>observer.<span class="function">observe</span>(targetElement, {
+    <span class="comment">// Watch for child elements being added or removed</span>
+    childList: <span class="keyword">true</span>,
+    
+    <span class="comment">// Watch all descendants, not just direct children</span>
+    subtree: <span class="keyword">true</span>,
+    
+    <span class="comment">// Watch for attribute changes</span>
+    attributes: <span class="keyword">true</span>,
+    
+    <span class="comment">// Only watch specific attributes</span>
+    attributeFilter: [<span class="string">'class'</span>, <span class="string">'style'</span>, <span class="string">'data-status'</span>],
+    
+    <span class="comment">// Record the previous attribute value</span>
+    attributeOldValue: <span class="keyword">true</span>,
+    
+    <span class="comment">// Watch for text content changes</span>
+    characterData: <span class="keyword">true</span>,
+    
+    <span class="comment">// Record the previous text value</span>
+    characterDataOldValue: <span class="keyword">true</span>
+});</code></pre>
+
+    <h2>📊 Mutation Types Explained</h2>
+    <div class="mutation-types">
+      <div class="mutation-card">
+        <h4>childList</h4>
+        <p>Detects when child nodes are added or removed from the observed element.</p>
+      </div>
+      <div class="mutation-card">
+        <h4>attributes</h4>
+        <p>Detects when attributes on the observed element change (class, id, data-*, etc.).</p>
+      </div>
+      <div class="mutation-card">
+        <h4>characterData</h4>
+        <p>Detects when the text content of a text node changes.</p>
+      </div>
+      <div class="mutation-card">
+        <h4>subtree</h4>
+        <p>Extends observation to all descendants, not just direct children.</p>
+      </div>
+    </div>
+
+    <h2>📋 The MutationRecord Object</h2>
+    <p>Each mutation is described by a MutationRecord with these properties:</p>
+
+    <table>
+      <tr><th>Property</th><th>Description</th></tr>
+      <tr><td><code>type</code></td><td>"childList", "attributes", or "characterData"</td></tr>
+      <tr><td><code>target</code></td><td>The element that was mutated</td></tr>
+      <tr><td><code>addedNodes</code></td><td>NodeList of nodes that were added</td></tr>
+      <tr><td><code>removedNodes</code></td><td>NodeList of nodes that were removed</td></tr>
+      <tr><td><code>previousSibling</code></td><td>Previous sibling of added/removed nodes</td></tr>
+      <tr><td><code>nextSibling</code></td><td>Next sibling of added/removed nodes</td></tr>
+      <tr><td><code>attributeName</code></td><td>Name of the changed attribute</td></tr>
+      <tr><td><code>oldValue</code></td><td>Previous value (if oldValue option enabled)</td></tr>
+    </table>
+
+    <h2>🛠️ Practical Examples</h2>
+
+    <h3>Example 1: Watching for Added Elements</h3>
+    <pre><code><span class="keyword">const</span> container = document.<span class="function">getElementById</span>(<span class="string">'container'</span>);
+
+<span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="function">MutationObserver</span>((mutations) => {
+    mutations.<span class="function">forEach</span>(mutation => {
+        mutation.addedNodes.<span class="function">forEach</span>(node => {
+            <span class="keyword">if</span> (node.nodeType === Node.ELEMENT_NODE) {
+                console.<span class="function">log</span>(<span class="string">'New element added:'</span>, node.tagName);
+                
+                <span class="comment">// Maybe initialize a component</span>
+                <span class="keyword">if</span> (node.<span class="function">matches</span>(<span class="string">'.carousel'</span>)) {
+                    <span class="function">initCarousel</span>(node);
+                }
+            }
+        });
+    });
+});
+
+observer.<span class="function">observe</span>(container, { 
+    childList: <span class="keyword">true</span>, 
+    subtree: <span class="keyword">true</span> 
+});</code></pre>
+
+    <h3>Example 2: Tracking Attribute Changes</h3>
+    <pre><code><span class="keyword">const</span> button = document.<span class="function">querySelector</span>(<span class="string">'.status-button'</span>);
+
+<span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="function">MutationObserver</span>((mutations) => {
+    mutations.<span class="function">forEach</span>(mutation => {
+        <span class="keyword">if</span> (mutation.attributeName === <span class="string">'disabled'</span>) {
+            <span class="keyword">const</span> isDisabled = mutation.target.<span class="function">hasAttribute</span>(<span class="string">'disabled'</span>);
+            console.<span class="function">log</span>(<span class="string">`Button is now ${isDisabled ? 'disabled' : 'enabled'}`</span>);
+        }
+        
+        <span class="keyword">if</span> (mutation.attributeName === <span class="string">'class'</span>) {
+            console.<span class="function">log</span>(<span class="string">'Old classes:'</span>, mutation.oldValue);
+            console.<span class="function">log</span>(<span class="string">'New classes:'</span>, mutation.target.className);
+        }
+    });
+});
+
+observer.<span class="function">observe</span>(button, { 
+    attributes: <span class="keyword">true</span>,
+    attributeOldValue: <span class="keyword">true</span>,
+    attributeFilter: [<span class="string">'disabled'</span>, <span class="string">'class'</span>]
+});</code></pre>
+
+    <h3>Example 3: Detecting Third-Party Script Changes</h3>
+    <pre><code><span class="comment">// Watch for ads or widgets injected by third-party scripts</span>
+<span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="function">MutationObserver</span>((mutations) => {
+    mutations.<span class="function">forEach</span>(mutation => {
+        mutation.addedNodes.<span class="function">forEach</span>(node => {
+            <span class="keyword">if</span> (node.nodeType === Node.ELEMENT_NODE) {
+                <span class="comment">// Block unwanted iframes</span>
+                <span class="keyword">if</span> (node.tagName === <span class="string">'IFRAME'</span> && 
+                    !node.src.<span class="function">includes</span>(<span class="string">'trusted-domain.com'</span>)) {
+                    node.<span class="function">remove</span>();
+                    console.<span class="function">warn</span>(<span class="string">'Blocked untrusted iframe'</span>);
+                }
+            }
+        });
+    });
+});
+
+observer.<span class="function">observe</span>(document.body, { 
+    childList: <span class="keyword">true</span>, 
+    subtree: <span class="keyword">true</span> 
+});</code></pre>
+
+    <h2>🎮 Interactive Demo</h2>
+    <div class="interactive-demo">
+      <p>Click the buttons to see Mutation Observer in action:</p>
+      <div class="demo-area" id="demo-target">
+        <p id="demo-text">Watch me change!</p>
+      </div>
+      <button onclick="addElement()">Add Element</button>
+      <button onclick="removeElement()">Remove Last</button>
+      <button onclick="changeAttribute()">Change Class</button>
+      <button onclick="changeText()">Change Text</button>
+      <button onclick="clearLog()">Clear Log</button>
+      <div class="log-output" id="log"></div>
+    </div>
+
+    <h2>🛑 Stopping & Cleanup</h2>
+    <pre><code><span class="comment">// Stop observing completely</span>
+observer.<span class="function">disconnect</span>();
+
+<span class="comment">// Get any pending mutations before disconnect</span>
+<span class="keyword">const</span> pendingMutations = observer.<span class="function">takeRecords</span>();
+pendingMutations.<span class="function">forEach</span>(mutation => {
+    <span class="comment">// Process remaining mutations</span>
+});
+
+observer.<span class="function">disconnect</span>();</code></pre>
+
+    <div class="concept-box tip">
+      <h3>✅ Best Practice: Always Disconnect</h3>
+      <p>Always call <code>disconnect()</code> when you're done observing to prevent memory leaks, especially in single-page applications where components are dynamically created and destroyed.</p>
+    </div>
+
+    <h2>⚡ Performance Considerations</h2>
+    <div class="concept-box warning">
+      <h3>⚠️ Performance Tips</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li>Avoid observing <code>document.body</code> with <code>subtree: true</code> if possible</li>
+        <li>Use <code>attributeFilter</code> to limit which attributes are watched</li>
+        <li>Keep callback functions fast—mutations are batched but still block</li>
+        <li>Don't cause DOM mutations inside the callback (infinite loop risk!)</li>
+      </ul>
+    </div>
+
+    <h2>🎯 Common Use Cases</h2>
+    <ul style="margin-left: 20px;">
+      <li><strong>Framework-less Reactivity:</strong> Building reactive UIs without a framework</li>
+      <li><strong>Lazy Loading:</strong> Initialize components when they're added to DOM</li>
+      <li><strong>Analytics:</strong> Track dynamic content changes</li>
+      <li><strong>Security:</strong> Detect and block malicious DOM injections</li>
+      <li><strong>Accessibility:</strong> Announce dynamic changes to screen readers</li>
+      <li><strong>Undo/Redo:</strong> Track changes for history management</li>
+    </ul>
+  </div>
+
+  <script>
+    const target = document.getElementById('demo-target');
+    const log = document.getElementById('log');
+    let counter = 0;
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(mutation => {
+        let msg = '';
+        if (mutation.type === 'childList') {
+          if (mutation.addedNodes.length) {
+            msg = `➕ Added: ${[...mutation.addedNodes].map(n => n.nodeName).join(', ')}`;
+          }
+          if (mutation.removedNodes.length) {
+            msg = `➖ Removed: ${[...mutation.removedNodes].map(n => n.nodeName).join(', ')}`;
+          }
+        } else if (mutation.type === 'attributes') {
+          msg = `🔄 Attribute "${mutation.attributeName}" changed on ${mutation.target.id || mutation.target.tagName}`;
+        } else if (mutation.type === 'characterData') {
+          msg = `✏️ Text changed: "${mutation.oldValue}" → "${mutation.target.textContent}"`;
+        }
+        if (msg) {
+          const entry = document.createElement('div');
+          entry.className = 'log-entry';
+          entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+          log.prepend(entry);
+        }
+      });
+    });
+
+    observer.observe(target, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeOldValue: true,
+      characterData: true,
+      characterDataOldValue: true
+    });
+
+    function addElement() {
+      const div = document.createElement('div');
+      div.textContent = `New Element #${++counter}`;
+      div.style.cssText = 'background:#7b2cbf44;padding:8px;margin:5px;border-radius:5px;';
+      target.appendChild(div);
+    }
+
+    function removeElement() {
+      const last = target.lastElementChild;
+      if (last && last.id !== 'demo-text') last.remove();
+    }
+
+    function changeAttribute() {
+      const text = document.getElementById('demo-text');
+      text.className = text.className === 'highlighted' ? '' : 'highlighted';
+    }
+
+    function changeText() {
+      const text = document.getElementById('demo-text').firstChild;
+      text.textContent = text.textContent === 'Watch me change!' ? 'I changed!' : 'Watch me change!';
+    }
+
+    function clearLog() {
+      log.innerHTML = '';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 3: DOM Traversal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.7;
+            color: #1a1a2e;
+            background: linear-gradient(135deg, #fdf4ff 0%, #f3e8ff 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            color: #2d3748;
+            margin: 35px 0 20px;
+            padding-left: 15px;
+            border-left: 4px solid #a855f7;
+        }
+        
+        h3 {
+            font-size: 1.2rem;
+            color: #4a5568;
+            margin: 25px 0 15px;
+        }
+        
+        h4 {
+            font-size: 1.05rem;
+            color: #6b21a8;
+            margin: 20px 0 12px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            color: #4a5568;
+        }
+        
+        .concept-box {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border-left: 4px solid #fc8181;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        
+        .warning-box::before {
+            content: "⚠️ Common Pitfall";
+            font-weight: bold;
+            color: #c53030;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #e6fffa 0%, #b2f5ea 100%);
+            border-left: 4px solid #38b2ac;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        
+        .key-point::before {
+            content: "🔑 Key Point";
+            font-weight: bold;
+            color: #234e52;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .interview-tip {
+            background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
+            border-left: 4px solid #4299e1;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        
+        .interview-tip::before {
+            content: "💼 Interview Question";
+            font-weight: bold;
+            color: #2b6cb0;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .performance-tip {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        
+        .performance-tip::before {
+            content: "⚡ Performance Warning";
+            font-weight: bold;
+            color: #b45309;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        pre {
+            background: #1e1b4b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+        
+        code {
+            font-family: 'Fira Code', 'Consolas', monospace;
+        }
+        
+        .inline-code {
+            background: #edf2f7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #9333ea;
+        }
+        
+        .keyword { color: #c792ea; }
+        .string { color: #c3e88d; }
+        .comment { color: #6366f1; font-style: italic; }
+        .function { color: #82aaff; }
+        .variable { color: #f78c6c; }
+        .property { color: #ffcb6b; }
+        .result { color: #4ade80; }
+        .null { color: #f87171; }
+        
+        .diagram {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            text-anchor: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:hover {
+            background: #faf5ff;
+        }
+        
+        ul, ol {
+            margin: 15px 0 15px 25px;
+            color: #4a5568;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #a855f7, transparent);
+            margin: 40px 0;
+        }
+        
+        .property-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .property-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .property-card.node-version {
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .property-card.element-version {
+            border-left: 4px solid #10b981;
+        }
+        
+        .property-name {
+            font-family: 'Fira Code', monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .property-card.node-version .property-name {
+            color: #d97706;
+        }
+        
+        .property-card.element-version .property-name {
+            color: #059669;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            margin-left: 5px;
+        }
+        
+        .badge-node {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge-element {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        @media (max-width: 700px) {
+            .property-pair {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chapter 3: DOM Traversal</h1>
+        <p class="subtitle">Navigating the DOM Tree — Moving Between Parents, Children, and Siblings</p>
+        
+        <div class="concept-box">
+            <p>Once you've selected an element, you often need to navigate to related elements — the parent container, child elements, or neighboring siblings. DOM traversal is about <strong>walking the tree</strong> without querying the entire document.</p>
+            
+            <p><strong>Why traverse instead of query?</strong></p>
+            <ul>
+                <li>More efficient when you already have a reference</li>
+                <li>Essential for event handling (finding parent components)</li>
+                <li>Required when IDs/classes aren't available</li>
+                <li>Necessary for dynamic DOM manipulation</li>
+            </ul>
+        </div>
+        
+        <!-- Visual DOM Tree -->
+        <div class="diagram">
+            <h3 style="margin-bottom: 20px; text-align: center;">The DOM Tree We'll Use for Examples</h3>
+            <svg viewBox="0 0 700 350" style="max-width: 700px; display: block; margin: 0 auto;">
+                <!-- Container div -->
+                <rect x="270" y="20" width="160" height="40" rx="8" fill="#a855f7" stroke="#7c3aed" stroke-width="2"/>
+                <text x="350" y="45" text-anchor="middle" font-size="14" font-weight="bold" fill="white">&lt;div id="container"&gt;</text>
+                
+                <!-- Lines to children -->
+                <line x1="310" y1="60" x2="150" y2="100" stroke="#d8b4fe" stroke-width="2"/>
+                <line x1="350" y1="60" x2="350" y2="100" stroke="#d8b4fe" stroke-width="2"/>
+                <line x1="390" y1="60" x2="550" y2="100" stroke="#d8b4fe" stroke-width="2"/>
+                
+                <!-- Text node (whitespace) -->
+                <rect x="70" y="100" width="120" height="35" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                <text x="130" y="123" text-anchor="middle" font-size="11" fill="#92400e">Text: "\n  "</text>
+                
+                <!-- First child - p -->
+                <rect x="280" y="100" width="140" height="40" rx="8" fill="#3b82f6" stroke="#2563eb" stroke-width="2"/>
+                <text x="350" y="125" text-anchor="middle" font-size="13" font-weight="bold" fill="white">&lt;p class="intro"&gt;</text>
+                
+                <!-- Text node after p -->
+                <rect x="480" y="100" width="120" height="35" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                <text x="540" y="123" text-anchor="middle" font-size="11" fill="#92400e">Text: "\n  "</text>
+                
+                <!-- Second level - inside p -->
+                <line x1="350" y1="140" x2="350" y2="170" stroke="#93c5fd" stroke-width="2"/>
+                
+                <rect x="280" y="170" width="140" height="35" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                <text x="350" y="193" text-anchor="middle" font-size="11" fill="#92400e">"Hello World"</text>
+                
+                <!-- UL element -->
+                <rect x="220" y="230" width="120" height="40" rx="8" fill="#10b981" stroke="#059669" stroke-width="2"/>
+                <text x="280" y="255" text-anchor="middle" font-size="13" font-weight="bold" fill="white">&lt;ul class="list"&gt;</text>
+                
+                <!-- Line from container area to ul (conceptually after p in source) -->
+                <path d="M350 140 Q 350 200, 280 230" stroke="#d8b4fe" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+                
+                <!-- LI elements -->
+                <line x1="250" y1="270" x2="150" y2="300" stroke="#6ee7b7" stroke-width="2"/>
+                <line x1="280" y1="270" x2="280" y2="300" stroke="#6ee7b7" stroke-width="2"/>
+                <line x1="310" y1="270" x2="410" y2="300" stroke="#6ee7b7" stroke-width="2"/>
+                
+                <rect x="90" y="300" width="100" height="35" rx="6" fill="#34d399" stroke="#10b981" stroke-width="2"/>
+                <text x="140" y="322" text-anchor="middle" font-size="11" font-weight="bold" fill="white">&lt;li&gt;Item 1</text>
+                
+                <rect x="230" y="300" width="100" height="35" rx="6" fill="#34d399" stroke="#10b981" stroke-width="2"/>
+                <text x="280" y="322" text-anchor="middle" font-size="11" font-weight="bold" fill="white">&lt;li&gt;Item 2</text>
+                
+                <rect x="360" y="300" width="100" height="35" rx="6" fill="#34d399" stroke="#10b981" stroke-width="2"/>
+                <text x="410" y="322" text-anchor="middle" font-size="11" font-weight="bold" fill="white">&lt;li&gt;Item 3</text>
+                
+                <!-- Legend -->
+                <rect x="500" y="200" width="180" height="120" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+                <text x="590" y="220" text-anchor="middle" font-size="11" font-weight="bold" fill="#4b5563">Legend</text>
+                <rect x="515" y="235" width="20" height="15" rx="3" fill="#a855f7"/>
+                <text x="545" y="247" font-size="10" fill="#4b5563">Container</text>
+                <rect x="515" y="258" width="20" height="15" rx="3" fill="#3b82f6"/>
+                <text x="545" y="270" font-size="10" fill="#4b5563">Element</text>
+                <rect x="515" y="281" width="20" height="15" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+                <text x="545" y="293" font-size="10" fill="#4b5563">Text Node</text>
+            </svg>
+        </div>
+        
+        <pre><span class="comment">// HTML for our examples:</span>
+<span class="string">&lt;div id="container"&gt;
+  &lt;p class="intro"&gt;Hello World&lt;/p&gt;
+  &lt;ul class="list"&gt;
+    &lt;li&gt;Item 1&lt;/li&gt;
+    &lt;li&gt;Item 2&lt;/li&gt;
+    &lt;li&gt;Item 3&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</span></pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 3.1 -->
+        <h2>3.1 Parent Traversal — Going Up the Tree</h2>
+        
+        <div class="property-pair">
+            <div class="property-card node-version">
+                <div class="property-name">parentNode <span class="badge badge-node">All Nodes</span></div>
+                <p>Returns the parent <strong>node</strong> of any type (Element, Document, DocumentFragment)</p>
+            </div>
+            <div class="property-card element-version">
+                <div class="property-name">parentElement <span class="badge badge-element">Elements Only</span></div>
+                <p>Returns the parent only if it's an <strong>Element</strong>. Returns null otherwise.</p>
+            </div>
+        </div>
+        
+<pre><span class="keyword">const</span> p = <span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'.intro'</span>);
+
+<span class="comment">// Both return the container div</span>
+<span class="variable">console</span>.<span class="function">log</span>(p.<span class="property">parentNode</span>);      <span class="result">// &lt;div id="container"&gt;</span>
+<span class="variable">console</span>.<span class="function">log</span>(p.<span class="property">parentElement</span>);   <span class="result">// &lt;div id="container"&gt;</span>
+
+<span class="comment">// Where they differ: at the document level</span>
+<span class="keyword">const</span> html = <span class="variable">document</span>.<span class="property">documentElement</span>;
+
+<span class="variable">console</span>.<span class="function">log</span>(html.<span class="property">parentNode</span>);     <span class="result">// #document (the Document node)</span>
+<span class="variable">console</span>.<span class="function">log</span>(html.<span class="property">parentElement</span>);  <span class="null">// null (Document is not an Element)</span>
+
+<span class="comment">// Chaining up the tree</span>
+p.<span class="property">parentElement</span>.<span class="property">parentElement</span>.<span class="property">parentElement</span>;  <span class="comment">// &lt;html&gt;</span></pre>
+
+        <div class="key-point">
+            <strong>When to use which?</strong>
+            <ul>
+                <li><span class="inline-code">parentElement</span> — 99% of the time. Safer for DOM manipulation.</li>
+                <li><span class="inline-code">parentNode</span> — When you need to access the Document node or work with non-element parents.</li>
+            </ul>
+        </div>
+        
+        <h4>Using closest() for Ancestor Search</h4>
+        
+        <p>Remember from Chapter 2: <span class="inline-code">closest()</span> finds the nearest ancestor matching a selector:</p>
+        
+<pre><span class="keyword">const</span> li = <span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'li'</span>);
+
+<span class="comment">// Find specific ancestor</span>
+li.<span class="function">closest</span>(<span class="string">'ul'</span>);           <span class="result">// The &lt;ul&gt; parent</span>
+li.<span class="function">closest</span>(<span class="string">'#container'</span>);   <span class="result">// The container div</span>
+li.<span class="function">closest</span>(<span class="string">'div'</span>);          <span class="result">// Also the container div</span>
+li.<span class="function">closest</span>(<span class="string">'li'</span>);           <span class="result">// Returns itself! (checks self first)</span>
+li.<span class="function">closest</span>(<span class="string">'section'</span>);      <span class="null">// null (no section ancestor)</span></pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 3.2 -->
+        <h2>3.2 Children Traversal — Going Down the Tree</h2>
+        
+        <p>This is where the Node vs Element distinction becomes <strong>critical</strong>!</p>
+        
+        <div class="warning-box">
+            <strong>Whitespace creates text nodes!</strong> The newlines and spaces between HTML tags become text nodes in the DOM. This catches many developers off guard.
+        </div>
+        
+        <h3>Node-based vs Element-based Children Properties</h3>
+        
+        <div class="diagram">
+            <svg viewBox="0 0 700 200" style="max-width: 700px; display: block; margin: 0 auto;">
+                <!-- childNodes box -->
+                <rect x="20" y="20" width="320" height="160" rx="12" fill="#fef3c7" stroke="#f59e0b" stroke-width="3"/>
+                <text x="180" y="50" text-anchor="middle" font-size="16" font-weight="bold" fill="#92400e">childNodes</text>
+                <text x="180" y="70" text-anchor="middle" font-size="12" fill="#b45309">Returns ALL nodes including text</text>
+                
+                <!-- Visual representation -->
+                <rect x="40" y="90" width="60" height="30" rx="4" fill="#fde68a" stroke="#f59e0b"/>
+                <text x="70" y="110" text-anchor="middle" font-size="9" fill="#78350f">"\n  "</text>
+                
+                <rect x="110" y="90" width="60" height="30" rx="4" fill="#3b82f6"/>
+                <text x="140" y="110" text-anchor="middle" font-size="9" fill="white">&lt;p&gt;</text>
+                
+                <rect x="180" y="90" width="60" height="30" rx="4" fill="#fde68a" stroke="#f59e0b"/>
+                <text x="210" y="110" text-anchor="middle" font-size="9" fill="#78350f">"\n  "</text>
+                
+                <rect x="250" y="90" width="60" height="30" rx="4" fill="#10b981"/>
+                <text x="280" y="110" text-anchor="middle" font-size="9" fill="white">&lt;ul&gt;</text>
+                
+                <text x="180" y="150" text-anchor="middle" font-size="11" fill="#92400e">NodeList(4) — includes whitespace!</text>
+                
+                <!-- children box -->
+                <rect x="360" y="20" width="320" height="160" rx="12" fill="#d1fae5" stroke="#10b981" stroke-width="3"/>
+                <text x="520" y="50" text-anchor="middle" font-size="16" font-weight="bold" fill="#065f46">children</text>
+                <text x="520" y="70" text-anchor="middle" font-size="12" fill="#047857">Returns ONLY element nodes</text>
+                
+                <!-- Visual representation -->
+                <rect x="430" y="90" width="70" height="30" rx="4" fill="#3b82f6"/>
+                <text x="465" y="110" text-anchor="middle" font-size="9" fill="white">&lt;p&gt;</text>
+                
+                <rect x="520" y="90" width="70" height="30" rx="4" fill="#10b981"/>
+                <text x="555" y="110" text-anchor="middle" font-size="9" fill="white">&lt;ul&gt;</text>
+                
+                <text x="520" y="150" text-anchor="middle" font-size="11" fill="#065f46">HTMLCollection(2) — clean!</text>
+            </svg>
+        </div>
+        
+<pre><span class="keyword">const</span> container = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'container'</span>);
+
+<span class="comment">// ━━━━━━━━━━━━ childNodes (ALL nodes) ━━━━━━━━━━━━</span>
+<span class="variable">console</span>.<span class="function">log</span>(container.<span class="property">childNodes</span>);
+<span class="comment">// NodeList(5) [</span>
+<span class="comment">//   text,     ← "\n  " (whitespace after &lt;div&gt;)</span>
+<span class="comment">//   p,        ← the &lt;p&gt; element</span>
+<span class="comment">//   text,     ← "\n  " (whitespace after &lt;/p&gt;)</span>
+<span class="comment">//   ul,       ← the &lt;ul&gt; element</span>
+<span class="comment">//   text      ← "\n" (whitespace before &lt;/div&gt;)</span>
+<span class="comment">// ]</span>
+
+<span class="variable">console</span>.<span class="function">log</span>(container.<span class="property">childNodes</span>.<span class="property">length</span>);  <span class="result">// 5</span>
+
+<span class="comment">// ━━━━━━━━━━━━ children (ELEMENTS only) ━━━━━━━━━━━━</span>
+<span class="variable">console</span>.<span class="function">log</span>(container.<span class="property">children</span>);
+<span class="comment">// HTMLCollection(2) [p.intro, ul.list]</span>
+
+<span class="variable">console</span>.<span class="function">log</span>(container.<span class="property">children</span>.<span class="property">length</span>);  <span class="result">// 2</span></pre>
+
+        <h3>First and Last Child</h3>
+        
+        <div class="property-pair">
+            <div class="property-card node-version">
+                <div class="property-name">firstChild / lastChild</div>
+                <p>Returns first/last <strong>node</strong> (often a text node!)</p>
+            </div>
+            <div class="property-card element-version">
+                <div class="property-name">firstElementChild / lastElementChild</div>
+                <p>Returns first/last <strong>element</strong> (what you usually want)</p>
+            </div>
+        </div>
+        
+<pre><span class="keyword">const</span> container = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'container'</span>);
+
+<span class="comment">// ❌ Common mistake - getting whitespace text node!</span>
+<span class="variable">console</span>.<span class="function">log</span>(container.<span class="property">firstChild</span>);
+<span class="comment">// #text "\n  " ← Not what you expected!</span>
+
+<span class="variable">console</span>.<span class="function">log</span>(container.<span class="property">lastChild</span>);
+<span class="comment">// #text "\n" ← Also whitespace!</span>
+
+<span class="comment">// ✅ Correct - getting actual elements</span>
+<span class="variable">console</span>.<span class="function">log</span>(container.<span class="property">firstElementChild</span>);
+<span class="comment">// &lt;p class="intro"&gt;Hello World&lt;/p&gt;</span>
+
+<span class="variable">console</span>.<span class="function">log</span>(container.<span class="property">lastElementChild</span>);
+<span class="comment">// &lt;ul class="list"&gt;...&lt;/ul&gt;</span>
+
+<span class="comment">// Testing the type</span>
+container.<span class="property">firstChild</span>.<span class="property">nodeType</span>;        <span class="result">// 3 (TEXT_NODE)</span>
+container.<span class="property">firstElementChild</span>.<span class="property">nodeType</span>; <span class="result">// 1 (ELEMENT_NODE)</span></pre>
+
+        <h3>childElementCount</h3>
+        
+<pre><span class="comment">// Number of child ELEMENTS (not all nodes)</span>
+container.<span class="property">childElementCount</span>;    <span class="result">// 2 (p and ul)</span>
+
+<span class="comment">// Compare with childNodes.length</span>
+container.<span class="property">childNodes</span>.<span class="property">length</span>;   <span class="result">// 5 (includes text nodes)</span>
+container.<span class="property">children</span>.<span class="property">length</span>;     <span class="result">// 2 (same as childElementCount)</span></pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 3.3 -->
+        <h2>3.3 Sibling Traversal — Moving Sideways</h2>
+        
+        <p>Sibling traversal follows the same Node vs Element pattern:</p>
+        
+        <div class="diagram">
+            <h3 style="margin-bottom: 20px; text-align: center;">Sibling Relationships</h3>
+            <svg viewBox="0 0 700 180" style="max-width: 700px; display: block; margin: 0 auto;">
+                <!-- Parent -->
+                <rect x="250" y="10" width="200" height="35" rx="8" fill="#a855f7" stroke="#7c3aed" stroke-width="2"/>
+                <text x="350" y="33" text-anchor="middle" font-size="12" font-weight="bold" fill="white">&lt;ul class="list"&gt;</text>
+                
+                <!-- Lines to siblings -->
+                <line x1="280" y1="45" x2="100" y2="80" stroke="#d8b4fe" stroke-width="2"/>
+                <line x1="320" y1="45" x2="250" y2="80" stroke="#d8b4fe" stroke-width="2"/>
+                <line x1="380" y1="45" x2="450" y2="80" stroke="#d8b4fe" stroke-width="2"/>
+                <line x1="420" y1="45" x2="600" y2="80" stroke="#d8b4fe" stroke-width="2"/>
+                
+                <!-- Text node -->
+                <rect x="50" y="80" width="90" height="35" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                <text x="95" y="102" text-anchor="middle" font-size="10" fill="#92400e">"\n    "</text>
+                
+                <!-- Li 1 -->
+                <rect x="180" y="80" width="110" height="40" rx="8" fill="#10b981" stroke="#059669" stroke-width="2"/>
+                <text x="235" y="105" text-anchor="middle" font-size="12" font-weight="bold" fill="white">&lt;li&gt;Item 1</text>
+                
+                <!-- Li 2 - highlighted as "current" -->
+                <rect x="380" y="80" width="110" height="40" rx="8" fill="#3b82f6" stroke="#1d4ed8" stroke-width="3"/>
+                <text x="435" y="105" text-anchor="middle" font-size="12" font-weight="bold" fill="white">&lt;li&gt;Item 2</text>
+                <text x="435" y="135" text-anchor="middle" font-size="10" fill="#3b82f6">← Current Element</text>
+                
+                <!-- Li 3 (or text after li2) -->
+                <rect x="540" y="80" width="110" height="40" rx="8" fill="#10b981" stroke="#059669" stroke-width="2"/>
+                <text x="595" y="105" text-anchor="middle" font-size="12" font-weight="bold" fill="white">&lt;li&gt;Item 3</text>
+                
+                <!-- Arrows showing sibling relationships -->
+                <path d="M290 100 L370 100" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrowOrange)"/>
+                <text x="330" y="75" text-anchor="middle" font-size="9" fill="#d97706">previousSibling</text>
+                <text x="330" y="87" text-anchor="middle" font-size="8" fill="#92400e">(might be text!)</text>
+                
+                <path d="M490 100 L530 100" stroke="#10b981" stroke-width="2" marker-end="url(#arrowGreen)"/>
+                <text x="510" y="75" text-anchor="middle" font-size="9" fill="#059669">nextElement</text>
+                <text x="510" y="87" text-anchor="middle" font-size="8" fill="#047857">Sibling</text>
+                
+                <defs>
+                    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
+                    </marker>
+                    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
+                    </marker>
+                </defs>
+            </svg>
+        </div>
+        
+        <div class="property-pair">
+            <div class="property-card node-version">
+                <div class="property-name">previousSibling / nextSibling</div>
+                <p>Returns previous/next <strong>node</strong> (may be text/comment)</p>
+            </div>
+            <div class="property-card element-version">
+                <div class="property-name">previousElementSibling / nextElementSibling</div>
+                <p>Returns previous/next <strong>element</strong> (skips text nodes)</p>
+            </div>
+        </div>
+        
+<pre><span class="keyword">const</span> ul = <span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'.list'</span>);
+<span class="keyword">const</span> li2 = ul.<span class="property">children</span>[<span class="variable">1</span>];  <span class="comment">// Second &lt;li&gt;</span>
+
+<span class="comment">// ━━━━━━━━━━━━ Node-based (includes whitespace) ━━━━━━━━━━━━</span>
+<span class="variable">console</span>.<span class="function">log</span>(li2.<span class="property">previousSibling</span>);
+<span class="comment">// #text "\n    " ← Whitespace between &lt;li&gt; tags!</span>
+
+<span class="variable">console</span>.<span class="function">log</span>(li2.<span class="property">nextSibling</span>);
+<span class="comment">// #text "\n    " ← More whitespace!</span>
+
+<span class="comment">// ━━━━━━━━━━━━ Element-based (what you want) ━━━━━━━━━━━━</span>
+<span class="variable">console</span>.<span class="function">log</span>(li2.<span class="property">previousElementSibling</span>);
+<span class="comment">// &lt;li&gt;Item 1&lt;/li&gt;</span>
+
+<span class="variable">console</span>.<span class="function">log</span>(li2.<span class="property">nextElementSibling</span>);
+<span class="comment">// &lt;li&gt;Item 3&lt;/li&gt;</span>
+
+<span class="comment">// At the boundaries</span>
+<span class="keyword">const</span> firstLi = ul.<span class="property">firstElementChild</span>;
+<span class="keyword">const</span> lastLi = ul.<span class="property">lastElementChild</span>;
+
+firstLi.<span class="property">previousElementSibling</span>;  <span class="null">// null (no previous element)</span>
+lastLi.<span class="property">nextElementSibling</span>;       <span class="null">// null (no next element)</span></pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 3.4 -->
+        <h2>3.4 Node Properties — nodeType, nodeName, nodeValue</h2>
+        
+        <p>Every node has properties that tell you what type of node it is:</p>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Element Node</th>
+                    <th>Text Node</th>
+                    <th>Comment Node</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="inline-code">nodeType</span></td>
+                    <td>1 (ELEMENT_NODE)</td>
+                    <td>3 (TEXT_NODE)</td>
+                    <td>8 (COMMENT_NODE)</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">nodeName</span></td>
+                    <td>Tag name in UPPERCASE ("DIV", "P")</td>
+                    <td>"#text"</td>
+                    <td>"#comment"</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">nodeValue</span></td>
+                    <td>null</td>
+                    <td>The text content</td>
+                    <td>The comment content</td>
+                </tr>
+            </tbody>
+        </table>
+        
+<pre><span class="comment">// HTML: &lt;div id="test"&gt;Hello&lt;!-- comment --&gt;&lt;/div&gt;</span>
+
+<span class="keyword">const</span> div = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'test'</span>);
+
+<span class="comment">// Element node</span>
+div.<span class="property">nodeType</span>;     <span class="result">// 1</span>
+div.<span class="property">nodeName</span>;     <span class="result">// "DIV"</span>
+div.<span class="property">nodeValue</span>;    <span class="null">// null</span>
+
+<span class="comment">// Text node (first child)</span>
+<span class="keyword">const</span> textNode = div.<span class="property">childNodes</span>[<span class="variable">0</span>];
+textNode.<span class="property">nodeType</span>;   <span class="result">// 3</span>
+textNode.<span class="property">nodeName</span>;   <span class="result">// "#text"</span>
+textNode.<span class="property">nodeValue</span>;  <span class="result">// "Hello"</span>
+
+<span class="comment">// Comment node (second child)</span>
+<span class="keyword">const</span> comment = div.<span class="property">childNodes</span>[<span class="variable">1</span>];
+comment.<span class="property">nodeType</span>;    <span class="result">// 8</span>
+comment.<span class="property">nodeName</span>;    <span class="result">// "#comment"</span>
+comment.<span class="property">nodeValue</span>;   <span class="result">// " comment "</span></pre>
+
+        <h4>Using nodeType for Type Checking:</h4>
+        
+<pre><span class="keyword">const</span> container = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'container'</span>);
+
+<span class="comment">// Process only element nodes from childNodes</span>
+<span class="keyword">for</span> (<span class="keyword">const</span> node <span class="keyword">of</span> container.<span class="property">childNodes</span>) {
+    <span class="keyword">if</span> (node.<span class="property">nodeType</span> === <span class="variable">Node</span>.<span class="property">ELEMENT_NODE</span>) {  <span class="comment">// or === 1</span>
+        <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Element:'</span>, node.<span class="property">nodeName</span>);
+    }
+}
+
+<span class="comment">// Node type constants:</span>
+<span class="variable">Node</span>.<span class="property">ELEMENT_NODE</span>   <span class="comment">// 1</span>
+<span class="variable">Node</span>.<span class="property">TEXT_NODE</span>      <span class="comment">// 3</span>
+<span class="variable">Node</span>.<span class="property">COMMENT_NODE</span>   <span class="comment">// 8</span>
+<span class="variable">Node</span>.<span class="property">DOCUMENT_NODE</span>  <span class="comment">// 9</span>
+<span class="variable">Node</span>.<span class="property">DOCUMENT_FRAGMENT_NODE</span>  <span class="comment">// 11</span></pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 3.5 -->
+        <h2>3.5 textContent vs innerText — Understanding Text Properties</h2>
+        
+        <div class="concept-box">
+            <p>Two ways to get/set text content of elements, but they behave very differently!</p>
+        </div>
+        
+        <div class="property-pair">
+            <div class="property-card node-version">
+                <div class="property-name">textContent</div>
+                <p>Returns ALL text content, including hidden elements. Fast, no layout calculation.</p>
+            </div>
+            <div class="property-card element-version">
+                <div class="property-name">innerText</div>
+                <p>Returns only VISIBLE text. Triggers reflow to calculate styles!</p>
+            </div>
+        </div>
+        
+<pre><span class="comment">// HTML:</span>
+<span class="comment">// &lt;div id="example"&gt;</span>
+<span class="comment">//   Visible text</span>
+<span class="comment">//   &lt;span style="display: none"&gt;Hidden text&lt;/span&gt;</span>
+<span class="comment">//   &lt;script&gt;const x = 1;&lt;/script&gt;</span>
+<span class="comment">// &lt;/div&gt;</span>
+
+<span class="keyword">const</span> div = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'example'</span>);
+
+<span class="comment">// textContent - gets EVERYTHING (raw)</span>
+div.<span class="property">textContent</span>;
+<span class="comment">// "\n  Visible text\n  Hidden text\n  const x = 1;\n"</span>
+
+<span class="comment">// innerText - gets VISIBLE text only</span>
+div.<span class="property">innerText</span>;
+<span class="comment">// "Visible text"</span>
+<span class="comment">// (Hidden text and script content excluded)</span></pre>
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>textContent</th>
+                    <th>innerText</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Hidden elements (display: none)</td>
+                    <td>✅ Included</td>
+                    <td>❌ Excluded</td>
+                </tr>
+                <tr>
+                    <td>&lt;script&gt; and &lt;style&gt; content</td>
+                    <td>✅ Included</td>
+                    <td>❌ Excluded</td>
+                </tr>
+                <tr>
+                    <td>Preserves whitespace</td>
+                    <td>✅ As-is</td>
+                    <td>❌ Normalized</td>
+                </tr>
+                <tr>
+                    <td>Line breaks from &lt;br&gt;</td>
+                    <td>❌ Not visible</td>
+                    <td>✅ Converted to \n</td>
+                </tr>
+                <tr>
+                    <td>Performance</td>
+                    <td>⚡ Fast (no layout)</td>
+                    <td>🐢 Slow (triggers reflow)</td>
+                </tr>
+                <tr>
+                    <td>Works on all nodes</td>
+                    <td>✅ Yes</td>
+                    <td>❌ Elements only</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="performance-tip">
+            <strong>Always prefer textContent</strong> unless you specifically need visible-only text. innerText triggers a <strong>reflow</strong> (layout recalculation), which is expensive. In loops or frequent operations, this can severely impact performance.
+        </div>
+        
+<pre><span class="comment">// ❌ Avoid in performance-critical code</span>
+elements.<span class="function">forEach</span>(el => {
+    <span class="keyword">const</span> text = el.<span class="property">innerText</span>;  <span class="comment">// Triggers reflow EACH time!</span>
+});
+
+<span class="comment">// ✅ Better</span>
+elements.<span class="function">forEach</span>(el => {
+    <span class="keyword">const</span> text = el.<span class="property">textContent</span>;  <span class="comment">// Fast, no reflow</span>
+});
+
+<span class="comment">// Setting text content (both are safe from XSS)</span>
+element.<span class="property">textContent</span> = <span class="string">'New text'</span>;  <span class="comment">// Recommended</span>
+element.<span class="property">innerText</span> = <span class="string">'New text'</span>;    <span class="comment">// Also works</span></pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 3.6 -->
+        <h2>3.6 Practical Traversal Patterns</h2>
+        
+        <h4>Pattern 1: Iterate All Child Elements</h4>
+        
+<pre><span class="keyword">const</span> container = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'container'</span>);
+
+<span class="comment">// Method 1: for...of with children</span>
+<span class="keyword">for</span> (<span class="keyword">const</span> child <span class="keyword">of</span> container.<span class="property">children</span>) {
+    <span class="variable">console</span>.<span class="function">log</span>(child.<span class="property">tagName</span>);
+}
+
+<span class="comment">// Method 2: Convert to array and use array methods</span>
+[...container.<span class="property">children</span>].<span class="function">forEach</span>(child => {
+    <span class="variable">console</span>.<span class="function">log</span>(child.<span class="property">tagName</span>);
+});
+
+<span class="comment">// Method 3: Using firstElementChild + nextElementSibling</span>
+<span class="keyword">let</span> child = container.<span class="property">firstElementChild</span>;
+<span class="keyword">while</span> (child) {
+    <span class="variable">console</span>.<span class="function">log</span>(child.<span class="property">tagName</span>);
+    child = child.<span class="property">nextElementSibling</span>;
+}</pre>
+
+        <h4>Pattern 2: Walk Up to Find Specific Ancestor</h4>
+        
+<pre><span class="comment">// Without closest() - manual walk</span>
+<span class="keyword">function</span> <span class="function">findAncestor</span>(element, selector) {
+    <span class="keyword">let</span> current = element.<span class="property">parentElement</span>;
+    <span class="keyword">while</span> (current) {
+        <span class="keyword">if</span> (current.<span class="function">matches</span>(selector)) {
+            <span class="keyword">return</span> current;
+        }
+        current = current.<span class="property">parentElement</span>;
+    }
+    <span class="keyword">return</span> <span class="null">null</span>;
+}
+
+<span class="comment">// With closest() - built-in (recommended)</span>
+element.<span class="function">closest</span>(<span class="string">'.ancestor-class'</span>);</pre>
+
+        <h4>Pattern 3: Find Specific Child by Condition</h4>
+        
+<pre><span class="keyword">function</span> <span class="function">findChild</span>(parent, condition) {
+    <span class="keyword">for</span> (<span class="keyword">const</span> child <span class="keyword">of</span> parent.<span class="property">children</span>) {
+        <span class="keyword">if</span> (<span class="function">condition</span>(child)) {
+            <span class="keyword">return</span> child;
+        }
+    }
+    <span class="keyword">return</span> <span class="null">null</span>;
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> activeItem = <span class="function">findChild</span>(list, child => 
+    child.<span class="property">classList</span>.<span class="function">contains</span>(<span class="string">'active'</span>)
+);
+
+<span class="comment">// Or just use querySelector (simpler!)</span>
+<span class="keyword">const</span> activeItem = list.<span class="function">querySelector</span>(<span class="string">'.active'</span>);</pre>
+
+        <h4>Pattern 4: Get All Siblings</h4>
+        
+<pre><span class="keyword">function</span> <span class="function">getSiblings</span>(element) {
+    <span class="keyword">return</span> [...element.<span class="property">parentElement</span>.<span class="property">children</span>].<span class="function">filter</span>(
+        child => child !== element
+    );
+}
+
+<span class="keyword">const</span> li = <span class="variable">document</span>.<span class="function">querySelector</span>(<span class="string">'li:nth-child(2)'</span>);
+<span class="keyword">const</span> siblings = <span class="function">getSiblings</span>(li);
+<span class="comment">// Returns array of other &lt;li&gt; elements</span></pre>
+
+        <h4>Pattern 5: Deep Traversal (Walk Entire Tree)</h4>
+        
+<pre><span class="keyword">function</span> <span class="function">walkDOM</span>(node, callback) {
+    <span class="function">callback</span>(node);
+    
+    node = node.<span class="property">firstElementChild</span>;
+    <span class="keyword">while</span> (node) {
+        <span class="function">walkDOM</span>(node, callback);
+        node = node.<span class="property">nextElementSibling</span>;
+    }
+}
+
+<span class="comment">// Usage: Log all elements in a tree</span>
+<span class="function">walkDOM</span>(container, element => {
+    <span class="variable">console</span>.<span class="function">log</span>(element.<span class="property">tagName</span>);
+});
+
+<span class="comment">// Modern alternative: TreeWalker API</span>
+<span class="keyword">const</span> walker = <span class="variable">document</span>.<span class="function">createTreeWalker</span>(
+    container,
+    <span class="variable">NodeFilter</span>.<span class="property">SHOW_ELEMENT</span>
+);
+
+<span class="keyword">while</span> (walker.<span class="function">nextNode</span>()) {
+    <span class="variable">console</span>.<span class="function">log</span>(walker.<span class="property">currentNode</span>.<span class="property">tagName</span>);
+}</pre>
+
+        <div class="section-divider"></div>
+        
+        <h2>Chapter 3 Summary — Quick Reference</h2>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Node Property</th>
+                    <th>Element Property</th>
+                    <th>Use Case</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="inline-code">parentNode</span></td>
+                    <td><span class="inline-code">parentElement</span></td>
+                    <td>Go up one level</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">childNodes</span></td>
+                    <td><span class="inline-code">children</span></td>
+                    <td>Get all direct children</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">firstChild</span></td>
+                    <td><span class="inline-code">firstElementChild</span></td>
+                    <td>Get first child</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">lastChild</span></td>
+                    <td><span class="inline-code">lastElementChild</span></td>
+                    <td>Get last child</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">previousSibling</span></td>
+                    <td><span class="inline-code">previousElementSibling</span></td>
+                    <td>Get previous sibling</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">nextSibling</span></td>
+                    <td><span class="inline-code">nextElementSibling</span></td>
+                    <td>Get next sibling</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="key-point">
+            <strong>Golden Rule:</strong> Unless you specifically need text/comment nodes, always use the <strong>Element</strong> version of traversal properties. They skip whitespace text nodes and give you what you actually want.
+        </div>
+        
+        <div class="interview-tip">
+            <strong>Top Interview Questions from this Chapter:</strong>
+            <ol>
+                <li>What's the difference between <span class="inline-code">childNodes</span> and <span class="inline-code">children</span>?</li>
+                <li>Why might <span class="inline-code">firstChild</span> return a text node?</li>
+                <li>What's the difference between <span class="inline-code">textContent</span> and <span class="inline-code">innerText</span>?</li>
+                <li>Why is <span class="inline-code">innerText</span> slower than <span class="inline-code">textContent</span>?</li>
+                <li>How would you get all siblings of an element?</li>
+                <li>What does <span class="inline-code">nodeType</span> return for different node types?</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

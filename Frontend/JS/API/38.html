@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 38: Fullscreen API</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%); color: #e4e4e4; line-height: 1.7; padding: 40px 20px; min-height: 100vh; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2.5rem; background: linear-gradient(90deg, #00d4ff, #7b2cbf, #ff006e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+    .subtitle { color: #888; font-size: 1.1rem; margin-bottom: 40px; }
+    h2 { color: #00d4ff; font-size: 1.6rem; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #7b2cbf33; }
+    h3 { color: #7b2cbf; font-size: 1.2rem; margin: 25px 0 15px; }
+    p { margin-bottom: 16px; color: #ccc; }
+    .concept-box { background: linear-gradient(135deg, #1a1a3e 0%, #0f0f23 100%); border-radius: 16px; padding: 25px; margin: 25px 0; border-left: 4px solid #00d4ff; }
+    .warning { background: linear-gradient(135deg, #4a2c2c 0%, #3d1f1f 100%); border-left-color: #ff006e; }
+    .tip { background: linear-gradient(135deg, #1f4a2c 0%, #1f3d2a 100%); border-left-color: #4ade80; }
+    .info { background: linear-gradient(135deg, #2d1b4e 0%, #0f0f23 100%); border-left-color: #7b2cbf; }
+    code { background: #0d1117; padding: 3px 8px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em; color: #00d4ff; }
+    pre { background: #0d1117; border-radius: 12px; padding: 20px; overflow-x: auto; margin: 20px 0; border: 1px solid #ffffff15; }
+    pre code { padding: 0; background: none; }
+    .keyword { color: #c792ea; }
+    .function { color: #82aaff; }
+    .string { color: #c3e88d; }
+    .comment { color: #676e95; }
+    .number { color: #f78c6c; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ffffff15; }
+    th { background: #00d4ff33; color: #00d4ff; }
+    tr:hover { background: #ffffff08; }
+    .interactive-demo { background: #0d1117; border-radius: 16px; padding: 25px; margin: 30px 0; border: 1px solid #7b2cbf44; }
+    button { background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%); color: #0f0f23; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.2s; margin: 5px; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px #00d4ff55; }
+    button.secondary { background: linear-gradient(135deg, #7b2cbf, #5b21b6); color: white; }
+    button.tertiary { background: linear-gradient(135deg, #ff006e, #cc0058); color: white; }
+    .fullscreen-target { background: linear-gradient(135deg, #1a1a3e, #0f0f23); border: 3px solid #7b2cbf; border-radius: 16px; padding: 40px; text-align: center; margin: 20px 0; min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s; }
+    .fullscreen-target:fullscreen { background: linear-gradient(135deg, #0f0f23, #1a1a3e); border-color: #00d4ff; }
+    .fullscreen-target:-webkit-full-screen { background: linear-gradient(135deg, #0f0f23, #1a1a3e); }
+    .fullscreen-icon { font-size: 4rem; margin-bottom: 20px; }
+    .status-indicator { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 20px; background: #1a1a3e; margin: 15px 0; }
+    .status-dot { width: 12px; height: 12px; border-radius: 50%; background: #888; }
+    .status-dot.active { background: #4ade80; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .diagram { background: #0d1117; border-radius: 16px; padding: 30px; margin: 30px 0; }
+    .flow-visual { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+    .flow-step { background: linear-gradient(135deg, #1a1a3e, #0f0f23); padding: 15px 30px; border-radius: 10px; border: 2px solid #7b2cbf; text-align: center; min-width: 250px; }
+    .flow-arrow { font-size: 1.5rem; color: #00d4ff; }
+    ul { margin-left: 25px; margin-bottom: 15px; }
+    li { margin-bottom: 8px; color: #ccc; }
+    .browser-support { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 15px; margin: 20px 0; }
+    .browser-card { background: #1a1a3e; padding: 15px; border-radius: 10px; text-align: center; }
+    .browser-card .icon { font-size: 2rem; margin-bottom: 8px; }
+    .browser-card .name { font-size: 0.85rem; color: #888; }
+    .video-container { background: #000; border-radius: 12px; overflow: hidden; margin: 20px 0; position: relative; }
+    .video-placeholder { aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a3e, #0f0f23); }
+    .controls-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 15px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); display: flex; justify-content: center; gap: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🖥️ Chapter 38: Fullscreen API</h1>
+    <p class="subtitle">Immersive Full-Screen Experiences for Web Applications</p>
+
+    <h2>🎯 What is the Fullscreen API?</h2>
+    <p>The <strong>Fullscreen API</strong> allows you to display an element (or the entire page) in full-screen mode, hiding the browser UI and other applications. It's essential for video players, games, presentations, and immersive web experiences.</p>
+
+    <div class="concept-box">
+      <h3>💡 Key Features</h3>
+      <ul style="margin-top: 10px; margin-left: 20px;">
+        <li>Display any element in full-screen mode</li>
+        <li>Works with videos, canvases, games, and any HTML element</li>
+        <li>Responds to user gestures (required for security)</li>
+        <li>Provides events for state changes</li>
+        <li>CSS pseudo-class <code>:fullscreen</code> for styling</li>
+      </ul>
+    </div>
+
+    <h2>📝 Basic Usage</h2>
+    <pre><code><span class="comment">// Enter fullscreen</span>
+<span class="keyword">async function</span> <span class="function">enterFullscreen</span>(element) {
+    <span class="keyword">try</span> {
+        <span class="keyword">await</span> element.<span class="function">requestFullscreen</span>();
+        console.<span class="function">log</span>(<span class="string">'Entered fullscreen mode'</span>);
+    } <span class="keyword">catch</span> (err) {
+        console.<span class="function">error</span>(<span class="string">'Fullscreen error:'</span>, err.message);
+    }
+}
+
+<span class="comment">// Exit fullscreen</span>
+<span class="keyword">async function</span> <span class="function">exitFullscreen</span>() {
+    <span class="keyword">if</span> (document.fullscreenElement) {
+        <span class="keyword">await</span> document.<span class="function">exitFullscreen</span>();
+        console.<span class="function">log</span>(<span class="string">'Exited fullscreen mode'</span>);
+    }
+}
+
+<span class="comment">// Toggle fullscreen</span>
+<span class="keyword">async function</span> <span class="function">toggleFullscreen</span>(element) {
+    <span class="keyword">if</span> (document.fullscreenElement) {
+        <span class="keyword">await</span> document.<span class="function">exitFullscreen</span>();
+    } <span class="keyword">else</span> {
+        <span class="keyword">await</span> element.<span class="function">requestFullscreen</span>();
+    }
+}</code></pre>
+
+    <h2>🎮 Interactive Demo</h2>
+    <div class="interactive-demo">
+      <div class="status-indicator">
+        <span class="status-dot" id="fs-status-dot"></span>
+        <span id="fs-status-text">Not in fullscreen</span>
+      </div>
+      
+      <div class="fullscreen-target" id="fullscreen-box">
+        <div class="fullscreen-icon">🖥️</div>
+        <h3 style="margin-bottom: 15px;">Fullscreen Target Element</h3>
+        <p style="color: #888; margin-bottom: 20px;">Click the button below or press <kbd>F</kbd> while hovering</p>
+        <div>
+          <button onclick="toggleFS()">⛶ Toggle Fullscreen</button>
+          <button onclick="exitFS()" class="secondary">✕ Exit</button>
+        </div>
+      </div>
+      
+      <div style="text-align: center; margin-top: 15px;">
+        <button onclick="fullscreenPage()" class="tertiary">🌐 Fullscreen Entire Page</button>
+      </div>
+    </div>
+
+    <h2>⚙️ Fullscreen Options</h2>
+    <pre><code><span class="comment">// Request fullscreen with options</span>
+element.<span class="function">requestFullscreen</span>({
+    <span class="comment">// Navigation UI preference</span>
+    navigationUI: <span class="string">'hide'</span>   <span class="comment">// 'auto', 'hide', or 'show'</span>
+});
+
+<span class="comment">// 'hide' - Request to hide browser navigation</span>
+<span class="comment">// 'show' - Request to show browser navigation</span>
+<span class="comment">// 'auto' - Let the browser decide (default)</span></code></pre>
+
+    <h2>📊 Fullscreen Properties</h2>
+    <table>
+      <tr><th>Property/Method</th><th>Description</th></tr>
+      <tr><td><code>document.fullscreenElement</code></td><td>Currently fullscreen element (or null)</td></tr>
+      <tr><td><code>document.fullscreenEnabled</code></td><td>Boolean: is fullscreen available?</td></tr>
+      <tr><td><code>element.requestFullscreen()</code></td><td>Request fullscreen for element</td></tr>
+      <tr><td><code>document.exitFullscreen()</code></td><td>Exit fullscreen mode</td></tr>
+    </table>
+
+    <h2>📡 Fullscreen Events</h2>
+    <pre><code><span class="comment">// Listen for fullscreen changes</span>
+document.<span class="function">addEventListener</span>(<span class="string">'fullscreenchange'</span>, () => {
+    <span class="keyword">if</span> (document.fullscreenElement) {
+        console.<span class="function">log</span>(<span class="string">'Entered fullscreen:'</span>, document.fullscreenElement);
+    } <span class="keyword">else</span> {
+        console.<span class="function">log</span>(<span class="string">'Exited fullscreen'</span>);
+    }
+});
+
+<span class="comment">// Listen for fullscreen errors</span>
+document.<span class="function">addEventListener</span>(<span class="string">'fullscreenerror'</span>, (event) => {
+    console.<span class="function">error</span>(<span class="string">'Fullscreen error:'</span>, event);
+});
+
+<span class="comment">// Element-level listeners</span>
+element.<span class="function">addEventListener</span>(<span class="string">'fullscreenchange'</span>, handleChange);
+element.<span class="function">addEventListener</span>(<span class="string">'fullscreenerror'</span>, handleError);</code></pre>
+
+    <h2>🎨 CSS Fullscreen Styling</h2>
+    <pre><code><span class="comment">/* Style element when in fullscreen */</span>
+<span class="function">.video-player:fullscreen</span> {
+    width: <span class="number">100</span>vw;
+    height: <span class="number">100</span>vh;
+    background: black;
+}
+
+<span class="comment">/* Style the backdrop (area around element) */</span>
+<span class="function">.video-player::backdrop</span> {
+    background: rgba(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0.9</span>);
+}
+
+<span class="comment">/* Vendor prefixes for older browsers */</span>
+<span class="function">.element:-webkit-full-screen</span> { <span class="comment">/* Chrome, Safari */</span> }
+<span class="function">.element:-moz-full-screen</span> { <span class="comment">/* Firefox */</span> }
+<span class="function">.element:-ms-fullscreen</span> { <span class="comment">/* IE/Edge */</span> }
+
+<span class="comment">/* Hide elements when in fullscreen */</span>
+<span class="function">:fullscreen .hide-in-fullscreen</span> {
+    display: none;
+}
+
+<span class="comment">/* Show elements only in fullscreen */</span>
+<span class="function">.fullscreen-only</span> {
+    display: none;
+}
+<span class="function">:fullscreen .fullscreen-only</span> {
+    display: block;
+}</code></pre>
+
+    <h2>🎬 Video Player Example</h2>
+    <div class="interactive-demo">
+      <div class="video-container" id="video-container">
+        <div class="video-placeholder">
+          <div style="text-align: center;">
+            <div style="font-size: 4rem; margin-bottom: 15px;">🎬</div>
+            <p style="color: #888;">Video Placeholder</p>
+          </div>
+        </div>
+        <div class="controls-overlay">
+          <button onclick="toggleVideoFS()" style="padding: 8px 16px;">⛶ Fullscreen</button>
+        </div>
+      </div>
+    </div>
+
+    <pre><code><span class="comment">// Complete video fullscreen implementation</span>
+<span class="keyword">class</span> <span class="function">VideoPlayer</span> {
+    <span class="function">constructor</span>(container) {
+        <span class="keyword">this</span>.container = container;
+        <span class="keyword">this</span>.video = container.<span class="function">querySelector</span>(<span class="string">'video'</span>);
+        <span class="keyword">this</span>.fsButton = container.<span class="function">querySelector</span>(<span class="string">'.fs-btn'</span>);
+        
+        <span class="keyword">this</span>.<span class="function">setupEventListeners</span>();
+    }
+    
+    <span class="function">setupEventListeners</span>() {
+        <span class="comment">// Fullscreen button</span>
+        <span class="keyword">this</span>.fsButton.<span class="function">addEventListener</span>(<span class="string">'click'</span>, () => {
+            <span class="keyword">this</span>.<span class="function">toggleFullscreen</span>();
+        });
+        
+        <span class="comment">// Double-click video to toggle fullscreen</span>
+        <span class="keyword">this</span>.video.<span class="function">addEventListener</span>(<span class="string">'dblclick'</span>, () => {
+            <span class="keyword">this</span>.<span class="function">toggleFullscreen</span>();
+        });
+        
+        <span class="comment">// Update button icon on fullscreen change</span>
+        document.<span class="function">addEventListener</span>(<span class="string">'fullscreenchange'</span>, () => {
+            <span class="keyword">this</span>.<span class="function">updateButton</span>();
+        });
+        
+        <span class="comment">// Keyboard shortcut (F key)</span>
+        document.<span class="function">addEventListener</span>(<span class="string">'keydown'</span>, (e) => {
+            <span class="keyword">if</span> (e.key === <span class="string">'f'</span> || e.key === <span class="string">'F'</span>) {
+                <span class="keyword">this</span>.<span class="function">toggleFullscreen</span>();
+            }
+        });
+    }
+    
+    <span class="keyword">async</span> <span class="function">toggleFullscreen</span>() {
+        <span class="keyword">try</span> {
+            <span class="keyword">if</span> (document.fullscreenElement) {
+                <span class="keyword">await</span> document.<span class="function">exitFullscreen</span>();
+            } <span class="keyword">else</span> {
+                <span class="keyword">await</span> <span class="keyword">this</span>.container.<span class="function">requestFullscreen</span>();
+            }
+        } <span class="keyword">catch</span> (err) {
+            console.<span class="function">error</span>(<span class="string">'Fullscreen error:'</span>, err);
+        }
+    }
+    
+    <span class="function">updateButton</span>() {
+        <span class="keyword">const</span> isFullscreen = document.fullscreenElement === <span class="keyword">this</span>.container;
+        <span class="keyword">this</span>.fsButton.textContent = isFullscreen ? <span class="string">'Exit ⛶'</span> : <span class="string">'Fullscreen ⛶'</span>;
+    }
+}</code></pre>
+
+    <h2>🔒 Security Requirements</h2>
+    <div class="concept-box warning">
+      <h3>⚠️ User Gesture Required</h3>
+      <p>For security reasons, <code>requestFullscreen()</code> can only be called in response to a user action (click, keypress, etc.). Calling it without user interaction will fail.</p>
+      <pre style="margin-top: 15px;"><code><span class="comment">// ❌ This will fail</span>
+window.<span class="function">addEventListener</span>(<span class="string">'load'</span>, () => {
+    element.<span class="function">requestFullscreen</span>();  <span class="comment">// Error: not user-initiated</span>
+});
+
+<span class="comment">// ✅ This works</span>
+button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, () => {
+    element.<span class="function">requestFullscreen</span>();  <span class="comment">// Success!</span>
+});</code></pre>
+    </div>
+
+    <h2>🌐 Browser Compatibility</h2>
+    <div class="concept-box info">
+      <h3>Vendor Prefixes (Legacy)</h3>
+      <pre style="margin-top: 15px;"><code><span class="comment">// Cross-browser fullscreen function</span>
+<span class="keyword">function</span> <span class="function">requestFullscreen</span>(element) {
+    <span class="keyword">if</span> (element.requestFullscreen) {
+        <span class="keyword">return</span> element.<span class="function">requestFullscreen</span>();
+    } <span class="keyword">else if</span> (element.webkitRequestFullscreen) {
+        <span class="keyword">return</span> element.<span class="function">webkitRequestFullscreen</span>();  <span class="comment">// Safari</span>
+    } <span class="keyword">else if</span> (element.mozRequestFullScreen) {
+        <span class="keyword">return</span> element.<span class="function">mozRequestFullScreen</span>();   <span class="comment">// Firefox</span>
+    } <span class="keyword">else if</span> (element.msRequestFullscreen) {
+        <span class="keyword">return</span> element.<span class="function">msRequestFullscreen</span>();    <span class="comment">// IE/Edge</span>
+    }
+}
+
+<span class="comment">// Cross-browser exit fullscreen</span>
+<span class="keyword">function</span> <span class="function">exitFullscreen</span>() {
+    <span class="keyword">if</span> (document.exitFullscreen) {
+        <span class="keyword">return</span> document.<span class="function">exitFullscreen</span>();
+    } <span class="keyword">else if</span> (document.webkitExitFullscreen) {
+        <span class="keyword">return</span> document.<span class="function">webkitExitFullscreen</span>();
+    } <span class="keyword">else if</span> (document.mozCancelFullScreen) {
+        <span class="keyword">return</span> document.<span class="function">mozCancelFullScreen</span>();
+    } <span class="keyword">else if</span> (document.msExitFullscreen) {
+        <span class="keyword">return</span> document.<span class="function">msExitFullscreen</span>();
+    }
+}</code></pre>
+    </div>
+
+    <h2>📋 Best Practices</h2>
+    <div class="concept-box tip">
+      <h3>✅ Do's</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li>Always provide an obvious way to exit fullscreen</li>
+        <li>Use keyboard shortcuts (Escape always exits, add F for toggle)</li>
+        <li>Style your element properly for fullscreen mode</li>
+        <li>Handle errors gracefully</li>
+        <li>Check <code>fullscreenEnabled</code> before showing fullscreen button</li>
+        <li>Consider the <code>::backdrop</code> pseudo-element styling</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const fsBox = document.getElementById('fullscreen-box');
+    const statusDot = document.getElementById('fs-status-dot');
+    const statusText = document.getElementById('fs-status-text');
+    
+    function updateStatus() {
+      const isFullscreen = !!document.fullscreenElement;
+      statusDot.classList.toggle('active', isFullscreen);
+      statusText.textContent = isFullscreen ? 'In fullscreen mode' : 'Not in fullscreen';
+    }
+    
+    document.addEventListener('fullscreenchange', updateStatus);
+    
+    async function toggleFS() {
+      try {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        } else {
+          await fsBox.requestFullscreen();
+        }
+      } catch (err) {
+        console.error('Fullscreen error:', err);
+        alert('Fullscreen error: ' + err.message);
+      }
+    }
+    
+    async function exitFS() {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      }
+    }
+    
+    async function fullscreenPage() {
+      try {
+        await document.documentElement.requestFullscreen();
+      } catch (err) {
+        alert('Fullscreen error: ' + err.message);
+      }
+    }
+    
+    async function toggleVideoFS() {
+      const container = document.getElementById('video-container');
+      try {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        } else {
+          await container.requestFullscreen();
+        }
+      } catch (err) {
+        alert('Fullscreen error: ' + err.message);
+      }
+    }
+    
+    // Keyboard shortcut
+    fsBox.addEventListener('keydown', (e) => {
+      if (e.key === 'f' || e.key === 'F') {
+        toggleFS();
+      }
+    });
+    
+    fsBox.setAttribute('tabindex', '0');
+  </script>
+</body>
+</html>

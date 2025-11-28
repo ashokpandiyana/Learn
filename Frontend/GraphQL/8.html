@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 8: InMemoryCache Architecture</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0c1929 0%, #1a0a2e 100%);
+      color: #e4e4e7;
+      line-height: 1.7;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 950px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #f97316, #eab308);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle { color: #a1a1aa; font-size: 1.1rem; margin-bottom: 40px; }
+    h2 {
+      color: #f97316;
+      font-size: 1.6rem;
+      margin: 40px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #3f3f46;
+    }
+    h3 { color: #fb923c; font-size: 1.2rem; margin: 25px 0 15px; }
+    h4 { color: #fdba74; font-size: 1rem; margin: 20px 0 10px; }
+    p { margin-bottom: 15px; color: #d4d4d8; }
+    .highlight-box {
+      background: linear-gradient(135deg, #7c2d12 0%, #431407 100%);
+      border-left: 4px solid #f97316;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .warning-box {
+      background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%);
+      border-left: 4px solid #ef4444;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .warning-box::before { content: "⚠️ INTERVIEW HIGHLIGHT: "; font-weight: bold; color: #f87171; }
+    .tip-box {
+      background: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+      border-left: 4px solid #10b981;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .tip-box::before { content: "📝 PRODUCTION TIP: "; font-weight: bold; color: #34d399; }
+    .concept-box {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e1b4b 100%);
+      border-left: 4px solid #3b82f6;
+      padding: 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .concept-box::before { content: "💡 KEY CONCEPT: "; font-weight: bold; color: #60a5fa; }
+    pre {
+      background: #0a0a15;
+      border: 1px solid #3f3f46;
+      border-radius: 12px;
+      padding: 20px;
+      overflow-x: auto;
+      margin: 15px 0;
+      font-size: 0.85rem;
+    }
+    code { font-family: 'Fira Code', 'Consolas', monospace; }
+    .inline-code {
+      background: #3f3f46;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+    .keyword { color: #c084fc; }
+    .type { color: #38bdf8; }
+    .string { color: #4ade80; }
+    .comment { color: #6b7280; font-style: italic; }
+    .field { color: #fbbf24; }
+    .function { color: #f472b6; }
+    .const { color: #fb923c; }
+    .diagram {
+      background: #0a0a15;
+      border-radius: 12px;
+      padding: 30px;
+      margin: 20px 0;
+      text-align: center;
+      overflow-x: auto;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: #1e293b;
+      border-radius: 12px;
+      overflow: hidden;
+      font-size: 0.9rem;
+    }
+    .comparison-table th {
+      background: linear-gradient(90deg, #c2410c, #a16207);
+      padding: 14px;
+      text-align: left;
+      font-weight: 600;
+    }
+    .comparison-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #334155;
+    }
+    .comparison-table tr:last-child td { border-bottom: none; }
+    ul, ol { margin: 15px 0 15px 25px; }
+    li { margin: 8px 0; color: #d4d4d8; }
+    .chapter-nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 1px solid #3f3f46;
+    }
+    .nav-btn {
+      padding: 12px 24px;
+      background: linear-gradient(90deg, #c2410c, #a16207);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .cache-visual {
+      background: #1f2937;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 15px 0;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+    .cache-key { color: #f97316; }
+    .cache-ref { color: #a78bfa; }
+    .cache-value { color: #4ade80; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Chapter 8</h1>
+    <p class="subtitle">InMemoryCache Architecture — The Heart of Apollo Client</p>
+
+    <!-- Section 8.1 -->
+    <h2>8.1 Understanding Normalized Caching</h2>
+    
+    <p>Apollo's <code class="inline-code">InMemoryCache</code> is a normalized, reactive cache. Instead of storing query responses as-is, it breaks down data into individual objects and stores them by a unique identifier.</p>
+
+    <div class="highlight-box">
+      <strong>Why Normalization?</strong>
+      <ul style="margin-top: 10px;">
+        <li><strong>Deduplication:</strong> Same object stored once, referenced everywhere</li>
+        <li><strong>Automatic Updates:</strong> Update one object → all views update</li>
+        <li><strong>Memory Efficient:</strong> No duplicate data storage</li>
+        <li><strong>Consistency:</strong> Single source of truth for each entity</li>
+      </ul>
+    </div>
+
+    <h3>How Normalization Works</h3>
+
+    <pre><code><span class="comment">// When you execute this query:</span>
+<span class="keyword">query</span> GetUserWithPosts {
+  <span class="field">user</span>(id: <span class="string">"1"</span>) {
+    <span class="field">id</span>
+    <span class="field">name</span>
+    <span class="field">email</span>
+    <span class="field">posts</span> {
+      <span class="field">id</span>
+      <span class="field">title</span>
+      <span class="field">author</span> {
+        <span class="field">id</span>
+        <span class="field">name</span>
+      }
+    }
+  }
+}
+
+<span class="comment">// Server returns:</span>
+{
+  <span class="string">"user"</span>: {
+    <span class="string">"id"</span>: <span class="string">"1"</span>,
+    <span class="string">"name"</span>: <span class="string">"John Doe"</span>,
+    <span class="string">"email"</span>: <span class="string">"john@example.com"</span>,
+    <span class="string">"posts"</span>: [
+      {
+        <span class="string">"id"</span>: <span class="string">"101"</span>,
+        <span class="string">"title"</span>: <span class="string">"GraphQL Basics"</span>,
+        <span class="string">"author"</span>: { <span class="string">"id"</span>: <span class="string">"1"</span>, <span class="string">"name"</span>: <span class="string">"John Doe"</span> }
+      },
+      {
+        <span class="string">"id"</span>: <span class="string">"102"</span>,
+        <span class="string">"title"</span>: <span class="string">"Apollo Client"</span>,
+        <span class="string">"author"</span>: { <span class="string">"id"</span>: <span class="string">"1"</span>, <span class="string">"name"</span>: <span class="string">"John Doe"</span> }
+      }
+    ]
+  }
+}</code></pre>
+
+    <h3>Normalized Cache Structure</h3>
+
+    <div class="cache-visual">
+<span class="comment">// Apollo normalizes and stores like this:</span>
+{
+  <span class="cache-key">"ROOT_QUERY"</span>: {
+    <span class="field">"__typename"</span>: <span class="cache-value">"Query"</span>,
+    <span class="field">"user({\"id\":\"1\"})"</span>: { <span class="cache-ref">"__ref": "User:1"</span> }
+  },
+  
+  <span class="cache-key">"User:1"</span>: {
+    <span class="field">"__typename"</span>: <span class="cache-value">"User"</span>,
+    <span class="field">"id"</span>: <span class="cache-value">"1"</span>,
+    <span class="field">"name"</span>: <span class="cache-value">"John Doe"</span>,
+    <span class="field">"email"</span>: <span class="cache-value">"john@example.com"</span>,
+    <span class="field">"posts"</span>: [
+      { <span class="cache-ref">"__ref": "Post:101"</span> },
+      { <span class="cache-ref">"__ref": "Post:102"</span> }
+    ]
+  },
+  
+  <span class="cache-key">"Post:101"</span>: {
+    <span class="field">"__typename"</span>: <span class="cache-value">"Post"</span>,
+    <span class="field">"id"</span>: <span class="cache-value">"101"</span>,
+    <span class="field">"title"</span>: <span class="cache-value">"GraphQL Basics"</span>,
+    <span class="field">"author"</span>: { <span class="cache-ref">"__ref": "User:1"</span> }  <span class="comment">// Same reference!</span>
+  },
+  
+  <span class="cache-key">"Post:102"</span>: {
+    <span class="field">"__typename"</span>: <span class="cache-value">"Post"</span>,
+    <span class="field">"id"</span>: <span class="cache-value">"102"</span>,
+    <span class="field">"title"</span>: <span class="cache-value">"Apollo Client"</span>,
+    <span class="field">"author"</span>: { <span class="cache-ref">"__ref": "User:1"</span> }  <span class="comment">// Same reference!</span>
+  }
+}
+    </div>
+
+    <div class="warning-box">
+      The cache ID is formed by <code class="inline-code">__typename:id</code>. This is why every GraphQL type should have an <code class="inline-code">id</code> field. If an object doesn't have an ID, Apollo can't normalize it properly!
+    </div>
+
+    <div class="diagram">
+      <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg">
+        <text x="400" y="25" fill="#e4e4e7" font-size="16" font-weight="bold" text-anchor="middle">Normalized Cache — Single Source of Truth</text>
+        
+        <!-- User:1 (Center) -->
+        <rect x="300" y="100" width="200" height="80" rx="10" fill="#c2410c"/>
+        <text x="400" y="130" fill="white" font-size="14" font-weight="bold" text-anchor="middle">User:1</text>
+        <text x="400" y="150" fill="#fcd34d" font-size="11" text-anchor="middle">name: "John Doe"</text>
+        <text x="400" y="168" fill="#fcd34d" font-size="11" text-anchor="middle">email: "john@example.com"</text>
+        
+        <!-- Post:101 -->
+        <rect x="50" y="200" width="180" height="60" rx="8" fill="#1e40af"/>
+        <text x="140" y="225" fill="white" font-size="12" text-anchor="middle">Post:101</text>
+        <text x="140" y="245" fill="#93c5fd" font-size="10" text-anchor="middle">"GraphQL Basics"</text>
+        
+        <!-- Post:102 -->
+        <rect x="570" y="200" width="180" height="60" rx="8" fill="#1e40af"/>
+        <text x="660" y="225" fill="white" font-size="12" text-anchor="middle">Post:102</text>
+        <text x="660" y="245" fill="#93c5fd" font-size="10" text-anchor="middle">"Apollo Client"</text>
+        
+        <!-- ROOT_QUERY -->
+        <rect x="300" y="10" width="200" height="50" rx="8" fill="#374151"/>
+        <text x="400" y="40" fill="#9ca3af" font-size="11" text-anchor="middle">ROOT_QUERY.user(id:"1")</text>
+        
+        <!-- Arrows -->
+        <line x1="400" y1="60" x2="400" y2="100" stroke="#f97316" stroke-width="2" stroke-dasharray="5,3"/>
+        <line x1="320" y1="180" x2="200" y2="200" stroke="#3b82f6" stroke-width="2"/>
+        <line x1="480" y1="180" x2="600" y2="200" stroke="#3b82f6" stroke-width="2"/>
+        <line x1="140" y1="200" x2="320" y2="160" stroke="#f97316" stroke-width="2" stroke-dasharray="5,3"/>
+        <line x1="660" y1="200" x2="480" y2="160" stroke="#f97316" stroke-width="2" stroke-dasharray="5,3"/>
+        
+        <text x="140" y="185" fill="#f97316" font-size="9" text-anchor="middle">author → User:1</text>
+        <text x="660" y="185" fill="#f97316" font-size="9" text-anchor="middle">author → User:1</text>
+      </svg>
+    </div>
+
+    <div class="concept-box">
+      Notice how <strong>User:1 is stored only once</strong>, but both posts reference it. If you update User:1's name, both posts automatically show the new name — no extra work needed!
+    </div>
+
+    <!-- Section 8.2 -->
+    <h2>8.2 Cache Configuration with typePolicies</h2>
+
+    <p><code class="inline-code">typePolicies</code> let you customize how the cache handles each type in your schema.</p>
+
+    <pre><code><span class="keyword">import</span> { <span class="type">InMemoryCache</span> } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+
+<span class="keyword">const</span> <span class="const">cache</span> = <span class="keyword">new</span> <span class="function">InMemoryCache</span>({
+  <span class="field">typePolicies</span>: {
+    <span class="comment">// ═══════════════════════════════════════════</span>
+    <span class="comment">// CUSTOM KEY FIELDS</span>
+    <span class="comment">// ═══════════════════════════════════════════</span>
+    
+    <span class="comment">// Default: uses "id" or "_id"</span>
+    <span class="field">User</span>: {
+      <span class="field">keyFields</span>: [<span class="string">"id"</span>],  <span class="comment">// Cache key: User:123</span>
+    },
+    
+    <span class="comment">// Composite key (multiple fields)</span>
+    <span class="field">CartItem</span>: {
+      <span class="field">keyFields</span>: [<span class="string">"productId"</span>, <span class="string">"variantId"</span>],  <span class="comment">// CartItem:{"productId":"1","variantId":"blue"}</span>
+    },
+    
+    <span class="comment">// Nested key fields</span>
+    <span class="field">Book</span>: {
+      <span class="field">keyFields</span>: [<span class="string">"isbn"</span>, <span class="string">"publisher"</span>, [<span class="string">"name"</span>]],  <span class="comment">// Uses publisher.name</span>
+    },
+    
+    <span class="comment">// No key (singleton - stored once at root)</span>
+    <span class="field">CurrentUser</span>: {
+      <span class="field">keyFields</span>: [],  <span class="comment">// Only one CurrentUser in cache</span>
+    },
+    
+    <span class="comment">// Disable normalization entirely</span>
+    <span class="field">Coordinate</span>: {
+      <span class="field">keyFields</span>: <span class="keyword">false</span>,  <span class="comment">// Embedded in parent, not normalized</span>
+    },
+  },
+});</code></pre>
+
+    <table class="comparison-table">
+      <tr>
+        <th>keyFields Setting</th>
+        <th>Cache ID Example</th>
+        <th>Use Case</th>
+      </tr>
+      <tr>
+        <td><code>["id"]</code></td>
+        <td><code>User:123</code></td>
+        <td>Standard entities with ID</td>
+      </tr>
+      <tr>
+        <td><code>["productId", "variantId"]</code></td>
+        <td><code>CartItem:{"productId":"1","variantId":"M"}</code></td>
+        <td>Composite primary keys</td>
+      </tr>
+      <tr>
+        <td><code>[]</code></td>
+        <td><code>CurrentUser</code></td>
+        <td>Singletons (one per app)</td>
+      </tr>
+      <tr>
+        <td><code>false</code></td>
+        <td>Not normalized</td>
+        <td>Embedded objects (coordinates, timestamps)</td>
+      </tr>
+    </table>
+
+    <!-- Section 8.3 -->
+    <h2>8.3 Field Policies — Custom Field Behavior</h2>
+
+    <p>Field policies let you customize how individual fields are read from and written to the cache.</p>
+
+    <h3>Read Functions — Transform Data on Read</h3>
+
+    <pre><code><span class="keyword">const</span> <span class="const">cache</span> = <span class="keyword">new</span> <span class="function">InMemoryCache</span>({
+  <span class="field">typePolicies</span>: {
+    <span class="field">User</span>: {
+      <span class="field">fields</span>: {
+        <span class="comment">// Computed field (not in schema)</span>
+        <span class="field">fullName</span>: {
+          <span class="function">read</span>(_, { readField }) {
+            <span class="keyword">const</span> firstName = <span class="function">readField</span>(<span class="string">'firstName'</span>);
+            <span class="keyword">const</span> lastName = <span class="function">readField</span>(<span class="string">'lastName'</span>);
+            <span class="keyword">return</span> <span class="string">`</span>${firstName} ${lastName}<span class="string">`</span>;
+          },
+        },
+        
+        <span class="comment">// Transform existing field</span>
+        <span class="field">createdAt</span>: {
+          <span class="function">read</span>(timestamp) {
+            <span class="comment">// Convert timestamp to Date object</span>
+            <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">Date</span>(timestamp);
+          },
+        },
+        
+        <span class="comment">// Default value for nullable field</span>
+        <span class="field">avatar</span>: {
+          <span class="function">read</span>(existing) {
+            <span class="keyword">return</span> existing || <span class="string">'/default-avatar.png'</span>;
+          },
+        },
+        
+        <span class="comment">// Field with arguments</span>
+        <span class="field">posts</span>: {
+          <span class="function">read</span>(existing, { args }) {
+            <span class="keyword">if</span> (!existing) <span class="keyword">return</span> existing;
+            <span class="comment">// Filter by status if argument provided</span>
+            <span class="keyword">if</span> (args?.status) {
+              <span class="keyword">return</span> existing.<span class="function">filter</span>(p => p.status === args.status);
+            }
+            <span class="keyword">return</span> existing;
+          },
+        },
+      },
+    },
+  },
+});</code></pre>
+
+    <h3>Merge Functions — Control How Data is Written</h3>
+
+    <pre><code><span class="keyword">const</span> <span class="const">cache</span> = <span class="keyword">new</span> <span class="function">InMemoryCache</span>({
+  <span class="field">typePolicies</span>: {
+    <span class="field">User</span>: {
+      <span class="field">fields</span>: {
+        <span class="comment">// Merge incoming data with existing</span>
+        <span class="field">profile</span>: {
+          <span class="function">merge</span>(existing, incoming, { mergeObjects }) {
+            <span class="comment">// Deep merge profile objects</span>
+            <span class="keyword">return</span> <span class="function">mergeObjects</span>(existing, incoming);
+          },
+        },
+        
+        <span class="comment">// Append to array (for pagination)</span>
+        <span class="field">notifications</span>: {
+          <span class="function">merge</span>(existing = [], incoming) {
+            <span class="keyword">return</span> [...existing, ...incoming];
+          },
+        },
+        
+        <span class="comment">// Replace entirely (no merge)</span>
+        <span class="field">settings</span>: {
+          <span class="function">merge</span>(_, incoming) {
+            <span class="keyword">return</span> incoming;  <span class="comment">// Always use new data</span>
+          },
+        },
+      },
+    },
+    
+    <span class="field">Query</span>: {
+      <span class="field">fields</span>: {
+        <span class="comment">// Pagination merge for root query</span>
+        <span class="field">posts</span>: {
+          <span class="field">keyArgs</span>: [<span class="string">"category"</span>],  <span class="comment">// Separate cache by category</span>
+          <span class="function">merge</span>(existing = [], incoming, { args }) {
+            <span class="keyword">if</span> (args?.offset === 0) {
+              <span class="keyword">return</span> incoming;  <span class="comment">// Reset on first page</span>
+            }
+            <span class="keyword">return</span> [...existing, ...incoming];
+          },
+        },
+      },
+    },
+  },
+});</code></pre>
+
+    <div class="warning-box">
+      <code class="inline-code">keyArgs</code> determines which arguments create separate cache entries. For <code class="inline-code">posts(category: "tech", page: 2)</code>, setting <code class="inline-code">keyArgs: ["category"]</code> means pagination arguments don't create new cache entries.
+    </div>
+
+    <!-- Section 8.4 -->
+    <h2>8.4 Direct Cache Manipulation</h2>
+
+    <h3>Reading from Cache</h3>
+
+    <pre><code><span class="keyword">import</span> { <span class="type">useApolloClient</span> } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+
+<span class="keyword">function</span> <span class="function">MyComponent</span>() {
+  <span class="keyword">const</span> client = <span class="function">useApolloClient</span>();
+  
+  <span class="comment">// Read a query from cache</span>
+  <span class="keyword">const</span> data = client.<span class="function">readQuery</span>({
+    <span class="field">query</span>: <span class="const">GET_USER</span>,
+    <span class="field">variables</span>: { <span class="field">id</span>: <span class="string">'123'</span> },
+  });
+  
+  <span class="comment">// Read a fragment from cache</span>
+  <span class="keyword">const</span> user = client.<span class="function">readFragment</span>({
+    <span class="field">id</span>: <span class="string">'User:123'</span>,  <span class="comment">// Cache ID</span>
+    <span class="field">fragment</span>: <span class="function">gql</span><span class="string">`
+      fragment UserDetails on User {
+        id
+        name
+        email
+      }
+    `</span>,
+  });
+  
+  console.<span class="function">log</span>(data, user);
+}</code></pre>
+
+    <h3>Writing to Cache</h3>
+
+    <pre><code><span class="comment">// Write a query result</span>
+client.<span class="function">writeQuery</span>({
+  <span class="field">query</span>: <span class="const">GET_USER</span>,
+  <span class="field">variables</span>: { <span class="field">id</span>: <span class="string">'123'</span> },
+  <span class="field">data</span>: {
+    <span class="field">user</span>: {
+      <span class="field">__typename</span>: <span class="string">'User'</span>,
+      <span class="field">id</span>: <span class="string">'123'</span>,
+      <span class="field">name</span>: <span class="string">'Updated Name'</span>,
+      <span class="field">email</span>: <span class="string">'new@email.com'</span>,
+    },
+  },
+});
+
+<span class="comment">// Write a fragment</span>
+client.<span class="function">writeFragment</span>({
+  <span class="field">id</span>: <span class="string">'User:123'</span>,
+  <span class="field">fragment</span>: <span class="function">gql</span><span class="string">`
+    fragment UpdateName on User {
+      name
+    }
+  `</span>,
+  <span class="field">data</span>: {
+    <span class="field">name</span>: <span class="string">'New Name'</span>,
+  },
+});</code></pre>
+
+    <h3>cache.modify — Most Performant Updates</h3>
+
+    <pre><code><span class="comment">// Modify specific fields without reading first</span>
+client.cache.<span class="function">modify</span>({
+  <span class="field">id</span>: <span class="string">'User:123'</span>,
+  <span class="field">fields</span>: {
+    <span class="comment">// Simple value update</span>
+    <span class="function">name</span>() {
+      <span class="keyword">return</span> <span class="string">'New Name'</span>;
+    },
+    
+    <span class="comment">// Update based on existing value</span>
+    <span class="function">followerCount</span>(existing) {
+      <span class="keyword">return</span> existing + 1;
+    },
+    
+    <span class="comment">// Add to array</span>
+    <span class="function">posts</span>(existingRefs, { toReference }) {
+      <span class="keyword">const</span> newPostRef = <span class="function">toReference</span>({
+        <span class="field">__typename</span>: <span class="string">'Post'</span>,
+        <span class="field">id</span>: <span class="string">'999'</span>,
+      });
+      <span class="keyword">return</span> [newPostRef, ...existingRefs];
+    },
+    
+    <span class="comment">// Remove from array</span>
+    <span class="function">notifications</span>(existingRefs, { readField }) {
+      <span class="keyword">return</span> existingRefs.<span class="function">filter</span>(
+        ref => <span class="function">readField</span>(<span class="string">'id'</span>, ref) !== <span class="string">'notif-to-remove'</span>
+      );
+    },
+    
+    <span class="comment">// Delete field entirely</span>
+    <span class="function">temporaryData</span>(_, { DELETE }) {
+      <span class="keyword">return</span> DELETE;
+    },
+  },
+});
+
+<span class="comment">// Modify ROOT_QUERY fields</span>
+client.cache.<span class="function">modify</span>({
+  <span class="field">fields</span>: {
+    <span class="function">posts</span>(existing, { toReference }) {
+      <span class="keyword">const</span> newPost = <span class="function">toReference</span>({
+        <span class="field">__typename</span>: <span class="string">'Post'</span>,
+        <span class="field">id</span>: newPostId,
+      });
+      <span class="keyword">return</span> [newPost, ...existing];
+    },
+  },
+});</code></pre>
+
+    <div class="tip-box">
+      <code class="inline-code">cache.modify</code> is more performant than <code class="inline-code">writeQuery</code> because it doesn't require reading existing data first. Use it for targeted updates in mutation update functions.
+    </div>
+
+    <!-- Section 8.5 -->
+    <h2>8.5 Cache Eviction & Garbage Collection</h2>
+
+    <pre><code><span class="comment">// Evict a specific object</span>
+client.cache.<span class="function">evict</span>({ 
+  <span class="field">id</span>: <span class="string">'User:123'</span> 
+});
+
+<span class="comment">// Evict a specific field</span>
+client.cache.<span class="function">evict</span>({ 
+  <span class="field">id</span>: <span class="string">'User:123'</span>,
+  <span class="field">fieldName</span>: <span class="string">'posts'</span>,
+});
+
+<span class="comment">// Evict field with specific arguments</span>
+client.cache.<span class="function">evict</span>({
+  <span class="field">id</span>: <span class="string">'User:123'</span>,
+  <span class="field">fieldName</span>: <span class="string">'posts'</span>,
+  <span class="field">args</span>: { <span class="field">status</span>: <span class="string">'draft'</span> },
+});
+
+<span class="comment">// IMPORTANT: Always garbage collect after eviction!</span>
+client.cache.<span class="function">gc</span>();
+
+<span class="comment">// Complete cache reset</span>
+client.<span class="function">resetStore</span>();    <span class="comment">// Clears cache + refetches active queries</span>
+client.<span class="function">clearStore</span>();    <span class="comment">// Clears cache only (no refetch)</span></code></pre>
+
+    <div class="warning-box">
+      Always call <code class="inline-code">cache.gc()</code> after <code class="inline-code">cache.evict()</code>. Garbage collection removes orphaned references — objects that are no longer reachable from any query.
+    </div>
+
+    <!-- Section 8.6 -->
+    <h2>8.6 Cache Identification</h2>
+
+    <pre><code><span class="comment">// Get cache ID for an object</span>
+<span class="keyword">const</span> cacheId = client.cache.<span class="function">identify</span>({
+  <span class="field">__typename</span>: <span class="string">'User'</span>,
+  <span class="field">id</span>: <span class="string">'123'</span>,
+});
+console.<span class="function">log</span>(cacheId);  <span class="comment">// "User:123"</span>
+
+<span class="comment">// With composite keys</span>
+<span class="keyword">const</span> cartItemId = client.cache.<span class="function">identify</span>({
+  <span class="field">__typename</span>: <span class="string">'CartItem'</span>,
+  <span class="field">productId</span>: <span class="string">'prod-1'</span>,
+  <span class="field">variantId</span>: <span class="string">'size-M'</span>,
+});
+console.<span class="function">log</span>(cartItemId);  <span class="comment">// 'CartItem:{"productId":"prod-1","variantId":"size-M"}'</span>
+
+<span class="comment">// Use in mutation update</span>
+<span class="keyword">const</span> [deleteUser] = <span class="function">useMutation</span>(<span class="const">DELETE_USER</span>, {
+  <span class="function">update</span>(cache, { data }) {
+    <span class="keyword">const</span> userId = cache.<span class="function">identify</span>(data.deleteUser);
+    cache.<span class="function">evict</span>({ <span class="field">id</span>: userId });
+    cache.<span class="function">gc</span>();
+  },
+});</code></pre>
+
+    <!-- Section 8.7 -->
+    <h2>8.7 Complete Cache Configuration Example</h2>
+
+    <pre><code><span class="keyword">import</span> { <span class="type">InMemoryCache</span>, <span class="type">makeVar</span> } <span class="keyword">from</span> <span class="string">'@apollo/client'</span>;
+
+<span class="comment">// Reactive variables (local state)</span>
+<span class="keyword">export const</span> <span class="const">isLoggedInVar</span> = <span class="function">makeVar</span>(<span class="keyword">false</span>);
+<span class="keyword">export const</span> <span class="const">cartItemsVar</span> = <span class="function">makeVar</span>([]);
+
+<span class="keyword">export const</span> <span class="const">cache</span> = <span class="keyword">new</span> <span class="function">InMemoryCache</span>({
+  <span class="field">typePolicies</span>: {
+    <span class="comment">// ═══════════════════════════════════════════</span>
+    <span class="comment">// ROOT QUERY FIELDS</span>
+    <span class="comment">// ═══════════════════════════════════════════</span>
+    <span class="field">Query</span>: {
+      <span class="field">fields</span>: {
+        <span class="comment">// Local-only field (reactive variable)</span>
+        <span class="field">isLoggedIn</span>: {
+          <span class="function">read</span>() {
+            <span class="keyword">return</span> <span class="function">isLoggedInVar</span>();
+          },
+        },
+        
+        <span class="field">cartItems</span>: {
+          <span class="function">read</span>() {
+            <span class="keyword">return</span> <span class="function">cartItemsVar</span>();
+          },
+        },
+        
+        <span class="comment">// Pagination with keyArgs</span>
+        <span class="field">products</span>: {
+          <span class="field">keyArgs</span>: [<span class="string">"category"</span>, <span class="string">"sortBy"</span>],
+          <span class="function">merge</span>(existing = [], incoming, { args }) {
+            <span class="keyword">if</span> (!args?.cursor) <span class="keyword">return</span> incoming;
+            <span class="keyword">return</span> [...existing, ...incoming];
+          },
+        },
+        
+        <span class="comment">// Single entity lookup by ID</span>
+        <span class="field">user</span>: {
+          <span class="function">read</span>(_, { args, toReference }) {
+            <span class="keyword">return</span> <span class="function">toReference</span>({
+              <span class="field">__typename</span>: <span class="string">'User'</span>,
+              <span class="field">id</span>: args.id,
+            });
+          },
+        },
+      },
+    },
+    
+    <span class="comment">// ═══════════════════════════════════════════</span>
+    <span class="comment">// TYPE CONFIGURATIONS</span>
+    <span class="comment">// ═══════════════════════════════════════════</span>
+    <span class="field">User</span>: {
+      <span class="field">keyFields</span>: [<span class="string">"id"</span>],
+      <span class="field">fields</span>: {
+        <span class="field">fullName</span>: {
+          <span class="function">read</span>(_, { readField }) {
+            <span class="keyword">return</span> <span class="string">`</span>${<span class="function">readField</span>(<span class="string">'firstName'</span>)} ${<span class="function">readField</span>(<span class="string">'lastName'</span>)}<span class="string">`</span>;
+          },
+        },
+        <span class="field">posts</span>: {
+          <span class="function">merge</span>(existing = [], incoming) {
+            <span class="keyword">return</span> [...existing, ...incoming];
+          },
+        },
+      },
+    },
+    
+    <span class="field">Post</span>: {
+      <span class="field">keyFields</span>: [<span class="string">"id"</span>],
+      <span class="field">fields</span>: {
+        <span class="field">createdAt</span>: {
+          <span class="function">read</span>(timestamp) {
+            <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">Date</span>(timestamp);
+          },
+        },
+      },
+    },
+    
+    <span class="comment">// Singleton type</span>
+    <span class="field">CurrentUser</span>: {
+      <span class="field">keyFields</span>: [],
+    },
+    
+    <span class="comment">// Composite key type</span>
+    <span class="field">OrderItem</span>: {
+      <span class="field">keyFields</span>: [<span class="string">"orderId"</span>, <span class="string">"productId"</span>],
+    },
+  },
+});</code></pre>
+
+    <div class="chapter-nav">
+      <button class="nav-btn">← Chapter 7: Subscriptions</button>
+      <button class="nav-btn">Next: Chapter 9 — Pagination →</button>
+    </div>
+  </div>
+</body>
+</html>

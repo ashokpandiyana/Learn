@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 26: Notifications API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        h2 {
+            color: #f5576c;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #f5576c;
+        }
+        
+        h3 {
+            color: #f093fb;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+        
+        .concept-box {
+            background: #f8f9fa;
+            border-left: 4px solid #f5576c;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .key-point {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .danger-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box {
+            background: #cfe2ff;
+            border-left: 4px solid #0d6efd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .code-block .comment {
+            color: #6272a4;
+        }
+        
+        .code-block .keyword {
+            color: #ff79c6;
+        }
+        
+        .code-block .string {
+            color: #f1fa8c;
+        }
+        
+        .code-block .function {
+            color: #50fa7b;
+        }
+        
+        .code-block .number {
+            color: #bd93f9;
+        }
+        
+        .visual-diagram {
+            background: #f8f9fa;
+            border: 2px solid #f5576c;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .demo-section {
+            background: #ffe0e6;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #f5576c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            background: #f093fb;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        input, select {
+            padding: 10px;
+            border: 2px solid #f5576c;
+            border-radius: 5px;
+            font-size: 16px;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .output {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            min-height: 100px;
+            border: 2px solid #f5576c;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+        
+        .property-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .property-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #f5576c;
+        }
+        
+        .property-card h4 {
+            color: #f5576c;
+            margin-bottom: 10px;
+        }
+        
+        .property-card .type {
+            color: #f093fb;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .permission-states {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .state-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #f5576c;
+        }
+        
+        .state-card h4 {
+            color: #f5576c;
+            margin-bottom: 10px;
+        }
+        
+        .notification-preview {
+            background: white;
+            border: 2px solid #f5576c;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .notification-preview h4 {
+            color: #f5576c;
+            margin-bottom: 10px;
+        }
+        
+        .notification-content {
+            display: flex;
+            gap: 15px;
+            align-items: start;
+        }
+        
+        .notification-icon {
+            width: 50px;
+            height: 50px;
+            background: #f093fb;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .notification-text {
+            flex: 1;
+        }
+        
+        .notification-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .notification-body {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔔 Chapter 26: Notifications API</h1>
+            <p>Display System Notifications to Users</p>
+        </div>
+        
+        <div class="content">
+            
+            <!-- Introduction -->
+            <div class="section">
+                <h2>🎯 What is the Notifications API?</h2>
+                
+                <div class="concept-box">
+                    <p><strong>Notifications API</strong> allows web applications to display system notifications outside the browser context. These are the same notifications you see from native apps.</p>
+                    
+                    <p style="margin-top: 15px;"><strong>Key Characteristics:</strong></p>
+                    <ul style="margin-left: 25px; margin-top: 10px;">
+                        <li>🔔 <strong>System-Level:</strong> Shows OS notifications</li>
+                        <li>🔒 <strong>Permission-Based:</strong> Requires user consent</li>
+                        <li>📱 <strong>Cross-Platform:</strong> Works on desktop & mobile</li>
+                        <li>🎨 <strong>Customizable:</strong> Title, body, icon, image</li>
+                        <li>⚡ <strong>Interactive:</strong> Can respond to clicks</li>
+                        <li>🌐 <strong>Background:</strong> Works even when tab is closed (with Service Worker)</li>
+                    </ul>
+                </div>
+                
+                <div class="visual-diagram">
+                    <h3>Notification Anatomy</h3>
+                    <div class="notification-preview">
+                        <div class="notification-content">
+                            <div class="notification-icon">🔔</div>
+                            <div class="notification-text">
+                                <div class="notification-title">Notification Title</div>
+                                <div class="notification-body">This is the body of the notification. It can be longer and contain more details about what happened.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="text-align: center; color: #666; margin-top: 10px;">
+                        System notifications appear outside the browser
+                    </p>
+                </div>
+                
+                <div class="danger-box">
+                    <strong>⚠️ Requirements:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Must run on HTTPS (except localhost)</li>
+                        <li>Requires user permission</li>
+                        <li>Must be triggered by user action (except with Service Workers)</li>
+                        <li>Don't spam users (respect notification limits)</li>
+                    </ul>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 Common Use Cases:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>New message alerts (chat apps)</li>
+                        <li>Social media updates (likes, comments)</li>
+                        <li>Email notifications</li>
+                        <li>Calendar reminders</li>
+                        <li>Breaking news alerts</li>
+                        <li>Order status updates</li>
+                        <li>System alerts & warnings</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Permission -->
+            <div class="section">
+                <h2>🔐 Requesting Permission</h2>
+                
+                <div class="concept-box">
+                    <p>Before showing notifications, you must request and receive permission from the user.</p>
+                </div>
+                
+                <h3>Permission States</h3>
+                <div class="permission-states">
+                    <div class="state-card">
+                        <h4>granted</h4>
+                        <p>User has granted permission to show notifications</p>
+                    </div>
+                    <div class="state-card">
+                        <h4>denied</h4>
+                        <p>User has denied permission (cannot ask again)</p>
+                    </div>
+                    <div class="state-card">
+                        <h4>default</h4>
+                        <p>User hasn't been asked yet</p>
+                    </div>
+                </div>
+                
+                <h3>Checking Permission</h3>
+                <div class="code-block">
+<span class="comment">// Check current permission state</span>
+console.<span class="function">log</span>(Notification.permission);
+<span class="comment">// Returns: 'granted', 'denied', or 'default'</span>
+
+<span class="keyword">if</span> (Notification.permission === <span class="string">'granted'</span>) {
+    console.<span class="function">log</span>(<span class="string">'We have permission!'</span>);
+} <span class="keyword">else if</span> (Notification.permission === <span class="string">'denied'</span>) {
+    console.<span class="function">log</span>(<span class="string">'Permission denied'</span>);
+} <span class="keyword">else</span> {
+    console.<span class="function">log</span>(<span class="string">'Need to request permission'</span>);
+}
+                </div>
+                
+                <h3>Requesting Permission</h3>
+                <div class="code-block">
+<span class="comment">// Request permission (Promise-based)</span>
+<span class="keyword">async function</span> <span class="function">requestNotificationPermission</span>() {
+    <span class="keyword">if</span> (!(<span class="string">'Notification'</span> <span class="keyword">in</span> window)) {
+        console.<span class="function">error</span>(<span class="string">'This browser does not support notifications'</span>);
+        <span class="keyword">return false</span>;
+    }
+    
+    <span class="keyword">const</span> permission = <span class="keyword">await</span> Notification.<span class="function">requestPermission</span>();
+    
+    <span class="keyword">if</span> (permission === <span class="string">'granted'</span>) {
+        console.<span class="function">log</span>(<span class="string">'Permission granted!'</span>);
+        <span class="keyword">return true</span>;
+    } <span class="keyword">else</span> {
+        console.<span class="function">log</span>(<span class="string">'Permission not granted'</span>);
+        <span class="keyword">return false</span>;
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> hasPermission = <span class="keyword">await</span> <span class="function">requestNotificationPermission</span>();
+<span class="keyword">if</span> (hasPermission) {
+    <span class="comment">// Can show notifications</span>
+}
+
+<span class="comment">// Legacy callback style (still supported)</span>
+Notification.<span class="function">requestPermission</span>(<span class="keyword">function</span>(permission) {
+    <span class="keyword">if</span> (permission === <span class="string">'granted'</span>) {
+        console.<span class="function">log</span>(<span class="string">'Permission granted'</span>);
+    }
+});
+                </div>
+                
+                <div class="warning-box">
+                    <strong>⚠️ Best Practices for Permission:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Don't ask for permission immediately on page load</li>
+                        <li>Explain why you need notification permission</li>
+                        <li>Ask at a relevant moment (e.g., when user enables notifications feature)</li>
+                        <li>If denied, don't ask again (browsers block repeated requests)</li>
+                        <li>Provide alternative notification methods if denied</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Creating Notifications -->
+            <div class="section">
+                <h2>🔔 Creating Notifications</h2>
+                
+                <h3>Basic Notification</h3>
+                <div class="code-block">
+<span class="comment">// Simple notification with just a title</span>
+<span class="keyword">new</span> <span class="function">Notification</span>(<span class="string">'Hello World!'</span>);
+
+<span class="comment">// With title and body</span>
+<span class="keyword">new</span> <span class="function">Notification</span>(<span class="string">'New Message'</span>, {
+    body: <span class="string">'You have a new message from John'</span>
+});
+                </div>
+                
+                <h3>Full-Featured Notification</h3>
+                <div class="code-block">
+<span class="comment">// Notification with all options</span>
+<span class="keyword">const</span> notification = <span class="keyword">new</span> <span class="function">Notification</span>(<span class="string">'Meeting Reminder'</span>, {
+    body: <span class="string">'Your meeting starts in 15 minutes'</span>,
+    icon: <span class="string">'/icon.png'</span>,
+    badge: <span class="string">'/badge.png'</span>,
+    image: <span class="string">'/meeting-room.jpg'</span>,
+    tag: <span class="string">'meeting-123'</span>,
+    renotify: <span class="keyword">true</span>,
+    requireInteraction: <span class="keyword">false</span>,
+    silent: <span class="keyword">false</span>,
+    vibrate: [<span class="number">200</span>, <span class="number">100</span>, <span class="number">200</span>],
+    timestamp: Date.<span class="function">now</span>(),
+    data: {
+        meetingId: <span class="string">'123'</span>,
+        url: <span class="string">'/meetings/123'</span>
+    },
+    actions: [
+        { action: <span class="string">'join'</span>, title: <span class="string">'Join Now'</span> },
+        { action: <span class="string">'snooze'</span>, title: <span class="string">'Snooze'</span> }
+    ],
+    dir: <span class="string">'auto'</span>,
+    lang: <span class="string">'en'</span>
+});
+                </div>
+                
+                <h3>Notification Options</h3>
+                <div class="property-grid">
+                    <div class="property-card">
+                        <h4>body</h4>
+                        <div class="type">String</div>
+                        <p>Main notification text</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>icon</h4>
+                        <div class="type">String (URL)</div>
+                        <p>Icon image URL</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>badge</h4>
+                        <div class="type">String (URL)</div>
+                        <p>Badge icon for mobile</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>image</h4>
+                        <div class="type">String (URL)</div>
+                        <p>Large image to display</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>tag</h4>
+                        <div class="type">String</div>
+                        <p>ID to group/replace notifications</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>renotify</h4>
+                        <div class="type">Boolean</div>
+                        <p>Vibrate/alert even if replacing</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>requireInteraction</h4>
+                        <div class="type">Boolean</div>
+                        <p>Don't auto-dismiss</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>silent</h4>
+                        <div class="type">Boolean</div>
+                        <p>No sound or vibration</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>vibrate</h4>
+                        <div class="type">Array</div>
+                        <p>Vibration pattern [on, off, on]</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>data</h4>
+                        <div class="type">Any</div>
+                        <p>Custom data attached</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>actions</h4>
+                        <div class="type">Array</div>
+                        <p>Action buttons (Service Worker only)</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>timestamp</h4>
+                        <div class="type">Number</div>
+                        <p>When event occurred</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Events -->
+            <div class="section">
+                <h2>🎬 Notification Events</h2>
+                
+                <div class="code-block">
+<span class="comment">// Create notification with event listeners</span>
+<span class="keyword">const</span> notification = <span class="keyword">new</span> <span class="function">Notification</span>(<span class="string">'Event Demo'</span>, {
+    body: <span class="string">'Click me to open the app!'</span>,
+    icon: <span class="string">'/icon.png'</span>,
+    data: { url: <span class="string">'/messages'</span> }
+});
+
+<span class="comment">// Click event</span>
+notification.<span class="keyword">onclick</span> = (event) => {
+    console.<span class="function">log</span>(<span class="string">'Notification clicked'</span>);
+    event.<span class="function">preventDefault</span>(); <span class="comment">// Prevent default behavior</span>
+    
+    <span class="comment">// Open or focus window</span>
+    window.<span class="function">focus</span>();
+    
+    <span class="comment">// Navigate to specific page</span>
+    <span class="keyword">if</span> (notification.data.url) {
+        window.location.href = notification.data.url;
+    }
+    
+    <span class="comment">// Close the notification</span>
+    notification.<span class="function">close</span>();
+};
+
+<span class="comment">// Show event (notification displayed)</span>
+notification.<span class="keyword">onshow</span> = () => {
+    console.<span class="function">log</span>(<span class="string">'Notification shown'</span>);
+};
+
+<span class="comment">// Close event</span>
+notification.<span class="keyword">onclose</span> = () => {
+    console.<span class="function">log</span>(<span class="string">'Notification closed'</span>);
+};
+
+<span class="comment">// Error event</span>
+notification.<span class="keyword">onerror</span> = (error) => {
+    console.<span class="function">error</span>(<span class="string">'Notification error:'</span>, error);
+};
+                </code>
+                </div>
+                
+                <h3>Closing Notifications</h3>
+                <div class="code-block">
+<span class="comment">// Close notification programmatically</span>
+<span class="keyword">const</span> notification = <span class="keyword">new</span> <span class="function">Notification</span>(<span class="string">'Auto-close'</span>, {
+    body: <span class="string">'This will close in 3 seconds'</span>
+});
+
+<span class="comment">// Close after 3 seconds</span>
+<span class="function">setTimeout</span>(() => {
+    notification.<span class="function">close</span>();
+}, <span class="number">3000</span>);
+                </div>
+            </div>
+            
+            <!-- Tag System -->
+            <div class="section">
+                <h2>🏷️ Tag System (Grouping Notifications)</h2>
+                
+                <div class="concept-box">
+                    <p>The <code>tag</code> option allows you to group and replace notifications. Multiple notifications with the same tag will replace each other instead of stacking.</p>
+                </div>
+                
+                <div class="code-block">
+<span class="comment">// Without tag - creates multiple notifications</span>
+<span class="keyword">new</span> <span class="function">Notification</span>(<span class="string">'Message 1'</span>, { body: <span class="string">'First message'</span> });
+<span class="keyword">new</span> <span class="function">Notification</span>(<span class="string">'Message 2'</span>, { body: <span class="string">'Second message'</span> });
+<span class="keyword">new</span> <span class="function">Notification</span>(<span class="string">'Message 3'</span>, { body: <span class="string">'Third message'</span> });
+<span class="comment">// Result: 3 separate notifications</span>
+
+<span class="comment">// With tag - replaces previous notification</span>
+<span class="keyword">new</span> <span class="function">Notification</span>(<span class="string">'Messages'</span>, {
+    body: <span class="string">'You have 1 new message'</span>,
+    tag: <span class="string">'messages'</span>
+});
+
+<span class="keyword">new</span> <span class="function">Notification</span>(<span class="string">'Messages'</span>, {
+    body: <span class="string">'You have 2 new messages'</span>,
+    tag: <span class="string">'messages'</span>
+});
+
+<span class="keyword">new</span> <span class="function">Notification</span>(<span class="string">'Messages'</span>, {
+    body: <span class="string">'You have 3 new messages'</span>,
+    tag: <span class="string">'messages'</span>
+});
+<span class="comment">// Result: Only 1 notification showing "3 new messages"</span>
+
+<span class="comment">// Use renotify to alert user on replacement</span>
+<span class="keyword">new</span> <span class="function">Notification</span>(<span class="string">'Messages'</span>, {
+    body: <span class="string">'You have 4 new messages'</span>,
+    tag: <span class="string">'messages'</span>,
+    renotify: <span class="keyword">true</span> <span class="comment">// Vibrate/sound even though replacing</span>
+});
+                </div>
+            </div>
+            
+            <!-- Practical Examples -->
+            <div class="section">
+                <h2>💼 Practical Examples</h2>
+                
+                <h3>1. Chat Application</h3>
+                <div class="code-block">
+<span class="keyword">class</span> <span class="function">ChatNotifications</span> {
+    <span class="keyword">constructor</span>() {
+        <span class="keyword">this</span>.messageCount = <span class="number">0</span>;
+    }
+    
+    <span class="keyword">async</span> <span class="function">init</span>() {
+        <span class="keyword">if</span> (Notification.permission !== <span class="string">'granted'</span>) {
+            <span class="keyword">await</span> Notification.<span class="function">requestPermission</span>();
+        }
+    }
+    
+    <span class="function">showMessage</span>(sender, message) {
+        <span class="keyword">if</span> (Notification.permission !== <span class="string">'granted'</span>) <span class="keyword">return</span>;
+        
+        <span class="keyword">const</span> notification = <span class="keyword">new</span> <span class="function">Notification</span>(<span class="string">`${sender}`</span>, {
+            body: message,
+            icon: <span class="string">'/user-icon.png'</span>,
+            tag: <span class="string">`chat-${sender}`</span>,
+            requireInteraction: <span class="keyword">true</span>
+        });
+        
+        notification.<span class="keyword">onclick</span> = () => {
+            window.<span class="function">focus</span>();
+            <span class="comment">// Open chat with sender</span>
+            <span class="function">openChat</span>(sender);
+            notification.<span class="function">close</span>();
+        };
+    }
+    
+    <span class="function">showUnreadCount</span>(count) {
+        <span class="keyword">if</span> (count === <span class="number">0</span>) <span class="keyword">return</span>;
+        
+        <span class="keyword">new</span> <span class="function">Notification</span>(<span class="string">'Unread Messages'</span>, {
+            body: <span class="string">`You have ${count} unread message(s)`</span>,
+            tag: <span class="string">'unread-count'</span>,
+            icon: <span class="string">'/messages-icon.png'</span>
+        });
+    }
+}
+                </div>
+                
+                <h3>2. Reminder System</h3>
+                <div class="code-block">
+<span class="keyword">function</span> <span class="function">scheduleReminder</span>(title, message, delayMs) {
+    <span class="function">setTimeout</span>(() => {
+        <span class="keyword">if</span> (Notification.permission === <span class="string">'granted'</span>) {
+            <span class="keyword">const</span> notification = <span class="keyword">new</span> <span class="function">Notification</span>(title, {
+                body: message,
+                icon: <span class="string">'/reminder-icon.png'</span>,
+                tag: <span class="string">'reminder'</span>,
+                requireInteraction: <span class="keyword">true</span>,
+                vibrate: [<span class="number">200</span>, <span class="number">100</span>, <span class="number">200</span>]
+            });
+            
+            notification.<span class="keyword">onclick</span> = () => {
+                window.<span class="function">focus</span>();
+                notification.<span class="function">close</span>();
+            };
+        }
+    }, delayMs);
+}
+
+<span class="comment">// Schedule reminder in 1 minute</span>
+<span class="function">scheduleReminder</span>(
+    <span class="string">'Meeting Reminder'</span>,
+    <span class="string">'Your meeting starts in 1 minute'</span>,
+    <span class="number">60000</span>
+);
+                </div>
+                
+                <h3>3. Progress Notifications</h3>
+                <div class="code-block">
+<span class="keyword">class</span> <span class="function">ProgressNotifier</span> {
+    <span class="keyword">constructor</span>(taskName) {
+        <span class="keyword">this</span>.taskName = taskName;
+        <span class="keyword">this</span>.notification = <span class="keyword">null</span>;
+    }
+    
+    <span class="function">start</span>() {
+        <span class="keyword">if</span> (Notification.permission === <span class="string">'granted'</span>) {
+            <span class="keyword">this</span>.notification = <span class="keyword">new</span> <span class="function">Notification</span>(<span class="keyword">this</span>.taskName, {
+                body: <span class="string">'Starting...'</span>,
+                tag: <span class="string">`progress-${this.taskName}`</span>,
+                icon: <span class="string">'/loading-icon.png'</span>
+            });
+        }
+    }
+    
+    <span class="function">update</span>(progress) {
+        <span class="keyword">if</span> (Notification.permission === <span class="string">'granted'</span>) {
+            <span class="keyword">this</span>.notification = <span class="keyword">new</span> <span class="function">Notification</span>(<span class="keyword">this</span>.taskName, {
+                body: <span class="string">`${progress}% complete`</span>,
+                tag: <span class="string">`progress-${this.taskName}`</span>,
+                icon: <span class="string">'/loading-icon.png'</span>,
+                silent: <span class="keyword">true</span>
+            });
+        }
+    }
+    
+    <span class="function">complete</span>() {
+        <span class="keyword">if</span> (<span class="keyword">this</span>.notification) {
+            <span class="keyword">this</span>.notification.<span class="function">close</span>();
+        }
+        
+        <span class="keyword">new</span> <span class="function">Notification</span>(<span class="keyword">this</span>.taskName, {
+            body: <span class="string">'Completed successfully!'</span>,
+            tag: <span class="string">`progress-${this.taskName}`</span>,
+            icon: <span class="string">'/success-icon.png'</span>,
+            vibrate: [<span class="number">200</span>]
+        });
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> uploader = <span class="keyword">new</span> <span class="function">ProgressNotifier</span>(<span class="string">'File Upload'</span>);
+uploader.<span class="function">start</span>();
+uploader.<span class="function">update</span>(<span class="number">25</span>);
+uploader.<span class="function">update</span>(<span class="number">50</span>);
+uploader.<span class="function">update</span>(<span class="number">75</span>);
+uploader.<span class="function">complete</span>();
+                </div>
+            </div>
+            
+            <!-- Interactive Demo -->
+            <div class="section">
+                <h2>🎮 Interactive Demo</h2>
+                
+                <div class="demo-section">
+                    <h3>Try Notifications API</h3>
+                    <p style="margin-bottom: 15px;">Test different notification types</p>
+                    
+                    <div class="demo-controls">
+                        <button onclick="requestPerm()">Request Permission</button>
+                        <button onclick="showBasic()">Basic Notification</button>
+                        <button onclick="showWithIcon()">With Icon</button>
+                        <button onclick="showWithActions()">With Actions</button>
+                        <button onclick="showTagged()">Tagged (Click Multiple Times)</button>
+                        <button onclick="clearOutput()">Clear Log</button>
+                    </div>
+                    
+                    <div class="output" id="output">Click "Request Permission" to start...</div>
+                </div>
+            </div>
+            
+            <!-- Best Practices -->
+            <div class="section">
+                <h2>✅ Best Practices</h2>
+                
+                <div class="key-point">
+                    <h3 style="margin-top: 0;">DO ✓</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Ask for permission at relevant moments</li>
+                        <li>Explain why you need notification permission</li>
+                        <li>Use meaningful titles and bodies</li>
+                        <li>Use tags to group related notifications</li>
+                        <li>Close notifications when clicked</li>
+                        <li>Handle click events appropriately</li>
+                        <li>Test on multiple browsers/devices</li>
+                        <li>Respect "Do Not Disturb" settings</li>
+                    </ul>
+                </div>
+                
+                <div class="warning-box">
+                    <h3 style="margin-top: 0;">DON'T ✗</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Spam users with notifications</li>
+                        <li>Ask for permission on page load</li>
+                        <li>Show notifications without permission</li>
+                        <li>Use misleading notification content</li>
+                        <li>Forget to handle denied permission</li>
+                        <li>Show too many notifications at once</li>
+                        <li>Use notifications for non-important info</li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'color: #0d6efd;',
+                success: 'color: #28a745;',
+                error: 'color: #dc3545;',
+                warning: 'color: #ffc107;'
+            };
+            output.innerHTML += `<div style="${colors[type]}">[${timestamp}] ${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        async function requestPerm() {
+            if (!('Notification' in window)) {
+                log('❌ Notifications not supported', 'error');
+                return;
+            }
+            
+            log('Requesting notification permission...', 'info');
+            
+            const permission = await Notification.requestPermission();
+            
+            if (permission === 'granted') {
+                log('✓ Permission granted!', 'success');
+            } else if (permission === 'denied') {
+                log('❌ Permission denied', 'error');
+            } else {
+                log('⚠️ Permission dismissed', 'warning');
+            }
+        }
+        
+        function showBasic() {
+            if (Notification.permission !== 'granted') {
+                log('❌ Permission not granted', 'error');
+                return;
+            }
+            
+            const notification = new Notification('Hello!', {
+                body: 'This is a basic notification'
+            });
+            
+            log('📬 Basic notification shown', 'success');
+            
+            notification.onclick = () => {
+                log('🖱️ Notification clicked', 'info');
+                notification.close();
+            };
+        }
+        
+        function showWithIcon() {
+            if (Notification.permission !== 'granted') {
+                log('❌ Permission not granted', 'error');
+                return;
+            }
+            
+            const notification = new Notification('Notification with Icon', {
+                body: 'This notification has an icon',
+                icon: 'https://via.placeholder.com/100/667eea/ffffff?text=🔔'
+            });
+            
+            log('📬 Notification with icon shown', 'success');
+            
+            notification.onclick = () => {
+                log('🖱️ Notification clicked', 'info');
+                notification.close();
+            };
+        }
+        
+        function showWithActions() {
+            if (Notification.permission !== 'granted') {
+                log('❌ Permission not granted', 'error');
+                return;
+            }
+            
+            const notification = new Notification('Interactive Notification', {
+                body: 'This notification requires interaction',
+                requireInteraction: true,
+                icon: 'https://via.placeholder.com/100/f5576c/ffffff?text=⚡'
+            });
+            
+            log('📬 Interactive notification shown', 'success');
+            log('This notification won\'t auto-dismiss', 'info');
+            
+            notification.onclick = () => {
+                log('🖱️ Notification clicked and closed', 'info');
+                notification.close();
+            };
+        }
+        
+        let tagCounter = 0;
+        function showTagged() {
+            if (Notification.permission !== 'granted') {
+                log('❌ Permission not granted', 'error');
+                return;
+            }
+            
+            tagCounter++;
+            
+            const notification = new Notification('Tagged Notification', {
+                body: `Click count: ${tagCounter}`,
+                tag: 'tagged-demo',
+                renotify: true,
+                icon: 'https://via.placeholder.com/100/f093fb/ffffff?text=' + tagCounter
+            });
+            
+            log(`📬 Tagged notification updated (count: ${tagCounter})`, 'success');
+            
+            notification.onclick = () => {
+                log('🖱️ Tagged notification clicked', 'info');
+                notification.close();
+            };
+        }
+        
+        function clearOutput() {
+            document.getElementById('output').innerHTML = '';
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            if ('Notification' in window) {
+                log('✓ Notifications API is supported', 'success');
+                log(`Current permission: ${Notification.permission}`, 'info');
+            } else {
+                log('❌ Notifications API not supported', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 33: Web Animations API</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%); color: #e4e4e4; line-height: 1.7; padding: 40px 20px; min-height: 100vh; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2.5rem; background: linear-gradient(90deg, #f472b6, #c084fc, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+    .subtitle { color: #888; font-size: 1.1rem; margin-bottom: 40px; }
+    h2 { color: #f472b6; font-size: 1.6rem; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid #c084fc33; }
+    h3 { color: #c084fc; font-size: 1.2rem; margin: 25px 0 15px; }
+    p { margin-bottom: 16px; color: #ccc; }
+    .concept-box { background: linear-gradient(135deg, #2d1b4e 0%, #1a1a2e 100%); border-radius: 16px; padding: 25px; margin: 25px 0; border-left: 4px solid #f472b6; }
+    .warning { background: linear-gradient(135deg, #4a2c2c 0%, #3d1f1f 100%); border-left-color: #ff6b6b; }
+    .tip { background: linear-gradient(135deg, #1f4a2c 0%, #1f3d2a 100%); border-left-color: #4ade80; }
+    .info { background: linear-gradient(135deg, #1e3a5f 0%, #1a1a2e 100%); border-left-color: #60a5fa; }
+    code { background: #0d1117; padding: 3px 8px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.9em; color: #f472b6; }
+    pre { background: #0d1117; border-radius: 12px; padding: 20px; overflow-x: auto; margin: 20px 0; border: 1px solid #ffffff15; }
+    pre code { padding: 0; background: none; }
+    .keyword { color: #c792ea; }
+    .function { color: #82aaff; }
+    .string { color: #c3e88d; }
+    .comment { color: #676e95; }
+    .number { color: #f78c6c; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ffffff15; }
+    th { background: #f472b633; color: #f472b6; }
+    tr:hover { background: #ffffff08; }
+    .interactive-demo { background: #0d1117; border-radius: 16px; padding: 25px; margin: 30px 0; border: 1px solid #c084fc44; }
+    button { background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.2s; margin: 5px; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px #f472b655; }
+    button.secondary { background: linear-gradient(135deg, #c084fc, #a855f7); }
+    button.tertiary { background: linear-gradient(135deg, #818cf8, #6366f1); }
+    .animation-stage { background: linear-gradient(135deg, #1a1a2e, #0f0f1a); border-radius: 12px; height: 200px; margin: 20px 0; position: relative; overflow: hidden; border: 1px solid #c084fc33; }
+    .animated-box { width: 60px; height: 60px; background: linear-gradient(135deg, #f472b6, #c084fc); border-radius: 12px; position: absolute; top: 50%; left: 30px; transform: translateY(-50%); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .easing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; }
+    .easing-card { background: #1a1a2e; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; }
+    .easing-card:hover { border-color: #c084fc; transform: translateY(-3px); }
+    .easing-card.active { border-color: #f472b6; background: #2d1b4e; }
+    .easing-preview { height: 40px; background: #0d1117; border-radius: 6px; margin-bottom: 10px; position: relative; overflow: hidden; }
+    .easing-dot { width: 12px; height: 12px; background: #f472b6; border-radius: 50%; position: absolute; top: 50%; transform: translateY(-50%); left: 5px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0; align-items: center; }
+    .slider-group { display: flex; align-items: center; gap: 10px; background: #1a1a2e; padding: 10px 15px; border-radius: 8px; }
+    .slider-group label { color: #c084fc; font-size: 0.9rem; }
+    .slider-group input[type="range"] { width: 100px; }
+    .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+    .compare-box { background: #1a1a2e; padding: 20px; border-radius: 12px; }
+    .compare-box h4 { color: #c084fc; margin-bottom: 15px; }
+    ul { margin-left: 25px; margin-bottom: 15px; }
+    li { margin-bottom: 8px; color: #ccc; }
+    .timeline-visual { background: #0d1117; border-radius: 12px; padding: 20px; margin: 20px 0; }
+    .timeline-track { height: 8px; background: #1a1a2e; border-radius: 4px; position: relative; margin: 20px 0; }
+    .timeline-progress { height: 100%; background: linear-gradient(90deg, #f472b6, #c084fc); border-radius: 4px; width: 0%; transition: width 0.1s; }
+    .timeline-labels { display: flex; justify-content: space-between; font-size: 0.8rem; color: #888; }
+    .state-display { display: flex; gap: 15px; flex-wrap: wrap; margin: 15px 0; }
+    .state-badge { padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; background: #1a1a2e; border: 1px solid #c084fc44; }
+    .state-badge.active { background: #f472b6; color: white; border-color: #f472b6; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎬 Chapter 33: Web Animations API</h1>
+    <p class="subtitle">Programmatic Control Over CSS Animations and Beyond</p>
+
+    <h2>🎯 What is the Web Animations API?</h2>
+    <p>The <strong>Web Animations API (WAAPI)</strong> provides a JavaScript interface for creating and controlling animations. It combines the power of CSS animations and transitions with the flexibility of JavaScript, giving you programmatic control over animation playback, timing, and synchronization.</p>
+
+    <div class="concept-box">
+      <h3>💡 Why Use Web Animations API?</h3>
+      <p>While CSS animations are great for simple effects, WAAPI offers:</p>
+      <ul style="margin-top: 10px; margin-left: 20px;">
+        <li><strong>Playback control:</strong> Play, pause, reverse, seek to any point</li>
+        <li><strong>Dynamic animations:</strong> Create animations based on user input or data</li>
+        <li><strong>Synchronization:</strong> Coordinate multiple animations precisely</li>
+        <li><strong>Promises:</strong> Know when animations finish with <code>animation.finished</code></li>
+        <li><strong>Performance:</strong> Runs on the compositor thread like CSS animations</li>
+      </ul>
+    </div>
+
+    <h2>📝 Basic Animation Syntax</h2>
+    <pre><code><span class="comment">// element.animate(keyframes, options)</span>
+
+<span class="keyword">const</span> animation = element.<span class="function">animate</span>(
+    <span class="comment">// Keyframes - array of states</span>
+    [
+        { transform: <span class="string">'translateX(0)'</span>, opacity: <span class="number">1</span> },
+        { transform: <span class="string">'translateX(300px)'</span>, opacity: <span class="number">0</span> }
+    ],
+    <span class="comment">// Options</span>
+    {
+        duration: <span class="number">1000</span>,           <span class="comment">// Duration in milliseconds</span>
+        easing: <span class="string">'ease-in-out'</span>,    <span class="comment">// Timing function</span>
+        iterations: <span class="number">1</span>,           <span class="comment">// Number of times to play</span>
+        fill: <span class="string">'forwards'</span>          <span class="comment">// Keep final state</span>
+    }
+);</code></pre>
+
+    <h2>🎮 Interactive Demo: Basic Animation</h2>
+    <div class="interactive-demo">
+      <div class="animation-stage" id="stage1">
+        <div class="animated-box" id="box1">🚀</div>
+      </div>
+      <div class="controls">
+        <button onclick="playBasic()">▶️ Play</button>
+        <button onclick="pauseBasic()" class="secondary">⏸️ Pause</button>
+        <button onclick="reverseBasic()" class="tertiary">🔄 Reverse</button>
+        <button onclick="resetBasic()">↩️ Reset</button>
+      </div>
+      <div class="state-display">
+        <span class="state-badge" id="state-idle">idle</span>
+        <span class="state-badge" id="state-running">running</span>
+        <span class="state-badge" id="state-paused">paused</span>
+        <span class="state-badge" id="state-finished">finished</span>
+      </div>
+    </div>
+
+    <h2>⚙️ Animation Options Explained</h2>
+    <table>
+      <tr><th>Option</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>duration</code></td><td>Number</td><td>Animation length in milliseconds</td></tr>
+      <tr><td><code>delay</code></td><td>Number</td><td>Time before animation starts</td></tr>
+      <tr><td><code>endDelay</code></td><td>Number</td><td>Time after animation ends</td></tr>
+      <tr><td><code>easing</code></td><td>String</td><td>Timing function (ease, linear, cubic-bezier, etc.)</td></tr>
+      <tr><td><code>iterations</code></td><td>Number</td><td>Times to repeat (Infinity for forever)</td></tr>
+      <tr><td><code>direction</code></td><td>String</td><td>normal, reverse, alternate, alternate-reverse</td></tr>
+      <tr><td><code>fill</code></td><td>String</td><td>none, forwards, backwards, both</td></tr>
+      <tr><td><code>iterationStart</code></td><td>Number</td><td>Point in iteration to start (0-1)</td></tr>
+    </table>
+
+    <h2>🌊 Easing Functions</h2>
+    <p>Easing controls the rate of change during an animation:</p>
+    <div class="easing-grid">
+      <div class="easing-card active" onclick="selectEasing('linear', this)">
+        <div class="easing-preview"><div class="easing-dot"></div></div>
+        <code>linear</code>
+      </div>
+      <div class="easing-card" onclick="selectEasing('ease', this)">
+        <div class="easing-preview"><div class="easing-dot"></div></div>
+        <code>ease</code>
+      </div>
+      <div class="easing-card" onclick="selectEasing('ease-in', this)">
+        <div class="easing-preview"><div class="easing-dot"></div></div>
+        <code>ease-in</code>
+      </div>
+      <div class="easing-card" onclick="selectEasing('ease-out', this)">
+        <div class="easing-preview"><div class="easing-dot"></div></div>
+        <code>ease-out</code>
+      </div>
+      <div class="easing-card" onclick="selectEasing('ease-in-out', this)">
+        <div class="easing-preview"><div class="easing-dot"></div></div>
+        <code>ease-in-out</code>
+      </div>
+      <div class="easing-card" onclick="selectEasing('cubic-bezier(0.68, -0.55, 0.265, 1.55)', this)">
+        <div class="easing-preview"><div class="easing-dot"></div></div>
+        <code>bounce</code>
+      </div>
+    </div>
+    <div class="interactive-demo">
+      <div class="animation-stage" id="stage-easing">
+        <div class="animated-box" id="box-easing">🎾</div>
+      </div>
+      <button onclick="playEasing()">▶️ Play with Selected Easing</button>
+    </div>
+
+    <h2>🎛️ Animation Control Methods</h2>
+    <pre><code><span class="keyword">const</span> animation = element.<span class="function">animate</span>(keyframes, options);
+
+<span class="comment">// Playback control</span>
+animation.<span class="function">play</span>();          <span class="comment">// Start or resume</span>
+animation.<span class="function">pause</span>();         <span class="comment">// Pause at current position</span>
+animation.<span class="function">reverse</span>();       <span class="comment">// Reverse playback direction</span>
+animation.<span class="function">finish</span>();        <span class="comment">// Jump to end state</span>
+animation.<span class="function">cancel</span>();        <span class="comment">// Stop and remove effects</span>
+
+<span class="comment">// Playback rate (speed)</span>
+animation.playbackRate = <span class="number">2</span>;    <span class="comment">// 2x speed</span>
+animation.playbackRate = <span class="number">0.5</span>;  <span class="comment">// Half speed</span>
+animation.playbackRate = -<span class="number">1</span>;   <span class="comment">// Reverse at normal speed</span>
+
+<span class="comment">// Seeking</span>
+animation.currentTime = <span class="number">500</span>;   <span class="comment">// Jump to 500ms</span>
+
+<span class="comment">// Read state</span>
+console.<span class="function">log</span>(animation.playState);     <span class="comment">// 'idle', 'running', 'paused', 'finished'</span>
+console.<span class="function">log</span>(animation.currentTime);   <span class="comment">// Current position in ms</span>
+console.<span class="function">log</span>(animation.playbackRate);  <span class="comment">// Current speed</span></code></pre>
+
+    <h2>⏱️ Timeline Control Demo</h2>
+    <div class="interactive-demo">
+      <div class="animation-stage" id="stage-timeline">
+        <div class="animated-box" id="box-timeline">⚡</div>
+      </div>
+      <div class="timeline-visual">
+        <div class="timeline-labels">
+          <span>0ms</span>
+          <span>500ms</span>
+          <span>1000ms</span>
+          <span>1500ms</span>
+          <span>2000ms</span>
+        </div>
+        <div class="timeline-track">
+          <div class="timeline-progress" id="timeline-progress"></div>
+        </div>
+        <div style="text-align: center; margin-top: 10px;">
+          <input type="range" id="timeline-scrubber" min="0" max="2000" value="0" style="width: 100%;">
+        </div>
+      </div>
+      <div class="controls">
+        <button onclick="playTimeline()">▶️ Play</button>
+        <button onclick="pauseTimeline()" class="secondary">⏸️ Pause</button>
+        <div class="slider-group">
+          <label>Speed:</label>
+          <input type="range" id="speed-slider" min="0.1" max="3" step="0.1" value="1">
+          <span id="speed-value">1x</span>
+        </div>
+      </div>
+    </div>
+
+    <h2>🎭 Keyframe Formats</h2>
+    <pre><code><span class="comment">// Format 1: Array of keyframe objects</span>
+element.<span class="function">animate</span>([
+    { opacity: <span class="number">0</span>, transform: <span class="string">'scale(0.5)'</span> },
+    { opacity: <span class="number">1</span>, transform: <span class="string">'scale(1)'</span> }
+], <span class="number">1000</span>);
+
+<span class="comment">// Format 2: Keyframe object with arrays</span>
+element.<span class="function">animate</span>({
+    opacity: [<span class="number">0</span>, <span class="number">1</span>],
+    transform: [<span class="string">'scale(0.5)'</span>, <span class="string">'scale(1)'</span>]
+}, <span class="number">1000</span>);
+
+<span class="comment">// With offset (like CSS @keyframes percentages)</span>
+element.<span class="function">animate</span>([
+    { offset: <span class="number">0</span>, transform: <span class="string">'translateX(0)'</span> },      <span class="comment">// 0%</span>
+    { offset: <span class="number">0.3</span>, transform: <span class="string">'translateX(100px)'</span> },  <span class="comment">// 30%</span>
+    { offset: <span class="number">1</span>, transform: <span class="string">'translateX(300px)'</span> }     <span class="comment">// 100%</span>
+], <span class="number">1000</span>);
+
+<span class="comment">// Per-keyframe easing</span>
+element.<span class="function">animate</span>([
+    { transform: <span class="string">'translateY(0)'</span>, easing: <span class="string">'ease-out'</span> },
+    { transform: <span class="string">'translateY(-100px)'</span>, easing: <span class="string">'ease-in'</span> },
+    { transform: <span class="string">'translateY(0)'</span> }
+], <span class="number">1000</span>);</code></pre>
+
+    <h2>🔗 Promises & Events</h2>
+    <pre><code><span class="keyword">const</span> animation = element.<span class="function">animate</span>(keyframes, options);
+
+<span class="comment">// Promise-based completion</span>
+animation.finished.<span class="function">then</span>(() => {
+    console.<span class="function">log</span>(<span class="string">'Animation completed!'</span>);
+});
+
+<span class="comment">// Or with async/await</span>
+<span class="keyword">async function</span> <span class="function">animateSequence</span>() {
+    <span class="keyword">await</span> box1.<span class="function">animate</span>(fadeIn, <span class="number">500</span>).finished;
+    <span class="keyword">await</span> box2.<span class="function">animate</span>(fadeIn, <span class="number">500</span>).finished;
+    <span class="keyword">await</span> box3.<span class="function">animate</span>(fadeIn, <span class="number">500</span>).finished;
+    console.<span class="function">log</span>(<span class="string">'All animations done!'</span>);
+}
+
+<span class="comment">// Event listeners</span>
+animation.<span class="function">addEventListener</span>(<span class="string">'finish'</span>, () => {
+    console.<span class="function">log</span>(<span class="string">'Finished!'</span>);
+});
+
+animation.<span class="function">addEventListener</span>(<span class="string">'cancel'</span>, () => {
+    console.<span class="function">log</span>(<span class="string">'Cancelled!'</span>);
+});
+
+<span class="comment">// Or use onfinish/oncancel</span>
+animation.onfinish = () => console.<span class="function">log</span>(<span class="string">'Done!'</span>);
+animation.oncancel = () => console.<span class="function">log</span>(<span class="string">'Stopped!'</span>);</code></pre>
+
+    <h2>🎪 Sequence Animation Demo</h2>
+    <div class="interactive-demo">
+      <div class="animation-stage" id="stage-sequence" style="display: flex; align-items: center; justify-content: space-around; padding: 20px;">
+        <div class="animated-box" id="seq-box-1" style="position: relative; top: auto; left: auto; transform: none; opacity: 0;">1️⃣</div>
+        <div class="animated-box" id="seq-box-2" style="position: relative; top: auto; left: auto; transform: none; opacity: 0;">2️⃣</div>
+        <div class="animated-box" id="seq-box-3" style="position: relative; top: auto; left: auto; transform: none; opacity: 0;">3️⃣</div>
+      </div>
+      <button onclick="playSequence()">▶️ Play Sequence</button>
+      <button onclick="playParallel()" class="secondary">⚡ Play Parallel</button>
+      <button onclick="resetSequence()" class="tertiary">↩️ Reset</button>
+    </div>
+
+    <h2>📊 Comparison: CSS vs WAAPI</h2>
+    <div class="comparison">
+      <div class="compare-box">
+        <h4>CSS Animations</h4>
+        <ul>
+          <li>Declarative (in stylesheet)</li>
+          <li>Simple hover/state effects</li>
+          <li>No JavaScript required</li>
+          <li>Limited runtime control</li>
+          <li>Can't read current state easily</li>
+        </ul>
+      </div>
+      <div class="compare-box">
+        <h4>Web Animations API</h4>
+        <ul>
+          <li>Imperative (in JavaScript)</li>
+          <li>Dynamic, data-driven animations</li>
+          <li>Full playback control</li>
+          <li>Promises for coordination</li>
+          <li>Can inspect/modify at runtime</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>🛠️ Practical Example: Loading Button</h2>
+    <pre><code><span class="keyword">class</span> <span class="function">LoadingButton</span> {
+    <span class="function">constructor</span>(button) {
+        <span class="keyword">this</span>.button = button;
+        <span class="keyword">this</span>.originalText = button.textContent;
+        <span class="keyword">this</span>.spinner = <span class="keyword">null</span>;
+    }
+    
+    <span class="keyword">async</span> <span class="function">startLoading</span>() {
+        <span class="comment">// Shrink button slightly</span>
+        <span class="keyword">await</span> <span class="keyword">this</span>.button.<span class="function">animate</span>([
+            { transform: <span class="string">'scale(1)'</span> },
+            { transform: <span class="string">'scale(0.95)'</span> }
+        ], { duration: <span class="number">150</span>, fill: <span class="string">'forwards'</span> }).finished;
+        
+        <span class="comment">// Add spinner</span>
+        <span class="keyword">this</span>.button.textContent = <span class="string">'⏳ Loading...'</span>;
+        
+        <span class="comment">// Pulse animation</span>
+        <span class="keyword">this</span>.spinner = <span class="keyword">this</span>.button.<span class="function">animate</span>([
+            { opacity: <span class="number">1</span> },
+            { opacity: <span class="number">0.6</span> },
+            { opacity: <span class="number">1</span> }
+        ], { duration: <span class="number">1000</span>, iterations: Infinity });
+    }
+    
+    <span class="keyword">async</span> <span class="function">stopLoading</span>(success = <span class="keyword">true</span>) {
+        <span class="keyword">this</span>.spinner?.<span class="function">cancel</span>();
+        
+        <span class="comment">// Success/error flash</span>
+        <span class="keyword">const</span> color = success ? <span class="string">'#4ade80'</span> : <span class="string">'#ef4444'</span>;
+        <span class="keyword">await</span> <span class="keyword">this</span>.button.<span class="function">animate</span>([
+            { backgroundColor: color },
+            { backgroundColor: <span class="string">''</span> }
+        ], { duration: <span class="number">300</span> }).finished;
+        
+        <span class="comment">// Restore</span>
+        <span class="keyword">this</span>.button.textContent = success ? <span class="string">'✓ Done!'</span> : <span class="string">'✗ Error'</span>;
+        <span class="keyword">await</span> <span class="keyword">this</span>.button.<span class="function">animate</span>([
+            { transform: <span class="string">'scale(0.95)'</span> },
+            { transform: <span class="string">'scale(1)'</span> }
+        ], { duration: <span class="number">150</span>, fill: <span class="string">'forwards'</span> }).finished;
+    }
+}</code></pre>
+
+    <div class="concept-box tip">
+      <h3>✅ Best Practices</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li><strong>Use transform & opacity:</strong> These properties are GPU-accelerated</li>
+        <li><strong>Set fill: 'forwards':</strong> To keep the final state after animation</li>
+        <li><strong>Cancel unused animations:</strong> Prevent memory leaks with <code>cancel()</code></li>
+        <li><strong>Use promises for sequencing:</strong> Cleaner than nested callbacks</li>
+        <li><strong>Check playState:</strong> Before playing to avoid unexpected behavior</li>
+      </ul>
+    </div>
+
+    <div class="concept-box warning">
+      <h3>⚠️ Common Pitfalls</h3>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li><strong>fill: 'forwards' can block:</strong> The animation effect persists and may block other styles</li>
+        <li><strong>Animations are removed on finish:</strong> Without fill, element snaps back to original state</li>
+        <li><strong>Multiple animations stack:</strong> New <code>animate()</code> calls don't replace old ones automatically</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Basic animation demo
+    let basicAnim = null;
+    const box1 = document.getElementById('box1');
+    
+    function playBasic() {
+      if (!basicAnim || basicAnim.playState === 'finished') {
+        basicAnim = box1.animate([
+          { transform: 'translateY(-50%) translateX(0)', opacity: 1 },
+          { transform: 'translateY(-50%) translateX(calc(100% + 200px))', opacity: 0.3 }
+        ], { duration: 2000, easing: 'ease-in-out', fill: 'forwards' });
+        basicAnim.onfinish = updateStates;
+        basicAnim.oncancel = updateStates;
+      } else {
+        basicAnim.play();
+      }
+      updateStates();
+    }
+    
+    function pauseBasic() { basicAnim?.pause(); updateStates(); }
+    function reverseBasic() { basicAnim?.reverse(); updateStates(); }
+    function resetBasic() { basicAnim?.cancel(); box1.style.transform = 'translateY(-50%)'; updateStates(); }
+    
+    function updateStates() {
+      const state = basicAnim?.playState || 'idle';
+      document.querySelectorAll('.state-badge').forEach(b => b.classList.remove('active'));
+      document.getElementById('state-' + state)?.classList.add('active');
+    }
+
+    // Easing demo
+    let currentEasing = 'linear';
+    function selectEasing(easing, el) {
+      currentEasing = easing;
+      document.querySelectorAll('.easing-card').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+    }
+    
+    function playEasing() {
+      const box = document.getElementById('box-easing');
+      box.animate([
+        { transform: 'translateY(-50%) translateX(0)' },
+        { transform: 'translateY(-50%) translateX(calc(100% + 250px))' }
+      ], { duration: 1500, easing: currentEasing, fill: 'forwards' });
+    }
+
+    // Timeline demo
+    let timelineAnim = null;
+    const boxTimeline = document.getElementById('box-timeline');
+    const scrubber = document.getElementById('timeline-scrubber');
+    const progress = document.getElementById('timeline-progress');
+    const speedSlider = document.getElementById('speed-slider');
+    const speedValue = document.getElementById('speed-value');
+    
+    function initTimeline() {
+      timelineAnim = boxTimeline.animate([
+        { transform: 'translateY(-50%) translateX(0) rotate(0deg)', background: 'linear-gradient(135deg, #f472b6, #c084fc)' },
+        { transform: 'translateY(-50%) translateX(150px) rotate(180deg)', background: 'linear-gradient(135deg, #818cf8, #6366f1)' },
+        { transform: 'translateY(-50%) translateX(300px) rotate(360deg)', background: 'linear-gradient(135deg, #34d399, #22d3ee)' }
+      ], { duration: 2000, fill: 'forwards' });
+      timelineAnim.pause();
+    }
+    
+    function playTimeline() { timelineAnim?.play(); }
+    function pauseTimeline() { timelineAnim?.pause(); }
+    
+    scrubber.addEventListener('input', (e) => {
+      if (timelineAnim) {
+        timelineAnim.pause();
+        timelineAnim.currentTime = e.target.value;
+      }
+    });
+    
+    speedSlider.addEventListener('input', (e) => {
+      if (timelineAnim) timelineAnim.playbackRate = e.target.value;
+      speedValue.textContent = e.target.value + 'x';
+    });
+    
+    setInterval(() => {
+      if (timelineAnim) {
+        const time = timelineAnim.currentTime || 0;
+        scrubber.value = time;
+        progress.style.width = (time / 2000 * 100) + '%';
+      }
+    }, 50);
+    
+    initTimeline();
+
+    // Sequence demo
+    async function playSequence() {
+      const boxes = [document.getElementById('seq-box-1'), document.getElementById('seq-box-2'), document.getElementById('seq-box-3')];
+      for (const box of boxes) {
+        await box.animate([
+          { opacity: 0, transform: 'scale(0.5) rotate(-10deg)' },
+          { opacity: 1, transform: 'scale(1) rotate(0deg)' }
+        ], { duration: 400, fill: 'forwards', easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }).finished;
+      }
+    }
+    
+    function playParallel() {
+      const boxes = [document.getElementById('seq-box-1'), document.getElementById('seq-box-2'), document.getElementById('seq-box-3')];
+      boxes.forEach((box, i) => {
+        box.animate([
+          { opacity: 0, transform: 'scale(0.5) translateY(50px)' },
+          { opacity: 1, transform: 'scale(1) translateY(0)' }
+        ], { duration: 500, fill: 'forwards', delay: i * 100, easing: 'ease-out' });
+      });
+    }
+    
+    function resetSequence() {
+      const boxes = [document.getElementById('seq-box-1'), document.getElementById('seq-box-2'), document.getElementById('seq-box-3')];
+      boxes.forEach(box => {
+        box.getAnimations().forEach(a => a.cancel());
+        box.style.opacity = '0';
+      });
+    }
+  </script>
+</body>
+</html>

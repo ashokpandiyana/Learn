@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 7: Event Types Deep Dive</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.7;
+            color: #1a1a2e;
+            background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #db2777 0%, #be185d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f9a8d4;
+        }
+        h2 {
+            font-size: 1.5rem;
+            color: #be185d;
+            margin: 35px 0 20px;
+            padding-left: 15px;
+            border-left: 4px solid #ec4899;
+        }
+        h3 { font-size: 1.2rem; color: #db2777; margin: 25px 0 15px; }
+        h4 { font-size: 1.05rem; color: #be185d; margin: 20px 0 12px; }
+        p { margin-bottom: 15px; color: #374151; }
+        .concept-box {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .event-category {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #ec4899;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .event-category h3 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .event-icon {
+            font-size: 1.5rem;
+        }
+        .key-point {
+            background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+            border-left: 4px solid #ec4899;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .key-point::before {
+            content: "🔑 Key Point";
+            font-weight: bold;
+            color: #be185d;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .warning-box {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .warning-box::before {
+            content: "⚠️ Important";
+            font-weight: bold;
+            color: #dc2626;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .interview-tip {
+            background: linear-gradient(135deg, #eff6ff 0%, #bfdbfe 100%);
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+        .interview-tip::before {
+            content: "💼 Interview Insight";
+            font-weight: bold;
+            color: #1d4ed8;
+            display: block;
+            margin-bottom: 10px;
+        }
+        pre {
+            background: #831843;
+            color: #fce7f3;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+        .inline-code {
+            background: #fce7f3;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #be185d;
+            font-family: 'Fira Code', monospace;
+        }
+        .keyword { color: #f0abfc; }
+        .string { color: #86efac; }
+        .comment { color: #f9a8d4; font-style: italic; }
+        .function { color: #7dd3fc; }
+        .variable { color: #fcd34d; }
+        .property { color: #fdba74; }
+        .result { color: #86efac; }
+        .diagram {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            font-size: 0.9rem;
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, #db2777 0%, #be185d 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        .comparison-table td {
+            padding: 12px;
+            border-bottom: 1px solid #fce7f3;
+        }
+        .comparison-table tr:hover { background: #fdf2f8; }
+        ul, ol { margin: 15px 0 15px 25px; color: #374151; }
+        li { margin-bottom: 8px; }
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ec4899, transparent);
+            margin: 40px 0;
+        }
+        .event-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .event-tag {
+            background: #fce7f3;
+            color: #be185d;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-family: 'Fira Code', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chapter 7: Event Types Deep Dive</h1>
+        <p class="subtitle">Mastering Every Event Type — Mouse, Keyboard, Touch, Form, and Beyond</p>
+        
+        <div class="concept-box">
+            <p>JavaScript provides dozens of event types for different interactions. This chapter covers the most important ones in depth, including their specific properties and common use cases.</p>
+        </div>
+        
+        <!-- Section 7.1: Mouse Events -->
+        <h2>7.1 Mouse Events</h2>
+        
+        <div class="event-category">
+            <h3><span class="event-icon">🖱️</span> Mouse Event Types</h3>
+            <div class="event-list">
+                <span class="event-tag">click</span>
+                <span class="event-tag">dblclick</span>
+                <span class="event-tag">mousedown</span>
+                <span class="event-tag">mouseup</span>
+                <span class="event-tag">mousemove</span>
+                <span class="event-tag">mouseenter</span>
+                <span class="event-tag">mouseleave</span>
+                <span class="event-tag">mouseover</span>
+                <span class="event-tag">mouseout</span>
+                <span class="event-tag">contextmenu</span>
+            </div>
+        </div>
+        
+<pre><span class="comment">// ━━━━━━━━━━ Click Events ━━━━━━━━━━</span>
+element.<span class="function">addEventListener</span>(<span class="string">'click'</span>, (e) => {
+    <span class="comment">// Single click (fires after mousedown + mouseup)</span>
+});
+
+element.<span class="function">addEventListener</span>(<span class="string">'dblclick'</span>, (e) => {
+    <span class="comment">// Double click</span>
+});
+
+element.<span class="function">addEventListener</span>(<span class="string">'contextmenu'</span>, (e) => {
+    e.<span class="function">preventDefault</span>();  <span class="comment">// Prevent default menu</span>
+    <span class="comment">// Show custom context menu</span>
+});
+
+<span class="comment">// ━━━━━━━━━━ Mouse Button Events ━━━━━━━━━━</span>
+element.<span class="function">addEventListener</span>(<span class="string">'mousedown'</span>, (e) => {
+    <span class="comment">// Button pressed (before release)</span>
+});
+
+element.<span class="function">addEventListener</span>(<span class="string">'mouseup'</span>, (e) => {
+    <span class="comment">// Button released</span>
+});
+
+<span class="comment">// ━━━━━━━━━━ Mouse Movement ━━━━━━━━━━</span>
+element.<span class="function">addEventListener</span>(<span class="string">'mousemove'</span>, (e) => {
+    <span class="comment">// Fires continuously as mouse moves</span>
+    <span class="comment">// ⚠️ High frequency - throttle if needed!</span>
+});</pre>
+
+        <h3>Enter/Leave vs Over/Out — The Critical Difference</h3>
+        
+        <div class="diagram">
+            <svg viewBox="0 0 700 220" style="max-width: 700px;">
+                <!-- mouseenter/mouseleave box -->
+                <rect x="20" y="20" width="320" height="180" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+                <text x="180" y="50" text-anchor="middle" font-size="14" font-weight="bold" fill="#065f46">mouseenter / mouseleave</text>
+                
+                <rect x="50" y="70" width="260" height="100" rx="8" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+                <text x="180" y="100" text-anchor="middle" font-size="11" fill="#047857">Parent Element</text>
+                
+                <rect x="100" y="115" width="160" height="40" rx="6" fill="#a7f3d0" stroke="#059669" stroke-width="2"/>
+                <text x="180" y="140" text-anchor="middle" font-size="10" fill="#065f46">Child Element</text>
+                
+                <text x="180" y="190" text-anchor="middle" font-size="10" fill="#065f46">✅ Does NOT bubble</text>
+                <text x="180" y="205" text-anchor="middle" font-size="10" fill="#065f46">✅ Fires once per element</text>
+                
+                <!-- mouseover/mouseout box -->
+                <rect x="360" y="20" width="320" height="180" rx="10" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                <text x="520" y="50" text-anchor="middle" font-size="14" font-weight="bold" fill="#92400e">mouseover / mouseout</text>
+                
+                <rect x="390" y="70" width="260" height="100" rx="8" fill="#fde68a" stroke="#f59e0b" stroke-width="2"/>
+                <text x="520" y="100" text-anchor="middle" font-size="11" fill="#b45309">Parent Element</text>
+                
+                <rect x="440" y="115" width="160" height="40" rx="6" fill="#fcd34d" stroke="#d97706" stroke-width="2"/>
+                <text x="520" y="140" text-anchor="middle" font-size="10" fill="#92400e">Child Element</text>
+                
+                <text x="520" y="190" text-anchor="middle" font-size="10" fill="#92400e">⚠️ DOES bubble</text>
+                <text x="520" y="205" text-anchor="middle" font-size="10" fill="#92400e">⚠️ Fires on every child too</text>
+            </svg>
+        </div>
+        
+<pre><span class="comment">// mouseenter/mouseleave - Usually what you want!</span>
+element.<span class="function">addEventListener</span>(<span class="string">'mouseenter'</span>, () => {
+    <span class="comment">// Fires ONCE when entering element</span>
+    <span class="comment">// Does NOT fire when moving to children</span>
+    <span class="comment">// Does NOT bubble</span>
+});
+
+element.<span class="function">addEventListener</span>(<span class="string">'mouseleave'</span>, () => {
+    <span class="comment">// Fires ONCE when leaving element</span>
+    <span class="comment">// Does NOT fire when moving to children</span>
+});
+
+<span class="comment">// mouseover/mouseout - Less commonly needed</span>
+element.<span class="function">addEventListener</span>(<span class="string">'mouseover'</span>, () => {
+    <span class="comment">// Fires when entering element OR any child</span>
+    <span class="comment">// DOES bubble - can cause multiple fires!</span>
+});
+
+element.<span class="function">addEventListener</span>(<span class="string">'mouseout'</span>, () => {
+    <span class="comment">// Fires when leaving element OR moving to child</span>
+    <span class="comment">// DOES bubble</span>
+});</pre>
+
+        <h3>MouseEvent Properties</h3>
+        
+<pre><span class="keyword">function</span> <span class="function">handleMouse</span>(e) {
+    <span class="comment">// ━━━━━━━━━━ Coordinates ━━━━━━━━━━</span>
+    e.<span class="property">clientX</span>, e.<span class="property">clientY</span>   <span class="comment">// Relative to viewport (visible area)</span>
+    e.<span class="property">pageX</span>, e.<span class="property">pageY</span>       <span class="comment">// Relative to document (includes scroll)</span>
+    e.<span class="property">screenX</span>, e.<span class="property">screenY</span>   <span class="comment">// Relative to screen</span>
+    e.<span class="property">offsetX</span>, e.<span class="property">offsetY</span>   <span class="comment">// Relative to target element</span>
+    
+    <span class="comment">// ━━━━━━━━━━ Button Info ━━━━━━━━━━</span>
+    e.<span class="property">button</span>      <span class="comment">// Which button: 0=left, 1=middle, 2=right</span>
+    e.<span class="property">buttons</span>     <span class="comment">// Bitmask of ALL pressed buttons</span>
+    
+    <span class="comment">// ━━━━━━━━━━ Modifier Keys ━━━━━━━━━━</span>
+    e.<span class="property">altKey</span>      <span class="comment">// Alt/Option held?</span>
+    e.<span class="property">ctrlKey</span>     <span class="comment">// Ctrl held?</span>
+    e.<span class="property">shiftKey</span>    <span class="comment">// Shift held?</span>
+    e.<span class="property">metaKey</span>     <span class="comment">// Cmd (Mac) / Win key held?</span>
+    
+    <span class="comment">// ━━━━━━━━━━ Related Element ━━━━━━━━━━</span>
+    e.<span class="property">relatedTarget</span>  <span class="comment">// Element mouse came from/going to</span>
+}
+
+<span class="comment">// Practical example: Track mouse position</span>
+<span class="variable">document</span>.<span class="function">addEventListener</span>(<span class="string">'mousemove'</span>, (e) => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">`Viewport: (</span>${e.<span class="property">clientX</span>}<span class="string">, </span>${e.<span class="property">clientY</span>}<span class="string">)`</span>);
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">`Document: (</span>${e.<span class="property">pageX</span>}<span class="string">, </span>${e.<span class="property">pageY</span>}<span class="string">)`</span>);
+});
+
+<span class="comment">// Detect right-click</span>
+element.<span class="function">addEventListener</span>(<span class="string">'mousedown'</span>, (e) => {
+    <span class="keyword">if</span> (e.<span class="property">button</span> === <span class="variable">2</span>) {
+        <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Right click!'</span>);
+    }
+});
+
+<span class="comment">// Detect Ctrl+Click</span>
+element.<span class="function">addEventListener</span>(<span class="string">'click'</span>, (e) => {
+    <span class="keyword">if</span> (e.<span class="property">ctrlKey</span>) {
+        <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Ctrl + Click!'</span>);
+    }
+});</pre>
+
+        <div class="diagram">
+            <h4 style="margin-bottom: 15px;">Mouse Coordinate Systems</h4>
+            <svg viewBox="0 0 600 300" style="max-width: 600px;">
+                <!-- Screen -->
+                <rect x="20" y="20" width="560" height="260" rx="8" fill="#f3f4f6" stroke="#9ca3af" stroke-width="2"/>
+                <text x="40" y="45" font-size="11" fill="#6b7280">Screen (screenX, screenY)</text>
+                
+                <!-- Browser window -->
+                <rect x="60" y="60" width="480" height="200" rx="6" fill="#e5e7eb" stroke="#6b7280" stroke-width="2"/>
+                <text x="80" y="85" font-size="10" fill="#4b5563">Browser Window</text>
+                
+                <!-- Viewport -->
+                <rect x="80" y="100" width="440" height="140" rx="4" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+                <text x="100" y="120" font-size="10" fill="#1d4ed8">Viewport (clientX, clientY)</text>
+                
+                <!-- Document (scrollable) -->
+                <rect x="100" y="130" width="400" height="90" rx="3" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+                <text x="120" y="150" font-size="10" fill="#065f46">Document (pageX, pageY)</text>
+                
+                <!-- Element -->
+                <rect x="200" y="160" width="120" height="40" rx="3" fill="#fce7f3" stroke="#ec4899" stroke-width="2"/>
+                <text x="210" y="185" font-size="9" fill="#be185d">Element (offsetX, offsetY)</text>
+                
+                <!-- Click point -->
+                <circle cx="250" cy="180" r="5" fill="#ef4444"/>
+                <text x="260" y="178" font-size="9" fill="#dc2626">Click</text>
+            </svg>
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 7.2: Keyboard Events -->
+        <h2>7.2 Keyboard Events</h2>
+        
+        <div class="event-category">
+            <h3><span class="event-icon">⌨️</span> Keyboard Event Types</h3>
+            <div class="event-list">
+                <span class="event-tag">keydown</span>
+                <span class="event-tag">keyup</span>
+                <span class="event-tag" style="opacity: 0.5; text-decoration: line-through;">keypress (deprecated)</span>
+            </div>
+        </div>
+        
+<pre><span class="comment">// keydown - Key pressed (repeats if held)</span>
+<span class="variable">document</span>.<span class="function">addEventListener</span>(<span class="string">'keydown'</span>, (e) => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Key down:'</span>, e.<span class="property">key</span>);
+    
+    <span class="keyword">if</span> (e.<span class="property">repeat</span>) {
+        <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Key is being held!'</span>);
+    }
+});
+
+<span class="comment">// keyup - Key released</span>
+<span class="variable">document</span>.<span class="function">addEventListener</span>(<span class="string">'keyup'</span>, (e) => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Key up:'</span>, e.<span class="property">key</span>);
+});</pre>
+
+        <h3>key vs code — Understanding the Difference</h3>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Returns</th>
+                    <th>Use Case</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="inline-code">e.key</span></td>
+                    <td>Character produced</td>
+                    <td>Text input, character-based actions</td>
+                    <td>"a", "A", "Enter", "ArrowUp"</td>
+                </tr>
+                <tr>
+                    <td><span class="inline-code">e.code</span></td>
+                    <td>Physical key location</td>
+                    <td>Games, keyboard shortcuts</td>
+                    <td>"KeyA", "ShiftLeft", "Digit1"</td>
+                </tr>
+            </tbody>
+        </table>
+        
+<pre><span class="comment">// e.key - The CHARACTER (affected by Shift, layout)</span>
+<span class="comment">// e.code - The PHYSICAL KEY (always the same)</span>
+
+<span class="variable">document</span>.<span class="function">addEventListener</span>(<span class="string">'keydown'</span>, (e) => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'key:'</span>, e.<span class="property">key</span>);    <span class="comment">// "a" or "A" (depends on shift)</span>
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'code:'</span>, e.<span class="property">code</span>);  <span class="comment">// "KeyA" (always same physical key)</span>
+});
+
+<span class="comment">// For text/character input, use KEY</span>
+input.<span class="function">addEventListener</span>(<span class="string">'keydown'</span>, (e) => {
+    <span class="keyword">if</span> (e.<span class="property">key</span> === <span class="string">'Enter'</span>) {
+        <span class="function">submitForm</span>();
+    }
+});
+
+<span class="comment">// For games/hotkeys, use CODE (works regardless of keyboard layout)</span>
+<span class="variable">document</span>.<span class="function">addEventListener</span>(<span class="string">'keydown'</span>, (e) => {
+    <span class="keyword">switch</span> (e.<span class="property">code</span>) {
+        <span class="keyword">case</span> <span class="string">'KeyW'</span>: <span class="function">moveUp</span>(); <span class="keyword">break</span>;
+        <span class="keyword">case</span> <span class="string">'KeyS'</span>: <span class="function">moveDown</span>(); <span class="keyword">break</span>;
+        <span class="keyword">case</span> <span class="string">'KeyA'</span>: <span class="function">moveLeft</span>(); <span class="keyword">break</span>;
+        <span class="keyword">case</span> <span class="string">'KeyD'</span>: <span class="function">moveRight</span>(); <span class="keyword">break</span>;
+        <span class="keyword">case</span> <span class="string">'Space'</span>: <span class="function">jump</span>(); <span class="keyword">break</span>;
+    }
+});</pre>
+
+        <h3>KeyboardEvent Properties</h3>
+        
+<pre><span class="keyword">function</span> <span class="function">handleKey</span>(e) {
+    e.<span class="property">key</span>         <span class="comment">// "a", "Enter", "ArrowUp", " " (space)</span>
+    e.<span class="property">code</span>        <span class="comment">// "KeyA", "Enter", "ArrowUp", "Space"</span>
+    e.<span class="property">repeat</span>      <span class="comment">// true if key held down (auto-repeat)</span>
+    e.<span class="property">isComposing</span> <span class="comment">// true if in IME composition (CJK input)</span>
+    
+    <span class="comment">// Modifier keys</span>
+    e.<span class="property">altKey</span>      <span class="comment">// Alt held?</span>
+    e.<span class="property">ctrlKey</span>     <span class="comment">// Ctrl held?</span>
+    e.<span class="property">shiftKey</span>    <span class="comment">// Shift held?</span>
+    e.<span class="property">metaKey</span>     <span class="comment">// Cmd/Win held?</span>
+}
+
+<span class="comment">// Common keyboard shortcuts pattern</span>
+<span class="variable">document</span>.<span class="function">addEventListener</span>(<span class="string">'keydown'</span>, (e) => {
+    <span class="comment">// Ctrl+S / Cmd+S - Save</span>
+    <span class="keyword">if</span> ((e.<span class="property">ctrlKey</span> || e.<span class="property">metaKey</span>) && e.<span class="property">key</span> === <span class="string">'s'</span>) {
+        e.<span class="function">preventDefault</span>();  <span class="comment">// Prevent browser save dialog</span>
+        <span class="function">saveDocument</span>();
+    }
+    
+    <span class="comment">// Ctrl+Z - Undo</span>
+    <span class="keyword">if</span> ((e.<span class="property">ctrlKey</span> || e.<span class="property">metaKey</span>) && e.<span class="property">key</span> === <span class="string">'z'</span>) {
+        e.<span class="function">preventDefault</span>();
+        <span class="function">undo</span>();
+    }
+    
+    <span class="comment">// Escape - Close modal</span>
+    <span class="keyword">if</span> (e.<span class="property">key</span> === <span class="string">'Escape'</span>) {
+        <span class="function">closeModal</span>();
+    }
+});</pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 7.3: Focus Events -->
+        <h2>7.3 Focus Events</h2>
+        
+        <div class="event-category">
+            <h3><span class="event-icon">🎯</span> Focus Event Types</h3>
+            <div class="event-list">
+                <span class="event-tag">focus</span>
+                <span class="event-tag">blur</span>
+                <span class="event-tag">focusin</span>
+                <span class="event-tag">focusout</span>
+            </div>
+        </div>
+        
+<pre><span class="comment">// focus/blur - Do NOT bubble</span>
+input.<span class="function">addEventListener</span>(<span class="string">'focus'</span>, () => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Input focused'</span>);
+});
+
+input.<span class="function">addEventListener</span>(<span class="string">'blur'</span>, () => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Input lost focus'</span>);
+});
+
+<span class="comment">// focusin/focusout - DO bubble (useful for delegation)</span>
+form.<span class="function">addEventListener</span>(<span class="string">'focusin'</span>, (e) => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Focused on:'</span>, e.<span class="property">target</span>);
+    e.<span class="property">target</span>.<span class="property">classList</span>.<span class="function">add</span>(<span class="string">'focused'</span>);
+});
+
+form.<span class="function">addEventListener</span>(<span class="string">'focusout'</span>, (e) => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Left:'</span>, e.<span class="property">target</span>);
+    e.<span class="property">target</span>.<span class="property">classList</span>.<span class="function">remove</span>(<span class="string">'focused'</span>);
+});
+
+<span class="comment">// relatedTarget - where focus came from / going to</span>
+input.<span class="function">addEventListener</span>(<span class="string">'focus'</span>, (e) => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Focus came from:'</span>, e.<span class="property">relatedTarget</span>);
+});
+
+input.<span class="function">addEventListener</span>(<span class="string">'blur'</span>, (e) => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Focus going to:'</span>, e.<span class="property">relatedTarget</span>);
+});</pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 7.4: Form Events -->
+        <h2>7.4 Form Events</h2>
+        
+        <div class="event-category">
+            <h3><span class="event-icon">📝</span> Form Event Types</h3>
+            <div class="event-list">
+                <span class="event-tag">submit</span>
+                <span class="event-tag">reset</span>
+                <span class="event-tag">input</span>
+                <span class="event-tag">change</span>
+                <span class="event-tag">invalid</span>
+            </div>
+        </div>
+        
+<pre><span class="comment">// submit - Form submitted</span>
+form.<span class="function">addEventListener</span>(<span class="string">'submit'</span>, (e) => {
+    e.<span class="function">preventDefault</span>();  <span class="comment">// Prevent page reload!</span>
+    <span class="keyword">const</span> formData = <span class="keyword">new</span> <span class="function">FormData</span>(form);
+    <span class="comment">// Handle form data...</span>
+});
+
+<span class="comment">// input - Fires on EVERY change (immediate)</span>
+input.<span class="function">addEventListener</span>(<span class="string">'input'</span>, (e) => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Current value:'</span>, e.<span class="property">target</span>.<span class="property">value</span>);
+    <span class="comment">// Great for live search, character count, etc.</span>
+});
+
+<span class="comment">// change - Fires when value COMMITTED (on blur for text)</span>
+input.<span class="function">addEventListener</span>(<span class="string">'change'</span>, (e) => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Value changed to:'</span>, e.<span class="property">target</span>.<span class="property">value</span>);
+    <span class="comment">// For text: fires on blur</span>
+    <span class="comment">// For checkbox/radio/select: fires immediately</span>
+});</pre>
+
+        <h3>input vs change — When They Fire</h3>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Element Type</th>
+                    <th>input event</th>
+                    <th>change event</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Text input / textarea</td>
+                    <td>Every keystroke</td>
+                    <td>On blur (after editing)</td>
+                </tr>
+                <tr>
+                    <td>Checkbox / Radio</td>
+                    <td>On click</td>
+                    <td>On click (same time)</td>
+                </tr>
+                <tr>
+                    <td>Select dropdown</td>
+                    <td>On selection</td>
+                    <td>On selection (same time)</td>
+                </tr>
+                <tr>
+                    <td>Range slider</td>
+                    <td>While dragging</td>
+                    <td>After release</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 7.5: Scroll Events -->
+        <h2>7.5 Scroll Events</h2>
+        
+<pre><span class="comment">// scroll - Fires frequently during scrolling!</span>
+<span class="variable">window</span>.<span class="function">addEventListener</span>(<span class="string">'scroll'</span>, () => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Scroll position:'</span>, <span class="variable">window</span>.<span class="property">scrollY</span>);
+    <span class="comment">// ⚠️ This fires A LOT - throttle it!</span>
+});
+
+<span class="comment">// Scroll on specific element</span>
+scrollContainer.<span class="function">addEventListener</span>(<span class="string">'scroll'</span>, (e) => {
+    <span class="keyword">const</span> el = e.<span class="property">target</span>;
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'scrollTop:'</span>, el.<span class="property">scrollTop</span>);
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'scrollLeft:'</span>, el.<span class="property">scrollLeft</span>);
+});
+
+<span class="comment">// scrollend - Fires when scrolling stops (modern browsers)</span>
+<span class="variable">window</span>.<span class="function">addEventListener</span>(<span class="string">'scrollend'</span>, () => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Scrolling finished!'</span>);
+});
+
+<span class="comment">// Throttled scroll handler</span>
+<span class="keyword">let</span> ticking = <span class="keyword">false</span>;
+<span class="variable">window</span>.<span class="function">addEventListener</span>(<span class="string">'scroll'</span>, () => {
+    <span class="keyword">if</span> (!ticking) {
+        <span class="variable">window</span>.<span class="function">requestAnimationFrame</span>(() => {
+            <span class="function">handleScroll</span>();
+            ticking = <span class="keyword">false</span>;
+        });
+        ticking = <span class="keyword">true</span>;
+    }
+});</pre>
+
+        <div class="key-point">
+            <strong>Better Alternative:</strong> Use <span class="inline-code">IntersectionObserver</span> instead of scroll events when possible. It's more performant and doesn't require throttling!
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 7.6: Touch & Pointer Events -->
+        <h2>7.6 Touch & Pointer Events</h2>
+        
+        <div class="event-category">
+            <h3><span class="event-icon">👆</span> Touch Events (Mobile)</h3>
+            <div class="event-list">
+                <span class="event-tag">touchstart</span>
+                <span class="event-tag">touchmove</span>
+                <span class="event-tag">touchend</span>
+                <span class="event-tag">touchcancel</span>
+            </div>
+        </div>
+        
+<pre><span class="comment">// Touch events for mobile</span>
+element.<span class="function">addEventListener</span>(<span class="string">'touchstart'</span>, (e) => {
+    <span class="keyword">const</span> touch = e.<span class="property">touches</span>[<span class="variable">0</span>];  <span class="comment">// First finger</span>
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">`Touch at (</span>${touch.<span class="property">clientX</span>}<span class="string">, </span>${touch.<span class="property">clientY</span>}<span class="string">)`</span>);
+});
+
+element.<span class="function">addEventListener</span>(<span class="string">'touchmove'</span>, (e) => {
+    <span class="comment">// Track finger movement</span>
+});
+
+element.<span class="function">addEventListener</span>(<span class="string">'touchend'</span>, (e) => {
+    <span class="comment">// Finger lifted</span>
+    <span class="comment">// Use e.changedTouches for the released touches</span>
+});
+
+<span class="comment">// Touch event properties</span>
+e.<span class="property">touches</span>         <span class="comment">// All current touches on screen</span>
+e.<span class="property">targetTouches</span>   <span class="comment">// Touches on the target element</span>
+e.<span class="property">changedTouches</span>  <span class="comment">// Touches that changed in this event</span>
+
+<span class="comment">// Each touch object has:</span>
+touch.<span class="property">identifier</span>  <span class="comment">// Unique ID for this finger</span>
+touch.<span class="property">clientX</span>     <span class="comment">// X position</span>
+touch.<span class="property">clientY</span>     <span class="comment">// Y position</span>
+touch.<span class="property">target</span>      <span class="comment">// Element first touched</span></pre>
+
+        <div class="event-category">
+            <h3><span class="event-icon">👉</span> Pointer Events (Unified - Recommended!)</h3>
+            <div class="event-list">
+                <span class="event-tag">pointerdown</span>
+                <span class="event-tag">pointermove</span>
+                <span class="event-tag">pointerup</span>
+                <span class="event-tag">pointerenter</span>
+                <span class="event-tag">pointerleave</span>
+                <span class="event-tag">pointercancel</span>
+            </div>
+        </div>
+        
+<pre><span class="comment">// Pointer Events - Work for mouse, touch, AND pen!</span>
+element.<span class="function">addEventListener</span>(<span class="string">'pointerdown'</span>, (e) => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Pointer type:'</span>, e.<span class="property">pointerType</span>);  <span class="comment">// "mouse", "touch", or "pen"</span>
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Pointer ID:'</span>, e.<span class="property">pointerId</span>);
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Pressure:'</span>, e.<span class="property">pressure</span>);  <span class="comment">// 0.0 to 1.0</span>
+});
+
+<span class="comment">// Unified handling for all input types!</span>
+element.<span class="function">addEventListener</span>(<span class="string">'pointerdown'</span>, startDrag);
+element.<span class="function">addEventListener</span>(<span class="string">'pointermove'</span>, drag);
+element.<span class="function">addEventListener</span>(<span class="string">'pointerup'</span>, endDrag);
+
+<span class="comment">// Pointer-specific properties</span>
+e.<span class="property">pointerId</span>     <span class="comment">// Unique pointer identifier</span>
+e.<span class="property">pointerType</span>   <span class="comment">// "mouse", "pen", "touch"</span>
+e.<span class="property">pressure</span>      <span class="comment">// Pressure (0.0 to 1.0)</span>
+e.<span class="property">tiltX</span>         <span class="comment">// Pen angle X</span>
+e.<span class="property">tiltY</span>         <span class="comment">// Pen angle Y</span>
+e.<span class="property">isPrimary</span>     <span class="comment">// Primary pointer of this type?</span></pre>
+
+        <div class="interview-tip">
+            <strong>Use Pointer Events for cross-device compatibility!</strong> They unify mouse, touch, and pen input into a single API. No need to handle mouse and touch events separately.
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Section 7.7: Clipboard & Drag Events -->
+        <h2>7.7 Clipboard Events</h2>
+        
+<pre><span class="comment">// Clipboard events</span>
+element.<span class="function">addEventListener</span>(<span class="string">'copy'</span>, (e) => {
+    <span class="comment">// Modify what gets copied</span>
+    e.<span class="property">clipboardData</span>.<span class="function">setData</span>(<span class="string">'text/plain'</span>, <span class="string">'Custom copied text!'</span>);
+    e.<span class="function">preventDefault</span>();
+});
+
+element.<span class="function">addEventListener</span>(<span class="string">'cut'</span>, (e) => {
+    <span class="comment">// Handle cut</span>
+});
+
+element.<span class="function">addEventListener</span>(<span class="string">'paste'</span>, (e) => {
+    <span class="comment">// Get pasted content</span>
+    <span class="keyword">const</span> text = e.<span class="property">clipboardData</span>.<span class="function">getData</span>(<span class="string">'text/plain'</span>);
+    <span class="keyword">const</span> html = e.<span class="property">clipboardData</span>.<span class="function">getData</span>(<span class="string">'text/html'</span>);
+    <span class="keyword">const</span> files = e.<span class="property">clipboardData</span>.<span class="property">files</span>;  <span class="comment">// Pasted files/images</span>
+    
+    e.<span class="function">preventDefault</span>();  <span class="comment">// Prevent default paste</span>
+    <span class="comment">// Insert text your way</span>
+});</pre>
+
+        <h2>7.8 Drag & Drop Events</h2>
+        
+<pre><span class="comment">// Make element draggable in HTML: draggable="true"</span>
+
+<span class="comment">// On the DRAGGED element</span>
+draggable.<span class="function">addEventListener</span>(<span class="string">'dragstart'</span>, (e) => {
+    e.<span class="property">dataTransfer</span>.<span class="function">setData</span>(<span class="string">'text/plain'</span>, e.<span class="property">target</span>.<span class="property">id</span>);
+    e.<span class="property">dataTransfer</span>.<span class="property">effectAllowed</span> = <span class="string">'move'</span>;
+});
+
+draggable.<span class="function">addEventListener</span>(<span class="string">'dragend'</span>, (e) => {
+    <span class="comment">// Drag completed (or cancelled)</span>
+});
+
+<span class="comment">// On the DROP ZONE</span>
+dropZone.<span class="function">addEventListener</span>(<span class="string">'dragover'</span>, (e) => {
+    e.<span class="function">preventDefault</span>();  <span class="comment">// REQUIRED to allow drop!</span>
+    e.<span class="property">dataTransfer</span>.<span class="property">dropEffect</span> = <span class="string">'move'</span>;
+});
+
+dropZone.<span class="function">addEventListener</span>(<span class="string">'dragenter'</span>, (e) => {
+    dropZone.<span class="property">classList</span>.<span class="function">add</span>(<span class="string">'drag-over'</span>);
+});
+
+dropZone.<span class="function">addEventListener</span>(<span class="string">'dragleave'</span>, (e) => {
+    dropZone.<span class="property">classList</span>.<span class="function">remove</span>(<span class="string">'drag-over'</span>);
+});
+
+dropZone.<span class="function">addEventListener</span>(<span class="string">'drop'</span>, (e) => {
+    e.<span class="function">preventDefault</span>();
+    <span class="keyword">const</span> id = e.<span class="property">dataTransfer</span>.<span class="function">getData</span>(<span class="string">'text/plain'</span>);
+    <span class="keyword">const</span> element = <span class="variable">document</span>.<span class="function">getElementById</span>(id);
+    dropZone.<span class="function">appendChild</span>(element);
+});</pre>
+
+        <div class="section-divider"></div>
+        
+        <!-- Section 7.9: Lifecycle Events -->
+        <h2>7.9 Document & Window Lifecycle Events</h2>
+        
+<pre><span class="comment">// ━━━━━━━━━━ Document Loading ━━━━━━━━━━</span>
+
+<span class="comment">// DOM ready (HTML parsed, but images/css may still load)</span>
+<span class="variable">document</span>.<span class="function">addEventListener</span>(<span class="string">'DOMContentLoaded'</span>, () => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'DOM ready!'</span>);
+    <span class="comment">// Safe to access DOM elements</span>
+});
+
+<span class="comment">// Everything loaded (images, stylesheets, etc.)</span>
+<span class="variable">window</span>.<span class="function">addEventListener</span>(<span class="string">'load'</span>, () => {
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Everything loaded!'</span>);
+});
+
+<span class="comment">// ━━━━━━━━━━ Page Unload ━━━━━━━━━━</span>
+
+<span class="comment">// Before leaving (can show confirmation)</span>
+<span class="variable">window</span>.<span class="function">addEventListener</span>(<span class="string">'beforeunload'</span>, (e) => {
+    <span class="keyword">if</span> (hasUnsavedChanges) {
+        e.<span class="function">preventDefault</span>();
+        e.<span class="property">returnValue</span> = <span class="string">''</span>;  <span class="comment">// Required for Chrome</span>
+        <span class="comment">// Browser shows "Leave site?" dialog</span>
+    }
+});
+
+<span class="comment">// Page unloading (limited actions possible)</span>
+<span class="variable">window</span>.<span class="function">addEventListener</span>(<span class="string">'unload'</span>, () => {
+    <span class="comment">// Send analytics with navigator.sendBeacon()</span>
+});
+
+<span class="comment">// ━━━━━━━━━━ Visibility ━━━━━━━━━━</span>
+
+<span class="comment">// Tab visibility changed</span>
+<span class="variable">document</span>.<span class="function">addEventListener</span>(<span class="string">'visibilitychange'</span>, () => {
+    <span class="keyword">if</span> (<span class="variable">document</span>.<span class="property">hidden</span>) {
+        <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Tab hidden - pause video, timers'</span>);
+    } <span class="keyword">else</span> {
+        <span class="variable">console</span>.<span class="function">log</span>(<span class="string">'Tab visible - resume'</span>);
+    }
+});
+
+<span class="comment">// ━━━━━━━━━━ Window Events ━━━━━━━━━━</span>
+
+<span class="variable">window</span>.<span class="function">addEventListener</span>(<span class="string">'resize'</span>, () => {
+    <span class="comment">// Window resized - throttle this!</span>
+});
+
+<span class="variable">window</span>.<span class="function">addEventListener</span>(<span class="string">'hashchange'</span>, () => {
+    <span class="comment">// URL hash changed (#section)</span>
+});
+
+<span class="variable">window</span>.<span class="function">addEventListener</span>(<span class="string">'popstate'</span>, () => {
+    <span class="comment">// Browser back/forward button pressed</span>
+});</pre>
+
+        <div class="section-divider"></div>
+        
+        <h2>Chapter 7 Summary</h2>
+        
+        <div class="concept-box">
+            <h3>Quick Reference by Category</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Most Used Events</th>
+                        <th>Key Properties</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mouse</td>
+                        <td>click, mouseenter, mouseleave</td>
+                        <td>clientX/Y, button, target</td>
+                    </tr>
+                    <tr>
+                        <td>Keyboard</td>
+                        <td>keydown, keyup</td>
+                        <td>key, code, ctrlKey, shiftKey</td>
+                    </tr>
+                    <tr>
+                        <td>Form</td>
+                        <td>submit, input, change</td>
+                        <td>target.value</td>
+                    </tr>
+                    <tr>
+                        <td>Focus</td>
+                        <td>focus, blur, focusin, focusout</td>
+                        <td>relatedTarget</td>
+                    </tr>
+                    <tr>
+                        <td>Touch/Pointer</td>
+                        <td>pointerdown, pointermove, pointerup</td>
+                        <td>pointerType, pointerId</td>
+                    </tr>
+                    <tr>
+                        <td>Lifecycle</td>
+                        <td>DOMContentLoaded, load, visibilitychange</td>
+                        <td>document.hidden</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
