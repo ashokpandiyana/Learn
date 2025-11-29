@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 14: Performance Optimization Types</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .section {
+            margin-bottom: 50px;
+        }
+        .section h2 {
+            color: #2563eb;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3b82f6;
+        }
+        .section h3 {
+            color: #4f46e5;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .code-block .keyword { color: #c792ea; }
+        .code-block .function { color: #82aaff; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .comment { color: #676e95; font-style: italic; }
+        .code-block .type { color: #ffcb6b; }
+        .note {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .tip {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .visual-diagram {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .comparison-table th {
+            background: #3b82f6;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .comparison-table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+        .icon {
+            display: inline-block;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+        .box {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .blue-box { background: #dbeafe; color: #1e40af; }
+        .green-box { background: #d1fae5; color: #065f46; }
+        .red-box { background: #fee2e2; color: #991b1b; }
+        .arrow {
+            font-size: 2em;
+            color: #3b82f6;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Chapter 14: Performance Optimization Types</h1>
+            <p>Master TypeScript patterns for optimizing React performance</p>
+        </div>
+        
+        <div class="content">
+            <!-- Section 14.1 -->
+            <div class="section">
+                <h2>14.1 React.memo with TypeScript</h2>
+                
+                <p><strong>React.memo</strong> is a Higher-Order Component that prevents unnecessary re-renders by memoizing components. It performs a shallow comparison of props and only re-renders if props change.</p>
+                
+                <div class="visual-diagram">
+                    <h3>How React.memo Works</h3>
+                    <div style="display: flex; justify-content: center; align-items: center; margin: 20px 0;">
+                        <div class="box blue-box">Parent Re-renders</div>
+                        <span class="arrow">→</span>
+                        <div class="box green-box">Props Same?<br/>Skip Re-render</div>
+                        <span class="arrow">→</span>
+                        <div class="box red-box">Props Changed?<br/>Re-render Child</div>
+                    </div>
+                </div>
+
+                <h3>Basic Usage with TypeScript</h3>
+                
+                <div class="code-block">
+<span class="keyword">interface</span> <span class="type">UserCardProps</span> {
+  name: <span class="keyword">string</span>;
+  email: <span class="keyword">string</span>;
+  age: <span class="keyword">number</span>;
+}
+
+<span class="comment">// Without memo - re-renders on every parent render</span>
+<span class="keyword">function</span> <span class="function">UserCard</span>({ name, email, age }: <span class="type">UserCardProps</span>) {
+  console.log(<span class="string">'UserCard rendered'</span>);
+  <span class="keyword">return</span> (
+    &lt;div&gt;
+      &lt;h3&gt;{name}&lt;/h3&gt;
+      &lt;p&gt;{email}&lt;/p&gt;
+      &lt;p&gt;Age: {age}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+
+<span class="comment">// With memo - only re-renders when props change</span>
+<span class="keyword">const</span> <span class="type">MemoizedUserCard</span> = React.memo(<span class="function">UserCard</span>);
+
+<span class="comment">// Explicit typing (optional, but good for clarity)</span>
+<span class="keyword">const</span> <span class="type">MemoizedUserCard2</span> = React.memo&lt;<span class="type">UserCardProps</span>&gt;(<span class="function">UserCard</span>);
+                </div>
+
+                <h3>Custom Comparison Function</h3>
+                <p>Sometimes you need custom logic to determine if props have changed:</p>
+
+                <div class="code-block">
+<span class="keyword">interface</span> <span class="type">ProductProps</span> {
+  product: {
+    id: <span class="keyword">string</span>;
+    name: <span class="keyword">string</span>;
+    price: <span class="keyword">number</span>;
+    lastUpdated: <span class="keyword">Date</span>;
+  };
+  onBuy: () => <span class="keyword">void</span>;
+}
+
+<span class="keyword">function</span> <span class="function">Product</span>({ product, onBuy }: <span class="type">ProductProps</span>) {
+  <span class="keyword">return</span> (
+    &lt;div&gt;
+      &lt;h3&gt;{product.name}&lt;/h3&gt;
+      &lt;p&gt;${product.price}&lt;/p&gt;
+      &lt;button onClick={onBuy}&gt;Buy Now&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+<span class="comment">// Custom comparison: only re-render if price or name changes</span>
+<span class="comment">// Return true to SKIP re-render, false to RE-RENDER</span>
+<span class="keyword">const</span> <span class="type">MemoizedProduct</span> = React.memo(
+  <span class="function">Product</span>,
+  (prevProps, nextProps) => {
+    <span class="comment">// Return true if props are equal (skip render)</span>
+    <span class="keyword">return</span> (
+      prevProps.product.id === nextProps.product.id &&
+      prevProps.product.name === nextProps.product.name &&
+      prevProps.product.price === nextProps.product.price
+      <span class="comment">// Ignore lastUpdated and onBuy changes</span>
+    );
+  }
+);
+                </div>
+
+                <h3>Generic Memoized Components</h3>
+                <p>This is a common interview question - creating generic components that work with any data type:</p>
+
+                <div class="code-block">
+<span class="keyword">interface</span> <span class="type">ListProps</span>&lt;T&gt; {
+  items: T[];
+  renderItem: (item: T, index: <span class="keyword">number</span>) => React.ReactNode;
+  keyExtractor: (item: T) => <span class="keyword">string</span>;
+}
+
+<span class="comment">// Generic list component</span>
+<span class="keyword">function</span> <span class="function">List</span>&lt;T&gt;({ items, renderItem, keyExtractor }: <span class="type">ListProps</span>&lt;T&gt;) {
+  console.log(<span class="string">'List rendered with'</span>, items.length, <span class="string">'items'</span>);
+  
+  <span class="keyword">return</span> (
+    &lt;ul&gt;
+      {items.map((item, index) => (
+        &lt;li key={keyExtractor(item)}&gt;
+          {renderItem(item, index)}
+        &lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+
+<span class="comment">// Memoize with type preservation</span>
+<span class="comment">// Type assertion needed to preserve generic type parameter</span>
+<span class="keyword">const</span> <span class="type">MemoizedList</span> = React.memo(<span class="function">List</span>) <span class="keyword">as</span> &lt;T&gt;(
+  props: <span class="type">ListProps</span>&lt;T&gt;
+) => JSX.Element;
+
+<span class="comment">// Usage example</span>
+<span class="keyword">interface</span> <span class="type">User</span> {
+  id: <span class="keyword">string</span>;
+  name: <span class="keyword">string</span>;
+  email: <span class="keyword">string</span>;
+}
+
+<span class="keyword">function</span> <span class="function">UserList</span>() {
+  <span class="keyword">const</span> users: <span class="type">User</span>[] = [
+    { id: <span class="string">'1'</span>, name: <span class="string">'Alice'</span>, email: <span class="string">'alice@example.com'</span> },
+    { id: <span class="string">'2'</span>, name: <span class="string">'Bob'</span>, email: <span class="string">'bob@example.com'</span> },
+  ];
+
+  <span class="keyword">return</span> (
+    &lt;<span class="type">MemoizedList</span>&lt;<span class="type">User</span>&gt;
+      items={users}
+      renderItem={(user) => (
+        &lt;div&gt;
+          &lt;strong&gt;{user.name}&lt;/strong&gt; - {user.email}
+        &lt;/div&gt;
+      )}
+      keyExtractor={(user) => user.id}
+    /&gt;
+  );
+}
+                </div>
+
+                <div class="tip">
+                    <strong><span class="icon">💡</span>Production Tip:</strong> Only use React.memo when:
+                    <ul style="margin-top: 10px;">
+                        <li>Component renders often with the same props</li>
+                        <li>Component is expensive to render</li>
+                        <li>Props are simple and easy to compare</li>
+                    </ul>
+                    Don't overuse it - memo has its own overhead!
+                </div>
+
+                <div class="warning">
+                    <strong><span class="icon">⚠️</span>Common Pitfall:</strong> Passing inline objects or functions as props breaks memoization because they're new references each time. Use useCallback and useMemo in parent components.
+                </div>
+            </div>
+
+            <!-- Section 14.2 -->
+            <div class="section">
+                <h2>14.2 Lazy Loading with TypeScript</h2>
+                
+                <p><strong>React.lazy</strong> enables code splitting by loading components only when they're needed, reducing initial bundle size.</p>
+
+                <div class="visual-diagram">
+                    <h3>Bundle Splitting Strategy</h3>
+                    <div style="margin: 20px 0;">
+                        <div class="box blue-box">Initial Bundle: 50KB</div>
+                        <div style="margin: 20px 0; font-size: 1.2em;">Without Lazy: Load everything upfront ❌</div>
+                        <div class="box red-box">Total: 500KB loaded immediately</div>
+                    </div>
+                    <div style="margin: 30px 0;">
+                        <div class="box green-box">Initial Bundle: 50KB</div>
+                        <div style="margin: 20px 0; font-size: 1.2em;">With Lazy: Load on demand ✅</div>
+                        <div class="box green-box">+150KB when route visited</div>
+                    </div>
+                </div>
+
+                <h3>Basic Lazy Loading</h3>
+
+                <div class="code-block">
+<span class="keyword">import</span> React, { Suspense } <span class="keyword">from</span> <span class="string">'react'</span>;
+
+<span class="comment">// Regular import (bundled immediately)</span>
+<span class="keyword">import</span> Dashboard <span class="keyword">from</span> <span class="string">'./Dashboard'</span>;
+
+<span class="comment">// Lazy import (loaded on demand)</span>
+<span class="keyword">const</span> <span class="type">Dashboard</span> = React.lazy(() => <span class="keyword">import</span>(<span class="string">'./Dashboard'</span>));
+
+<span class="keyword">function</span> <span class="function">App</span>() {
+  <span class="keyword">return</span> (
+    &lt;Suspense fallback={&lt;div&gt;Loading...&lt;/div&gt;}&gt;
+      &lt;<span class="type">Dashboard</span> /&gt;
+    &lt;/Suspense&gt;
+  );
+}
+                </div>
+
+                <h3>Typing Lazy Components</h3>
+
+                <div class="code-block">
+<span class="comment">// Component with props</span>
+<span class="keyword">interface</span> <span class="type">DashboardProps</span> {
+  userId: <span class="keyword">string</span>;
+  theme: <span class="string">'light'</span> | <span class="string">'dark'</span>;
+}
+
+<span class="comment">// Method 1: Type inference (recommended)</span>
+<span class="keyword">const</span> <span class="type">Dashboard</span> = React.lazy(() => <span class="keyword">import</span>(<span class="string">'./Dashboard'</span>));
+
+<span class="comment">// Method 2: Explicit typing</span>
+<span class="keyword">const</span> <span class="type">Dashboard</span>: React.LazyExoticComponent&lt;
+  React.ComponentType&lt;<span class="type">DashboardProps</span>&gt;
+&gt; = React.lazy(() => <span class="keyword">import</span>(<span class="string">'./Dashboard'</span>));
+
+<span class="comment">// Method 3: With type assertion</span>
+<span class="keyword">const</span> <span class="type">Dashboard</span> = React.lazy(
+  () => <span class="keyword">import</span>(<span class="string">'./Dashboard'</span>) <span class="keyword">as</span> Promise&lt;{
+    <span class="keyword">default</span>: React.ComponentType&lt;<span class="type">DashboardProps</span>&gt;;
+  }&gt;
+);
+
+<span class="comment">// Usage</span>
+&lt;<span class="type">Dashboard</span> userId={<span class="string">"123"</span>} theme={<span class="string">"dark"</span>} /&gt;
+                </div>
+
+                <h3>Dynamic Imports with Conditions</h3>
+
+                <div class="code-block">
+<span class="keyword">interface</span> <span class="type">EditorProps</span> {
+  content: <span class="keyword">string</span>;
+  onChange: (value: <span class="keyword">string</span>) => <span class="keyword">void</span>;
+}
+
+<span class="comment">// Load different editors based on condition</span>
+<span class="keyword">function</span> <span class="function">loadEditor</span>(type: <span class="string">'basic'</span> | <span class="string">'advanced'</span>) {
+  <span class="keyword">if</span> (type === <span class="string">'advanced'</span>) {
+    <span class="keyword">return</span> React.lazy(() => <span class="keyword">import</span>(<span class="string">'./AdvancedEditor'</span>));
+  }
+  <span class="keyword">return</span> React.lazy(() => <span class="keyword">import</span>(<span class="string">'./BasicEditor'</span>));
+}
+
+<span class="keyword">function</span> <span class="function">App</span>() {
+  <span class="keyword">const</span> [editorType, setEditorType] = useState&lt;<span class="string">'basic'</span> | <span class="string">'advanced'</span>&gt;(<span class="string">'basic'</span>);
+  <span class="keyword">const</span> <span class="type">Editor</span> = loadEditor(editorType);
+
+  <span class="keyword">return</span> (
+    &lt;Suspense fallback={&lt;div&gt;Loading editor...&lt;/div&gt;}&gt;
+      &lt;<span class="type">Editor</span> content={<span class="string">""</span>} onChange={(v) => console.log(v)} /&gt;
+    &lt;/Suspense&gt;
+  );
+}
+                </div>
+
+                <h3>Route-Based Code Splitting</h3>
+
+                <div class="code-block">
+<span class="keyword">import</span> { BrowserRouter, Routes, Route } <span class="keyword">from</span> <span class="string">'react-router-dom'</span>;
+
+<span class="comment">// Lazy load route components</span>
+<span class="keyword">const</span> <span class="type">Home</span> = React.lazy(() => <span class="keyword">import</span>(<span class="string">'./pages/Home'</span>));
+<span class="keyword">const</span> <span class="type">About</span> = React.lazy(() => <span class="keyword">import</span>(<span class="string">'./pages/About'</span>));
+<span class="keyword">const</span> <span class="type">Dashboard</span> = React.lazy(() => <span class="keyword">import</span>(<span class="string">'./pages/Dashboard'</span>));
+<span class="keyword">const</span> <span class="type">Profile</span> = React.lazy(() => <span class="keyword">import</span>(<span class="string">'./pages/Profile'</span>));
+
+<span class="comment">// Reusable loading component</span>
+<span class="keyword">const</span> <span class="type">PageLoader</span> = () => (
+  &lt;div style={{ padding: <span class="string">'50px'</span>, textAlign: <span class="string">'center'</span> }}&gt;
+    &lt;div&gt;Loading page...&lt;/div&gt;
+  &lt;/div&gt;
+);
+
+<span class="keyword">function</span> <span class="function">App</span>() {
+  <span class="keyword">return</span> (
+    &lt;BrowserRouter&gt;
+      &lt;Suspense fallback={&lt;<span class="type">PageLoader</span> /&gt;}&gt;
+        &lt;Routes&gt;
+          &lt;Route path={<span class="string">"/"</span>} element={&lt;<span class="type">Home</span> /&gt;} /&gt;
+          &lt;Route path={<span class="string">"/about"</span>} element={&lt;<span class="type">About</span> /&gt;} /&gt;
+          &lt;Route path={<span class="string">"/dashboard"</span>} element={&lt;<span class="type">Dashboard</span> /&gt;} /&gt;
+          &lt;Route path={<span class="string">"/profile"</span>} element={&lt;<span class="type">Profile</span> /&gt;} /&gt;
+        &lt;/Routes&gt;
+      &lt;/Suspense&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}
+                </div>
+
+                <h3>Preloading Lazy Components</h3>
+
+                <div class="code-block">
+<span class="comment">// Create a preloadable lazy component</span>
+<span class="keyword">function</span> <span class="function">lazyWithPreload</span>&lt;T <span class="keyword">extends</span> React.ComponentType&lt;<span class="keyword">any</span>&gt;&gt;(
+  importFunc: () => Promise&lt;{ <span class="keyword">default</span>: T }&gt;
+) {
+  <span class="keyword">const</span> LazyComponent = React.lazy(importFunc);
+  
+  <span class="keyword">return</span> Object.assign(LazyComponent, {
+    preload: importFunc,
+  });
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> <span class="type">HeavyComponent</span> = lazyWithPreload(() => <span class="keyword">import</span>(<span class="string">'./HeavyComponent'</span>));
+
+<span class="keyword">function</span> <span class="function">App</span>() {
+  <span class="comment">// Preload on hover or any other trigger</span>
+  <span class="keyword">const</span> <span class="function">handleMouseEnter</span> = () => {
+    <span class="type">HeavyComponent</span>.preload();
+  };
+
+  <span class="keyword">return</span> (
+    &lt;div&gt;
+      &lt;button onMouseEnter={handleMouseEnter}&gt;
+        Show Heavy Component
+      &lt;/button&gt;
+      
+      &lt;Suspense fallback={&lt;div&gt;Loading...&lt;/div&gt;}&gt;
+        &lt;<span class="type">HeavyComponent</span> /&gt;
+      &lt;/Suspense&gt;
+    &lt;/div&gt;
+  );
+}
+                </div>
+
+                <div class="note">
+                    <strong><span class="icon">ℹ️</span>Key Concept:</strong> Suspense boundaries catch lazy component loading. You can have multiple Suspense boundaries at different levels for granular loading states.
+                </div>
+            </div>
+
+            <!-- Section 14.3 -->
+            <div class="section">
+                <h2>14.3 Code Splitting Patterns</h2>
+                
+                <p>Code splitting is the practice of breaking your application into smaller chunks that can be loaded on demand.</p>
+
+                <h3>Component-Based Splitting</h3>
+
+                <div class="code-block">
+<span class="comment">// Split large, rarely-used components</span>
+<span class="keyword">const</span> <span class="type">VideoPlayer</span> = React.lazy(() => <span class="keyword">import</span>(<span class="string">'./VideoPlayer'</span>));
+<span class="keyword">const</span> <span class="type">ImageEditor</span> = React.lazy(() => <span class="keyword">import</span>(<span class="string">'./ImageEditor'</span>));
+<span class="keyword">const</span> <span class="type">Chart</span> = React.lazy(() => <span class="keyword">import</span>(<span class="string">'./Chart'</span>));
+
+<span class="keyword">function</span> <span class="function">MediaSection</span>() {
+  <span class="keyword">const</span> [showVideo, setShowVideo] = useState(<span class="keyword">false</span>);
+
+  <span class="keyword">return</span> (
+    &lt;div&gt;
+      &lt;button onClick={() => setShowVideo(<span class="keyword">true</span>)}&gt;
+        Load Video Player
+      &lt;/button&gt;
+      
+      {showVideo && (
+        &lt;Suspense fallback={&lt;div&gt;Loading video player...&lt;/div&gt;}&gt;
+          &lt;<span class="type">VideoPlayer</span> src={<span class="string">"video.mp4"</span>} /&gt;
+        &lt;/Suspense&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+                </div>
+
+                <h3>Library Splitting (Third-Party)</h3>
+
+                <div class="code-block">
+<span class="comment">// Split heavy third-party libraries</span>
+
+<span class="comment">// ❌ Bad: Loads moment.js (large) immediately</span>
+<span class="keyword">import</span> moment <span class="keyword">from</span> <span class="string">'moment'</span>;
+
+<span class="comment">// ✅ Good: Load moment.js only when needed</span>
+<span class="keyword">const</span> <span class="function">formatDate</span> = <span class="keyword">async</span> (date: Date) => {
+  <span class="keyword">const</span> moment = (<span class="keyword">await</span> <span class="keyword">import</span>(<span class="string">'moment'</span>)).<span class="keyword">default</span>;
+  <span class="keyword">return</span> moment(date).format(<span class="string">'YYYY-MM-DD'</span>);
+};
+
+<span class="comment">// React component example</span>
+<span class="keyword">function</span> <span class="function">DateDisplay</span>({ date }: { date: Date }) {
+  <span class="keyword">const</span> [formatted, setFormatted] = useState(<span class="string">''</span>);
+
+  useEffect(() => {
+    <span class="keyword">import</span>(<span class="string">'moment'</span>).then((moment) => {
+      setFormatted(moment.<span class="keyword">default</span>(date).format(<span class="string">'MMMM Do YYYY'</span>));
+    });
+  }, [date]);
+
+  <span class="keyword">return</span> &lt;div&gt;{formatted || <span class="string">'Loading...'</span>}&lt;/div&gt;;
+}
+                </div>
+
+                <h3>Feature-Based Splitting Strategy</h3>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Split Level</th>
+                            <th>When to Use</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Route Level</strong></td>
+                            <td>Different pages/sections</td>
+                            <td>/dashboard, /settings, /profile</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Component Level</strong></td>
+                            <td>Large, occasionally-used components</td>
+                            <td>Modal dialogs, video players, charts</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Library Level</strong></td>
+                            <td>Heavy third-party dependencies</td>
+                            <td>PDF viewers, rich text editors, i18n</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Feature Level</strong></td>
+                            <td>Optional features behind flags</td>
+                            <td>Admin panel, analytics dashboard</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Complete Example: Multi-Level Splitting</h3>
+
+                <div class="code-block">
+<span class="keyword">import</span> { useState, Suspense } <span class="keyword">from</span> <span class="string">'react'</span>;
+
+<span class="comment">// Route-level splits</span>
+<span class="keyword">const</span> <span class="type">AdminPanel</span> = React.lazy(() => <span class="keyword">import</span>(<span class="string">'./admin/AdminPanel'</span>));
+<span class="keyword">const</span> <span class="type">UserDashboard</span> = React.lazy(() => <span class="keyword">import</span>(<span class="string">'./UserDashboard'</span>));
+
+<span class="comment">// Component-level splits</span>
+<span class="keyword">const</span> <span class="type">AdvancedChart</span> = React.lazy(() => <span class="keyword">import</span>(<span class="string">'./charts/AdvancedChart'</span>));
+<span class="keyword">const</span> <span class="type">PDFViewer</span> = React.lazy(() => <span class="keyword">import</span>(<span class="string">'./PDFViewer'</span>));
+
+<span class="keyword">interface</span> <span class="type">AppProps</span> {
+  userRole: <span class="string">'admin'</span> | <span class="string">'user'</span>;
+}
+
+<span class="keyword">function</span> <span class="function">App</span>({ userRole }: <span class="type">AppProps</span>) {
+  <span class="keyword">const</span> [showChart, setShowChart] = useState(<span class="keyword">false</span>);
+  <span class="keyword">const</span> [pdfUrl, setPdfUrl] = useState&lt;<span class="keyword">string</span> | <span class="keyword">null</span>&gt;(<span class="keyword">null</span>);
+
+  <span class="comment">// Load different bundles based on user role</span>
+  <span class="keyword">const</span> <span class="type">MainComponent</span> = userRole === <span class="string">'admin'</span> ? <span class="type">AdminPanel</span> : <span class="type">UserDashboard</span>;
+
+  <span class="keyword">return</span> (
+    &lt;div&gt;
+      &lt;Suspense fallback={&lt;div&gt;Loading main content...&lt;/div&gt;}&gt;
+        &lt;<span class="type">MainComponent</span> /&gt;
+      &lt;/Suspense&gt;
+
+      {<span class="comment">/* Lazy load chart only when button clicked */</span>}
+      &lt;button onClick={() => setShowChart(<span class="keyword">true</span>)}&gt;
+        Show Advanced Analytics
+      &lt;/button&gt;
+      
+      {showChart && (
+        &lt;Suspense fallback={&lt;div&gt;Loading chart...&lt;/div&gt;}&gt;
+          &lt;<span class="type">AdvancedChart</span> data={[]} /&gt;
+        &lt;/Suspense&gt;
+      )}
+
+      {<span class="comment">/* Conditionally load PDF viewer */</span>}
+      {pdfUrl && (
+        &lt;Suspense fallback={&lt;div&gt;Loading PDF viewer...&lt;/div&gt;}&gt;
+          &lt;<span class="type">PDFViewer</span> url={pdfUrl} /&gt;
+        &lt;/Suspense&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+                </div>
+
+                <div class="tip">
+                    <strong><span class="icon">🎯</span>Optimization Strategy:</strong>
+                    <ol style="margin-top: 10px;">
+                        <li>Start with route-based splitting (easiest wins)</li>
+                        <li>Identify large components used infrequently</li>
+                        <li>Split heavy third-party libraries</li>
+                        <li>Monitor bundle sizes with webpack-bundle-analyzer</li>
+                        <li>Aim for initial bundle < 200KB gzipped</li>
+                    </ol>
+                </div>
+
+                <div class="warning">
+                    <strong><span class="icon">⚠️</span>Watch Out:</strong> Too many small chunks can hurt performance due to HTTP overhead. Find the right balance - typically 5-15 chunks for medium apps.
+                </div>
+            </div>
+
+            <div class="section" style="background: #f8fafc; padding: 30px; border-radius: 8px; margin-top: 50px;">
+                <h2 style="color: #10b981;">🎓 Key Takeaways</h2>
+                <ul style="line-height: 2; font-size: 1.1em;">
+                    <li><strong>React.memo:</strong> Prevents unnecessary re-renders by comparing props</li>
+                    <li><strong>Generic memo:</strong> Use type assertions to preserve generic type parameters</li>
+                    <li><strong>React.lazy:</strong> Enables code splitting with dynamic imports</li>
+                    <li><strong>Suspense:</strong> Required wrapper for lazy components, shows fallback while loading</li>
+                    <li><strong>Preloading:</strong> Improve perceived performance by loading before needed</li>
+                    <li><strong>Strategy:</strong> Split by routes first, then heavy components/libraries</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

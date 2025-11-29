@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 15: Error Handling</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .section {
+            margin-bottom: 50px;
+        }
+        .section h2 {
+            color: #dc2626;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #ef4444;
+        }
+        .section h3 {
+            color: #991b1b;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .code-block .keyword { color: #c792ea; }
+        .code-block .function { color: #82aaff; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .comment { color: #676e95; font-style: italic; }
+        .code-block .type { color: #ffcb6b; }
+        .code-block .error { color: #ff5370; }
+        .note {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .danger {
+            background: #fee2e2;
+            border-left: 4px solid #dc2626;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .tip {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .visual-diagram {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .comparison-table th {
+            background: #dc2626;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .comparison-table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+        .icon {
+            display: inline-block;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+        .box {
+            display: inline-block;
+            padding: 15px 25px;
+            margin: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .error-box { background: #fee2e2; color: #991b1b; border: 2px solid #dc2626; }
+        .success-box { background: #d1fae5; color: #065f46; border: 2px solid #10b981; }
+        .neutral-box { background: #e0e7ff; color: #3730a3; border: 2px solid #4f46e5; }
+        .arrow {
+            font-size: 2em;
+            color: #dc2626;
+            margin: 0 10px;
+        }
+        .flow-diagram {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 Chapter 15: Error Handling</h1>
+            <p>Build robust React applications with TypeScript error handling</p>
+        </div>
+        
+        <div class="content">
+            <!-- Section 15.1 -->
+            <div class="section">
+                <h2>15.1 Error Boundaries with TypeScript</h2>
+                
+                <p><strong>Error Boundaries</strong> are React components that catch JavaScript errors in their child component tree, log errors, and display a fallback UI instead of crashing the entire application.</p>
+
+                <div class="visual-diagram">
+                    <h3>How Error Boundaries Work</h3>
+                    <div class="flow-diagram">
+                        <div class="box neutral-box">Child Component<br/>Throws Error</div>
+                        <span class="arrow">→</span>
+                        <div class="box error-box">Error Boundary<br/>Catches Error</div>
+                        <span class="arrow">→</span>
+                        <div class="box success-box">Display Fallback<br/>UI</div>
+                    </div>
+                    <p style="margin-top: 20px; color: #666;">Rest of the app continues working normally! ✅</p>
+                </div>
+
+                <div class="danger">
+                    <strong><span class="icon">⚠️</span>Important Limitation:</strong> Error boundaries do NOT catch errors in:
+                    <ul style="margin-top: 10px;">
+                        <li>Event handlers (use try-catch)</li>
+                        <li>Async code (setTimeout, fetch)</li>
+                        <li>Server-side rendering</li>
+                        <li>Errors thrown in the error boundary itself</li>
+                    </ul>
+                </div>
+
+                <h3>Basic Error Boundary Implementation</h3>
+
+                <div class="code-block">
+<span class="keyword">import</span> React, { Component, ReactNode } <span class="keyword">from</span> <span class="string">'react'</span>;
+
+<span class="comment">// Props type</span>
+<span class="keyword">interface</span> <span class="type">ErrorBoundaryProps</span> {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
+
+<span class="comment">// State type</span>
+<span class="keyword">interface</span> <span class="type">ErrorBoundaryState</span> {
+  hasError: <span class="keyword">boolean</span>;
+  error: Error | <span class="keyword">null</span>;
+}
+
+<span class="keyword">class</span> <span class="type">ErrorBoundary</span> <span class="keyword">extends</span> Component&lt;
+  <span class="type">ErrorBoundaryProps</span>,
+  <span class="type">ErrorBoundaryState</span>
+&gt; {
+  <span class="comment">// Initialize state</span>
+  <span class="keyword">public</span> state: <span class="type">ErrorBoundaryState</span> = {
+    hasError: <span class="keyword">false</span>,
+    error: <span class="keyword">null</span>,
+  };
+
+  <span class="comment">// Update state when error is caught</span>
+  <span class="keyword">public static</span> <span class="function">getDerivedStateFromError</span>(
+    error: Error
+  ): Partial&lt;<span class="type">ErrorBoundaryState</span>&gt; {
+    <span class="keyword">return</span> { hasError: <span class="keyword">true</span>, error };
+  }
+
+  <span class="comment">// Log error details (optional)</span>
+  <span class="keyword">public</span> <span class="function">componentDidCatch</span>(error: Error, errorInfo: React.ErrorInfo) {
+    console.error(<span class="string">'Error caught by boundary:'</span>, error);
+    console.error(<span class="string">'Component stack:'</span>, errorInfo.componentStack);
+    
+    <span class="comment">// Send to error reporting service</span>
+    <span class="comment">// reportErrorToService(error, errorInfo);</span>
+  }
+
+  <span class="keyword">public</span> <span class="function">render</span>() {
+    <span class="keyword">if</span> (<span class="keyword">this</span>.state.hasError) {
+      <span class="comment">// Show custom fallback or default message</span>
+      <span class="keyword">return</span> (
+        <span class="keyword">this</span>.props.fallback || (
+          &lt;div style={{ padding: <span class="string">'20px'</span>, color: <span class="string">'red'</span> }}&gt;
+            &lt;h2&gt;Something went wrong&lt;/h2&gt;
+            &lt;details&gt;
+              &lt;summary&gt;Error details&lt;/summary&gt;
+              &lt;pre&gt;{<span class="keyword">this</span>.state.error?.message}&lt;/pre&gt;
+            &lt;/details&gt;
+          &lt;/div&gt;
+        )
+      );
+    }
+
+    <span class="keyword">return</span> <span class="keyword">this</span>.props.children;
+  }
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">function</span> <span class="function">App</span>() {
+  <span class="keyword">return</span> (
+    &lt;<span class="type">ErrorBoundary</span> fallback={&lt;h1&gt;Oops! Something broke.&lt;/h1&gt;}&gt;
+      &lt;MyComponent /&gt;
+    &lt;/<span class="type">ErrorBoundary</span>&gt;
+  );
+}
+                </div>
+
+                <h3>Advanced Error Boundary with Reset</h3>
+
+                <div class="code-block">
+<span class="keyword">interface</span> <span class="type">AdvancedErrorBoundaryProps</span> {
+  children: ReactNode;
+  fallback?: (error: Error, reset: () => <span class="keyword">void</span>) => ReactNode;
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => <span class="keyword">void</span>;
+}
+
+<span class="keyword">interface</span> <span class="type">AdvancedErrorBoundaryState</span> {
+  hasError: <span class="keyword">boolean</span>;
+  error: Error | <span class="keyword">null</span>;
+}
+
+<span class="keyword">class</span> <span class="type">AdvancedErrorBoundary</span> <span class="keyword">extends</span> Component&lt;
+  <span class="type">AdvancedErrorBoundaryProps</span>,
+  <span class="type">AdvancedErrorBoundaryState</span>
+&gt; {
+  state: <span class="type">AdvancedErrorBoundaryState</span> = {
+    hasError: <span class="keyword">false</span>,
+    error: <span class="keyword">null</span>,
+  };
+
+  <span class="keyword">static</span> <span class="function">getDerivedStateFromError</span>(error: Error) {
+    <span class="keyword">return</span> { hasError: <span class="keyword">true</span>, error };
+  }
+
+  <span class="function">componentDidCatch</span>(error: Error, errorInfo: React.ErrorInfo) {
+    <span class="comment">// Call custom error handler if provided</span>
+    <span class="keyword">this</span>.props.onError?.(error, errorInfo);
+  }
+
+  <span class="comment">// Reset error boundary</span>
+  <span class="function">resetError</span> = () => {
+    <span class="keyword">this</span>.setState({ hasError: <span class="keyword">false</span>, error: <span class="keyword">null</span> });
+  };
+
+  <span class="function">render</span>() {
+    <span class="keyword">if</span> (<span class="keyword">this</span>.state.hasError && <span class="keyword">this</span>.state.error) {
+      <span class="keyword">if</span> (<span class="keyword">this</span>.props.fallback) {
+        <span class="keyword">return</span> <span class="keyword">this</span>.props.fallback(<span class="keyword">this</span>.state.error, <span class="keyword">this</span>.resetError);
+      }
+
+      <span class="keyword">return</span> (
+        &lt;div style={{ padding: <span class="string">'40px'</span>, textAlign: <span class="string">'center'</span> }}&gt;
+          &lt;h2&gt;⚠️ Error Occurred&lt;/h2&gt;
+          &lt;p&gt;{<span class="keyword">this</span>.state.error.message}&lt;/p&gt;
+          &lt;button onClick={<span class="keyword">this</span>.resetError}&gt;Try Again&lt;/button&gt;
+        &lt;/div&gt;
+      );
+    }
+
+    <span class="keyword">return</span> <span class="keyword">this</span>.props.children;
+  }
+}
+
+<span class="comment">// Usage with custom fallback</span>
+<span class="keyword">function</span> <span class="function">App</span>() {
+  <span class="keyword">return</span> (
+    &lt;<span class="type">AdvancedErrorBoundary</span>
+      fallback={(error, reset) => (
+        &lt;div&gt;
+          &lt;h2&gt;Error: {error.message}&lt;/h2&gt;
+          &lt;button onClick={reset}&gt;Reset&lt;/button&gt;
+        &lt;/div&gt;
+      )}
+      onError={(error, info) => {
+        console.error(<span class="string">'Error logged:'</span>, error);
+        <span class="comment">// Send to monitoring service</span>
+      }}
+    &gt;
+      &lt;MyApp /&gt;
+    &lt;/<span class="type">AdvancedErrorBoundary</span>&gt;
+  );
+}
+                </div>
+
+                <h3>Multiple Error Boundaries Strategy</h3>
+
+                <div class="code-block">
+<span class="keyword">function</span> <span class="function">App</span>() {
+  <span class="keyword">return</span> (
+    &lt;div&gt;
+      {<span class="comment">/* Global error boundary */</span>}
+      &lt;<span class="type">ErrorBoundary</span> fallback={&lt;FullPageError /&gt;}&gt;
+        &lt;Header /&gt;
+        
+        {<span class="comment">/* Localized error boundary for sidebar */</span>}
+        &lt;<span class="type">ErrorBoundary</span> fallback={&lt;p&gt;Sidebar failed to load&lt;/p&gt;}&gt;
+          &lt;Sidebar /&gt;
+        &lt;/<span class="type">ErrorBoundary</span>&gt;
+
+        {<span class="comment">/* Localized error boundary for main content */</span>}
+        &lt;<span class="type">ErrorBoundary</span> fallback={&lt;p&gt;Content failed to load&lt;/p&gt;}&gt;
+          &lt;MainContent /&gt;
+        &lt;/<span class="type">ErrorBoundary</span>&gt;
+
+        &lt;Footer /&gt;
+      &lt;/<span class="type">ErrorBoundary</span>&gt;
+    &lt;/div&gt;
+  );
+}
+                </div>
+
+                <div class="tip">
+                    <strong><span class="icon">💡</span>Best Practice:</strong> Use multiple error boundaries to isolate failures. If the sidebar crashes, the main content can still work!
+                </div>
+            </div>
+
+            <!-- Section 15.2 -->
+            <div class="section">
+                <h2>15.2 Error Types</h2>
+                
+                <p>Creating custom error types helps with error handling, debugging, and providing better user feedback.</p>
+
+                <h3>Custom Error Classes</h3>
+
+                <div class="code-block">
+<span class="comment">// Base custom error class</span>
+<span class="keyword">class</span> <span class="type">AppError</span> <span class="keyword">extends</span> Error {
+  <span class="keyword">constructor</span>(
+    message: <span class="keyword">string</span>,
+    <span class="keyword">public</span> code?: <span class="keyword">string</span>
+  ) {
+    <span class="keyword">super</span>(message);
+    <span class="keyword">this</span>.name = <span class="string">'AppError'</span>;
+    <span class="comment">// Maintains proper stack trace in V8</span>
+    Error.captureStackTrace(<span class="keyword">this</span>, <span class="keyword">this</span>.constructor);
+  }
+}
+
+<span class="comment">// API-specific errors</span>
+<span class="keyword">class</span> <span class="type">ApiError</span> <span class="keyword">extends</span> <span class="type">AppError</span> {
+  <span class="keyword">constructor</span>(
+    message: <span class="keyword">string</span>,
+    <span class="keyword">public</span> statusCode: <span class="keyword">number</span>,
+    <span class="keyword">public</span> endpoint?: <span class="keyword">string</span>
+  ) {
+    <span class="keyword">super</span>(message, <span class="string">'API_ERROR'</span>);
+    <span class="keyword">this</span>.name = <span class="string">'ApiError'</span>;
+  }
+}
+
+<span class="comment">// Validation errors</span>
+<span class="keyword">class</span> <span class="type">ValidationError</span> <span class="keyword">extends</span> <span class="type">AppError</span> {
+  <span class="keyword">constructor</span>(
+    message: <span class="keyword">string</span>,
+    <span class="keyword">public</span> field: <span class="keyword">string</span>,
+    <span class="keyword">public</span> value?: <span class="keyword">any</span>
+  ) {
+    <span class="keyword">super</span>(message, <span class="string">'VALIDATION_ERROR'</span>);
+    <span class="keyword">this</span>.name = <span class="string">'ValidationError'</span>;
+  }
+}
+
+<span class="comment">// Authentication errors</span>
+<span class="keyword">class</span> <span class="type">AuthError</span> <span class="keyword">extends</span> <span class="type">AppError</span> {
+  <span class="keyword">constructor</span>(message: <span class="keyword">string</span>) {
+    <span class="keyword">super</span>(message, <span class="string">'AUTH_ERROR'</span>);
+    <span class="keyword">this</span>.name = <span class="string">'AuthError'</span>;
+  }
+}
+
+<span class="comment">// Network errors</span>
+<span class="keyword">class</span> <span class="type">NetworkError</span> <span class="keyword">extends</span> <span class="type">AppError</span> {
+  <span class="keyword">constructor</span>(message: <span class="keyword">string</span>) {
+    <span class="keyword">super</span>(message, <span class="string">'NETWORK_ERROR'</span>);
+    <span class="keyword">this</span>.name = <span class="string">'NetworkError'</span>;
+  }
+}
+                </div>
+
+                <h3>Error Type Narrowing</h3>
+
+                <div class="code-block">
+<span class="comment">// Type guard functions</span>
+<span class="keyword">function</span> <span class="function">isApiError</span>(error: <span class="keyword">unknown</span>): error <span class="keyword">is</span> <span class="type">ApiError</span> {
+  <span class="keyword">return</span> error <span class="keyword">instanceof</span> <span class="type">ApiError</span>;
+}
+
+<span class="keyword">function</span> <span class="function">isValidationError</span>(error: <span class="keyword">unknown</span>): error <span class="keyword">is</span> <span class="type">ValidationError</span> {
+  <span class="keyword">return</span> error <span class="keyword">instanceof</span> <span class="type">ValidationError</span>;
+}
+
+<span class="keyword">function</span> <span class="function">isAuthError</span>(error: <span class="keyword">unknown</span>): error <span class="keyword">is</span> <span class="type">AuthError</span> {
+  <span class="keyword">return</span> error <span class="keyword">instanceof</span> <span class="type">AuthError</span>;
+}
+
+<span class="comment">// Usage in error handling</span>
+<span class="keyword">async function</span> <span class="function">handleUserLogin</span>(email: <span class="keyword">string</span>, password: <span class="keyword">string</span>) {
+  <span class="keyword">try</span> {
+    <span class="keyword">const</span> response = <span class="keyword">await</span> fetch(<span class="string">'/api/login'</span>, {
+      method: <span class="string">'POST'</span>,
+      body: JSON.stringify({ email, password }),
+    });
+
+    <span class="keyword">if</span> (!response.ok) {
+      <span class="keyword">throw new</span> <span class="type">ApiError</span>(
+        <span class="string">'Login failed'</span>,
+        response.status,
+        <span class="string">'/api/login'</span>
+      );
+    }
+
+    <span class="keyword">return await</span> response.json();
+  } <span class="keyword">catch</span> (error) {
+    <span class="comment">// Type narrowing with custom type guards</span>
+    <span class="keyword">if</span> (isApiError(error)) {
+      <span class="keyword">if</span> (error.statusCode === <span class="keyword">401</span>) {
+        <span class="keyword">throw new</span> <span class="type">AuthError</span>(<span class="string">'Invalid credentials'</span>);
+      }
+      <span class="keyword">throw new</span> <span class="type">ApiError</span>(<span class="string">'Server error'</span>, error.statusCode);
+    }
+    
+    <span class="keyword">if</span> (error <span class="keyword">instanceof</span> TypeError) {
+      <span class="keyword">throw new</span> <span class="type">NetworkError</span>(<span class="string">'Network connection failed'</span>);
+    }
+
+    <span class="comment">// Unknown error type</span>
+    <span class="keyword">throw new</span> <span class="type">AppError</span>(<span class="string">'An unexpected error occurred'</span>);
+  }
+}
+                </div>
+
+                <h3>Result/Either Pattern (Functional Approach)</h3>
+                <p>Instead of throwing exceptions, return success or failure explicitly:</p>
+
+                <div class="code-block">
+<span class="comment">// Result type - inspired by Rust</span>
+<span class="keyword">type</span> <span class="type">Result</span>&lt;T, E = Error&gt; = 
+  | { ok: <span class="keyword">true</span>; value: T }
+  | { ok: <span class="keyword">false</span>; error: E };
+
+<span class="comment">// Helper functions</span>
+<span class="keyword">function</span> <span class="function">Ok</span>&lt;T&gt;(value: T): <span class="type">Result</span>&lt;T, <span class="keyword">never</span>&gt; {
+  <span class="keyword">return</span> { ok: <span class="keyword">true</span>, value };
+}
+
+<span class="keyword">function</span> <span class="function">Err</span>&lt;E&gt;(error: E): <span class="type">Result</span>&lt;<span class="keyword">never</span>, E&gt; {
+  <span class="keyword">return</span> { ok: <span class="keyword">false</span>, error };
+}
+
+<span class="comment">// API function using Result</span>
+<span class="keyword">async function</span> <span class="function">fetchUser</span>(id: <span class="keyword">string</span>): Promise&lt;<span class="type">Result</span>&lt;<span class="type">User</span>, <span class="type">ApiError</span>&gt;&gt; {
+  <span class="keyword">try</span> {
+    <span class="keyword">const</span> response = <span class="keyword">await</span> fetch(<span class="string">`/api/users/${id}`</span>);
+    
+    <span class="keyword">if</span> (!response.ok) {
+      <span class="keyword">return</span> Err(<span class="keyword">new</span> <span class="type">ApiError</span>(
+        <span class="string">'Failed to fetch user'</span>,
+        response.status
+      ));
+    }
+
+    <span class="keyword">const</span> user = <span class="keyword">await</span> response.json();
+    <span class="keyword">return</span> Ok(user);
+  } <span class="keyword">catch</span> (error) {
+    <span class="keyword">return</span> Err(<span class="keyword">new</span> <span class="type">NetworkError</span>(<span class="string">'Network request failed'</span>));
+  }
+}
+
+<span class="comment">// Usage - explicit error handling</span>
+<span class="keyword">async function</span> <span class="function">displayUser</span>(id: <span class="keyword">string</span>) {
+  <span class="keyword">const</span> result = <span class="keyword">await</span> fetchUser(id);
+
+  <span class="keyword">if</span> (result.ok) {
+    <span class="comment">// TypeScript knows result.value is User</span>
+    console.log(<span class="string">'User:'</span>, result.value.name);
+  } <span class="keyword">else</span> {
+    <span class="comment">// TypeScript knows result.error is ApiError</span>
+    console.error(<span class="string">'Error:'</span>, result.error.message);
+    
+    <span class="keyword">if</span> (result.error.statusCode === <span class="keyword">404</span>) {
+      console.log(<span class="string">'User not found'</span>);
+    }
+  }
+}
+                </div>
+
+                <h3>Comprehensive Error Handler Component</h3>
+
+                <div class="code-block">
+<span class="keyword">import</span> { useState } <span class="keyword">from</span> <span class="string">'react'</span>;
+
+<span class="keyword">interface</span> <span class="type">ErrorDisplayProps</span> {
+  error: <span class="keyword">unknown</span>;
+  onRetry?: () => <span class="keyword">void</span>;
+}
+
+<span class="keyword">function</span> <span class="function">ErrorDisplay</span>({ error, onRetry }: <span class="type">ErrorDisplayProps</span>) {
+  <span class="comment">// Determine error type and display appropriate message</span>
+  <span class="keyword">const</span> <span class="function">getErrorMessage</span> = () => {
+    <span class="keyword">if</span> (isApiError(error)) {
+      <span class="keyword">return</span> {
+        title: <span class="string">'API Error'</span>,
+        message: error.message,
+        details: <span class="string">`Status: ${error.statusCode}, Endpoint: ${error.endpoint}`</span>,
+        canRetry: error.statusCode >= <span class="keyword">500</span>,
+      };
+    }
+
+    <span class="keyword">if</span> (isValidationError(error)) {
+      <span class="keyword">return</span> {
+        title: <span class="string">'Validation Error'</span>,
+        message: error.message,
+        details: <span class="string">`Field: ${error.field}`</span>,
+        canRetry: <span class="keyword">false</span>,
+      };
+    }
+
+    <span class="keyword">if</span> (isAuthError(error)) {
+      <span class="keyword">return</span> {
+        title: <span class="string">'Authentication Error'</span>,
+        message: error.message,
+        details: <span class="string">'Please log in again'</span>,
+        canRetry: <span class="keyword">false</span>,
+      };
+    }
+
+    <span class="keyword">if</span> (error <span class="keyword">instanceof</span> Error) {
+      <span class="keyword">return</span> {
+        title: <span class="string">'Error'</span>,
+        message: error.message,
+        details: error.stack || <span class="string">''</span>,
+        canRetry: <span class="keyword">true</span>,
+      };
+    }
+
+    <span class="keyword">return</span> {
+      title: <span class="string">'Unknown Error'</span>,
+      message: <span class="string">'An unexpected error occurred'</span>,
+      details: String(error),
+      canRetry: <span class="keyword">true</span>,
+    };
+  };
+
+  <span class="keyword">const</span> errorInfo = getErrorMessage();
+
+  <span class="keyword">return</span> (
+    &lt;div style={{ 
+      padding: <span class="string">'20px'</span>, 
+      border: <span class="string">'2px solid #dc2626'</span>, 
+      borderRadius: <span class="string">'8px'</span>,
+      background: <span class="string">'#fee2e2'</span> 
+    }}&gt;
+      &lt;h3 style={{ color: <span class="string">'#991b1b'</span> }}&gt;{errorInfo.title}&lt;/h3&gt;
+      &lt;p&gt;{errorInfo.message}&lt;/p&gt;
+      &lt;details&gt;
+        &lt;summary&gt;Details&lt;/summary&gt;
+        &lt;pre style={{ fontSize: <span class="string">'12px'</span> }}&gt;{errorInfo.details}&lt;/pre&gt;
+      &lt;/details&gt;
+      {errorInfo.canRetry && onRetry && (
+        &lt;button onClick={onRetry}&gt;Retry&lt;/button&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+                </div>
+
+                <div class="note">
+                    <strong><span class="icon">ℹ️</span>Pro Tip:</strong> The Result pattern makes errors part of your function's return type, forcing explicit handling and preventing forgotten error checks.
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Pattern</th>
+                            <th>Pros</th>
+                            <th>Cons</th>
+                            <th>Use When</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Try-Catch</strong></td>
+                            <td>Familiar, works with async/await</td>
+                            <td>Can be forgotten, invisible in types</td>
+                            <td>Standard JavaScript code, async operations</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Error Boundaries</strong></td>
+                            <td>Catches render errors, prevents crashes</td>
+                            <td>Class components only, limited scope</td>
+                            <td>React component errors</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Result Pattern</strong></td>
+                            <td>Explicit in types, forces handling</td>
+                            <td>More verbose, different from JS norm</td>
+                            <td>Critical operations, functional style preferred</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section" style="background: #f8fafc; padding: 30px; border-radius: 8px; margin-top: 50px;">
+                <h2 style="color: #dc2626;">🎓 Key Takeaways</h2>
+                <ul style="line-height: 2; font-size: 1.1em;">
+                    <li><strong>Error Boundaries:</strong> Class components that catch errors in child components</li>
+                    <li><strong>Limitation:</strong> Don't catch errors in event handlers, async code, or SSR</li>
+                    <li><strong>Multiple Boundaries:</strong> Use strategically to isolate failures</li>
+                    <li><strong>Custom Errors:</strong> Create specific error types for better handling</li>
+                    <li><strong>Type Guards:</strong> Use to narrow error types in catch blocks</li>
+                    <li><strong>Result Pattern:</strong> Functional alternative that makes errors explicit</li>
+                    <li><strong>Strategy:</strong> Combine patterns - boundaries for render errors, try-catch for async</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

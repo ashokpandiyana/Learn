@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 13: Testing with TypeScript</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+        
+        .subsection {
+            margin-bottom: 30px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        
+        .tip, .warning, .info {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 5px solid;
+        }
+        
+        .tip {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+        }
+        
+        .tip::before, .warning::before, .info::before {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .tip::before {
+            content: "💡 Pro Tip:";
+            color: #28a745;
+        }
+        
+        .warning::before {
+            content: "⚠️ Important:";
+            color: #ffc107;
+        }
+        
+        .info::before {
+            content: "ℹ️ Note:";
+            color: #17a2b8;
+        }
+        
+        .diagram {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .test-pyramid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .pyramid-level {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .pyramid-level:nth-child(1) { width: 200px; background: #ffe5e5; }
+        .pyramid-level:nth-child(2) { width: 350px; background: #fff5e5; }
+        .pyramid-level:nth-child(3) { width: 500px; background: #e5ffe5; }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .test-example {
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .test-example h4 {
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Chapter 13: Testing with TypeScript</h1>
+            <p>Writing Type-Safe, Reliable Tests for React Applications</p>
+        </div>
+        
+        <div class="content">
+            <!-- Introduction -->
+            <div class="section">
+                <h2>Testing Philosophy with TypeScript</h2>
+                
+                <p>TypeScript adds a layer of compile-time safety to your tests, catching errors before they run. Combined with proper testing libraries, you can create a robust test suite that documents behavior and prevents regressions.</p>
+                
+                <div class="diagram">
+                    <h4>Testing Pyramid</h4>
+                    <div class="test-pyramid">
+                        <div class="pyramid-level">
+                            <strong>E2E Tests</strong><br>
+                            <small>Few, slow, expensive<br>Test user workflows</small>
+                        </div>
+                        <div class="pyramid-level">
+                            <strong>Integration Tests</strong><br>
+                            <small>Moderate quantity<br>Test component interactions</small>
+                        </div>
+                        <div class="pyramid-level">
+                            <strong>Unit Tests</strong><br>
+                            <small>Many, fast, cheap<br>Test individual functions/components</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section 13.1 -->
+            <div class="section">
+                <h2>13.1 Jest Configuration for TypeScript</h2>
+                
+                <p>Jest is the most popular testing framework for React applications. Setting it up with TypeScript requires some configuration.</p>
+                
+                <div class="subsection">
+                    <h3>Installation and Setup</h3>
+                    
+                    <div class="code-block">
+<pre>
+# Install dependencies
+npm install --save-dev jest @types/jest ts-jest @testing-library/react @testing-library/jest-dom @testing-library/user-event
+
+# For TypeScript support
+npm install --save-dev ts-node
+</pre>
+                    </div>
+                    
+                    <div class="code-block">
+<pre>
+// jest.config.ts
+import type { Config } from 'jest';
+
+const config: Config = {
+  // Use ts-jest preset for TypeScript
+  preset: 'ts-jest',
+  
+  // Test environment (jsdom for React testing)
+  testEnvironment: 'jsdom',
+  
+  // Setup files to run before tests
+  setupFilesAfterEnv: ['&lt;rootDir&gt;/jest.setup.ts'],
+  
+  // Module name mapper for path aliases
+  moduleNameMapper: {
+    '^@/(.*)$': '&lt;rootDir&gt;/src/$1',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '\\.(jpg|jpeg|png|gif|svg)$': '&lt;rootDir&gt;/__mocks__/fileMock.js',
+  },
+  
+  // Coverage configuration
+  collectCoverageFrom: [
+    'src/**/*.{ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/**/*.stories.tsx',
+    '!src/main.tsx',
+  ],
+  
+  // Coverage thresholds
+  coverageThresholds: {
+    global: {
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70,
+    },
+  },
+  
+  // Transform files
+  transform: {
+    '^.+\\.tsx?$': ['ts-jest', {
+      tsconfig: {
+        jsx: 'react-jsx',
+      },
+    }],
+  },
+  
+  // Test match patterns
+  testMatch: [
+    '**/__tests__/**/*.ts?(x)',
+    '**/?(*.)+(spec|test).ts?(x)',
+  ],
+};
+
+export default config;
+</pre>
+                    </div>
+                    
+                    <div class="code-block">
+<pre>
+// jest.setup.ts
+import '@testing-library/jest-dom';
+
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  takeRecords() { return []; }
+  unobserve() {}
+} as any;
+</pre>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Custom Matchers with TypeScript</h3>
+                    
+                    <div class="code-block">
+<pre>
+// test-utils/custom-matchers.ts
+import type { MatcherFunction } from '@jest/expect';
+
+// Extend Jest matchers
+declare global {
+  namespace jest {
+    interface Matchers&lt;R&gt; {
+      toBeWithinRange(min: number, max: number): R;
+      toHaveBeenCalledWithMatch(expected: any): R;
+    }
+  }
+}
+
+// Custom matcher implementation
+const toBeWithinRange: MatcherFunction&lt;[min: number, max: number]&gt; = 
+  function(actual, min, max) {
+    const pass = actual >= min && actual <= max;
+    
+    return {
+      pass,
+      message: () => 
+        pass
+          ? `Expected ${actual} not to be within range ${min} - ${max}`
+          : `Expected ${actual} to be within range ${min} - ${max}`,
+    };
+  };
+
+// Register custom matchers
+expect.extend({
+  toBeWithinRange,
+});
+
+// Usage
+test('custom matcher', () => {
+  expect(15).toBeWithinRange(10, 20); // ✅ Type-safe!
+});
+</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section 13.2 -->
+            <div class="section">
+                <h2>13.2 React Testing Library with TypeScript</h2>
+                
+                <p>React Testing Library encourages testing components the way users interact with them, focusing on behavior rather than implementation details.</p>
+                
+                <div class="subsection">
+                    <h3>Basic Component Testing</h3>
+                    
+                    <div class="test-example">
+                        <h4>Component to Test</h4>
+                        <div class="code-block">
+<pre>
+// components/Button.tsx
+interface ButtonProps {
+  children: React.ReactNode;
+  onClick: () => void;
+  variant?: 'primary' | 'secondary';
+  disabled?: boolean;
+  ariaLabel?: string;
+}
+
+export function Button({ 
+  children, 
+  onClick, 
+  variant = 'primary',
+  disabled = false,
+  ariaLabel 
+}: ButtonProps) {
+  return (
+    &lt;button
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      className={`btn btn-${variant}`}
+    &gt;
+      {children}
+    &lt;/button&gt;
+  );
+}
+</pre>
+                        </div>
+                    </div>
+                    
+                    <div class="test-example">
+                        <h4>Component Tests</h4>
+                        <div class="code-block">
+<pre>
+// components/Button.test.tsx
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { Button } from './Button';
+
+describe('Button Component', () => {
+  // ✅ Type-safe mock function
+  const mockOnClick = jest.fn&lt;void, []&gt;();
+  
+  beforeEach(() => {
+    mockOnClick.mockClear();
+  });
+  
+  it('renders with correct text', () => {
+    render(&lt;Button onClick={mockOnClick}&gt;Click me&lt;/Button&gt;);
+    
+    // ✅ Type-safe query
+    const button = screen.getByRole('button', { name: /click me/i });
+    expect(button).toBeInTheDocument();
+  });
+  
+  it('calls onClick when clicked', async () => {
+    const user = userEvent.setup();
+    
+    render(&lt;Button onClick={mockOnClick}&gt;Click me&lt;/Button&gt;);
+    
+    const button = screen.getByRole('button');
+    await user.click(button);
+    
+    expect(mockOnClick).toHaveBeenCalledTimes(1);
+  });
+  
+  it('applies correct variant class', () => {
+    const { rerender } = render(
+      &lt;Button onClick={mockOnClick} variant="secondary"&gt;
+        Click me
+      &lt;/Button&gt;
+    );
+    
+    let button = screen.getByRole('button');
+    expect(button).toHaveClass('btn-secondary');
+    
+    // ✅ Type-safe rerender
+    rerender(
+      &lt;Button onClick={mockOnClick} variant="primary"&gt;
+        Click me
+      &lt;/Button&gt;
+    );
+    
+    button = screen.getByRole('button');
+    expect(button).toHaveClass('btn-primary');
+  });
+  
+  it('is disabled when disabled prop is true', async () => {
+    const user = userEvent.setup();
+    
+    render(&lt;Button onClick={mockOnClick} disabled&gt;Click me&lt;/Button&gt;);
+    
+    const button = screen.getByRole('button');
+    expect(button).toBeDisabled();
+    
+    await user.click(button);
+    expect(mockOnClick).not.toHaveBeenCalled();
+  });
+  
+  it('uses aria-label when provided', () => {
+    render(
+      &lt;Button onClick={mockOnClick} ariaLabel="Submit form"&gt;
+        &lt;span&gt;→&lt;/span&gt;
+      &lt;/Button&gt;
+    );
+    
+    const button = screen.getByRole('button', { name: /submit form/i });
+    expect(button).toBeInTheDocument();
+  });
+});
+</pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Testing Hooks</h3>
+                    
+                    <div class="code-block">
+<pre>
+// hooks/useCounter.ts
+import { useState, useCallback } from 'react';
+
+export function useCounter(initialValue: number = 0) {
+  const [count, setCount] = useState(initialValue);
+  
+  const increment = useCallback(() => setCount(c => c + 1), []);
+  const decrement = useCallback(() => setCount(c => c - 1), []);
+  const reset = useCallback(() => setCount(initialValue), [initialValue]);
+  const setValue = useCallback((value: number) => setCount(value), []);
+  
+  return { count, increment, decrement, reset, setValue };
+}
+
+// hooks/useCounter.test.ts
+import { renderHook, act } from '@testing-library/react';
+import { useCounter } from './useCounter';
+
+describe('useCounter', () => {
+  it('initializes with default value', () => {
+    const { result } = renderHook(() => useCounter());
+    
+    expect(result.current.count).toBe(0);
+  });
+  
+  it('initializes with custom value', () => {
+    const { result } = renderHook(() => useCounter(10));
+    
+    expect(result.current.count).toBe(10);
+  });
+  
+  it('increments count', () => {
+    const { result } = renderHook(() => useCounter());
+    
+    act(() => {
+      result.current.increment();
+    });
+    
+    expect(result.current.count).toBe(1);
+  });
+  
+  it('decrements count', () => {
+    const { result } = renderHook(() => useCounter(5));
+    
+    act(() => {
+      result.current.decrement();
+    });
+    
+    expect(result.current.count).toBe(4);
+  });
+  
+  it('resets to initial value', () => {
+    const { result } = renderHook(() => useCounter(10));
+    
+    act(() => {
+      result.current.increment();
+      result.current.increment();
+    });
+    
+    expect(result.current.count).toBe(12);
+    
+    act(() => {
+      result.current.reset();
+    });
+    
+    expect(result.current.count).toBe(10);
+  });
+  
+  it('sets specific value', () => {
+    const { result } = renderHook(() => useCounter());
+    
+    act(() => {
+      result.current.setValue(42);
+    });
+    
+    expect(result.current.count).toBe(42);
+  });
+  
+  // ✅ Test with changing initial value
+  it('updates reset value when initialValue changes', () => {
+    const { result, rerender } = renderHook(
+      ({ init }) => useCounter(init),
+      { initialProps: { init: 0 } }
+    );
+    
+    act(() => {
+      result.current.increment();
+    });
+    
+    expect(result.current.count).toBe(1);
+    
+    // Change initial value
+    rerender({ init: 10 });
+    
+    act(() => {
+      result.current.reset();
+    });
+    
+    expect(result.current.count).toBe(10);
+  });
+});
+</pre>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Custom Render with Providers</h3>
+                    
+                    <div class="code-block">
+<pre>
+// test-utils/render.tsx
+import { ReactElement } from 'react';
+import { render, RenderOptions } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter } from 'react-router-dom';
+import { ThemeProvider } from '../contexts/ThemeContext';
+
+interface CustomRenderOptions extends Omit&lt;RenderOptions, 'wrapper'&gt; {
+  route?: string;
+  queryClient?: QueryClient;
+}
+
+// ✅ Type-safe custom render
+export function renderWithProviders(
+  ui: ReactElement,
+  {
+    route = '/',
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    }),
+    ...renderOptions
+  }: CustomRenderOptions = {}
+) {
+  // Set initial route
+  window.history.pushState({}, 'Test page', route);
+  
+  function Wrapper({ children }: { children: React.ReactNode }) {
+    return (
+      &lt;QueryClientProvider client={queryClient}&gt;
+        &lt;BrowserRouter&gt;
+          &lt;ThemeProvider&gt;
+            {children}
+          &lt;/ThemeProvider&gt;
+        &lt;/BrowserRouter&gt;
+      &lt;/QueryClientProvider&gt;
+    );
+  }
+  
+  return {
+    ...render(ui, { wrapper: Wrapper, ...renderOptions }),
+    queryClient,
+  };
+}
+
+// Re-export everything
+export * from '@testing-library/react';
+export { renderWithProviders as render };
+
+// Usage in tests
+import { render, screen } from '../test-utils/render';
+
+test('component with providers', () => {
+  render(&lt;MyComponent /&gt;, { route: '/dashboard' });
+  
+  expect(screen.getByText(/dashboard/i)).toBeInTheDocument();
+});
+</pre>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Testing Async Components</h3>
+                    
+                    <div class="code-block">
+<pre>
+// components/UserProfile.tsx
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface UserProfileProps {
+  userId: string;
+}
+
+export function UserProfile({ userId }: UserProfileProps) {
+  const [user, setUser] = useState&lt;User | null&gt;(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState&lt;string | null&gt;(null);
+  
+  useEffect(() => {
+    fetchUser(userId)
+      .then(setUser)
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [userId]);
+  
+  if (loading) return &lt;div&gt;Loading...&lt;/div&gt;;
+  if (error) return &lt;div&gt;Error: {error}&lt;/div&gt;;
+  if (!user) return &lt;div&gt;No user found&lt;/div&gt;;
+  
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;{user.name}&lt;/h1&gt;
+      &lt;p&gt;{user.email}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+
+// components/UserProfile.test.tsx
+import { render, screen, waitFor } from '@testing-library/react';
+import { UserProfile } from './UserProfile';
+import * as api from '../api/users';
+
+// ✅ Type-safe mock
+jest.mock('../api/users');
+const mockFetchUser = api.fetchUser as jest.MockedFunction&lt;typeof api.fetchUser&gt;;
+
+describe('UserProfile', () => {
+  beforeEach(() => {
+    mockFetchUser.mockClear();
+  });
+  
+  it('shows loading state initially', () => {
+    mockFetchUser.mockReturnValue(new Promise(() => {})); // Never resolves
+    
+    render(&lt;UserProfile userId="123" /&gt;);
+    
+    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+  });
+  
+  it('displays user data when loaded', async () => {
+    const mockUser: User = {
+      id: '123',
+      name: 'John Doe',
+      email: 'john@example.com',
+    };
+    
+    mockFetchUser.mockResolvedValue(mockUser);
+    
+    render(&lt;UserProfile userId="123" /&gt;);
+    
+    // ✅ Wait for async operations
+    await waitFor(() => {
+      expect(screen.getByText('John Doe')).toBeInTheDocument();
+    });
+    
+    expect(screen.getByText('john@example.com')).toBeInTheDocument();
+  });
+  
+  it('displays error message on failure', async () => {
+    mockFetchUser.mockRejectedValue(new Error('Failed to fetch'));
+    
+    render(&lt;UserProfile userId="123" /&gt;);
+    
+    await waitFor(() => {
+      expect(screen.getByText(/error: failed to fetch/i)).toBeInTheDocument();
+    });
+  });
+  
+  it('refetches when userId changes', async () => {
+    const user1: User = { id: '1', name: 'User 1', email: 'user1@example.com' };
+    const user2: User = { id: '2', name: 'User 2', email: 'user2@example.com' };
+    
+    mockFetchUser.mockResolvedValueOnce(user1).mockResolvedValueOnce(user2);
+    
+    const { rerender } = render(&lt;UserProfile userId="1" /&gt;);
+    
+    await waitFor(() => {
+      expect(screen.getByText('User 1')).toBeInTheDocument();
+    });
+    
+    rerender(&lt;UserProfile userId="2" /&gt;);
+    
+    await waitFor(() => {
+      expect(screen.getByText('User 2')).toBeInTheDocument();
+    });
+    
+    expect(mockFetchUser).toHaveBeenCalledTimes(2);
+  });
+});
+</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section 13.3 -->
+            <div class="section">
+                <h2>13.3 Mocking with TypeScript</h2>
+                
+                <div class="subsection">
+                    <h3>Typed Mock Functions</h3>
+                    
+                    <div class="code-block">
+<pre>
+// ✅ Generic mock function with proper typing
+const mockCallback = jest.fn&lt;string, [number]&gt;();
+// Returns string, accepts number parameter
+
+mockCallback(42);
+expect(mockCallback).toHaveBeenCalledWith(42);
+
+// ✅ Mock function matching an interface
+interface UserService {
+  getUser(id: string): Promise&lt;User&gt;;
+  createUser(data: CreateUserDto): Promise&lt;User&gt;;
+  deleteUser(id: string): Promise&lt;void&gt;;
+}
+
+const mockUserService: jest.Mocked&lt;UserService&gt; = {
+  getUser: jest.fn(),
+  createUser: jest.fn(),
+  deleteUser: jest.fn(),
+};
+
+// Now all methods are properly typed mocks
+mockUserService.getUser.mockResolvedValue({
+  id: '123',
+  name: 'John',
+  email: 'john@example.com',
+});
+
+// ✅ Partial mocking
+const mockPartialUserService: Partial&lt;jest.Mocked&lt;UserService&gt;&gt; = {
+  getUser: jest.fn(),
+  // Only mock what you need
+};
+</pre>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Module Mocking</h3>
+                    
+                    <div class="code-block">
+<pre>
+// api/users.ts (original module)
+export async function fetchUser(id: string): Promise&lt;User&gt; {
+  const response = await fetch(`/api/users/${id}`);
+  return response.json();
+}
+
+export async function createUser(data: CreateUserDto): Promise&lt;User&gt; {
+  const response = await fetch('/api/users', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  return response.json();
+}
+
+// __mocks__/api/users.ts (mock module)
+export const fetchUser = jest.fn&lt;Promise&lt;User&gt;, [string]&gt;();
+export const createUser = jest.fn&lt;Promise&lt;User&gt;, [CreateUserDto]&gt;();
+
+// In test file
+import * as userApi from '../api/users';
+
+jest.mock('../api/users');
+
+// ✅ Type-safe mocked functions
+const mockFetchUser = userApi.fetchUser as jest.MockedFunction&lt;typeof userApi.fetchUser&gt;;
+const mockCreateUser = userApi.createUser as jest.MockedFunction&lt;typeof userApi.createUser&gt;;
+
+test('example', async () => {
+  mockFetchUser.mockResolvedValue({
+    id: '123',
+    name: 'John',
+    email: 'john@example.com',
+  });
+  
+  const user = await userApi.fetchUser('123');
+  expect(user.name).toBe('John');
+});
+</pre>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Spy Functions</h3>
+                    
+                    <div class="code-block">
+<pre>
+// ✅ Type-safe spies
+import * as utils from '../utils';
+
+describe('spying on functions', () => {
+  it('spies on module function', () => {
+    const spy = jest.spyOn(utils, 'formatDate');
+    
+    // Call the real function
+    utils.formatDate(new Date('2024-01-01'));
+    
+    expect(spy).toHaveBeenCalled();
+    
+    spy.mockRestore(); // Restore original implementation
+  });
+  
+  it('spies and mocks implementation', () => {
+    const spy = jest.spyOn(utils, 'formatDate')
+      .mockReturnValue('2024-01-01');
+    
+    const result = utils.formatDate(new Date());
+    
+    expect(result).toBe('2024-01-01');
+    expect(spy).toHaveBeenCalled();
+    
+    spy.mockRestore();
+  });
+  
+  it('spies on object method', () => {
+    const obj = {
+      getValue: () => 42,
+    };
+    
+    const spy = jest.spyOn(obj, 'getValue')
+      .mockReturnValue(100);
+    
+    expect(obj.getValue()).toBe(100);
+    expect(spy).toHaveBeenCalled();
+    
+    spy.mockRestore();
+    expect(obj.getValue()).toBe(42); // Original restored
+  });
+});
+</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section 13.4 -->
+            <div class="section">
+                <h2>13.4 MSW (Mock Service Worker)</h2>
+                
+                <p>MSW provides a seamless way to mock API requests at the network level, making tests more realistic and easier to maintain.</p>
+                
+                <div class="subsection">
+                    <h3>Setup MSW with TypeScript</h3>
+                    
+                    <div class="code-block">
+<pre>
+// Install MSW
+// npm install --save-dev msw
+
+// mocks/handlers.ts
+import { http, HttpResponse } from 'msw';
+import type { User, CreateUserDto } from '../types';
+
+// ✅ Type-safe request handlers
+export const handlers = [
+  // GET request
+  http.get&lt;{ userId: string }&gt;('/api/users/:userId', ({ params }) => {
+    const { userId } = params;
+    
+    const user: User = {
+      id: userId,
+      name: 'John Doe',
+      email: 'john@example.com',
+      role: 'user',
+      createdAt: new Date().toISOString(),
+    };
+    
+    return HttpResponse.json(user);
+  }),
+  
+  // POST request with typed body
+  http.post&lt;never, CreateUserDto&gt;('/api/users', async ({ request }) => {
+    const body = await request.json();
+    
+    const newUser: User = {
+      id: Math.random().toString(36).substring(7),
+      name: body.name,
+      email: body.email,
+      role: 'user',
+      createdAt: new Date().toISOString(),
+    };
+    
+    return HttpResponse.json(newUser, { status: 201 });
+  }),
+  
+  // Error response
+  http.get('/api/users/error', () => {
+    return HttpResponse.json(
+      { message: 'User not found', code: 'USER_NOT_FOUND' },
+      { status: 404 }
+    );
+  }),
+  
+  // Paginated response
+  http.get('/api/posts', ({ request }) => {
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const pageSize = parseInt(url.searchParams.get('pageSize') || '10');
+    
+    return HttpResponse.json({
+      data: [],
+      pagination: {
+        page,
+        pageSize,
+        total: 100,
+        totalPages: 10,
+        hasNextPage: page < 10,
+        hasPreviousPage: page > 1,
+      },
+    });
+  }),
+];
+
+// mocks/server.ts
+import { setupServer } from 'msw/node';
+import { handlers } from './handlers';
+
+export const server = setupServer(...handlers);
+
+// jest.setup.ts
+import { server } from './mocks/server';
+
+// Start server before all tests
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+
+// Reset handlers after each test
+afterEach(() => server.resetHandlers());
+
+// Stop server after all tests
+afterAll(() => server.close());
+</pre>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Using MSW in Tests</h3>
+                    
+                    <div class="code-block">
+<pre>
+// components/UserList.test.tsx
+import { render, screen, waitFor } from '@testing-library/react';
+import { server } from '../mocks/server';
+import { http, HttpResponse } from 'msw';
+import { UserList } from './UserList';
+
+describe('UserList with MSW', () => {
+  it('fetches and displays users', async () => {
+    render(&lt;UserList /&gt;);
+    
+    // Loading state
+    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+    
+    // Wait for users to load
+    await waitFor(() => {
+      expect(screen.getByText('John Doe')).toBeInTheDocument();
+    });
+  });
+  
+  it('handles error response', async () => {
+    // ✅ Override handler for this test
+    server.use(
+      http.get('/api/users', () => {
+        return HttpResponse.json(
+          { message: 'Server error' },
+          { status: 500 }
+        );
+      })
+    );
+    
+    render(&lt;UserList /&gt;);
+    
+    await waitFor(() => {
+      expect(screen.getByText(/error/i)).toBeInTheDocument();
+    });
+  });
+  
+  it('handles network error', async () => {
+    // ✅ Simulate network error
+    server.use(
+      http.get('/api/users', () => {
+        return HttpResponse.error();
+      })
+    );
+    
+    render(&lt;UserList /&gt;);
+    
+    await waitFor(() => {
+      expect(screen.getByText(/network error/i)).toBeInTheDocument();
+    });
+  });
+  
+  it('creates new user', async () => {
+    const user = userEvent.setup();
+    
+    // ✅ Use specific handler for creation
+    server.use(
+      http.post&lt;never, CreateUserDto&gt;('/api/users', async ({ request }) => {
+        const body = await request.json();
+        
+        return HttpResponse.json({
+          id: '999',
+          name: body.name,
+          email: body.email,
+          role: 'user',
+          createdAt: new Date().toISOString(),
+        }, { status: 201 });
+      })
+    );
+    
+    render(&lt;UserList /&gt;);
+    
+    await user.click(screen.getByRole('button', { name: /add user/i }));
+    await user.type(screen.getByLabelText(/name/i), 'Jane Doe');
+    await user.type(screen.getByLabelText(/email/i), 'jane@example.com');
+    await user.click(screen.getByRole('button', { name: /submit/i }));
+    
+    await waitFor(() => {
+      expect(screen.getByText('Jane Doe')).toBeInTheDocument();
+    });
+  });
+});
+</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tip">
+                <strong>Testing Best Practices:</strong>
+                <ul>
+                    <li>Test behavior, not implementation details</li>
+                    <li>Use MSW for realistic API mocking</li>
+                    <li>Always type your mocks for better safety</li>
+                    <li>Create custom render utilities with providers</li>
+                    <li>Use meaningful test descriptions</li>
+                    <li>Test edge cases and error states</li>
+                    <li>Keep tests focused and isolated</li>
+                    <li>Use data-testid sparingly (prefer queries by role/label)</li>
+                    <li>Clean up after tests (clear mocks, reset state)</li>
+                </ul>
+            </div>
+            
+            <div class="info">
+                <strong>Key Testing Concepts:</strong>
+                <ul>
+                    <li><strong>AAA Pattern:</strong> Arrange, Act, Assert</li>
+                    <li><strong>Test Isolation:</strong> Each test should be independent</li>
+                    <li><strong>Coverage:</strong> Aim for meaningful coverage, not 100%</li>
+                    <li><strong>Integration:</strong> Test components with their context</li>
+                    <li><strong>Async Testing:</strong> Always await async operations</li>
+                    <li><strong>User Events:</strong> Prefer userEvent over fireEvent</li>
+                    <li><strong>Queries:</strong> Use accessible queries (getByRole, getByLabelText)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

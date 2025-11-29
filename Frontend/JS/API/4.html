@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM Manipulation Deep Dive</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            margin: 25px 0 15px 0;
+            font-size: 1.3em;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            position: relative;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .code-block::before {
+            content: 'JavaScript';
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+        }
+        
+        .keyword { color: #ff79c6; }
+        .string { color: #50fa7b; }
+        .comment { color: #6272a4; font-style: italic; }
+        .function { color: #8be9fd; }
+        .number { color: #bd93f9; }
+        
+        .demo-box {
+            background: white;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 100px;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .visual-diagram {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .tree-node {
+            padding: 10px 15px;
+            margin: 5px;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            display: inline-block;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .tree-connector {
+            text-align: center;
+            color: #667eea;
+            font-size: 20px;
+            margin: 5px 0;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f0f0f0;
+            border-radius: 5px;
+            border-left: 3px solid #667eea;
+            transition: all 0.3s ease;
+        }
+        
+        .item:hover {
+            background: #e0e0e0;
+            transform: translateX(5px);
+        }
+        
+        .highlight {
+            background: #ffeb3b !important;
+            animation: pulse 0.5s;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        input[type="text"] {
+            padding: 10px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 200px;
+        }
+        
+        .performance-tip {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Chapter 4: DOM Manipulation</h1>
+            <p>Master the Art of Creating, Inserting, and Modifying DOM Elements</p>
+        </div>
+        
+        <div class="content">
+            <!-- Section 1: Creating Elements -->
+            <div class="section">
+                <h2>📦 4.1 Creating Elements</h2>
+                
+                <h3>Basic Element Creation</h3>
+                <div class="code-block"><span class="comment">// Create a new div element</span>
+<span class="keyword">const</span> newDiv = <span class="function">document.createElement</span>(<span class="string">'div'</span>);
+newDiv.textContent = <span class="string">'Hello World!'</span>;
+newDiv.className = <span class="string">'my-class'</span>;
+
+<span class="comment">// Create a text node</span>
+<span class="keyword">const</span> textNode = <span class="function">document.createTextNode</span>(<span class="string">'Plain text'</span>);
+
+<span class="comment">// Create a comment</span>
+<span class="keyword">const</span> comment = <span class="function">document.createComment</span>(<span class="string">'This is a comment'</span>);
+
+<span class="comment">// Clone an existing element</span>
+<span class="keyword">const</span> clone = element.<span class="function">cloneNode</span>(<span class="keyword">true</span>); <span class="comment">// deep clone</span>
+<span class="keyword">const</span> shallowClone = element.<span class="function">cloneNode</span>(<span class="keyword">false</span>); <span class="comment">// no children</span></div>
+
+                <div class="info-box">
+                    <strong>💡 Key Point:</strong> Created elements exist in memory but are not yet in the DOM. You need to insert them to make them visible.
+                </div>
+
+                <h3>Interactive Demo: Create Elements</h3>
+                <div class="demo-controls">
+                    <input type="text" id="elementText" placeholder="Enter text...">
+                    <button onclick="createAndAddElement()">Create Div</button>
+                    <button onclick="createTextNode()">Create Text Node</button>
+                    <button onclick="cloneLastElement()">Clone Last Element</button>
+                    <button onclick="clearDemo1()">Clear</button>
+                </div>
+                <div class="demo-box" id="demo1"></div>
+            </div>
+
+            <!-- Section 2: Modern Insertion Methods -->
+            <div class="section">
+                <h2>➕ 4.2 Modern Insertion Methods</h2>
+                
+                <div class="visual-diagram">
+                    <h3 style="text-align: center; color: #667eea;">Insertion Position Reference</h3>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <div style="color: #764ba2; font-weight: bold;">before()</div>
+                        <div class="tree-connector">↓</div>
+                        <div class="tree-node">Target Element</div>
+                        <div class="tree-connector">↓</div>
+                        <div style="color: #764ba2; font-weight: bold;">after()</div>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <div style="color: #667eea; font-weight: bold;">prepend() → adds as first child</div>
+                        <div style="color: #667eea; font-weight: bold; margin-top: 10px;">append() → adds as last child</div>
+                    </div>
+                </div>
+
+                <div class="code-block"><span class="comment">// Modern methods (accept multiple nodes AND strings!)</span>
+parent.<span class="function">append</span>(node1, node2, <span class="string">'text'</span>);     <span class="comment">// Add to end</span>
+parent.<span class="function">prepend</span>(node1, <span class="string">'text'</span>);          <span class="comment">// Add to beginning</span>
+element.<span class="function">before</span>(node1, <span class="string">'text'</span>);         <span class="comment">// Insert before element</span>
+element.<span class="function">after</span>(node1, <span class="string">'text'</span>);          <span class="comment">// Insert after element</span>
+element.<span class="function">replaceWith</span>(node1, <span class="string">'text'</span>);    <span class="comment">// Replace element</span>
+
+<span class="comment">// Legacy methods (single node only, returns the node)</span>
+parent.<span class="function">appendChild</span>(node);              <span class="comment">// Add to end</span>
+parent.<span class="function">insertBefore</span>(newNode, refNode); <span class="comment">// Insert before reference</span>
+parent.<span class="function">replaceChild</span>(newNode, oldNode); <span class="comment">// Replace child</span>
+parent.<span class="function">removeChild</span>(node);              <span class="comment">// Remove child</span></div>
+
+                <h3>Interactive Demo: Insertion Methods</h3>
+                <div class="demo-controls">
+                    <button onclick="demoAppend()">append()</button>
+                    <button onclick="demoPrepend()">prepend()</button>
+                    <button onclick="demoBefore()">before()</button>
+                    <button onclick="demoAfter()">after()</button>
+                    <button onclick="demoReplace()">replaceWith()</button>
+                    <button onclick="clearDemo2()">Clear</button>
+                </div>
+                <div class="demo-box" id="demo2">
+                    <div class="item" id="targetElement">🎯 Target Element</div>
+                </div>
+            </div>
+
+            <!-- Section 3: HTML String Insertion -->
+            <div class="section">
+                <h2>📝 4.5 HTML String Insertion</h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Description</th>
+                            <th>Parses HTML?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>innerHTML</code></td>
+                            <td>Replace inner content</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td><code>outerHTML</code></td>
+                            <td>Replace element itself</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td><code>textContent</code></td>
+                            <td>Set text (safe)</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><code>insertAdjacentHTML()</code></td>
+                            <td>Insert at specific position</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-block"><span class="comment">// innerHTML - replaces ALL content (parses HTML)</span>
+element.innerHTML = <span class="string">'&lt;p&gt;New &lt;strong&gt;HTML&lt;/strong&gt;&lt;/p&gt;'</span>;
+
+<span class="comment">// outerHTML - replaces the element itself</span>
+element.outerHTML = <span class="string">'&lt;div class="new"&gt;Replaced&lt;/div&gt;'</span>;
+
+<span class="comment">// textContent - sets text (SAFE, no HTML parsing)</span>
+element.textContent = <span class="string">'&lt;script&gt;alert("XSS")&lt;/script&gt;'</span>; <span class="comment">// Displays as text!</span>
+
+<span class="comment">// insertAdjacentHTML - precise positioning</span>
+element.<span class="function">insertAdjacentHTML</span>(<span class="string">'beforebegin'</span>, html); <span class="comment">// Before element</span>
+element.<span class="function">insertAdjacentHTML</span>(<span class="string">'afterbegin'</span>, html);  <span class="comment">// First child</span>
+element.<span class="function">insertAdjacentHTML</span>(<span class="string">'beforeend'</span>, html);   <span class="comment">// Last child</span>
+element.<span class="function">insertAdjacentHTML</span>(<span class="string">'afterend'</span>, html);    <span class="comment">// After element</span></div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Security Warning:</strong> Never use <code>innerHTML</code> with user input! It creates an XSS vulnerability. Always use <code>textContent</code> for user-generated content.
+                </div>
+
+                <h3>Interactive Demo: HTML Insertion</h3>
+                <div class="demo-controls">
+                    <button onclick="demoInnerHTML()">innerHTML</button>
+                    <button onclick="demoTextContent()">textContent (Safe)</button>
+                    <button onclick="demoInsertAdjacent('beforebegin')">beforebegin</button>
+                    <button onclick="demoInsertAdjacent('afterbegin')">afterbegin</button>
+                    <button onclick="demoInsertAdjacent('beforeend')">beforeend</button>
+                    <button onclick="demoInsertAdjacent('afterend')">afterend</button>
+                    <button onclick="clearDemo3()">Clear</button>
+                </div>
+                <div class="demo-box" id="demo3">
+                    <div class="item" id="htmlTarget">🎯 Target Element</div>
+                </div>
+            </div>
+
+            <!-- Section 4: DocumentFragment -->
+            <div class="section">
+                <h2>⚡ 4.6 DocumentFragment for Performance</h2>
+                
+                <div class="performance-tip">
+                    <h3 style="margin-bottom: 15px;">🚀 Performance Pro Tip</h3>
+                    <p><strong>DocumentFragment</strong> is a lightweight container that doesn't trigger reflows during construction. Use it for batch operations!</p>
+                    <p style="margin-top: 10px;"><strong>One appendChild(fragment) = One Reflow</strong></p>
+                    <p><strong>1000 individual appendChild() = 1000 Reflows ❌</strong></p>
+                </div>
+
+                <div class="code-block"><span class="comment">// ❌ BAD: Multiple reflows</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">1000</span>; i++) {
+    <span class="keyword">const</span> li = <span class="function">document.createElement</span>(<span class="string">'li'</span>);
+    li.textContent = <span class="string">`Item </span><span class="keyword">${</span>i<span class="keyword">}</span><span class="string">`</span>;
+    ul.<span class="function">appendChild</span>(li); <span class="comment">// 1000 reflows! 😱</span>
+}
+
+<span class="comment">// ✅ GOOD: Single reflow with DocumentFragment</span>
+<span class="keyword">const</span> fragment = <span class="function">document.createDocumentFragment</span>();
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">1000</span>; i++) {
+    <span class="keyword">const</span> li = <span class="function">document.createElement</span>(<span class="string">'li'</span>);
+    li.textContent = <span class="string">`Item </span><span class="keyword">${</span>i<span class="keyword">}</span><span class="string">`</span>;
+    fragment.<span class="function">appendChild</span>(li); <span class="comment">// No reflow</span>
+}
+ul.<span class="function">appendChild</span>(fragment); <span class="comment">// Only 1 reflow! 🚀</span></div>
+
+                <h3>Performance Comparison Demo</h3>
+                <div class="demo-controls">
+                    <button onclick="addItemsSlowly()">Add 100 Items Slowly (Multiple Reflows)</button>
+                    <button onclick="addItemsWithFragment()">Add 100 Items Fast (Fragment)</button>
+                    <button onclick="clearDemo4()">Clear</button>
+                </div>
+                <div id="perfResult" style="margin: 10px 0; font-weight: bold; color: #667eea;"></div>
+                <div class="demo-box" id="demo4"></div>
+            </div>
+
+            <!-- Section 5: Practical Examples -->
+            <div class="section">
+                <h2>🎯 Real-World Examples</h2>
+                
+                <h3>Example 1: Dynamic List Builder</h3>
+                <div class="code-block"><span class="keyword">function</span> <span class="function">createUserList</span>(users) {
+    <span class="keyword">const</span> ul = <span class="function">document.createElement</span>(<span class="string">'ul'</span>);
+    ul.className = <span class="string">'user-list'</span>;
+    
+    <span class="keyword">const</span> fragment = <span class="function">document.createDocumentFragment</span>();
+    
+    users.<span class="function">forEach</span>(user => {
+        <span class="keyword">const</span> li = <span class="function">document.createElement</span>(<span class="string">'li'</span>);
+        li.innerHTML = <span class="string">`
+            &lt;img src="</span><span class="keyword">${</span>user.avatar<span class="keyword">}</span><span class="string">" alt="</span><span class="keyword">${</span>user.name<span class="keyword">}</span><span class="string">"&gt;
+            &lt;span&gt;</span><span class="keyword">${</span>user.name<span class="keyword">}</span><span class="string">&lt;/span&gt;
+        `</span>;
+        fragment.<span class="function">appendChild</span>(li);
+    });
+    
+    ul.<span class="function">appendChild</span>(fragment);
+    <span class="keyword">return</span> ul;
+}</div>
+
+                <h3>Example 2: Safe HTML Builder</h3>
+                <div class="code-block"><span class="keyword">function</span> <span class="function">createSafeCard</span>(title, content) {
+    <span class="keyword">const</span> card = <span class="function">document.createElement</span>(<span class="string">'div'</span>);
+    card.className = <span class="string">'card'</span>;
+    
+    <span class="keyword">const</span> titleEl = <span class="function">document.createElement</span>(<span class="string">'h3'</span>);
+    titleEl.textContent = title; <span class="comment">// Safe from XSS</span>
+    
+    <span class="keyword">const</span> contentEl = <span class="function">document.createElement</span>(<span class="string">'p'</span>);
+    contentEl.textContent = content; <span class="comment">// Safe from XSS</span>
+    
+    card.<span class="function">append</span>(titleEl, contentEl);
+    <span class="keyword">return</span> card;
+}</div>
+
+                <div class="success-box">
+                    <strong>✅ Best Practice:</strong> Always use <code>createElement</code> + <code>textContent</code> when dealing with user input. Only use <code>innerHTML</code> with trusted, static HTML.
+                </div>
+            </div>
+
+            <!-- Section 6: Quick Reference -->
+            <div class="section">
+                <h2>📚 Quick Reference Guide</h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operation</th>
+                            <th>Modern Method</th>
+                            <th>Legacy Method</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Create element</td>
+                            <td colspan="2"><code>document.createElement('div')</code></td>
+                        </tr>
+                        <tr>
+                            <td>Add to end</td>
+                            <td><code>parent.append(child)</code></td>
+                            <td><code>parent.appendChild(child)</code></td>
+                        </tr>
+                        <tr>
+                            <td>Add to start</td>
+                            <td><code>parent.prepend(child)</code></td>
+                            <td><code>parent.insertBefore(child, parent.firstChild)</code></td>
+                        </tr>
+                        <tr>
+                            <td>Insert before</td>
+                            <td><code>el.before(newEl)</code></td>
+                            <td><code>parent.insertBefore(newEl, el)</code></td>
+                        </tr>
+                        <tr>
+                            <td>Insert after</td>
+                            <td><code>el.after(newEl)</code></td>
+                            <td><code>parent.insertBefore(newEl, el.nextSibling)</code></td>
+                        </tr>
+                        <tr>
+                            <td>Replace</td>
+                            <td><code>el.replaceWith(newEl)</code></td>
+                            <td><code>parent.replaceChild(newEl, el)</code></td>
+                        </tr>
+                        <tr>
+                            <td>Remove</td>
+                            <td><code>el.remove()</code></td>
+                            <td><code>parent.removeChild(el)</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let elementCounter = 1;
+
+        // Demo 1: Create Elements
+        function createAndAddElement() {
+            const text = document.getElementById('elementText').value || 'New Element';
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.textContent = `📦 ${text} #${elementCounter++}`;
+            document.getElementById('demo1').appendChild(div);
+            document.getElementById('elementText').value = '';
+        }
+
+        function createTextNode() {
+            const text = document.getElementById('elementText').value || 'Text Node';
+            const textNode = document.createTextNode(`✍️ ${text} #${elementCounter++}`);
+            const wrapper = document.createElement('div');
+            wrapper.className = 'item';
+            wrapper.appendChild(textNode);
+            document.getElementById('demo1').appendChild(wrapper);
+            document.getElementById('elementText').value = '';
+        }
+
+        function cloneLastElement() {
+            const demo = document.getElementById('demo1');
+            const last = demo.lastElementChild;
+            if (last) {
+                const clone = last.cloneNode(true);
+                clone.textContent = clone.textContent.replace(/\d+$/, '') + `${elementCounter++} (Clone)`;
+                clone.classList.add('highlight');
+                setTimeout(() => clone.classList.remove('highlight'), 500);
+                demo.appendChild(clone);
+            }
+        }
+
+        function clearDemo1() {
+            document.getElementById('demo1').innerHTML = '';
+            elementCounter = 1;
+        }
+
+        // Demo 2: Insertion Methods
+        function demoAppend() {
+            const demo = document.getElementById('demo2');
+            const newItem = document.createElement('div');
+            newItem.className = 'item';
+            newItem.textContent = '➕ Appended (end)';
+            demo.append(newItem);
+        }
+
+        function demoPrepend() {
+            const demo = document.getElementById('demo2');
+            const newItem = document.createElement('div');
+            newItem.className = 'item';
+            newItem.textContent = '➕ Prepended (start)';
+            demo.prepend(newItem);
+        }
+
+        function demoBefore() {
+            const target = document.getElementById('targetElement');
+            const newItem = document.createElement('div');
+            newItem.className = 'item';
+            newItem.textContent = '⬆️ Before target';
+            target.before(newItem);
+        }
+
+        function demoAfter() {
+            const target = document.getElementById('targetElement');
+            const newItem = document.createElement('div');
+            newItem.className = 'item';
+            newItem.textContent = '⬇️ After target';
+            target.after(newItem);
+        }
+
+        function demoReplace() {
+            const target = document.getElementById('targetElement');
+            if (target) {
+                const newItem = document.createElement('div');
+                newItem.className = 'item';
+                newItem.id = 'targetElement';
+                newItem.textContent = '🔄 Replaced target';
+                target.replaceWith(newItem);
+            }
+        }
+
+        function clearDemo2() {
+            document.getElementById('demo2').innerHTML = '<div class="item" id="targetElement">🎯 Target Element</div>';
+        }
+
+        // Demo 3: HTML Insertion
+        function demoInnerHTML() {
+            const target = document.getElementById('htmlTarget');
+            target.innerHTML = '<strong style="color: #667eea;">innerHTML:</strong> This is <em>HTML</em> content! 🎨';
+        }
+
+        function demoTextContent() {
+            const target = document.getElementById('htmlTarget');
+            target.textContent = 'textContent: <strong>HTML tags shown as text</strong> (Safe!) 🔒';
+        }
+
+        function demoInsertAdjacent(position) {
+            const target = document.getElementById('htmlTarget');
+            const html = `<div class="item" style="background: #e7f3ff;">insertAdjacentHTML("${position}") 📌</div>`;
+            target.insertAdjacentHTML(position, html);
+        }
+
+        function clearDemo3() {
+            document.getElementById('demo3').innerHTML = '<div class="item" id="htmlTarget">🎯 Target Element</div>';
+        }
+
+        // Demo 4: Performance
+        function addItemsSlowly() {
+            const demo = document.getElementById('demo4');
+            const start = performance.now();
+            
+            for (let i = 0; i < 100; i++) {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.textContent = `🐌 Slow Item ${i + 1}`;
+                demo.appendChild(div); // Multiple reflows!
+            }
+            
+            const end = performance.now();
+            document.getElementById('perfResult').textContent = `⏱️ Slow method: ${(end - start).toFixed(2)}ms`;
+        }
+
+        function addItemsWithFragment() {
+            const demo = document.getElementById('demo4');
+            const start = performance.now();
+            
+            const fragment = document.createDocumentFragment();
+            for (let i = 0; i < 100; i++) {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.textContent = `🚀 Fast Item ${i + 1}`;
+                fragment.appendChild(div); // No reflow!
+            }
+            demo.appendChild(fragment); // Single reflow!
+            
+            const end = performance.now();
+            document.getElementById('perfResult').textContent = `⏱️ Fragment method: ${(end - start).toFixed(2)}ms (Much faster!)`;
+        }
+
+        function clearDemo4() {
+            document.getElementById('demo4').innerHTML = '';
+            document.getElementById('perfResult').textContent = '';
+        }
+    </script>
+</body>
+</html>

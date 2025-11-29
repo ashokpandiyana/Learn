@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 17: Advanced TypeScript Patterns</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .section {
+            margin-bottom: 50px;
+        }
+        .section h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        .section h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        .subsection {
+            margin-bottom: 30px;
+        }
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .tip-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .tip-box strong {
+            color: #28a745;
+        }
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .warning-box strong {
+            color: #856404;
+        }
+        .info-box {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .info-box strong {
+            color: #0c5460;
+        }
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .visual-diagram {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .flow-item {
+            display: inline-block;
+            background: white;
+            padding: 15px 25px;
+            margin: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 2px solid #667eea;
+        }
+        .arrow {
+            display: inline-block;
+            color: #667eea;
+            font-size: 1.5em;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Chapter 17: Advanced TypeScript Patterns</h1>
+            <p>Master Professional Design Patterns with TypeScript</p>
+        </div>
+        
+        <div class="content">
+            <!-- Builder Pattern -->
+            <div class="section">
+                <h2>17.1 Builder Pattern</h2>
+                
+                <div class="subsection">
+                    <h3>🎯 What is the Builder Pattern?</h3>
+                    <p>The Builder Pattern is a creational design pattern that allows you to construct complex objects step by step. It's particularly useful when an object needs to be created with many optional parameters, providing a fluent API (method chaining) that's both readable and type-safe.</p>
+                    
+                    <div class="tip-box">
+                        <strong>💡 Key Benefits:</strong>
+                        <ul>
+                            <li>Eliminates telescoping constructors (multiple constructor overloads)</li>
+                            <li>Provides a fluent, readable API</li>
+                            <li>Ensures type safety at compile time</li>
+                            <li>Makes object construction more flexible</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>🔨 Basic Implementation</h3>
+                    <div class="code-block">
+<pre>// User entity we want to build
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  age?: number;
+  address?: string;
+  phone?: string;
+  role: 'admin' | 'user' | 'guest';
+}
+
+// Builder class with fluent API
+class UserBuilder {
+  private user: Partial&lt;User&gt; = {};
+
+  setId(id: string): this {
+    this.user.id = id;
+    return this;
+  }
+
+  setName(name: string): this {
+    this.user.name = name;
+    return this;
+  }
+
+  setEmail(email: string): this {
+    this.user.email = email;
+    return this;
+  }
+
+  setAge(age: number): this {
+    this.user.age = age;
+    return this;
+  }
+
+  setAddress(address: string): this {
+    this.user.address = address;
+    return this;
+  }
+
+  setPhone(phone: string): this {
+    this.user.phone = phone;
+    return this;
+  }
+
+  setRole(role: User['role']): this {
+    this.user.role = role;
+    return this;
+  }
+
+  build(): User {
+    // Validate required fields
+    if (!this.user.id || !this.user.name || !this.user.email || !this.user.role) {
+      throw new Error('Missing required fields');
+    }
+    return this.user as User;
+  }
+}
+
+// Usage
+const user = new UserBuilder()
+  .setId('123')
+  .setName('John Doe')
+  .setEmail('john@example.com')
+  .setAge(30)
+  .setRole('admin')
+  .build();
+</pre>
+                    </div>
+
+                    <h3>🚀 Advanced: Type-Safe Builder</h3>
+                    <p>We can make the builder even more type-safe by ensuring required fields are set before building:</p>
+                    
+                    <div class="code-block">
+<pre>// Type-safe builder that tracks which fields have been set
+type RequiredKeys = 'id' | 'name' | 'email' | 'role';
+type OptionalKeys = 'age' | 'address' | 'phone';
+
+class TypeSafeUserBuilder&lt;T extends Partial&lt;Record&lt;RequiredKeys, any&gt;&gt; = {}&gt; {
+  private user: Partial&lt;User&gt; = {};
+
+  setId(id: string): TypeSafeUserBuilder&lt;T & { id: string }&gt; {
+    this.user.id = id;
+    return this as any;
+  }
+
+  setName(name: string): TypeSafeUserBuilder&lt;T & { name: string }&gt; {
+    this.user.name = name;
+    return this as any;
+  }
+
+  setEmail(email: string): TypeSafeUserBuilder&lt;T & { email: string }&gt; {
+    this.user.email = email;
+    return this as any;
+  }
+
+  setRole(role: User['role']): TypeSafeUserBuilder&lt;T & { role: User['role'] }&gt; {
+    this.user.role = role;
+    return this as any;
+  }
+
+  setAge(age: number): this {
+    this.user.age = age;
+    return this;
+  }
+
+  // build() only available when all required fields are set
+  build(this: TypeSafeUserBuilder&lt;Record&lt;RequiredKeys, any&gt;&gt;): User {
+    return this.user as User;
+  }
+}
+
+// Usage - TypeScript enforces all required fields
+const user = new TypeSafeUserBuilder()
+  .setId('123')
+  .setName('John')
+  .setEmail('john@example.com')
+  .setRole('admin')
+  .build(); // ✅ All required fields set
+
+// This would error at compile time:
+// const invalid = new TypeSafeUserBuilder()
+//   .setId('123')
+//   .build(); // ❌ Error: name, email, role not set
+</pre>
+                    </div>
+
+                    <h3>🎨 Query Builder Example</h3>
+                    <div class="code-block">
+<pre>interface Query {
+  table: string;
+  columns: string[];
+  where?: Record&lt;string, any&gt;;
+  orderBy?: { column: string; direction: 'ASC' | 'DESC' };
+  limit?: number;
+}
+
+class QueryBuilder {
+  private query: Partial&lt;Query&gt; = {};
+
+  from(table: string): this {
+    this.query.table = table;
+    return this;
+  }
+
+  select(...columns: string[]): this {
+    this.query.columns = columns;
+    return this;
+  }
+
+  where(conditions: Record&lt;string, any&gt;): this {
+    this.query.where = conditions;
+    return this;
+  }
+
+  orderBy(column: string, direction: 'ASC' | 'DESC' = 'ASC'): this {
+    this.query.orderBy = { column, direction };
+    return this;
+  }
+
+  limit(count: number): this {
+    this.query.limit = count;
+    return this;
+  }
+
+  build(): string {
+    if (!this.query.table || !this.query.columns) {
+      throw new Error('Table and columns are required');
+    }
+
+    let sql = `SELECT ${this.query.columns.join(', ')} FROM ${this.query.table}`;
+
+    if (this.query.where) {
+      const conditions = Object.entries(this.query.where)
+        .map(([key, value]) => `${key} = '${value}'`)
+        .join(' AND ');
+      sql += ` WHERE ${conditions}`;
+    }
+
+    if (this.query.orderBy) {
+      sql += ` ORDER BY ${this.query.orderBy.column} ${this.query.orderBy.direction}`;
+    }
+
+    if (this.query.limit) {
+      sql += ` LIMIT ${this.query.limit}`;
+    }
+
+    return sql;
+  }
+}
+
+// Usage
+const sql = new QueryBuilder()
+  .from('users')
+  .select('id', 'name', 'email')
+  .where({ status: 'active', role: 'admin' })
+  .orderBy('created_at', 'DESC')
+  .limit(10)
+  .build();
+
+console.log(sql);
+// SELECT id, name, email FROM users WHERE status = 'active' AND role = 'admin' ORDER BY created_at DESC LIMIT 10
+</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Factory Pattern -->
+            <div class="section">
+                <h2>17.2 Factory Pattern</h2>
+                
+                <div class="subsection">
+                    <h3>🏭 What is the Factory Pattern?</h3>
+                    <p>The Factory Pattern is a creational pattern that provides an interface for creating objects without specifying their exact classes. It's particularly useful when you need to create different types of objects based on conditions or configurations.</p>
+                    
+                    <h3>🔧 Simple Factory</h3>
+                    <div class="code-block">
+<pre>// Different notification types
+interface Notification {
+  send(message: string): void;
+}
+
+class EmailNotification implements Notification {
+  constructor(private recipient: string) {}
+  
+  send(message: string): void {
+    console.log(`Sending email to ${this.recipient}: ${message}`);
+  }
+}
+
+class SMSNotification implements Notification {
+  constructor(private phoneNumber: string) {}
+  
+  send(message: string): void {
+    console.log(`Sending SMS to ${this.phoneNumber}: ${message}`);
+  }
+}
+
+class PushNotification implements Notification {
+  constructor(private deviceId: string) {}
+  
+  send(message: string): void {
+    console.log(`Sending push to ${this.deviceId}: ${message}`);
+  }
+}
+
+// Factory class
+class NotificationFactory {
+  static create(type: 'email', recipient: string): EmailNotification;
+  static create(type: 'sms', phoneNumber: string): SMSNotification;
+  static create(type: 'push', deviceId: string): PushNotification;
+  static create(type: string, identifier: string): Notification {
+    switch (type) {
+      case 'email':
+        return new EmailNotification(identifier);
+      case 'sms':
+        return new SMSNotification(identifier);
+      case 'push':
+        return new PushNotification(identifier);
+      default:
+        throw new Error(`Unknown notification type: ${type}`);
+    }
+  }
+}
+
+// Usage with full type safety
+const email = NotificationFactory.create('email', 'user@example.com');
+const sms = NotificationFactory.create('sms', '+1234567890');
+const push = NotificationFactory.create('push', 'device-123');
+</pre>
+                    </div>
+
+                    <h3>🎯 Generic Factory</h3>
+                    <div class="code-block">
+<pre>// Generic factory pattern
+interface Product {
+  id: string;
+  name: string;
+}
+
+interface User extends Product {
+  email: string;
+}
+
+interface Post extends Product {
+  title: string;
+  content: string;
+}
+
+type ProductType = 'user' | 'post';
+
+class GenericFactory&lt;T extends Product&gt; {
+  constructor(private creator: (data: any) => T) {}
+
+  create(data: any): T {
+    return this.creator(data);
+  }
+}
+
+// Creators
+const createUser = (data: any): User => ({
+  id: data.id || Math.random().toString(),
+  name: data.name,
+  email: data.email,
+});
+
+const createPost = (data: any): Post => ({
+  id: data.id || Math.random().toString(),
+  name: data.name,
+  title: data.title,
+  content: data.content,
+});
+
+// Factory instances
+const userFactory = new GenericFactory&lt;User&gt;(createUser);
+const postFactory = new GenericFactory&lt;Post&gt;(createPost);
+
+// Usage
+const user = userFactory.create({ name: 'John', email: 'john@example.com' });
+const post = postFactory.create({ name: 'My Post', title: 'Hello', content: 'World' });
+</pre>
+                    </div>
+
+                    <h3>🏗️ Abstract Factory Pattern</h3>
+                    <div class="code-block">
+<pre>// Abstract products
+interface Button {
+  render(): void;
+  onClick(handler: () => void): void;
+}
+
+interface Input {
+  render(): void;
+  getValue(): string;
+}
+
+// Concrete products for Material Design
+class MaterialButton implements Button {
+  render(): void {
+    console.log('Rendering Material Design button');
+  }
+  onClick(handler: () => void): void {
+    console.log('Material button clicked');
+    handler();
+  }
+}
+
+class MaterialInput implements Input {
+  render(): void {
+    console.log('Rendering Material Design input');
+  }
+  getValue(): string {
+    return 'Material input value';
+  }
+}
+
+// Concrete products for Bootstrap
+class BootstrapButton implements Button {
+  render(): void {
+    console.log('Rendering Bootstrap button');
+  }
+  onClick(handler: () => void): void {
+    console.log('Bootstrap button clicked');
+    handler();
+  }
+}
+
+class BootstrapInput implements Input {
+  render(): void {
+    console.log('Rendering Bootstrap input');
+  }
+  getValue(): string {
+    return 'Bootstrap input value';
+  }
+}
+
+// Abstract factory interface
+interface UIFactory {
+  createButton(): Button;
+  createInput(): Input;
+}
+
+// Concrete factories
+class MaterialUIFactory implements UIFactory {
+  createButton(): Button {
+    return new MaterialButton();
+  }
+  createInput(): Input {
+    return new MaterialInput();
+  }
+}
+
+class BootstrapUIFactory implements UIFactory {
+  createButton(): Button {
+    return new BootstrapButton();
+  }
+  createInput(): Input {
+    return new BootstrapInput();
+  }
+}
+
+// Usage
+function createUI(factory: UIFactory) {
+  const button = factory.createButton();
+  const input = factory.createInput();
+  
+  button.render();
+  input.render();
+}
+
+// Switch themes easily
+const theme = 'material'; // or 'bootstrap'
+const factory = theme === 'material' 
+  ? new MaterialUIFactory() 
+  : new BootstrapUIFactory();
+
+createUI(factory);
+</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Branded Types -->
+            <div class="section">
+                <h2>17.3 Branded Types (Nominal Typing)</h2>
+                
+                <div class="subsection">
+                    <h3>🏷️ What are Branded Types?</h3>
+                    <p>TypeScript uses structural typing, meaning two types are compatible if their structure matches. Branded types introduce nominal typing, allowing you to create types that are structurally identical but logically distinct.</p>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ The Problem:</strong> Without branding, TypeScript can't distinguish between different string or number types:
+                    </div>
+                    
+                    <div class="code-block">
+<pre>// Without branding - UNSAFE!
+type UserId = string;
+type ProductId = string;
+
+function getUser(id: UserId) { /* ... */ }
+function getProduct(id: ProductId) { /* ... */ }
+
+const userId: UserId = '123';
+const productId: ProductId = '456';
+
+getUser(productId); // ❌ No error! But this is wrong!
+getProduct(userId); // ❌ No error! But this is wrong!
+</pre>
+                    </div>
+
+                    <h3>✅ Solution: Branded Types</h3>
+                    <div class="code-block">
+<pre>// Brand utility type
+type Brand&lt;T, B&gt; = T & { __brand: B };
+
+// Create distinct types
+type UserId = Brand&lt;string, 'UserId'&gt;;
+type ProductId = Brand&lt;string, 'ProductId'&gt;;
+type EmailAddress = Brand&lt;string, 'EmailAddress'&gt;;
+
+// Smart constructors that validate and brand
+function createUserId(id: string): UserId {
+  if (id.length === 0) throw new Error('Invalid user ID');
+  return id as UserId;
+}
+
+function createProductId(id: string): ProductId {
+  if (!/^PROD-\d+$/.test(id)) throw new Error('Invalid product ID format');
+  return id as ProductId;
+}
+
+function createEmailAddress(email: string): EmailAddress {
+  if (!email.includes('@')) throw new Error('Invalid email');
+  return email as EmailAddress;
+}
+
+// Type-safe functions
+function getUser(id: UserId) {
+  console.log(`Fetching user ${id}`);
+}
+
+function getProduct(id: ProductId) {
+  console.log(`Fetching product ${id}`);
+}
+
+function sendEmail(to: EmailAddress, subject: string) {
+  console.log(`Sending email to ${to}`);
+}
+
+// Usage
+const userId = createUserId('user123');
+const productId = createProductId('PROD-456');
+const email = createEmailAddress('user@example.com');
+
+getUser(userId); // ✅ OK
+getProduct(productId); // ✅ OK
+sendEmail(email, 'Hello'); // ✅ OK
+
+// These now cause compile-time errors!
+// getUser(productId); // ❌ Error: ProductId not assignable to UserId
+// getProduct(userId); // ❌ Error: UserId not assignable to ProductId
+// sendEmail(userId, 'Hi'); // ❌ Error: UserId not assignable to EmailAddress
+</pre>
+                    </div>
+
+                    <h3>🔢 Numeric Branded Types</h3>
+                    <div class="code-block">
+<pre>// Branded numbers for units
+type Meters = Brand&lt;number, 'Meters'&gt;;
+type Feet = Brand&lt;number, 'Feet'&gt;;
+type Celsius = Brand&lt;number, 'Celsius'&gt;;
+type Fahrenheit = Brand&lt;number, 'Fahrenheit'&gt;;
+
+function meters(value: number): Meters {
+  return value as Meters;
+}
+
+function feet(value: number): Feet {
+  return value as Feet;
+}
+
+function celsius(value: number): Celsius {
+  return value as Celsius;
+}
+
+// Type-safe conversions
+function metersToFeet(m: Meters): Feet {
+  return feet(m * 3.28084);
+}
+
+function celsiusToFahrenheit(c: Celsius): Fahrenheit {
+  return (c * 9/5 + 32) as Fahrenheit;
+}
+
+// Usage
+const height = meters(1.8);
+const temp = celsius(25);
+
+const heightInFeet = metersToFeet(height);
+const tempInF = celsiusToFahrenheit(temp);
+
+// Prevents mixing units
+// const wrong = metersToFeet(temp); // ❌ Error!
+</pre>
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>💡 Production Use Cases:</strong>
+                        <ul>
+                            <li>Entity IDs (User, Product, Order, etc.)</li>
+                            <li>Validated strings (Email, URL, Phone, etc.)</li>
+                            <li>Units of measurement (Distance, Temperature, Currency)</li>
+                            <li>Security tokens and credentials</li>
+                            <li>File paths and URLs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exhaustive Checking -->
+            <div class="section">
+                <h2>17.4 Exhaustive Checking with Never</h2>
+                
+                <div class="subsection">
+                    <h3>🎯 What is Exhaustive Checking?</h3>
+                    <p>Exhaustive checking ensures that you handle all possible cases in a union type. The <span class="highlight">never</span> type and TypeScript's control flow analysis make this possible at compile time.</p>
+                    
+                    <h3>🔍 Basic Exhaustive Switch</h3>
+                    <div class="code-block">
+<pre>// Utility function for exhaustiveness
+function assertNever(x: never): never {
+  throw new Error(`Unexpected value: ${JSON.stringify(x)}`);
+}
+
+type Status = 'pending' | 'success' | 'error';
+
+function handleStatus(status: Status): string {
+  switch (status) {
+    case 'pending':
+      return '⏳ Loading...';
+    case 'success':
+      return '✅ Success!';
+    case 'error':
+      return '❌ Error occurred';
+    default:
+      // If we miss a case, TypeScript will error here
+      return assertNever(status);
+  }
+}
+
+// If we add a new status...
+type Status = 'pending' | 'success' | 'error' | 'cancelled';
+
+// ...TypeScript will error at assertNever(status) 
+// because status could be 'cancelled'
+</pre>
+                    </div>
+
+                    <h3>🎨 Discriminated Unions</h3>
+                    <div class="code-block">
+<pre>// API Response types
+type ApiResponse&lt;T&gt; =
+  | { status: 'loading' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; error: Error };
+
+function handleResponse&lt;T&gt;(response: ApiResponse&lt;T&gt;): string {
+  switch (response.status) {
+    case 'loading':
+      return 'Loading...';
+    case 'success':
+      return `Data: ${JSON.stringify(response.data)}`;
+    case 'error':
+      return `Error: ${response.error.message}`;
+    default:
+      return assertNever(response);
+  }
+}
+
+// Usage
+const loadingResponse: ApiResponse&lt;User&gt; = { status: 'loading' };
+const successResponse: ApiResponse&lt;User&gt; = { 
+  status: 'success', 
+  data: { id: '1', name: 'John' } 
+};
+const errorResponse: ApiResponse&lt;User&gt; = { 
+  status: 'error', 
+  error: new Error('Failed to fetch') 
+};
+</pre>
+                    </div>
+
+                    <h3>🚦 State Machine Example</h3>
+                    <div class="code-block">
+<pre>// Traffic light state machine
+type TrafficLightState =
+  | { state: 'red'; timer: number }
+  | { state: 'yellow'; timer: number }
+  | { state: 'green'; timer: number }
+  | { state: 'maintenance'; reason: string };
+
+type TrafficLightAction =
+  | { type: 'TICK' }
+  | { type: 'MAINTENANCE'; reason: string }
+  | { type: 'RESUME' };
+
+function trafficLightReducer(
+  current: TrafficLightState,
+  action: TrafficLightAction
+): TrafficLightState {
+  switch (action.type) {
+    case 'TICK':
+      switch (current.state) {
+        case 'red':
+          return current.timer > 0
+            ? { state: 'red', timer: current.timer - 1 }
+            : { state: 'green', timer: 30 };
+        case 'yellow':
+          return current.timer > 0
+            ? { state: 'yellow', timer: current.timer - 1 }
+            : { state: 'red', timer: 45 };
+        case 'green':
+          return current.timer > 0
+            ? { state: 'green', timer: current.timer - 1 }
+            : { state: 'yellow', timer: 5 };
+        case 'maintenance':
+          return current;
+        default:
+          return assertNever(current);
+      }
+    
+    case 'MAINTENANCE':
+      return { state: 'maintenance', reason: action.reason };
+    
+    case 'RESUME':
+      return { state: 'red', timer: 45 };
+    
+    default:
+      return assertNever(action);
+  }
+}
+</pre>
+                    </div>
+
+                    <h3>🎭 React Component Example</h3>
+                    <div class="code-block">
+<pre>// Form field types
+type FormField =
+  | { type: 'text'; value: string; placeholder: string }
+  | { type: 'number'; value: number; min?: number; max?: number }
+  | { type: 'select'; value: string; options: string[] }
+  | { type: 'checkbox'; checked: boolean; label: string };
+
+function renderFormField(field: FormField): JSX.Element {
+  switch (field.type) {
+    case 'text':
+      return &lt;input type="text" value={field.value} placeholder={field.placeholder} /&gt;;
+    
+    case 'number':
+      return &lt;input type="number" value={field.value} min={field.min} max={field.max} /&gt;;
+    
+    case 'select':
+      return (
+        &lt;select value={field.value}&gt;
+          {field.options.map(opt =&gt; &lt;option key={opt} value={opt}&gt;{opt}&lt;/option&gt;)}
+        &lt;/select&gt;
+      );
+    
+    case 'checkbox':
+      return (
+        &lt;label&gt;
+          &lt;input type="checkbox" checked={field.checked} /&gt;
+          {field.label}
+        &lt;/label&gt;
+      );
+    
+    default:
+      return assertNever(field);
+  }
+}
+</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Type-Safe Event Emitter -->
+            <div class="section">
+                <h2>17.5 Type-Safe Event Emitter</h2>
+                
+                <div class="subsection">
+                    <h3>📡 Building a Type-Safe Event System</h3>
+                    <p>Event emitters are common in JavaScript, but they're typically untyped. Let's build a fully type-safe event system!</p>
+                    
+                    <div class="code-block">
+<pre>// Define event map
+type EventMap = {
+  [key: string]: any;
+};
+
+// Type-safe event emitter
+class TypedEventEmitter&lt;Events extends EventMap&gt; {
+  private listeners: {
+    [K in keyof Events]?: Array&lt;(payload: Events[K]) =&gt; void&gt;;
+  } = {};
+
+  // Subscribe to an event
+  on&lt;K extends keyof Events&gt;(
+    event: K,
+    listener: (payload: Events[K]) =&gt; void
+  ): () =&gt; void {
+    if (!this.listeners[event]) {
+      this.listeners[event] = [];
+    }
+    this.listeners[event]!.push(listener);
+
+    // Return unsubscribe function
+    return () =&gt; this.off(event, listener);
+  }
+
+  // Unsubscribe from an event
+  off&lt;K extends keyof Events&gt;(
+    event: K,
+    listener: (payload: Events[K]) =&gt; void
+  ): void {
+    const listeners = this.listeners[event];
+    if (!listeners) return;
+
+    const index = listeners.indexOf(listener);
+    if (index &gt; -1) {
+      listeners.splice(index, 1);
+    }
+  }
+
+  // Emit an event
+  emit&lt;K extends keyof Events&gt;(event: K, payload: Events[K]): void {
+    const listeners = this.listeners[event];
+    if (!listeners) return;
+
+    listeners.forEach(listener =&gt; listener(payload));
+  }
+
+  // Subscribe once
+  once&lt;K extends keyof Events&gt;(
+    event: K,
+    listener: (payload: Events[K]) =&gt; void
+  ): void {
+    const onceWrapper = (payload: Events[K]) =&gt; {
+      listener(payload);
+      this.off(event, onceWrapper);
+    };
+    this.on(event, onceWrapper);
+  }
+}
+
+// Define your app's events
+interface AppEvents {
+  'user:login': { userId: string; timestamp: Date };
+  'user:logout': { userId: string };
+  'product:added': { productId: string; name: string; price: number };
+  'cart:updated': { items: number; total: number };
+  'order:placed': { orderId: string; amount: number };
+}
+
+// Create typed emitter
+const emitter = new TypedEventEmitter&lt;AppEvents&gt;();
+
+// Subscribe with full type safety
+emitter.on('user:login', (data) =&gt; {
+  // data is automatically typed as { userId: string; timestamp: Date }
+  console.log(`User ${data.userId} logged in at ${data.timestamp}`);
+});
+
+emitter.on('product:added', (data) =&gt; {
+  // data is typed as { productId: string; name: string; price: number }
+  console.log(`Product ${data.name} added with price $${data.price}`);
+});
+
+// Emit events with type checking
+emitter.emit('user:login', { 
+  userId: '123', 
+  timestamp: new Date() 
+}); // ✅ OK
+
+// These cause compile errors:
+// emitter.emit('user:login', { userId: 123 }); // ❌ userId must be string
+// emitter.emit('user:login', { userId: '123' }); // ❌ missing timestamp
+// emitter.emit('unknown:event', {}); // ❌ event doesn't exist
+</pre>
+                    </div>
+
+                    <h3>🎮 React Integration Example</h3>
+                    <div class="code-block">
+<pre>// Create a React hook for the event emitter
+function useEvent&lt;Events extends EventMap, K extends keyof Events&gt;(
+  emitter: TypedEventEmitter&lt;Events&gt;,
+  event: K,
+  handler: (payload: Events[K]) =&gt; void
+): void {
+  useEffect(() =&gt; {
+    const unsubscribe = emitter.on(event, handler);
+    return unsubscribe;
+  }, [emitter, event, handler]);
+}
+
+// Component that listens to events
+function NotificationDisplay() {
+  const [notifications, setNotifications] = useState&lt;string[]&gt;([]);
+
+  useEvent(emitter, 'user:login', (data) =&gt; {
+    setNotifications(prev =&gt; [
+      ...prev,
+      `User ${data.userId} logged in`
+    ]);
+  });
+
+  useEvent(emitter, 'order:placed', (data) =&gt; {
+    setNotifications(prev =&gt; [
+      ...prev,
+      `Order ${data.orderId} placed: $${data.amount}`
+    ]);
+  });
+
+  return (
+    &lt;div&gt;
+      {notifications.map((notif, i) =&gt; (
+        &lt;div key={i}&gt;{notif}&lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}
+</pre>
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>💡 Real-World Use Cases:</strong>
+                        <ul>
+                            <li>Application-wide event bus</li>
+                            <li>WebSocket message handling</li>
+                            <li>Analytics tracking</li>
+                            <li>State synchronization across components</li>
+                            <li>Plugin systems</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>🎓 Chapter Summary:</strong>
+                <p>You've mastered advanced TypeScript patterns that are essential for production applications! These patterns help you write more maintainable, type-safe code that catches errors at compile time. Practice implementing these patterns in your projects to solidify your understanding.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

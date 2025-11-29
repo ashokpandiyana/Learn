@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 20: Interview Preparation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .section {
+            margin-bottom: 50px;
+        }
+        .section h2 {
+            color: #6a11cb;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #6a11cb;
+        }
+        .section h3 {
+            color: #2575fc;
+            font-size: 1.5em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        .subsection {
+            margin-bottom: 30px;
+        }
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border-left: 4px solid #6a11cb;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .question-card {
+            background: #f8f9fa;
+            border: 2px solid #6a11cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .question-card h4 {
+            color: #6a11cb;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        .answer-section {
+            background: #e8f4f8;
+            border-left: 4px solid #2575fc;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+        .tip-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .tip-box strong {
+            color: #28a745;
+        }
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .warning-box strong {
+            color: #856404;
+        }
+        .info-box {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .info-box strong {
+            color: #0c5460;
+        }
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .challenge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .challenge-card {
+            background: #f8f9fa;
+            border: 2px solid #2575fc;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .challenge-card h4 {
+            color: #2575fc;
+            margin-bottom: 15px;
+        }
+        .difficulty {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .easy { background: #d4edda; color: #155724; }
+        .medium { background: #fff3cd; color: #856404; }
+        .hard { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Chapter 20: Interview Preparation</h1>
+            <p>Master TypeScript + React Interviews</p>
+        </div>
+        
+        <div class="content">
+            <!-- Coding Challenges -->
+            <div class="section">
+                <h2>20.1 Common Coding Challenges</h2>
+                
+                <div class="subsection">
+                    <h3>💪 Challenge 1: Implement Utility Types</h3>
+                    <p>Interviewers love asking candidates to implement built-in utility types from scratch!</p>
+                    
+                    <div class="challenge-grid">
+                        <div class="challenge-card">
+                            <span class="difficulty medium">Medium</span>
+                            <h4>Implement Pick&lt;T, K&gt;</h4>
+                            <div class="code-block">
+<pre>// Challenge: Implement Pick
+type MyPick&lt;T, K extends keyof T&gt; = {
+  [P in K]: T[P];
+};
+
+// Test
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  age: number;
+}
+
+type UserPreview = MyPick&lt;User, 'id' | 'name'&gt;;
+// Result: { id: string; name: string; }
+</pre>
+                            </div>
+                        </div>
+                        
+                        <div class="challenge-card">
+                            <span class="difficulty medium">Medium</span>
+                            <h4>Implement Omit&lt;T, K&gt;</h4>
+                            <div class="code-block">
+<pre>// Challenge: Implement Omit
+type MyOmit&lt;T, K extends keyof T&gt; = {
+  [P in Exclude&lt;keyof T, K&gt;]: T[P];
+};
+
+// Alternative using Pick
+type MyOmit2&lt;T, K extends keyof T&gt; = 
+  Pick&lt;T, Exclude&lt;keyof T, K&gt;&gt;;
+
+// Test
+type UserWithoutEmail = MyOmit&lt;User, 'email'&gt;;
+// Result: { id: string; name: string; age: number; }
+</pre>
+                            </div>
+                        </div>
+                        
+                        <div class="challenge-card">
+                            <span class="difficulty easy">Easy</span>
+                            <h4>Implement Readonly&lt;T&gt;</h4>
+                            <div class="code-block">
+<pre>// Challenge: Implement Readonly
+type MyReadonly&lt;T&gt; = {
+  readonly [P in keyof T]: T[P];
+};
+
+// Test
+type ReadonlyUser = MyReadonly&lt;User&gt;;
+// All properties are now readonly
+</pre>
+                            </div>
+                        </div>
+                        
+                        <div class="challenge-card">
+                            <span class="difficulty hard">Hard</span>
+                            <h4>Implement DeepReadonly&lt;T&gt;</h4>
+                            <div class="code-block">
+<pre>// Challenge: Make all nested properties readonly
+type DeepReadonly&lt;T&gt; = {
+  readonly [P in keyof T]: T[P] extends object
+    ? T[P] extends Function
+      ? T[P]
+      : DeepReadonly&lt;T[P]&gt;
+    : T[P];
+};
+
+// Test
+interface NestedUser {
+  name: string;
+  profile: {
+    bio: string;
+    settings: {
+      theme: string;
+    };
+  };
+}
+
+type DeepReadonlyUser = DeepReadonly&lt;NestedUser&gt;;
+// All nested properties are readonly
+</pre>
+                            </div>
+                        </div>
+                        
+                        <div class="challenge-card">
+                            <span class="difficulty hard">Hard</span>
+                            <h4>Implement ReturnType&lt;T&gt;</h4>
+                            <div class="code-block">
+<pre>// Challenge: Extract function return type
+type MyReturnType&lt;T&gt; = T extends (...args: any[]) =&gt; infer R 
+  ? R 
+  : never;
+
+// Test
+function getUser() {
+  return { id: '1', name: 'John' };
+}
+
+type User = MyReturnType&lt;typeof getUser&gt;;
+// Result: { id: string; name: string; }
+</pre>
+                            </div>
+                        </div>
+                        
+                        <div class="challenge-card">
+                            <span class="difficulty hard">Hard</span>
+                            <h4>Implement Parameters&lt;T&gt;</h4>
+                            <div class="code-block">
+<pre>// Challenge: Extract function parameters as tuple
+type MyParameters&lt;T&gt; = T extends (...args: infer P) =&gt; any 
+  ? P 
+  : never;
+
+// Test
+function createUser(name: string, age: number) {
+  return { name, age };
+}
+
+type Params = MyParameters&lt;typeof createUser&gt;;
+// Result: [name: string, age: number]
+</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>🎨 Challenge 2: Type-Safe Event Emitter</h3>
+                    <div class="question-card">
+                        <h4>Build a type-safe event emitter from scratch</h4>
+                        <div class="code-block">
+<pre>type EventMap = Record&lt;string, any&gt;;
+
+class TypedEventEmitter&lt;Events extends EventMap&gt; {
+  private listeners: Partial&lt;{
+    [K in keyof Events]: Array&lt;(data: Events[K]) =&gt; void&gt;;
+  }&gt; = {};
+
+  on&lt;K extends keyof Events&gt;(
+    event: K,
+    callback: (data: Events[K]) =&gt; void
+  ): () =&gt; void {
+    if (!this.listeners[event]) {
+      this.listeners[event] = [];
+    }
+    this.listeners[event]!.push(callback);
+
+    // Return unsubscribe function
+    return () =&gt; this.off(event, callback);
+  }
+
+  off&lt;K extends keyof Events&gt;(
+    event: K,
+    callback: (data: Events[K]) =&gt; void
+  ): void {
+    const cbs = this.listeners[event];
+    if (!cbs) return;
+    
+    const index = cbs.indexOf(callback);
+    if (index !== -1) {
+      cbs.splice(index, 1);
+    }
+  }
+
+  emit&lt;K extends keyof Events&gt;(event: K, data: Events[K]): void {
+    const cbs = this.listeners[event];
+    if (!cbs) return;
+    
+    cbs.forEach(cb =&gt; cb(data));
+  }
+}
+
+// Usage
+interface AppEvents {
+  login: { userId: string };
+  logout: { userId: string };
+  message: { from: string; text: string };
+}
+
+const emitter = new TypedEventEmitter&lt;AppEvents&gt;();
+
+emitter.on('login', (data) =&gt; {
+  console.log(data.userId); // ✅ Fully typed!
+});
+
+emitter.emit('login', { userId: '123' }); // ✅ Type-safe!
+// emitter.emit('login', { id: '123' }); // ❌ Error: wrong type!
+</pre>
+                        </div>
+                    </div>
+
+                    <h3>📊 Challenge 3: Generic Table Component</h3>
+                    <div class="question-card">
+                        <h4>Create a fully type-safe, generic table component</h4>
+                        <div class="code-block">
+<pre>interface Column&lt;T&gt; {
+  key: keyof T | string;
+  title: string;
+  render?: (value: any, item: T) => React.ReactNode;
+  sortable?: boolean;
+  width?: string;
+}
+
+interface TableProps&lt;T extends Record&lt;string, any&gt;&gt; {
+  data: T[];
+  columns: Column&lt;T&gt;[];
+  keyExtractor: (item: T) =&gt; string;
+  onRowClick?: (item: T) =&gt; void;
+}
+
+function Table&lt;T extends Record&lt;string, any&gt;&gt;({
+  data,
+  columns,
+  keyExtractor,
+  onRowClick,
+}: TableProps&lt;T&gt;) {
+  const getCellValue = (item: T, column: Column&lt;T&gt;) =&gt; {
+    if (column.render) {
+      const value = typeof column.key === 'string' 
+        ? item[column.key] 
+        : undefined;
+      return column.render(value, item);
+    }
+    return item[column.key as keyof T];
+  };
+
+  return (
+    &lt;table&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;
+          {columns.map((col, i) =&gt; (
+            &lt;th key={i} style={{ width: col.width }}&gt;
+              {col.title}
+            &lt;/th&gt;
+          ))}
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        {data.map((item) =&gt; (
+          &lt;tr
+            key={keyExtractor(item)}
+            onClick={() =&gt; onRowClick?.(item)}
+            style={{ cursor: onRowClick ? 'pointer' : 'default' }}
+          &gt;
+            {columns.map((col, i) =&gt; (
+              &lt;td key={i}&gt;{getCellValue(item, col)}&lt;/td&gt;
+            ))}
+          &lt;/tr&gt;
+        ))}
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  );
+}
+
+// Usage
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  age: number;
+}
+
+function UserTable() {
+  const users: User[] = [
+    { id: '1', name: 'John', email: 'john@example.com', age: 30 },
+    { id: '2', name: 'Jane', email: 'jane@example.com', age: 25 },
+  ];
+
+  return (
+    &lt;Table
+      data={users}
+      keyExtractor={(user) =&gt; user.id}
+      columns={[
+        { key: 'name', title: 'Name' },
+        { key: 'email', title: 'Email' },
+        { 
+          key: 'age', 
+          title: 'Age',
+          render: (value) =&gt; `${value} years old`
+        },
+      ]}
+      onRowClick={(user) =&gt; console.log(user)}
+    /&gt;
+  );
+}
+</pre>
+                        </div>
+                    </div>
+
+                    <h3>🎭 Challenge 4: Polymorphic Button Component</h3>
+                    <div class="question-card">
+                        <h4>Implement a polymorphic button that can render as any element</h4>
+                        <div class="code-block">
+<pre>type AsProp&lt;C extends React.ElementType&gt; = {
+  as?: C;
+};
+
+type PropsToOmit&lt;C extends React.ElementType, P&gt; = 
+  keyof (AsProp&lt;C&gt; & P);
+
+type PolymorphicComponentProp&lt;
+  C extends React.ElementType,
+  Props = {}
+&gt; = React.PropsWithChildren&lt;Props & AsProp&lt;C&gt;&gt; &
+  Omit&lt;React.ComponentPropsWithoutRef&lt;C&gt;, PropsToOmit&lt;C, Props&gt;&gt;;
+
+type PolymorphicRef&lt;C extends React.ElementType&gt; = 
+  React.ComponentPropsWithRef&lt;C&gt;['ref'];
+
+type PolymorphicComponentPropWithRef&lt;
+  C extends React.ElementType,
+  Props = {}
+&gt; = PolymorphicComponentProp&lt;C, Props&gt; & { ref?: PolymorphicRef&lt;C&gt; };
+
+interface ButtonProps {
+  variant?: 'primary' | 'secondary';
+  size?: 'sm' | 'md' | 'lg';
+}
+
+type ButtonComponent = &lt;C extends React.ElementType = 'button'&gt;(
+  props: PolymorphicComponentPropWithRef&lt;C, ButtonProps&gt;
+) =&gt; React.ReactElement | null;
+
+const Button: ButtonComponent = React.forwardRef(
+  &lt;C extends React.ElementType = 'button'&gt;(
+    {
+      as,
+      variant = 'primary',
+      size = 'md',
+      children,
+      ...props
+    }: PolymorphicComponentPropWithRef&lt;C, ButtonProps&gt;,
+    ref?: PolymorphicRef&lt;C&gt;
+  ) =&gt; {
+    const Component = as || 'button';
+    
+    return (
+      &lt;Component
+        ref={ref}
+        className={`btn btn-${variant} btn-${size}`}
+        {...props}
+      &gt;
+        {children}
+      &lt;/Component&gt;
+    );
+  }
+);
+
+// Usage - Fully type-safe!
+&lt;Button&gt;Click me&lt;/Button&gt;  {/* renders button */}
+&lt;Button as="a" href="/home"&gt;Link&lt;/Button&gt;  {/* renders anchor */}
+&lt;Button as="div" onClick={() =&gt; {}}&gt;Div&lt;/Button&gt;  {/* renders div */}
+</pre>
+                        </div>
+                    </div>
+
+                    <h3>🪝 Challenge 5: Type-Safe Form Hook</h3>
+                    <div class="question-card">
+                        <h4>Create a type-safe form management hook</h4>
+                        <div class="code-block">
+<pre>type FormValues = Record&lt;string, any&gt;;
+
+type ValidationRule&lt;T&gt; = (value: T) =&gt; string | undefined;
+
+type ValidationRules&lt;T extends FormValues&gt; = {
+  [K in keyof T]?: ValidationRule&lt;T[K]&gt;[];
+};
+
+interface UseFormReturn&lt;T extends FormValues&gt; {
+  values: T;
+  errors: Partial&lt;Record&lt;keyof T, string&gt;&gt;;
+  touched: Partial&lt;Record&lt;keyof T, boolean&gt;&gt;;
+  handleChange: (name: keyof T, value: any) =&gt; void;
+  handleBlur: (name: keyof T) =&gt; void;
+  handleSubmit: (e: React.FormEvent) =&gt; void;
+  reset: () =&gt; void;
+}
+
+function useForm&lt;T extends FormValues&gt;(
+  initialValues: T,
+  validationRules?: ValidationRules&lt;T&gt;,
+  onSubmit?: (values: T) =&gt; void | Promise&lt;void&gt;
+): UseFormReturn&lt;T&gt; {
+  const [values, setValues] = useState&lt;T&gt;(initialValues);
+  const [errors, setErrors] = useState&lt;Partial&lt;Record&lt;keyof T, string&gt;&gt;&gt;({});
+  const [touched, setTouched] = useState&lt;Partial&lt;Record&lt;keyof T, boolean&gt;&gt;&gt;({});
+
+  const validate = (name: keyof T, value: any): string | undefined =&gt; {
+    const rules = validationRules?.[name];
+    if (!rules) return undefined;
+
+    for (const rule of rules) {
+      const error = rule(value);
+      if (error) return error;
+    }
+    return undefined;
+  };
+
+  const handleChange = (name: keyof T, value: any) =&gt; {
+    setValues(prev =&gt; ({ ...prev, [name]: value }));
+    
+    if (touched[name]) {
+      const error = validate(name, value);
+      setErrors(prev =&gt; ({ ...prev, [name]: error }));
+    }
+  };
+
+  const handleBlur = (name: keyof T) =&gt; {
+    setTouched(prev =&gt; ({ ...prev, [name]: true }));
+    const error = validate(name, values[name]);
+    setErrors(prev =&gt; ({ ...prev, [name]: error }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) =&gt; {
+    e.preventDefault();
+    
+    // Validate all fields
+    const newErrors: Partial&lt;Record&lt;keyof T, string&gt;&gt; = {};
+    let hasErrors = false;
+
+    for (const key in values) {
+      const error = validate(key as keyof T, values[key]);
+      if (error) {
+        newErrors[key as keyof T] = error;
+        hasErrors = true;
+      }
+    }
+
+    setErrors(newErrors);
+
+    if (!hasErrors && onSubmit) {
+      await onSubmit(values);
+    }
+  };
+
+  const reset = () =&gt; {
+    setValues(initialValues);
+    setErrors({});
+    setTouched({});
+  };
+
+  return {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+    reset,
+  };
+}
+
+// Usage
+interface LoginForm {
+  email: string;
+  password: string;
+}
+
+const required = (value: string) =&gt; 
+  value.trim() ? undefined : 'Required';
+
+const email = (value: string) =&gt;
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) 
+    ? undefined 
+    : 'Invalid email';
+
+const minLength = (min: number) =&gt; (value: string) =&gt;
+  value.length &gt;= min ? undefined : `Min ${min} characters`;
+
+function LoginForm() {
+  const form = useForm&lt;LoginForm&gt;(
+    { email: '', password: '' },
+    {
+      email: [required, email],
+      password: [required, minLength(8)],
+    },
+    async (values) =&gt; {
+      console.log('Submitting:', values);
+    }
+  );
+
+  return (
+    &lt;form onSubmit={form.handleSubmit}&gt;
+      &lt;input
+        type="email"
+        value={form.values.email}
+        onChange={(e) =&gt; form.handleChange('email', e.target.value)}
+        onBlur={() =&gt; form.handleBlur('email')}
+      /&gt;
+      {form.errors.email && &lt;span&gt;{form.errors.email}&lt;/span&gt;}
+
+      &lt;input
+        type="password"
+        value={form.values.password}
+        onChange={(e) =&gt; form.handleChange('password', e.target.value)}
+        onBlur={() =&gt; form.handleBlur('password')}
+      /&gt;
+      {form.errors.password && &lt;span&gt;{form.errors.password}&lt;/span&gt;}
+
+      &lt;button type="submit"&gt;Login&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conceptual Questions -->
+            <div class="section">
+                <h2>20.2 Conceptual Questions</h2>
+                
+                <div class="question-card">
+                    <h4>Q1: What's the difference between 'interface' and 'type'?</h4>
+                    <div class="answer-section">
+                        <p><strong>Answer:</strong></p>
+                        <div class="code-block">
+<pre>// Interfaces can be extended and merged
+interface User {
+  name: string;
+}
+
+interface User {  // Declaration merging ✅
+  email: string;
+}
+
+interface Admin extends User {  // Extending ✅
+  role: string;
+}
+
+// Type aliases can use unions, intersections, mapped types
+type ID = string | number;  // Unions ✅
+
+type Point = { x: number; y: number };
+type Point3D = Point & { z: number };  // Intersection ✅
+
+type ReadonlyPoint = {  // Mapped types ✅
+  readonly [K in keyof Point]: Point[K];
+};
+
+// When to use:
+// - Use interface for object shapes, especially public APIs
+// - Use type for unions, tuples, primitives, complex types
+</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <h4>Q2: Explain type narrowing techniques</h4>
+                    <div class="answer-section">
+                        <div class="code-block">
+<pre>// 1. typeof narrowing
+function process(value: string | number) {
+  if (typeof value === 'string') {
+    return value.toUpperCase();  // string
+  }
+  return value.toFixed(2);  // number
+}
+
+// 2. instanceof narrowing
+function handle(error: Error | string) {
+  if (error instanceof Error) {
+    console.log(error.message);  // Error
+  } else {
+    console.log(error);  // string
+  }
+}
+
+// 3. in operator narrowing
+type Dog = { bark: () =&gt; void };
+type Cat = { meow: () =&gt; void };
+
+function speak(animal: Dog | Cat) {
+  if ('bark' in animal) {
+    animal.bark();  // Dog
+  } else {
+    animal.meow();  // Cat
+  }
+}
+
+// 4. Discriminated unions
+type Result =
+  | { success: true; data: string }
+  | { success: false; error: Error };
+
+function handle(result: Result) {
+  if (result.success) {
+    console.log(result.data);  // data available
+  } else {
+    console.log(result.error);  // error available
+  }
+}
+
+// 5. Custom type guards
+function isString(x: unknown): x is string {
+  return typeof x === 'string';
+}
+
+function process(value: unknown) {
+  if (isString(value)) {
+    return value.toUpperCase();  // string
+  }
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <h4>Q3: When to use 'unknown' vs 'any'?</h4>
+                    <div class="answer-section">
+                        <div class="code-block">
+<pre>// 'any' - No type checking (avoid!)
+function processAny(value: any) {
+  value.foo.bar.baz();  // ❌ No error, but might crash at runtime
+}
+
+// 'unknown' - Type-safe (preferred!)
+function processUnknown(value: unknown) {
+  // value.foo.bar.baz();  // ❌ Error: must check type first
+  
+  if (typeof value === 'object' && value !== null) {
+    // Now we can work with it safely
+  }
+}
+
+// Use unknown when:
+// - Parsing JSON
+// - Handling external API responses
+// - Dealing with third-party data
+// - Need type safety with flexibility
+
+const data: unknown = JSON.parse(response);
+
+if (isUser(data)) {
+  // Now data is User type
+  console.log(data.name);
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <h4>Q4: Explain discriminated unions and their benefits</h4>
+                    <div class="answer-section">
+                        <div class="code-block">
+<pre>// Discriminated unions use a common property to distinguish types
+type Action =
+  | { type: 'ADD'; payload: number }
+  | { type: 'SUBTRACT'; payload: number }
+  | { type: 'MULTIPLY'; payload: number }
+  | { type: 'RESET' };
+
+function reducer(state: number, action: Action): number {
+  switch (action.type) {
+    case 'ADD':
+      return state + action.payload;  // payload available
+    case 'SUBTRACT':
+      return state - action.payload;  // payload available
+    case 'MULTIPLY':
+      return state * action.payload;  // payload available
+    case 'RESET':
+      return 0;  // no payload here
+    default:
+      return assertNever(action);  // Exhaustiveness check
+  }
+}
+
+// Benefits:
+// 1. Exhaustive type checking
+// 2. No runtime type checking needed
+// 3. Better autocomplete
+// 4. Safer refactoring
+</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <h4>Q5: How does structural typing work in TypeScript?</h4>
+                    <div class="answer-section">
+                        <div class="code-block">
+<pre>// TypeScript uses structural typing (duck typing)
+// If it walks like a duck and quacks like a duck...
+
+interface Point {
+  x: number;
+  y: number;
+}
+
+class Point2D {
+  constructor(public x: number, public y: number) {}
+}
+
+const point: Point = new Point2D(1, 2);  // ✅ Compatible!
+
+// Additional properties are OK
+const point3D = { x: 1, y: 2, z: 3 };
+const p: Point = point3D;  // ✅ Has x and y
+
+// This differs from nominal typing (Java, C++)
+// where types must be explicitly declared compatible
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- React + TypeScript Questions -->
+            <div class="section">
+                <h2>20.3 React + TypeScript Questions</h2>
+                
+                <div class="question-card">
+                    <h4>Q1: React.FC pros and cons</h4>
+                    <div class="answer-section">
+                        <div class="code-block">
+<pre>// React.FC (Functional Component) type
+const Component: React.FC&lt;Props&gt; = ({ children }) =&gt; {
+  return &lt;div&gt;{children}&lt;/div&gt;;
+};
+
+// Cons:
+// 1. Implicitly types children (might not want that)
+// 2. No support for generic components
+// 3. Historically had issues with defaultProps
+// 4. More verbose
+
+// Preferred approach:
+interface Props {
+  name: string;
+  children?: React.ReactNode;  // Explicit!
+}
+
+function Component({ name, children }: Props) {
+  return &lt;div&gt;{name}{children}&lt;/div&gt;;
+}
+
+// This is more flexible and explicit
+</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <h4>Q2: How to type custom hooks?</h4>
+                    <div class="answer-section">
+                        <div class="code-block">
+<pre>// Simple hook with explicit return type
+function useCounter(initial: number): [number, () =&gt; void, () =&gt; void] {
+  const [count, setCount] = useState(initial);
+  
+  const increment = () =&gt; setCount(c =&gt; c + 1);
+  const decrement = () =&gt; setCount(c =&gt; c - 1);
+  
+  return [count, increment, decrement];
+}
+
+// Generic hook
+function useFetch&lt;T&gt;(url: string) {
+  const [data, setData] = useState&lt;T | null&gt;(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState&lt;Error | null&gt;(null);
+
+  useEffect(() =&gt; {
+    fetch(url)
+      .then(res =&gt; res.json())
+      .then(data =&gt; setData(data))
+      .catch(err =&gt; setError(err))
+      .finally(() =&gt; setLoading(false));
+  }, [url]);
+
+  return { data, loading, error };
+}
+
+// Usage
+const { data } = useFetch&lt;User&gt;('/api/user');
+// data is User | null
+</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <h4>Q3: Context with TypeScript best practices</h4>
+                    <div class="answer-section">
+                        <div class="code-block">
+<pre>// Define context type
+interface AuthContextType {
+  user: User | null;
+  login: (email: string, password: string) =&gt; Promise&lt;void&gt;;
+  logout: () =&gt; void;
+  loading: boolean;
+}
+
+// Create context with undefined (forces provider check)
+const AuthContext = createContext&lt;AuthContextType | undefined&gt;(undefined);
+
+// Custom hook with type guard
+function useAuth(): AuthContextType {
+  const context = useContext(AuthContext);
+  
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  
+  return context;
+}
+
+// Provider component
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState&lt;User | null&gt;(null);
+  const [loading, setLoading] = useState(true);
+
+  const login = async (email: string, password: string) =&gt; {
+    const user = await api.login(email, password);
+    setUser(user);
+  };
+
+  const logout = () =&gt; setUser(null);
+
+  return (
+    &lt;AuthContext.Provider value={{ user, login, logout, loading }}&gt;
+      {children}
+    &lt;/AuthContext.Provider&gt;
+  );
+}
+
+// Usage - fully type-safe!
+function Profile() {
+  const { user, logout } = useAuth();
+  
+  return &lt;div&gt;{user?.name}&lt;/div&gt;;
+}
+</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <h4>Q4: Different ref patterns in TypeScript</h4>
+                    <div class="answer-section">
+                        <div class="code-block">
+<pre>// 1. DOM ref (readonly)
+const inputRef = useRef&lt;HTMLInputElement&gt;(null);
+
+useEffect(() =&gt; {
+  inputRef.current?.focus();  // Must use optional chaining
+}, []);
+
+&lt;input ref={inputRef} /&gt;
+
+// 2. Mutable ref
+const countRef = useRef&lt;number&gt;(0);
+countRef.current = 5;  // ✅ Mutable
+
+// 3. Mutable ref with possible null
+const timerRef = useRef&lt;NodeJS.Timeout | null&gt;(null);
+
+useEffect(() =&gt; {
+  timerRef.current = setInterval(() =&gt; {}, 1000);
+  
+  return () =&gt; {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+  };
+}, []);
+
+// Key difference:
+// useRef&lt;T&gt;(null)       → RefObject&lt;T&gt; (readonly .current)
+// useRef&lt;T | null&gt;(null) → MutableRefObject&lt;T | null&gt;
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Production Scenarios -->
+            <div class="section">
+                <h2>20.4 Production Scenarios</h2>
+                
+                <div class="question-card">
+                    <h4>Q1: How to share types between frontend and backend?</h4>
+                    <div class="answer-section">
+                        <p><strong>Several approaches:</strong></p>
+                        <div class="code-block">
+<pre>// 1. Monorepo with shared package
+// Structure:
+// /packages
+//   /shared (types package)
+//   /backend
+//   /frontend
+
+// packages/shared/src/types.ts
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+// Both import from @myapp/shared
+
+// 2. Generate types from OpenAPI spec
+// Use openapi-typescript or similar
+npm install openapi-typescript
+
+// Generate:
+openapi-typescript ./openapi.yaml --output ./src/types/api.ts
+
+// 3. Use GraphQL CodeGen
+// Generates types from GraphQL schema
+
+// 4. tRPC (end-to-end typesafety)
+// Backend defines API, frontend gets types automatically
+</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <h4>Q2: Strategies for migrating JavaScript to TypeScript</h4>
+                    <div class="answer-section">
+                        <p><strong>Step-by-step migration:</strong></p>
+                        <ol>
+                            <li><strong>Set up TypeScript incrementally:</strong>
+                                <div class="code-block">
+<pre>// tsconfig.json
+{
+  "compilerOptions": {
+    "allowJs": true,        // Allow .js files
+    "checkJs": false,       // Don't check .js files initially
+    "strict": false         // Enable gradually
+  }
+}
+</pre>
+                                </div>
+                            </li>
+                            <li><strong>Rename files gradually:</strong> .js → .ts, .jsx → .tsx</li>
+                            <li><strong>Start with leaf nodes:</strong> Migrate files with no dependencies first</li>
+                            <li><strong>Add types incrementally:</strong>
+                                <div class="code-block">
+<pre>// Step 1: Any types
+function process(data: any) { }
+
+// Step 2: Basic types
+function process(data: { id: string }) { }
+
+// Step 3: Full types
+interface Data {
+  id: string;
+  items: Item[];
+}
+function process(data: Data) { }
+</pre>
+                                </div>
+                            </li>
+                            <li><strong>Enable strict mode gradually:</strong>
+                                <div class="code-block">
+<pre>{
+  "compilerOptions": {
+    "noImplicitAny": true,          // Step 1
+    "strictNullChecks": true,       // Step 2
+    "strict": true                  // Step 3
+  }
+}
+</pre>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <h4>Q3: Handling third-party libraries without types</h4>
+                    <div class="answer-section">
+                        <div class="code-block">
+<pre>// 1. Check DefinitelyTyped
+npm install @types/library-name
+
+// 2. If no types exist, create declaration file
+// src/types/library-name.d.ts
+declare module 'library-name' {
+  export function doSomething(param: string): void;
+  
+  export interface Config {
+    option: boolean;
+  }
+  
+  // For default exports
+  export default function main(): void;
+}
+
+// 3. Quick workaround (not recommended)
+declare module 'library-name';  // Any types
+
+// 4. Contribute types to DefinitelyTyped!
+// Help the community 🎉
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <strong>💡 Interview Success Tips:</strong>
+                <ul>
+                    <li>Practice implementing utility types from scratch</li>
+                    <li>Understand the "why" behind TypeScript features</li>
+                    <li>Be able to explain trade-offs (interface vs type, any vs unknown)</li>
+                    <li>Know common React patterns with TypeScript</li>
+                    <li>Practice coding challenges on paper/whiteboard</li>
+                    <li>Explain your thought process while coding</li>
+                    <li>Ask clarifying questions before starting</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <strong>🎓 Final Thoughts:</strong>
+                <p>TypeScript interviews test both theoretical knowledge and practical skills. Focus on understanding core concepts deeply rather than memorizing syntax. Practice building real components and utilities. Most importantly, be able to explain WHY TypeScript helps catch bugs and improve developer experience. Good luck! 🚀</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

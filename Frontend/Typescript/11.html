@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 11: Routing with TypeScript</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+        
+        .subsection {
+            margin-bottom: 30px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        
+        .tip, .warning, .info {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 5px solid;
+        }
+        
+        .tip {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+        }
+        
+        .tip::before, .warning::before, .info::before {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .tip::before {
+            content: "💡 Pro Tip:";
+            color: #28a745;
+        }
+        
+        .warning::before {
+            content: "⚠️ Important:";
+            color: #ffc107;
+        }
+        
+        .info::before {
+            content: "ℹ️ Note:";
+            color: #17a2b8;
+        }
+        
+        .diagram {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .flow-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .flow-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            min-width: 150px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .flow-arrow {
+            font-size: 2em;
+            color: #667eea;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📍 Chapter 11: Routing with TypeScript</h1>
+            <p>Mastering Type-Safe Navigation in React Applications</p>
+        </div>
+        
+        <div class="content">
+            <!-- Section 11.1 -->
+            <div class="section">
+                <h2>11.1 React Router v6+ with TypeScript</h2>
+                
+                <p>React Router v6+ introduces a more modern, hook-based approach to routing. When combined with TypeScript, we can achieve type-safe navigation throughout our application.</p>
+                
+                <div class="subsection">
+                    <h3>Understanding Route Parameters</h3>
+                    
+                    <p>Route parameters are dynamic segments in your URL path. TypeScript helps us ensure we're accessing the correct parameters with the right types.</p>
+                    
+                    <div class="diagram">
+                        <h4>URL Structure Breakdown</h4>
+                        <div style="font-family: monospace; font-size: 1.2em; margin: 20px 0;">
+                            <span style="color: #28a745;">/users/</span><span style="color: #dc3545; font-weight: bold;">123</span><span style="color: #28a745;">/posts/</span><span style="color: #dc3545; font-weight: bold;">456</span><span style="color: #17a2b8;">?tab=comments&sort=date</span>
+                        </div>
+                        <div style="text-align: left; max-width: 600px; margin: 20px auto;">
+                            <p>🟢 <strong>Base Path:</strong> /users/ and /posts/</p>
+                            <p>🔴 <strong>Params:</strong> userId=123, postId=456</p>
+                            <p>🔵 <strong>Search Params:</strong> tab=comments, sort=date</p>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block">
+<pre>
+// ❌ Unsafe approach - no type checking
+import { useParams } from 'react-router-dom';
+
+function UserProfile() {
+  const params = useParams(); // params is Record&lt;string, string | undefined&gt;
+  const userId = params.userId; // Could be undefined, no autocomplete
+  
+  return &lt;div&gt;User ID: {userId}&lt;/div&gt;;
+}
+
+// ✅ Type-safe approach
+interface UserParams {
+  userId: string;
+}
+
+function UserProfile() {
+  const { userId } = useParams&lt;UserParams&gt;(); 
+  // TypeScript knows userId exists but could be undefined
+  
+  if (!userId) {
+    return &lt;div&gt;Invalid user ID&lt;/div&gt;;
+  }
+  
+  return &lt;div&gt;User ID: {userId}&lt;/div&gt;;
+}
+
+// ✅ Even better - type assertion for strict mode
+function UserProfileStrict() {
+  const params = useParams&lt;UserParams&gt;();
+  const userId = params.userId as string; // Assert it exists based on route config
+  
+  return &lt;div&gt;User ID: {userId}&lt;/div&gt;;
+}
+</pre>
+                    </div>
+                    
+                    <div class="warning">
+                        <strong>Type Safety Limitation:</strong> React Router v6's useParams returns all properties as potentially undefined. You must handle this with type guards or assertions based on your route configuration.
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Typed Search Parameters</h3>
+                    
+                    <p>Search parameters (query strings) require more careful typing since they're always strings and can be missing entirely.</p>
+                    
+                    <div class="code-block">
+<pre>
+import { useSearchParams } from 'react-router-dom';
+
+// Define expected search params
+interface SearchParamsType {
+  tab?: 'profile' | 'settings' | 'posts';
+  page?: string;
+  sort?: 'asc' | 'desc';
+  search?: string;
+}
+
+function Dashboard() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // ✅ Type-safe getter with default values
+  const getSearchParam = &lt;K extends keyof SearchParamsType&gt;(
+    key: K,
+    defaultValue: SearchParamsType[K]
+  ): SearchParamsType[K] =&gt; {
+    const value = searchParams.get(key);
+    return (value as SearchParamsType[K]) || defaultValue;
+  };
+  
+  const currentTab = getSearchParam('tab', 'profile');
+  const currentPage = parseInt(getSearchParam('page', '1') || '1');
+  const sortOrder = getSearchParam('sort', 'asc');
+  
+  // ✅ Type-safe setter
+  const updateTab = (newTab: SearchParamsType['tab']) =&gt; {
+    if (newTab) {
+      setSearchParams(params =&gt; {
+        params.set('tab', newTab);
+        return params;
+      });
+    }
+  };
+  
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Current Tab: {currentTab}&lt;/h1&gt;
+      &lt;button onClick={() =&gt; updateTab('settings')}&gt;
+        Go to Settings
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</pre>
+                    </div>
+                    
+                    <div class="tip">
+                        Create a custom hook for search params to centralize your type-safe logic and reuse it across components.
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Typed Navigation</h3>
+                    
+                    <p>The <span class="highlight">useNavigate</span> hook provides programmatic navigation. We can make it type-safe by creating wrapper functions.</p>
+                    
+                    <div class="code-block">
+<pre>
+import { useNavigate, NavigateOptions } from 'react-router-dom';
+
+// Define all routes in your application
+const ROUTES = {
+  HOME: '/',
+  USER_PROFILE: (userId: string) =&gt; `/users/${userId}`,
+  USER_POSTS: (userId: string, postId?: string) =&gt; 
+    postId ? `/users/${userId}/posts/${postId}` : `/users/${userId}/posts`,
+  SETTINGS: '/settings',
+  LOGIN: '/login',
+} as const;
+
+// Create a type-safe navigation hook
+function useTypedNavigate() {
+  const navigate = useNavigate();
+  
+  return {
+    // Navigate to specific routes with type safety
+    toHome: (options?: NavigateOptions) =&gt; 
+      navigate(ROUTES.HOME, options),
+    
+    toUserProfile: (userId: string, options?: NavigateOptions) =&gt; 
+      navigate(ROUTES.USER_PROFILE(userId), options),
+    
+    toUserPost: (userId: string, postId: string, options?: NavigateOptions) =&gt; 
+      navigate(ROUTES.USER_POSTS(userId, postId), options),
+    
+    toSettings: (options?: NavigateOptions) =&gt; 
+      navigate(ROUTES.SETTINGS, options),
+    
+    // Generic navigate for flexibility
+    to: (path: string, options?: NavigateOptions) =&gt; 
+      navigate(path, options),
+    
+    // Navigation helpers
+    back: () =&gt; navigate(-1),
+    forward: () =&gt; navigate(1),
+  };
+}
+
+// Usage in component
+function UserCard({ userId }: { userId: string }) {
+  const nav = useTypedNavigate();
+  
+  const handleViewProfile = () =&gt; {
+    nav.toUserProfile(userId); // ✅ Type-safe, autocomplete available
+  };
+  
+  const handleViewPost = (postId: string) =&gt; {
+    nav.toUserPost(userId, postId, { replace: true });
+  };
+  
+  return (
+    &lt;div&gt;
+      &lt;button onClick={handleViewProfile}&gt;View Profile&lt;/button&gt;
+      &lt;button onClick={() =&gt; handleViewPost('123')}&gt;View Post&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</pre>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Loader and Action Typing (React Router 6.4+)</h3>
+                    
+                    <p>React Router 6.4+ introduced data loading and mutation features. These need proper typing for type safety.</p>
+                    
+                    <div class="code-block">
+<pre>
+import { 
+  LoaderFunctionArgs, 
+  ActionFunctionArgs,
+  useLoaderData,
+  useActionData,
+  json 
+} from 'react-router-dom';
+
+// Define data types
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface LoaderData {
+  user: User;
+  posts: Post[];
+}
+
+// ✅ Typed loader function
+async function userLoader({ params }: LoaderFunctionArgs): Promise&lt;LoaderData&gt; {
+  const userId = params.userId;
+  
+  if (!userId) {
+    throw json({ message: 'User ID is required' }, { status: 400 });
+  }
+  
+  const [user, posts] = await Promise.all([
+    fetchUser(userId),
+    fetchUserPosts(userId),
+  ]);
+  
+  return { user, posts };
+}
+
+// ✅ Typed action function
+interface ActionData {
+  success: boolean;
+  message: string;
+  updatedUser?: User;
+}
+
+async function userAction({ request, params }: ActionFunctionArgs): Promise&lt;ActionData&gt; {
+  const userId = params.userId;
+  const formData = await request.formData();
+  
+  const name = formData.get('name') as string;
+  const email = formData.get('email') as string;
+  
+  try {
+    const updatedUser = await updateUser(userId!, { name, email });
+    return { success: true, message: 'User updated', updatedUser };
+  } catch (error) {
+    return { success: false, message: 'Update failed' };
+  }
+}
+
+// ✅ Component using typed loader/action data
+function UserProfile() {
+  const { user, posts } = useLoaderData() as LoaderData;
+  const actionData = useActionData() as ActionData | undefined;
+  
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;{user.name}&lt;/h1&gt;
+      &lt;p&gt;{user.email}&lt;/p&gt;
+      
+      {actionData?.success && (
+        &lt;div className="success"&gt;{actionData.message}&lt;/div&gt;
+      )}
+      
+      &lt;form method="post"&gt;
+        &lt;input name="name" defaultValue={user.name} /&gt;
+        &lt;input name="email" defaultValue={user.email} /&gt;
+        &lt;button type="submit"&gt;Update&lt;/button&gt;
+      &lt;/form&gt;
+      
+      &lt;h2&gt;Posts&lt;/h2&gt;
+      &lt;ul&gt;
+        {posts.map(post =&gt; (
+          &lt;li key={post.id}&gt;{post.title}&lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Route configuration
+const router = createBrowserRouter([
+  {
+    path: '/users/:userId',
+    element: &lt;UserProfile /&gt;,
+    loader: userLoader,
+    action: userAction,
+  },
+]);
+</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section 11.2 -->
+            <div class="section">
+                <h2>11.2 Type-Safe Routing Patterns</h2>
+                
+                <div class="subsection">
+                    <h3>Centralized Route Definitions</h3>
+                    
+                    <p>Creating a single source of truth for all routes prevents typos and enables refactoring.</p>
+                    
+                    <div class="code-block">
+<pre>
+// routes.ts - Central route configuration
+export const ROUTES = {
+  // Static routes
+  HOME: '/',
+  LOGIN: '/login',
+  SIGNUP: '/signup',
+  DASHBOARD: '/dashboard',
+  
+  // Dynamic routes with type-safe builders
+  USER: {
+    PROFILE: (userId: string) =&gt; `/users/${userId}`,
+    POSTS: (userId: string) =&gt; `/users/${userId}/posts`,
+    POST_DETAIL: (userId: string, postId: string) =&gt; 
+      `/users/${userId}/posts/${postId}`,
+    EDIT: (userId: string) =&gt; `/users/${userId}/edit`,
+  },
+  
+  SETTINGS: {
+    MAIN: '/settings',
+    PROFILE: '/settings/profile',
+    SECURITY: '/settings/security',
+    NOTIFICATIONS: '/settings/notifications',
+  },
+  
+  ADMIN: {
+    DASHBOARD: '/admin',
+    USERS: '/admin/users',
+    USER_DETAIL: (userId: string) =&gt; `/admin/users/${userId}`,
+  },
+} as const;
+
+// Type for all valid route paths
+export type RoutePath = 
+  | typeof ROUTES[keyof typeof ROUTES]
+  | ReturnType&lt;typeof ROUTES.USER[keyof typeof ROUTES.USER]&gt;
+  | ReturnType&lt;typeof ROUTES.ADMIN.USER_DETAIL&gt;
+  | typeof ROUTES.SETTINGS[keyof typeof ROUTES.SETTINGS];
+
+// Helper to check if a path is valid
+export function isValidRoute(path: string): path is RoutePath {
+  // Implementation would check against all defined routes
+  return true; // Simplified
+}
+</pre>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Type-Safe Link Generation</h3>
+                    
+                    <div class="code-block">
+<pre>
+import { Link, LinkProps } from 'react-router-dom';
+import { ROUTES } from './routes';
+
+// Create type-safe Link components
+interface TypedLinkProps extends Omit&lt;LinkProps, 'to'&gt; {
+  to: RoutePath;
+}
+
+export function TypedLink({ to, ...props }: TypedLinkProps) {
+  return &lt;Link to={to} {...props} /&gt;;
+}
+
+// Specific link components for common routes
+interface UserLinkProps extends Omit&lt;LinkProps, 'to'&gt; {
+  userId: string;
+}
+
+export function UserProfileLink({ userId, children, ...props }: UserLinkProps) {
+  return (
+    &lt;Link to={ROUTES.USER.PROFILE(userId)} {...props}&gt;
+      {children || 'View Profile'}
+    &lt;/Link&gt;
+  );
+}
+
+interface UserPostLinkProps extends Omit&lt;LinkProps, 'to'&gt; {
+  userId: string;
+  postId: string;
+}
+
+export function UserPostLink({ userId, postId, children, ...props }: UserPostLinkProps) {
+  return (
+    &lt;Link to={ROUTES.USER.POST_DETAIL(userId, postId)} {...props}&gt;
+      {children || 'View Post'}
+    &lt;/Link&gt;
+  );
+}
+
+// Usage in components
+function UserCard({ user }: { user: User }) {
+  return (
+    &lt;div&gt;
+      &lt;h3&gt;{user.name}&lt;/h3&gt;
+      {/* ✅ Type-safe, can't make mistakes */}
+      &lt;UserProfileLink userId={user.id}&gt;
+        View Full Profile
+      &lt;/UserProfileLink&gt;
+      
+      {/* ✅ Generic typed link */}
+      &lt;TypedLink to={ROUTES.SETTINGS.PROFILE}&gt;
+        Settings
+      &lt;/TypedLink&gt;
+    &lt;/div&gt;
+  );
+}
+</pre>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Route Guards and Protection</h3>
+                    
+                    <p>Implementing type-safe route protection for authentication and authorization.</p>
+                    
+                    <div class="code-block">
+<pre>
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+
+// Define user roles
+type UserRole = 'admin' | 'user' | 'guest';
+
+interface User {
+  id: string;
+  name: string;
+  role: UserRole;
+}
+
+interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  hasRole: (role: UserRole) =&gt; boolean;
+}
+
+// Protected route component
+interface ProtectedRouteProps {
+  requiredRole?: UserRole;
+  redirectTo?: string;
+  children?: React.ReactNode;
+}
+
+function ProtectedRoute({ 
+  requiredRole, 
+  redirectTo = ROUTES.LOGIN,
+  children 
+}: ProtectedRouteProps) {
+  const { user, isAuthenticated, hasRole } = useAuth();
+  const location = useLocation();
+  
+  if (!isAuthenticated) {
+    // Redirect to login, preserving the attempted location
+    return &lt;Navigate to={redirectTo} state={{ from: location }} replace /&gt;;
+  }
+  
+  if (requiredRole && !hasRole(requiredRole)) {
+    // User doesn't have required role
+    return &lt;Navigate to={ROUTES.HOME} replace /&gt;;
+  }
+  
+  return children ? &lt;&gt;{children}&lt;/&gt; : &lt;Outlet /&gt;;
+}
+
+// Route configuration with protection
+const router = createBrowserRouter([
+  {
+    path: ROUTES.HOME,
+    element: &lt;HomePage /&gt;,
+  },
+  {
+    path: ROUTES.LOGIN,
+    element: &lt;LoginPage /&gt;,
+  },
+  {
+    // Protected routes
+    element: &lt;ProtectedRoute /&gt;,
+    children: [
+      {
+        path: ROUTES.DASHBOARD,
+        element: &lt;Dashboard /&gt;,
+      },
+      {
+        path: ROUTES.USER.PROFILE(':userId'),
+        element: &lt;UserProfile /&gt;,
+      },
+    ],
+  },
+  {
+    // Admin-only routes
+    element: &lt;ProtectedRoute requiredRole="admin" /&gt;,
+    children: [
+      {
+        path: ROUTES.ADMIN.DASHBOARD,
+        element: &lt;AdminDashboard /&gt;,
+      },
+      {
+        path: ROUTES.ADMIN.USERS,
+        element: &lt;UserManagement /&gt;,
+      },
+    ],
+  },
+]);
+</pre>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Complete Type-Safe Routing Example</h3>
+                    
+                    <div class="code-block">
+<pre>
+// types/routing.ts
+export interface RouteParams {
+  '/users/:userId': { userId: string };
+  '/users/:userId/posts/:postId': { userId: string; postId: string };
+  '/admin/users/:userId': { userId: string };
+}
+
+export type RouteWithParams = keyof RouteParams;
+
+// Custom hook for type-safe params
+export function useTypedParams&lt;T extends RouteWithParams&gt;(
+  route: T
+): RouteParams[T] {
+  const params = useParams();
+  return params as RouteParams[T];
+}
+
+// Usage in component
+function UserPostPage() {
+  // ✅ TypeScript knows this has userId and postId
+  const { userId, postId } = useTypedParams('/users/:userId/posts/:postId');
+  
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;User {userId}, Post {postId}&lt;/h1&gt;
+    &lt;/div&gt;
+  );
+}
+</pre>
+                    </div>
+                    
+                    <div class="tip">
+                        <strong>Best Practice:</strong> Combine centralized route definitions, typed navigation hooks, and route guards to create a bulletproof routing system that catches errors at compile time.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info">
+                <strong>Key Takeaways:</strong>
+                <ul>
+                    <li>Always type your route parameters and search parameters</li>
+                    <li>Create centralized route definitions to prevent typos</li>
+                    <li>Use custom hooks to encapsulate routing logic</li>
+                    <li>Implement type-safe navigation helpers</li>
+                    <li>Leverage TypeScript's type system for route protection</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
