@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 3: Console Panel Mastery</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+      color: #e4e4e7;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+    .container { max-width: 950px; margin: 0 auto; padding: 40px 25px; }
+    
+    header {
+      text-align: center;
+      padding: 50px 40px;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      border-radius: 24px;
+      margin-bottom: 40px;
+      box-shadow: 0 25px 80px rgba(245, 158, 11, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    header h1 { font-size: 2.8em; margin-bottom: 15px; color: #1a1a2e; }
+    header p { font-size: 1.2em; opacity: 0.9; color: #1a1a2e; }
+    .chapter-badge {
+      display: inline-block;
+      background: rgba(0,0,0,0.2);
+      padding: 8px 20px;
+      border-radius: 30px;
+      font-size: 0.9em;
+      margin-bottom: 15px;
+      color: #1a1a2e;
+    }
+
+    .section {
+      background: rgba(255,255,255,0.03);
+      border-radius: 20px;
+      padding: 35px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .section:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid rgba(245, 158, 11, 0.3);
+    }
+    .section-num {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.3em;
+      color: #1a1a2e;
+      flex-shrink: 0;
+    }
+    .section-title { font-size: 1.6em; color: #fcd34d; }
+
+    .concept {
+      background: rgba(245, 158, 11, 0.08);
+      border-radius: 16px;
+      padding: 25px;
+      margin: 20px 0;
+      border-left: 4px solid #f59e0b;
+    }
+    .concept h4 {
+      color: #fcd34d;
+      font-size: 1.2em;
+      margin-bottom: 15px;
+    }
+    .concept p { color: #d1d5db; margin-bottom: 12px; }
+    .concept ul, .concept ol { margin-left: 20px; color: #d1d5db; }
+    .concept li { margin: 8px 0; }
+
+    .key {
+      background: linear-gradient(180deg, #4b5563, #374151);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.85em;
+      font-weight: 600;
+      border: 1px solid #6b7280;
+      box-shadow: 0 2px 0 #1f2937;
+      color: #f3f4f6;
+      display: inline-block;
+      margin: 2px;
+    }
+
+    .note {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+      font-weight: 500;
+    }
+    .note::before { content: "⚡ Important: "; font-weight: 700; }
+    
+    .warning {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .warning::before { content: "🚨 Interview Alert: "; font-weight: 700; }
+    
+    .tip {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .tip::before { content: "💡 Pro Tip: "; font-weight: 700; }
+
+    .code-block {
+      background: #1e1e2e;
+      border-radius: 12px;
+      margin: 20px 0;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .code-header {
+      background: #2d2d3d;
+      padding: 12px 18px;
+      color: #9ca3af;
+      font-size: 0.85em;
+      display: flex;
+      justify-content: space-between;
+    }
+    .code-content {
+      padding: 20px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.9em;
+      line-height: 1.7;
+    }
+    .comment { color: #6a9955; }
+    .keyword { color: #569cd6; }
+    .string { color: #ce9178; }
+    .function { color: #dcdcaa; }
+    .number { color: #b5cea8; }
+    .property { color: #9cdcfe; }
+
+    .console-output {
+      background: #1e1e1e;
+      border-radius: 12px;
+      margin: 20px 0;
+      overflow: hidden;
+      font-family: 'Consolas', monospace;
+      font-size: 0.9em;
+    }
+    .console-line {
+      padding: 8px 15px;
+      border-bottom: 1px solid #2d2d2d;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .console-line:last-child { border-bottom: none; }
+    .console-line.log { color: #d4d4d4; }
+    .console-line.info { color: #3b82f6; }
+    .console-line.warn { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .console-line.error { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    .console-line.input::before { content: ">"; color: #3b82f6; margin-right: 8px; }
+    .console-line.output::before { content: "←"; color: #6b7280; margin-right: 8px; }
+    .console-icon { width: 16px; flex-shrink: 0; }
+
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .method-card {
+      background: rgba(0,0,0,0.25);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s;
+    }
+    .method-card:hover {
+      background: rgba(245, 158, 11, 0.1);
+      transform: translateY(-3px);
+      border-color: #f59e0b;
+    }
+    .method-card h5 {
+      color: #fcd34d;
+      margin-bottom: 10px;
+      font-family: 'Consolas', monospace;
+    }
+    .method-card p { color: #9ca3af; font-size: 0.9em; margin-bottom: 10px; }
+    .method-card code {
+      background: rgba(0,0,0,0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      color: #d4d4d4;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    .comparison-table th, .comparison-table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .comparison-table th {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fcd34d;
+    }
+    .comparison-table td { color: #d1d5db; }
+    .comparison-table code {
+      background: rgba(0,0,0,0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .visual-demo {
+      background: linear-gradient(135deg, #1e1e2e, #2d2d44);
+      border-radius: 16px;
+      padding: 25px;
+      margin: 25px 0;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .visual-demo h5 {
+      color: #fcd34d;
+      margin-bottom: 20px;
+      font-size: 1.1em;
+    }
+
+    .table-output {
+      width: 100%;
+      border-collapse: collapse;
+      background: #1e1e1e;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .table-output th {
+      background: #2d2d3d;
+      color: #9ca3af;
+      padding: 10px 15px;
+      text-align: left;
+      font-weight: normal;
+    }
+    .table-output td {
+      padding: 10px 15px;
+      border-bottom: 1px solid #2d2d2d;
+      color: #d4d4d4;
+    }
+    .table-output tr:last-child td { border-bottom: none; }
+
+    footer {
+      text-align: center;
+      padding: 40px;
+      color: #9ca3af;
+    }
+    footer a { color: #f59e0b; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="chapter-badge">📙 CHAPTER 3 • INTERMEDIATE LEVEL</div>
+      <h1>Console Panel Mastery</h1>
+      <p>Master JavaScript debugging with Console API and utilities</p>
+    </header>
+
+    <!-- Section 3.1 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">3.1</div>
+        <h2 class="section-title">Console API Methods</h2>
+      </div>
+
+      <div class="concept">
+        <h4>📝 What is the Console API?</h4>
+        <p>The Console API provides methods for logging information to the browser's console. While most developers only use <code>console.log()</code>, the API offers many powerful methods for better debugging.</p>
+      </div>
+
+      <h3 style="color: #fcd34d; margin: 30px 0 20px;">📊 Basic Logging Methods</h3>
+
+      <div class="method-grid">
+        <div class="method-card">
+          <h5>console.log()</h5>
+          <p>General purpose logging</p>
+          <code>console.log("Hello", variable)</code>
+        </div>
+        <div class="method-card">
+          <h5>console.info()</h5>
+          <p>Informational messages (ℹ️ icon)</p>
+          <code>console.info("Process started")</code>
+        </div>
+        <div class="method-card">
+          <h5>console.warn()</h5>
+          <p>Warning messages (⚠️ yellow)</p>
+          <code>console.warn("Deprecated!")</code>
+        </div>
+        <div class="method-card">
+          <h5>console.error()</h5>
+          <p>Error messages (❌ red)</p>
+          <code>console.error("Failed!")</code>
+        </div>
+        <div class="method-card">
+          <h5>console.debug()</h5>
+          <p>Debug level (hidden by default)</p>
+          <code>console.debug("Debug info")</code>
+        </div>
+        <div class="method-card">
+          <h5>console.clear()</h5>
+          <p>Clear all console output</p>
+          <code>console.clear()</code>
+        </div>
+      </div>
+
+      <div class="console-output">
+        <div class="console-line log">📝 This is console.log()</div>
+        <div class="console-line info">ℹ️ This is console.info()</div>
+        <div class="console-line warn">⚠️ This is console.warn()</div>
+        <div class="console-line error">❌ This is console.error()</div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span>Basic Logging Examples</span>
+        </div>
+        <div class="code-content">
+<span class="comment">// Multiple arguments</span>
+<span class="property">console</span>.<span class="function">log</span>(<span class="string">"User:"</span>, <span class="property">userName</span>, <span class="string">"Age:"</span>, <span class="property">userAge</span>);
+
+<span class="comment">// Object logging (maintains structure)</span>
+<span class="property">console</span>.<span class="function">log</span>({ <span class="property">name</span>: <span class="string">"John"</span>, <span class="property">age</span>: <span class="number">30</span> });
+
+<span class="comment">// Array logging</span>
+<span class="property">console</span>.<span class="function">log</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]);
+
+<span class="comment">// Template literals (ES6)</span>
+<span class="property">console</span>.<span class="function">log</span>(<span class="string">`User ${name} is ${age} years old`</span>);
+        </div>
+      </div>
+
+      <h3 style="color: #fcd34d; margin: 30px 0 20px;">🔥 Advanced Logging Methods</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span>console.table() - Tabular Data Display</span>
+        </div>
+        <div class="code-content">
+<span class="keyword">const</span> <span class="property">users</span> = [
+  { <span class="property">name</span>: <span class="string">"Alice"</span>, <span class="property">age</span>: <span class="number">28</span>, <span class="property">city</span>: <span class="string">"NYC"</span> },
+  { <span class="property">name</span>: <span class="string">"Bob"</span>, <span class="property">age</span>: <span class="number">32</span>, <span class="property">city</span>: <span class="string">"LA"</span> },
+  { <span class="property">name</span>: <span class="string">"Carol"</span>, <span class="property">age</span>: <span class="number">25</span>, <span class="property">city</span>: <span class="string">"Chicago"</span> }
+];
+
+<span class="property">console</span>.<span class="function">table</span>(<span class="property">users</span>);
+<span class="comment">// Displays as formatted table!</span>
+
+<span class="comment">// Show only specific columns</span>
+<span class="property">console</span>.<span class="function">table</span>(<span class="property">users</span>, [<span class="string">"name"</span>, <span class="string">"city"</span>]);
+        </div>
+      </div>
+
+      <div class="visual-demo">
+        <h5>console.table() Output</h5>
+        <table class="table-output">
+          <thead>
+            <tr>
+              <th>(index)</th>
+              <th>name</th>
+              <th>age</th>
+              <th>city</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>0</td><td>"Alice"</td><td>28</td><td>"NYC"</td></tr>
+            <tr><td>1</td><td>"Bob"</td><td>32</td><td>"LA"</td></tr>
+            <tr><td>2</td><td>"Carol"</td><td>25</td><td>"Chicago"</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note">console.table() is a game-changer for debugging arrays of objects! It's much easier to read than standard log output.</div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span>console.dir() & console.dirxml()</span>
+        </div>
+        <div class="code-content">
+<span class="comment">// console.dir() - Display object with properties</span>
+<span class="keyword">const</span> <span class="property">element</span> = <span class="property">document</span>.<span class="function">querySelector</span>(<span class="string">'#app'</span>);
+
+<span class="property">console</span>.<span class="function">log</span>(<span class="property">element</span>);    <span class="comment">// Shows HTML representation</span>
+<span class="property">console</span>.<span class="function">dir</span>(<span class="property">element</span>);    <span class="comment">// Shows JavaScript object properties</span>
+
+<span class="comment">// console.dirxml() - Display XML/HTML tree</span>
+<span class="property">console</span>.<span class="function">dirxml</span>(<span class="property">document</span>.<span class="property">body</span>);
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span>console.group() - Organize Messages</span>
+        </div>
+        <div class="code-content">
+<span class="property">console</span>.<span class="function">group</span>(<span class="string">"User Authentication"</span>);
+  <span class="property">console</span>.<span class="function">log</span>(<span class="string">"Checking credentials..."</span>);
+  <span class="property">console</span>.<span class="function">log</span>(<span class="string">"Validating token..."</span>);
+  
+  <span class="property">console</span>.<span class="function">group</span>(<span class="string">"Permissions"</span>);
+    <span class="property">console</span>.<span class="function">log</span>(<span class="string">"Admin: true"</span>);
+    <span class="property">console</span>.<span class="function">log</span>(<span class="string">"Editor: false"</span>);
+  <span class="property">console</span>.<span class="function">groupEnd</span>();
+  
+  <span class="property">console</span>.<span class="function">log</span>(<span class="string">"Authentication complete!"</span>);
+<span class="property">console</span>.<span class="function">groupEnd</span>();
+
+<span class="comment">// Use groupCollapsed() for collapsed groups by default</span>
+<span class="property">console</span>.<span class="function">groupCollapsed</span>(<span class="string">"Collapsed by default"</span>);
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span>console.count() - Count Occurrences</span>
+        </div>
+        <div class="code-content">
+<span class="keyword">function</span> <span class="function">processItem</span>(<span class="property">item</span>) {
+  <span class="property">console</span>.<span class="function">count</span>(<span class="string">"processItem called"</span>);
+  <span class="comment">// ... processing logic</span>
+}
+
+<span class="function">processItem</span>(<span class="string">"a"</span>);  <span class="comment">// processItem called: 1</span>
+<span class="function">processItem</span>(<span class="string">"b"</span>);  <span class="comment">// processItem called: 2</span>
+<span class="function">processItem</span>(<span class="string">"c"</span>);  <span class="comment">// processItem called: 3</span>
+
+<span class="comment">// Reset counter</span>
+<span class="property">console</span>.<span class="function">countReset</span>(<span class="string">"processItem called"</span>);
+
+<span class="function">processItem</span>(<span class="string">"d"</span>);  <span class="comment">// processItem called: 1</span>
+        </div>
+      </div>
+
+      <div class="warning">console.table(), console.group(), and console.count() are frequently asked in interviews as "advanced console methods you know"!</div>
+    </section>
+
+    <!-- Section 3.2 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">3.2</div>
+        <h2 class="section-title">Timing & Profiling</h2>
+      </div>
+
+      <div class="concept">
+        <h4>⏱️ Measuring Execution Time</h4>
+        <p>The Console API provides built-in timing methods to measure how long operations take - essential for performance optimization.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span>console.time() / timeEnd() / timeLog()</span>
+        </div>
+        <div class="code-content">
+<span class="comment">// Start a timer</span>
+<span class="property">console</span>.<span class="function">time</span>(<span class="string">"API Call"</span>);
+
+<span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">"/api/data"</span>);
+
+<span class="comment">// Log intermediate time (without stopping)</span>
+<span class="property">console</span>.<span class="function">timeLog</span>(<span class="string">"API Call"</span>, <span class="string">"Data received"</span>);
+<span class="comment">// Output: API Call: 234.5ms Data received</span>
+
+<span class="keyword">await</span> <span class="function">processData</span>();
+
+<span class="comment">// Stop timer and log final time</span>
+<span class="property">console</span>.<span class="function">timeEnd</span>(<span class="string">"API Call"</span>);
+<span class="comment">// Output: API Call: 456.7ms</span>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span>console.trace() - Stack Trace</span>
+        </div>
+        <div class="code-content">
+<span class="keyword">function</span> <span class="function">firstFunction</span>() {
+  <span class="function">secondFunction</span>();
+}
+
+<span class="keyword">function</span> <span class="function">secondFunction</span>() {
+  <span class="function">thirdFunction</span>();
+}
+
+<span class="keyword">function</span> <span class="function">thirdFunction</span>() {
+  <span class="property">console</span>.<span class="function">trace</span>(<span class="string">"Trace from thirdFunction"</span>);
+}
+
+<span class="function">firstFunction</span>();
+
+<span class="comment">/* Output:
+Trace from thirdFunction
+    at thirdFunction (script.js:10)
+    at secondFunction (script.js:6)
+    at firstFunction (script.js:2)
+    at script.js:13
+*/</span>
+        </div>
+      </div>
+
+      <div class="tip">Use console.trace() when you need to find "how did we get here?" - it shows the complete call stack leading to that point.</div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span>Performance Profiling</span>
+        </div>
+        <div class="code-content">
+<span class="comment">// Start CPU profile</span>
+<span class="property">console</span>.<span class="function">profile</span>(<span class="string">"MyProfile"</span>);
+
+<span class="comment">// ... code to profile ...</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> <span class="property">i</span> = <span class="number">0</span>; <span class="property">i</span> < <span class="number">1000000</span>; <span class="property">i</span>++) {
+  <span class="function">heavyComputation</span>();
+}
+
+<span class="comment">// Stop profile - results appear in Performance tab</span>
+<span class="property">console</span>.<span class="function">profileEnd</span>(<span class="string">"MyProfile"</span>);
+
+<span class="comment">// Alternative: Use performance.mark() for more precision</span>
+<span class="property">performance</span>.<span class="function">mark</span>(<span class="string">"start"</span>);
+<span class="comment">// ... code ...</span>
+<span class="property">performance</span>.<span class="function">mark</span>(<span class="string">"end"</span>);
+<span class="property">performance</span>.<span class="function">measure</span>(<span class="string">"My Operation"</span>, <span class="string">"start"</span>, <span class="string">"end"</span>);
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3.3 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">3.3</div>
+        <h2 class="section-title">Console Utilities API</h2>
+      </div>
+
+      <div class="concept">
+        <h4>🛠️ Built-in Console Utilities</h4>
+        <p>DevTools provides special utility functions that only work in the Console. These are NOT part of JavaScript - they're DevTools features!</p>
+      </div>
+
+      <h3 style="color: #fcd34d; margin: 30px 0 20px;">🔍 Selection Helpers</h3>
+
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Utility</th>
+            <th>Equivalent To</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>$(selector)</code></td>
+            <td><code>document.querySelector()</code></td>
+            <td>Select first matching element</td>
+          </tr>
+          <tr>
+            <td><code>$$(selector)</code></td>
+            <td><code>document.querySelectorAll()</code></td>
+            <td>Select all matching elements (array)</td>
+          </tr>
+          <tr>
+            <td><code>$x(xpath)</code></td>
+            <td>XPath query</td>
+            <td>Select elements by XPath</td>
+          </tr>
+          <tr>
+            <td><code>$0</code> to <code>$4</code></td>
+            <td>-</td>
+            <td>Recently selected elements</td>
+          </tr>
+          <tr>
+            <td><code>$_</code></td>
+            <td>-</td>
+            <td>Last evaluated expression result</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span>Selection Utilities Examples</span>
+        </div>
+        <div class="code-content">
+<span class="comment">// Select single element</span>
+<span class="function">$</span>(<span class="string">'.header'</span>)              <span class="comment">// First .header element</span>
+<span class="function">$</span>(<span class="string">'#main-nav'</span>)            <span class="comment">// Element with id="main-nav"</span>
+
+<span class="comment">// Select all matching elements</span>
+<span class="function">$$</span>(<span class="string">'.button'</span>)             <span class="comment">// All elements with class .button</span>
+<span class="function">$$</span>(<span class="string">'div > p'</span>)             <span class="comment">// All p elements direct child of div</span>
+
+<span class="comment">// XPath selection</span>
+<span class="function">$x</span>(<span class="string">'//div[@class="container"]'</span>)
+<span class="function">$x</span>(<span class="string">'//a[contains(@href, "example")]'</span>)
+
+<span class="comment">// Use $_ to chain operations</span>
+<span class="function">$</span>(<span class="string">'.price'</span>).<span class="property">textContent</span>   <span class="comment">// Returns "$19.99"</span>
+<span class="property">$_</span>.<span class="function">replace</span>(<span class="string">'$'</span>, <span class="string">''</span>)       <span class="comment">// Returns "19.99"</span>
+<span class="function">parseFloat</span>(<span class="property">$_</span>)             <span class="comment">// Returns 19.99</span>
+        </div>
+      </div>
+
+      <div class="note">$(selector) is NOT jQuery! It's a DevTools shortcut. If jQuery is loaded on the page, it will override this utility.</div>
+
+      <h3 style="color: #fcd34d; margin: 30px 0 20px;">🔧 Inspection Helpers</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span>Inspection Utilities</span>
+        </div>
+        <div class="code-content">
+<span class="comment">// inspect() - Jump to element or source</span>
+<span class="function">inspect</span>(<span class="function">$</span>(<span class="string">'.header'</span>))      <span class="comment">// Opens in Elements panel</span>
+<span class="function">inspect</span>(<span class="property">myFunction</span>)        <span class="comment">// Opens function in Sources panel</span>
+
+<span class="comment">// getEventListeners() - Get all listeners</span>
+<span class="function">getEventListeners</span>(<span class="function">$</span>(<span class="string">'#btn'</span>))
+<span class="comment">// Returns: { click: [...], mouseover: [...] }</span>
+
+<span class="comment">// keys() and values() - Object inspection</span>
+<span class="keyword">const</span> <span class="property">obj</span> = { <span class="property">a</span>: <span class="number">1</span>, <span class="property">b</span>: <span class="number">2</span>, <span class="property">c</span>: <span class="number">3</span> };
+<span class="function">keys</span>(<span class="property">obj</span>)                  <span class="comment">// ["a", "b", "c"]</span>
+<span class="function">values</span>(<span class="property">obj</span>)                <span class="comment">// [1, 2, 3]</span>
+
+<span class="comment">// copy() - Copy to clipboard</span>
+<span class="function">copy</span>(<span class="function">$</span>(<span class="string">'.content'</span>).<span class="property">outerHTML</span>)
+<span class="function">copy</span>(<span class="property">JSON</span>.<span class="function">stringify</span>(<span class="property">data</span>, <span class="keyword">null</span>, <span class="number">2</span>))
+
+<span class="comment">// clear() - Clear console</span>
+<span class="function">clear</span>()
+        </div>
+      </div>
+
+      <div class="warning">getEventListeners() is one of the most asked DevTools utilities in interviews! Know how to use it to debug event-related issues.</div>
+
+      <h3 style="color: #fcd34d; margin: 30px 0 20px;">👀 Monitoring Functions</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span>Function & Event Monitoring</span>
+        </div>
+        <div class="code-content">
+<span class="comment">// monitor() - Log function calls</span>
+<span class="keyword">function</span> <span class="function">calculateTotal</span>(<span class="property">a</span>, <span class="property">b</span>) {
+  <span class="keyword">return</span> <span class="property">a</span> + <span class="property">b</span>;
+}
+
+<span class="function">monitor</span>(<span class="property">calculateTotal</span>);
+<span class="function">calculateTotal</span>(<span class="number">5</span>, <span class="number">3</span>);
+<span class="comment">// Output: function calculateTotal called with arguments: 5, 3</span>
+
+<span class="function">unmonitor</span>(<span class="property">calculateTotal</span>);  <span class="comment">// Stop monitoring</span>
+
+<span class="comment">// monitorEvents() - Log DOM events</span>
+<span class="function">monitorEvents</span>(<span class="function">$</span>(<span class="string">'#input'</span>), <span class="string">'focus'</span>);
+<span class="function">monitorEvents</span>(<span class="function">$</span>(<span class="string">'#btn'</span>), [<span class="string">'click'</span>, <span class="string">'mouseover'</span>]);
+<span class="function">monitorEvents</span>(<span class="property">window</span>, <span class="string">'resize'</span>);
+
+<span class="comment">// Event type shortcuts</span>
+<span class="function">monitorEvents</span>(<span class="function">$</span>(<span class="string">'#input'</span>), <span class="string">'key'</span>);    <span class="comment">// All keyboard events</span>
+<span class="function">monitorEvents</span>(<span class="function">$</span>(<span class="string">'#div'</span>), <span class="string">'mouse'</span>);   <span class="comment">// All mouse events</span>
+
+<span class="function">unmonitorEvents</span>(<span class="function">$</span>(<span class="string">'#input'</span>));  <span class="comment">// Stop monitoring</span>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span>debug() - Add Breakpoints Programmatically</span>
+        </div>
+        <div class="code-content">
+<span class="comment">// Break when function is called</span>
+<span class="function">debug</span>(<span class="property">myFunction</span>);
+
+<span class="comment">// Now any call to myFunction() will pause execution</span>
+<span class="function">myFunction</span>();  <span class="comment">// Debugger pauses here!</span>
+
+<span class="comment">// Remove breakpoint</span>
+<span class="function">undebug</span>(<span class="property">myFunction</span>);
+        </div>
+      </div>
+
+      <div class="tip">monitorEvents() is perfect for debugging "why isn't my click handler working?" - it shows exactly which events fire and when!</div>
+    </section>
+
+    <!-- Section 3.4 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">3.4</div>
+        <h2 class="section-title">String Formatting & Styling</h2>
+      </div>
+
+      <div class="concept">
+        <h4>🎨 Format Specifiers</h4>
+        <p>Console methods support printf-style format specifiers for precise output formatting.</p>
+      </div>
+
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Specifier</th>
+            <th>Output Type</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>%s</code></td>
+            <td>String</td>
+            <td><code>console.log("Hello %s", "World")</code></td>
+          </tr>
+          <tr>
+            <td><code>%d</code> or <code>%i</code></td>
+            <td>Integer</td>
+            <td><code>console.log("Count: %d", 42)</code></td>
+          </tr>
+          <tr>
+            <td><code>%f</code></td>
+            <td>Float</td>
+            <td><code>console.log("Price: %f", 19.99)</code></td>
+          </tr>
+          <tr>
+            <td><code>%o</code></td>
+            <td>Object (expandable)</td>
+            <td><code>console.log("User: %o", userObj)</code></td>
+          </tr>
+          <tr>
+            <td><code>%O</code></td>
+            <td>Object (formatted)</td>
+            <td><code>console.log("Data: %O", data)</code></td>
+          </tr>
+          <tr>
+            <td><code>%c</code></td>
+            <td>CSS Styling</td>
+            <td><code>console.log("%cStyled", "color:red")</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span>Styled Console Output</span>
+        </div>
+        <div class="code-content">
+<span class="comment">// Basic styling</span>
+<span class="property">console</span>.<span class="function">log</span>(
+  <span class="string">"%cHello World!"</span>,
+  <span class="string">"color: red; font-size: 24px; font-weight: bold;"</span>
+);
+
+<span class="comment">// Multiple styles</span>
+<span class="property">console</span>.<span class="function">log</span>(
+  <span class="string">"%cError: %cSomething went wrong!"</span>,
+  <span class="string">"color: red; font-weight: bold;"</span>,
+  <span class="string">"color: orange;"</span>
+);
+
+<span class="comment">// Fancy logging</span>
+<span class="property">console</span>.<span class="function">log</span>(
+  <span class="string">"%c🚀 App Started!"</span>,
+  <span class="string">`
+    background: linear-gradient(to right, #667eea, #764ba2);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+  `</span>
+);
+
+<span class="comment">// Debug badge</span>
+<span class="keyword">const</span> <span class="function">badge</span> = (<span class="property">label</span>, <span class="property">color</span>) => {
+  <span class="property">console</span>.<span class="function">log</span>(
+    <span class="string">`%c${label}`</span>,
+    <span class="string">`background: ${color}; color: white; padding: 2px 6px; border-radius: 3px;`</span>
+  );
+};
+
+<span class="function">badge</span>(<span class="string">"DEBUG"</span>, <span class="string">"#3b82f6"</span>);
+<span class="function">badge</span>(<span class="string">"SUCCESS"</span>, <span class="string">"#10b981"</span>);
+<span class="function">badge</span>(<span class="string">"ERROR"</span>, <span class="string">"#ef4444"</span>);
+        </div>
+      </div>
+
+      <div class="console-output">
+        <div class="console-line" style="color: #ef4444; font-size: 1.2em; font-weight: bold;">Hello World!</div>
+        <div class="console-line"><span style="color: #ef4444; font-weight: bold;">Error:</span> <span style="color: #f97316;">Something went wrong!</span></div>
+        <div class="console-line">
+          <span style="background: linear-gradient(to right, #667eea, #764ba2); color: white; padding: 8px 16px; border-radius: 5px;">🚀 App Started!</span>
+        </div>
+      </div>
+
+      <div class="tip">Styled console logs are great for creating custom debugging utilities. Many popular libraries use this for their debug output!</div>
+    </section>
+
+    <!-- Section 3.5 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">3.5</div>
+        <h2 class="section-title">Live Expressions</h2>
+      </div>
+
+      <div class="concept">
+        <h4>👁️ What are Live Expressions?</h4>
+        <p>Live Expressions let you watch the value of a JavaScript expression in real-time. The expression is evaluated continuously and the result updates automatically - perfect for monitoring changing values without cluttering the console with logs.</p>
+      </div>
+
+      <div class="concept">
+        <h4>📍 How to Create a Live Expression</h4>
+        <ol>
+          <li>Click the "eye" icon (👁️) in the Console toolbar</li>
+          <li>Type your JavaScript expression</li>
+          <li>Press Enter - it will now update in real-time</li>
+          <li>Click the X to remove the expression</li>
+        </ol>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span>Useful Live Expression Examples</span>
+        </div>
+        <div class="code-content">
+<span class="comment">// Watch which element is focused</span>
+<span class="property">document</span>.<span class="property">activeElement</span>
+
+<span class="comment">// Monitor scroll position</span>
+<span class="property">window</span>.<span class="property">scrollY</span>
+
+<span class="comment">// Watch viewport dimensions</span>
+<span class="string">`${window.innerWidth} x ${window.innerHeight}`</span>
+
+<span class="comment">// Count elements in real-time</span>
+<span class="property">document</span>.<span class="function">querySelectorAll</span>(<span class="string">'.item'</span>).<span class="property">length</span>
+
+<span class="comment">// Watch performance</span>
+<span class="property">performance</span>.<span class="function">now</span>().<span class="function">toFixed</span>(<span class="number">0</span>)
+
+<span class="comment">// Watch localStorage</span>
+<span class="property">localStorage</span>.<span class="function">getItem</span>(<span class="string">'token'</span>)
+
+<span class="comment">// Watch a specific variable (if global)</span>
+<span class="property">myAppState</span>.<span class="property">currentUser</span>
+        </div>
+      </div>
+
+      <div class="note">Live Expressions are especially useful for debugging focus management, scroll behaviors, and dynamic content changes!</div>
+    </section>
+
+    <!-- Section 3.6 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">3.6</div>
+        <h2 class="section-title">Console Assertions</h2>
+      </div>
+
+      <div class="concept">
+        <h4>✅ console.assert()</h4>
+        <p>Assertions only log a message when a condition is FALSE. This is useful for catching unexpected states without cluttering the console when everything is working correctly.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span>console.assert() Examples</span>
+        </div>
+        <div class="code-content">
+<span class="comment">// Basic assertion</span>
+<span class="keyword">const</span> <span class="property">age</span> = <span class="number">25</span>;
+<span class="property">console</span>.<span class="function">assert</span>(<span class="property">age</span> >= <span class="number">18</span>, <span class="string">"User must be adult"</span>);
+<span class="comment">// No output (condition is true)</span>
+
+<span class="property">console</span>.<span class="function">assert</span>(<span class="property">age</span> >= <span class="number">30</span>, <span class="string">"User must be 30+"</span>);
+<span class="comment">// Outputs: Assertion failed: User must be 30+</span>
+
+<span class="comment">// Assert array not empty</span>
+<span class="keyword">const</span> <span class="property">items</span> = [];
+<span class="property">console</span>.<span class="function">assert</span>(<span class="property">items</span>.<span class="property">length</span> > <span class="number">0</span>, <span class="string">"Items array is empty!"</span>, <span class="property">items</span>);
+
+<span class="comment">// Assert object has required property</span>
+<span class="keyword">const</span> <span class="property">user</span> = { <span class="property">name</span>: <span class="string">"John"</span> };
+<span class="property">console</span>.<span class="function">assert</span>(<span class="property">user</span>.<span class="property">email</span>, <span class="string">"User missing email!"</span>, <span class="property">user</span>);
+
+<span class="comment">// Use in development for sanity checks</span>
+<span class="keyword">function</span> <span class="function">processOrder</span>(<span class="property">order</span>) {
+  <span class="property">console</span>.<span class="function">assert</span>(<span class="property">order</span>.<span class="property">id</span>, <span class="string">"Order missing ID"</span>);
+  <span class="property">console</span>.<span class="function">assert</span>(<span class="property">order</span>.<span class="property">items</span>.<span class="property">length</span>, <span class="string">"Order has no items"</span>);
+  <span class="property">console</span>.<span class="function">assert</span>(<span class="property">order</span>.<span class="property">total</span> > <span class="number">0</span>, <span class="string">"Order total invalid"</span>);
+  <span class="comment">// ... process order</span>
+}
+        </div>
+      </div>
+
+      <div class="console-output">
+        <div class="console-line error">❌ Assertion failed: User must be 30+</div>
+        <div class="console-line error">❌ Assertion failed: Items array is empty! []</div>
+        <div class="console-line error">❌ Assertion failed: User missing email! {name: "John"}</div>
+      </div>
+    </section>
+
+    <!-- Section 3.7 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">3.7</div>
+        <h2 class="section-title">Console Settings & Filtering</h2>
+      </div>
+
+      <div class="concept">
+        <h4>⚙️ Console Settings</h4>
+        <p>Click the gear icon in the Console panel or access through DevTools settings:</p>
+        <ul>
+          <li><strong>Preserve log</strong> - Keep logs across page navigation</li>
+          <li><strong>Show timestamps</strong> - Display time for each message</li>
+          <li><strong>Autocomplete from history</strong> - Suggest previous commands</li>
+          <li><strong>Group similar</strong> - Collapse duplicate messages</li>
+          <li><strong>Eager evaluation</strong> - Preview results while typing</li>
+          <li><strong>Log XMLHttpRequests</strong> - Show XHR/fetch requests</li>
+          <li><strong>Selected context only</strong> - Filter by iframe context</li>
+        </ul>
+      </div>
+
+      <div class="concept">
+        <h4>🔍 Filtering Console Messages</h4>
+        <ul>
+          <li>Use the filter buttons: All, Errors, Warnings, Info, Verbose</li>
+          <li>Type in filter box to search message content</li>
+          <li>Use regex: <code>/error|fail/i</code></li>
+          <li>Negative filter: <code>-verbose</code> (exclude "verbose")</li>
+          <li>URL filter: <code>url:script.js</code></li>
+        </ul>
+      </div>
+
+      <div class="tip">Enable "Preserve log" when debugging page transitions or form submissions - your logs won't disappear on navigation!</div>
+    </section>
+
+    <!-- Section 3.8 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">3.8</div>
+        <h2 class="section-title">Quick Reference: Essential Console Commands</h2>
+      </div>
+
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Command</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>console.log()</code></td><td>General logging</td></tr>
+          <tr><td><code>console.error()</code></td><td>Log errors (red)</td></tr>
+          <tr><td><code>console.warn()</code></td><td>Log warnings (yellow)</td></tr>
+          <tr><td><code>console.table()</code></td><td>Display data as table</td></tr>
+          <tr><td><code>console.dir()</code></td><td>Object property listing</td></tr>
+          <tr><td><code>console.group()</code></td><td>Group related logs</td></tr>
+          <tr><td><code>console.time()</code></td><td>Start timer</td></tr>
+          <tr><td><code>console.trace()</code></td><td>Print stack trace</td></tr>
+          <tr><td><code>console.assert()</code></td><td>Conditional logging</td></tr>
+          <tr><td><code>console.count()</code></td><td>Count occurrences</td></tr>
+          <tr><td><code>$(selector)</code></td><td>querySelector shorthand</td></tr>
+          <tr><td><code>$$(selector)</code></td><td>querySelectorAll shorthand</td></tr>
+          <tr><td><code>$0</code></td><td>Currently selected element</td></tr>
+          <tr><td><code>$_</code></td><td>Last expression result</td></tr>
+          <tr><td><code>copy(value)</code></td><td>Copy to clipboard</td></tr>
+          <tr><td><code>inspect(obj)</code></td><td>Jump to element/source</td></tr>
+          <tr><td><code>getEventListeners()</code></td><td>Get element listeners</td></tr>
+          <tr><td><code>monitorEvents()</code></td><td>Log DOM events</td></tr>
+          <tr><td><code>monitor(fn)</code></td><td>Log function calls</td></tr>
+          <tr><td><code>debug(fn)</code></td><td>Break on function call</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      <p>📙 Chapter 3 Complete! Continue to <a href="#">Chapter 4: Sources Panel & Debugging →</a></p>
+    </footer>
+  </div>
+</body>
+</html>

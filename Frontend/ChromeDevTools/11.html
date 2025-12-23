@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 11: Recorder & Performance Insights</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 100%);
+      color: #e4e4e7;
+      line-height: 1.8;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    header {
+      text-align: center;
+      padding: 50px 40px;
+      background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+      border-radius: 20px;
+      margin-bottom: 40px;
+      box-shadow: 0 20px 60px rgba(236, 72, 153, 0.3);
+    }
+    header h1 { font-size: 2.5em; margin-bottom: 10px; }
+    header p { opacity: 0.95; font-size: 1.2em; }
+    .badge { 
+      display: inline-block; 
+      background: rgba(255,255,255,0.2); 
+      padding: 5px 15px; 
+      border-radius: 20px; 
+      font-size: 0.9em;
+      margin-top: 15px;
+    }
+    section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 35px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    h2 {
+      color: #f472b6;
+      font-size: 1.8em;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid rgba(244, 114, 182, 0.3);
+    }
+    h3 {
+      color: #f9a8d4;
+      font-size: 1.3em;
+      margin: 25px 0 15px 0;
+    }
+    h4 {
+      color: #fbcfe8;
+      font-size: 1.1em;
+      margin: 20px 0 10px 0;
+    }
+    p { margin-bottom: 15px; color: #d1d5db; }
+    .concept-box {
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(190, 24, 93, 0.1));
+      border-left: 4px solid #ec4899;
+      padding: 20px 25px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .code-block {
+      background: #1e1e2e;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      border: 1px solid #333;
+    }
+    .code-block pre {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.9em;
+      color: #a6e3a1;
+      white-space: pre-wrap;
+    }
+    .code-title {
+      background: #333;
+      color: #f472b6;
+      padding: 8px 15px;
+      border-radius: 8px 8px 0 0;
+      font-size: 0.85em;
+      margin-bottom: -12px;
+      display: inline-block;
+    }
+    .highlight { color: #f472b6; font-weight: 600; }
+    .note {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #1a1a2e;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .note::before { content: "⚡ Key Point: "; font-weight: 700; }
+    .warning {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .warning::before { content: "🚨 Interview Alert: "; font-weight: 700; }
+    .tip {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .tip::before { content: "💡 Pro Tip: "; font-weight: 700; }
+    .visual-diagram {
+      background: #1a1a2e;
+      border-radius: 16px;
+      padding: 30px;
+      margin: 25px 0;
+      border: 2px solid #333;
+    }
+    .diagram-title {
+      text-align: center;
+      color: #f472b6;
+      font-weight: 600;
+      margin-bottom: 20px;
+      font-size: 1.1em;
+    }
+    ul, ol { margin: 15px 0 15px 25px; }
+    li { margin: 10px 0; color: #d1d5db; }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    .comparison-table th, .comparison-table td {
+      padding: 15px;
+      text-align: left;
+      border: 1px solid #333;
+    }
+    .comparison-table th {
+      background: #374151;
+      color: #f472b6;
+    }
+    .comparison-table td { background: rgba(255,255,255,0.02); }
+    code {
+      background: #374151;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.9em;
+      color: #a6e3a1;
+    }
+    .step-flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin: 20px 0;
+      justify-content: center;
+    }
+    .step-item {
+      background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      min-width: 150px;
+      border: 2px solid transparent;
+      transition: border-color 0.3s;
+    }
+    .step-item:hover { border-color: #ec4899; }
+    .step-number {
+      background: #ec4899;
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      font-weight: bold;
+    }
+    .step-icon { font-size: 2em; margin-bottom: 10px; }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .feature-card {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      border-radius: 12px;
+      padding: 25px;
+      border: 1px solid #374151;
+    }
+    .feature-card h4 {
+      color: #f9a8d4;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .export-option {
+      background: #1f2937;
+      border-radius: 10px;
+      padding: 15px 20px;
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .export-icon {
+      font-size: 1.5em;
+      width: 50px;
+      text-align: center;
+    }
+    .coverage-bar {
+      height: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      margin: 15px 0;
+    }
+    .coverage-used {
+      background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+    }
+    .coverage-unused {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+    }
+    .insight-card {
+      background: rgba(236, 72, 153, 0.1);
+      border: 1px solid rgba(236, 72, 153, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+    }
+    .insight-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .insight-title { color: #f472b6; font-weight: 600; }
+    .insight-impact {
+      background: #ec4899;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85em;
+    }
+    .timeline-event {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+      padding: 15px;
+      background: #1f2937;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+    .event-time {
+      background: #374151;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-family: monospace;
+      color: #f472b6;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎬 Chapter 11: Recorder & Performance Insights</h1>
+      <p>User Flow Recording, Automated Testing & Simplified Performance Analysis</p>
+      <span class="badge">🟡 Intermediate Level</span>
+    </header>
+
+    <!-- Section 11.1 -->
+    <section>
+      <h2>11.1 Recorder Panel Overview</h2>
+      
+      <p>The Recorder panel allows you to record, replay, and export user interactions. It's perfect for creating automated tests, measuring user flows, and debugging complex interactions.</p>
+
+      <h3>Opening the Recorder</h3>
+      <ol>
+        <li>Open DevTools (<code>F12</code>)</li>
+        <li>Click on <strong>Recorder</strong> tab (or find it in More tools)</li>
+        <li>Or use Command Menu: <code>Ctrl+Shift+P</code> → "Show Recorder"</li>
+      </ol>
+
+      <h3>What You Can Record</h3>
+      <ul>
+        <li><strong>Clicks</strong> - Button clicks, link clicks, element selections</li>
+        <li><strong>Typing</strong> - Text input in forms and fields</li>
+        <li><strong>Scrolling</strong> - Page and element scrolling</li>
+        <li><strong>Keyboard events</strong> - Key presses, shortcuts</li>
+        <li><strong>Navigation</strong> - Page loads, redirects</li>
+        <li><strong>Hover</strong> - Mouse hover interactions</li>
+        <li><strong>Viewport changes</strong> - Responsive testing</li>
+      </ul>
+
+      <h3>Use Cases</h3>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h4>🧪 E2E Test Creation</h4>
+          <p>Record user flows and export as Puppeteer or Playwright scripts for automated testing.</p>
+        </div>
+        <div class="feature-card">
+          <h4>📊 Performance Measurement</h4>
+          <p>Measure how long specific user journeys take and identify bottlenecks.</p>
+        </div>
+        <div class="feature-card">
+          <h4>🐛 Bug Reproduction</h4>
+          <p>Record steps to reproduce bugs and share with team members.</p>
+        </div>
+        <div class="feature-card">
+          <h4>📚 Documentation</h4>
+          <p>Create step-by-step guides for complex workflows.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 11.2 -->
+    <section>
+      <h2>11.2 Recording User Flows</h2>
+
+      <h3>Creating a New Recording</h3>
+
+      <div class="step-flow">
+        <div class="step-item">
+          <div class="step-number">1</div>
+          <div class="step-icon">➕</div>
+          <p>Create new recording</p>
+        </div>
+        <div class="step-item">
+          <div class="step-number">2</div>
+          <div class="step-icon">📝</div>
+          <p>Name your flow</p>
+        </div>
+        <div class="step-item">
+          <div class="step-number">3</div>
+          <div class="step-icon">🔴</div>
+          <p>Start recording</p>
+        </div>
+        <div class="step-item">
+          <div class="step-number">4</div>
+          <div class="step-icon">👆</div>
+          <p>Perform actions</p>
+        </div>
+        <div class="step-item">
+          <div class="step-number">5</div>
+          <div class="step-icon">⏹️</div>
+          <p>End recording</p>
+        </div>
+      </div>
+
+      <h3>Step-by-Step Recording</h3>
+
+      <ol>
+        <li>Click <strong>"Create a new recording"</strong> (+ button)</li>
+        <li>Enter a descriptive name (e.g., "User Login Flow")</li>
+        <li>Set selector attribute priority if needed (data-testid, id, class, etc.)</li>
+        <li>Click <strong>"Start recording"</strong></li>
+        <li>Interact with your page - each action is captured</li>
+        <li>Click <strong>"End recording"</strong> when done</li>
+      </ol>
+
+      <h3>Recorded Step Types</h3>
+
+      <div class="code-block">
+        <div class="code-title">Example Recorded Steps (JSON)</div>
+        <pre>
+{
+    "title": "Login User Flow",
+    "steps": [
+        {
+            "type": "navigate",
+            "url": "https://example.com/login"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                ["#email-input"],
+                ["[data-testid='email']"],
+                ["input[type='email']"]
+            ],
+            "offsetX": 150,
+            "offsetY": 12
+        },
+        {
+            "type": "change",
+            "target": "main",
+            "selectors": [["#email-input"]],
+            "value": "user@example.com"
+        },
+        {
+            "type": "click",
+            "selectors": [["#password-input"]]
+        },
+        {
+            "type": "change",
+            "selectors": [["#password-input"]],
+            "value": "secretpassword"
+        },
+        {
+            "type": "click",
+            "selectors": [
+                ["button[type='submit']"],
+                ["text/Log In"]
+            ]
+        },
+        {
+            "type": "waitForElement",
+            "selectors": [["#dashboard"]]
+        }
+    ]
+}</pre>
+      </div>
+
+      <div class="note">The Recorder automatically captures multiple selectors for each element as fallbacks. If the first selector fails, it tries the next one!</div>
+    </section>
+
+    <!-- Section 11.3 -->
+    <section>
+      <h2>11.3 Editing Recordings</h2>
+
+      <p>After recording, you can modify steps to make your flow more robust and reusable.</p>
+
+      <h3>Available Edit Operations</h3>
+
+      <table class="comparison-table">
+        <tr>
+          <th>Operation</th>
+          <th>Description</th>
+          <th>Use Case</th>
+        </tr>
+        <tr>
+          <td><strong>Add Step</strong></td>
+          <td>Insert new step at any position</td>
+          <td>Add wait, assertion, or missing action</td>
+        </tr>
+        <tr>
+          <td><strong>Remove Step</strong></td>
+          <td>Delete unnecessary steps</td>
+          <td>Remove accidental clicks</td>
+        </tr>
+        <tr>
+          <td><strong>Edit Step</strong></td>
+          <td>Modify step properties</td>
+          <td>Change selectors, values, timeouts</td>
+        </tr>
+        <tr>
+          <td><strong>Reorder Steps</strong></td>
+          <td>Drag steps to new positions</td>
+          <td>Fix step sequence</td>
+        </tr>
+        <tr>
+          <td><strong>Duplicate Step</strong></td>
+          <td>Copy a step</td>
+          <td>Create similar actions</td>
+        </tr>
+      </table>
+
+      <h3>Adding Assertions</h3>
+
+      <p>Assertions verify that the page is in the expected state. You can add them manually:</p>
+
+      <div class="code-block">
+        <div class="code-title">Assertion Step Types</div>
+        <pre>
+// Wait for element to appear
+{
+    "type": "waitForElement",
+    "selectors": [["#success-message"]],
+    "timeout": 5000
+}
+
+// Wait for element to be visible
+{
+    "type": "waitForElement",
+    "selectors": [[".modal"]],
+    "visible": true
+}
+
+// Wait for element to be hidden
+{
+    "type": "waitForElement",
+    "selectors": [[".loading-spinner"]],
+    "visible": false
+}
+
+// Custom assertion with JavaScript
+{
+    "type": "customStep",
+    "name": "Assert cart count",
+    "parameters": {
+        "code": "return document.querySelector('.cart-count').textContent === '3';"
+    }
+}</pre>
+      </div>
+
+      <h3>Modifying Selectors</h3>
+
+      <p>You can add or change selectors to make tests more stable:</p>
+
+      <ul>
+        <li><strong>data-testid</strong> - Best for testing (doesn't change with UI updates)</li>
+        <li><strong>aria-label</strong> - Good for accessibility-focused selectors</li>
+        <li><strong>text/Button Text</strong> - Text-based selectors</li>
+        <li><strong>xpath//</strong> - XPath expressions for complex selections</li>
+        <li><strong>pierce/</strong> - Pierces through Shadow DOM</li>
+      </ul>
+
+      <div class="tip">Always prefer data-testid or aria-label selectors. They're less likely to break when CSS classes or structure changes!</div>
+    </section>
+
+    <!-- Section 11.4 -->
+    <section>
+      <h2>11.4 Replaying Recordings</h2>
+
+      <h3>Replay Options</h3>
+
+      <ul>
+        <li><strong>Normal Replay</strong> - Runs through all steps</li>
+        <li><strong>Slow Replay</strong> - Adds delays between steps for visibility</li>
+        <li><strong>Step-by-Step</strong> - Manually advance through each step</li>
+        <li><strong>Replay with Performance</strong> - Measures Core Web Vitals during replay</li>
+      </ul>
+
+      <h3>Replay Controls</h3>
+
+      <div class="visual-diagram">
+        <div class="diagram-title">Recorder Replay Controls</div>
+        <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; padding: 20px;">
+          <div style="text-align: center; padding: 15px;">
+            <div style="font-size: 2em;">▶️</div>
+            <p style="font-size: 0.85em; color: #9ca3af;">Play</p>
+          </div>
+          <div style="text-align: center; padding: 15px;">
+            <div style="font-size: 2em;">⏸️</div>
+            <p style="font-size: 0.85em; color: #9ca3af;">Pause</p>
+          </div>
+          <div style="text-align: center; padding: 15px;">
+            <div style="font-size: 2em;">⏭️</div>
+            <p style="font-size: 0.85em; color: #9ca3af;">Step Forward</p>
+          </div>
+          <div style="text-align: center; padding: 15px;">
+            <div style="font-size: 2em;">🔄</div>
+            <p style="font-size: 0.85em; color: #9ca3af;">Restart</p>
+          </div>
+          <div style="text-align: center; padding: 15px;">
+            <div style="font-size: 2em;">🐢</div>
+            <p style="font-size: 0.85em; color: #9ca3af;">Slow Mode</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>Measuring Performance During Replay</h3>
+
+      <p>Click the performance icon to measure metrics during replay:</p>
+
+      <div class="insight-card">
+        <div class="insight-header">
+          <span class="insight-title">Performance Metrics Captured</span>
+        </div>
+        <ul>
+          <li>Largest Contentful Paint (LCP)</li>
+          <li>Cumulative Layout Shift (CLS)</li>
+          <li>Total Blocking Time (approximate INP)</li>
+          <li>Time to Interactive</li>
+          <li>Step execution times</li>
+        </ul>
+      </div>
+
+      <div class="note">Performance replay is perfect for measuring real user journey performance, not just page load!</div>
+    </section>
+
+    <!-- Section 11.5 -->
+    <section>
+      <h2>11.5 Exporting Recordings</h2>
+
+      <p>The Recorder can export your recordings to various test frameworks and formats.</p>
+
+      <h3>Export Formats</h3>
+
+      <div class="export-option">
+        <div class="export-icon">📄</div>
+        <div>
+          <strong>JSON</strong>
+          <p style="font-size: 0.85em; color: #9ca3af;">Native format, can be re-imported into Recorder</p>
+        </div>
+      </div>
+
+      <div class="export-option">
+        <div class="export-icon">🎭</div>
+        <div>
+          <strong>Puppeteer</strong>
+          <p style="font-size: 0.85em; color: #9ca3af;">Node.js script for headless Chrome automation</p>
+        </div>
+      </div>
+
+      <div class="export-option">
+        <div class="export-icon">🎪</div>
+        <div>
+          <strong>Puppeteer Replay</strong>
+          <p style="font-size: 0.85em; color: #9ca3af;">Uses @puppeteer/replay library</p>
+        </div>
+      </div>
+
+      <div class="export-option">
+        <div class="export-icon">🔦</div>
+        <div>
+          <strong>Lighthouse User Flow</strong>
+          <p style="font-size: 0.85em; color: #9ca3af;">Combines recording with Lighthouse audits</p>
+        </div>
+      </div>
+
+      <div class="export-option">
+        <div class="export-icon">🔌</div>
+        <div>
+          <strong>Third-party Extensions</strong>
+          <p style="font-size: 0.85em; color: #9ca3af;">Cypress, Playwright, WebdriverIO, etc.</p>
+        </div>
+      </div>
+
+      <h3>Puppeteer Export Example</h3>
+
+      <div class="code-block">
+        <div class="code-title">Exported Puppeteer Script</div>
+        <pre>
+const puppeteer = require('puppeteer');
+
+(async () => {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    
+    // Set viewport
+    await page.setViewport({ width: 1280, height: 720 });
+    
+    // Navigate to login page
+    await page.goto('https://example.com/login');
+    
+    // Wait for email input and type
+    await page.waitForSelector('#email-input');
+    await page.click('#email-input');
+    await page.type('#email-input', 'user@example.com');
+    
+    // Type password
+    await page.click('#password-input');
+    await page.type('#password-input', 'secretpassword');
+    
+    // Click submit button
+    await page.click('button[type="submit"]');
+    
+    // Wait for navigation/dashboard
+    await page.waitForSelector('#dashboard', { timeout: 5000 });
+    
+    console.log('Login successful!');
+    
+    await browser.close();
+})();</pre>
+      </div>
+
+      <h3>Playwright Export (via Extension)</h3>
+
+      <div class="code-block">
+        <div class="code-title">Exported Playwright Script</div>
+        <pre>
+import { test, expect } from '@playwright/test';
+
+test('User Login Flow', async ({ page }) => {
+    // Navigate to login
+    await page.goto('https://example.com/login');
+    
+    // Fill login form
+    await page.fill('[data-testid="email"]', 'user@example.com');
+    await page.fill('[data-testid="password"]', 'secretpassword');
+    
+    // Submit and wait for navigation
+    await page.click('button[type="submit"]');
+    await page.waitForSelector('#dashboard');
+    
+    // Assert successful login
+    await expect(page.locator('#welcome-message')).toBeVisible();
+});</pre>
+      </div>
+
+      <div class="tip">Install the "Export to Playwright" extension from Chrome Web Store to get Playwright-formatted exports directly!</div>
+    </section>
+
+    <!-- Section 11.6 -->
+    <section>
+      <h2>11.6 Performance Insights Panel</h2>
+
+      <p>Performance Insights provides a simplified, beginner-friendly view of performance issues. It's easier to understand than the full Performance panel.</p>
+
+      <h3>Opening Performance Insights</h3>
+      <ol>
+        <li>Open DevTools</li>
+        <li>Click <strong>Performance insights</strong> tab</li>
+        <li>Or: More tools → Performance insights</li>
+        <li>Click <strong>"Measure page load"</strong> or <strong>"Start recording"</strong></li>
+      </ol>
+
+      <h3>Key Differences from Performance Panel</h3>
+
+      <table class="comparison-table">
+        <tr>
+          <th>Feature</th>
+          <th>Performance Panel</th>
+          <th>Performance Insights</th>
+        </tr>
+        <tr>
+          <td>Complexity</td>
+          <td>Advanced, detailed</td>
+          <td>Simplified, actionable</td>
+        </tr>
+        <tr>
+          <td>Output</td>
+          <td>Raw flame charts</td>
+          <td>Categorized insights</td>
+        </tr>
+        <tr>
+          <td>Recommendations</td>
+          <td>Requires interpretation</td>
+          <td>Direct suggestions</td>
+        </tr>
+        <tr>
+          <td>Use Case</td>
+          <td>Deep debugging</td>
+          <td>Quick identification</td>
+        </tr>
+        <tr>
+          <td>Learning Curve</td>
+          <td>Steep</td>
+          <td>Gentle</td>
+        </tr>
+      </table>
+
+      <h3>Insights Categories</h3>
+
+      <div class="insight-card">
+        <div class="insight-header">
+          <span class="insight-title">🎨 Largest Contentful Paint (LCP)</span>
+          <span class="insight-impact">2.8s</span>
+        </div>
+        <p style="color: #9ca3af; font-size: 0.95em;">Shows which element is the LCP and what's delaying it.</p>
+        <ul>
+          <li>Render-blocking resources</li>
+          <li>Slow server response</li>
+          <li>Resource load delay</li>
+        </ul>
+      </div>
+
+      <div class="insight-card">
+        <div class="insight-header">
+          <span class="insight-title">📐 Layout Shifts</span>
+          <span class="insight-impact">CLS: 0.15</span>
+        </div>
+        <p style="color: #9ca3af; font-size: 0.95em;">Identifies elements causing layout shifts with visual highlighting.</p>
+        <ul>
+          <li>Which elements shifted</li>
+          <li>When shifts occurred</li>
+          <li>Shift impact scores</li>
+        </ul>
+      </div>
+
+      <div class="insight-card">
+        <div class="insight-header">
+          <span class="insight-title">⚡ Long Tasks</span>
+          <span class="insight-impact">5 found</span>
+        </div>
+        <p style="color: #9ca3af; font-size: 0.95em;">Lists JavaScript tasks blocking the main thread for >50ms.</p>
+        <ul>
+          <li>Task duration</li>
+          <li>Source file and function</li>
+          <li>Impact on responsiveness</li>
+        </ul>
+      </div>
+
+      <div class="insight-card">
+        <div class="insight-header">
+          <span class="insight-title">🚫 Render Blocking</span>
+          <span class="insight-impact">3 resources</span>
+        </div>
+        <p style="color: #9ca3af; font-size: 0.95em;">CSS and JS files delaying first paint.</p>
+        <ul>
+          <li>Resource URLs</li>
+          <li>Blocking duration</li>
+          <li>Suggestions to defer or inline</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Section 11.7 -->
+    <section>
+      <h2>11.7 Coverage Panel</h2>
+
+      <p>The Coverage panel shows how much of your CSS and JavaScript is actually used. Unused code increases load time without benefit.</p>
+
+      <h3>Opening Coverage Panel</h3>
+      <ol>
+        <li>Press <code>Ctrl+Shift+P</code> → "Show Coverage"</li>
+        <li>Or: More tools → Coverage</li>
+        <li>Click the reload button to start recording</li>
+      </ol>
+
+      <h3>Understanding Coverage Results</h3>
+
+      <div class="visual-diagram">
+        <div class="diagram-title">Coverage Visualization</div>
+        <div style="padding: 20px;">
+          <div style="margin-bottom: 20px;">
+            <p style="margin-bottom: 10px;"><strong>main.js</strong> - 245 KB total</p>
+            <div class="coverage-bar">
+              <div class="coverage-used" style="width: 35%;"></div>
+              <div class="coverage-unused" style="width: 65%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.85em;">
+              <span style="color: #3b82f6;">Used: 86 KB (35%)</span>
+              <span style="color: #ef4444;">Unused: 159 KB (65%)</span>
+            </div>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <p style="margin-bottom: 10px;"><strong>styles.css</strong> - 80 KB total</p>
+            <div class="coverage-bar">
+              <div class="coverage-used" style="width: 45%;"></div>
+              <div class="coverage-unused" style="width: 55%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.85em;">
+              <span style="color: #3b82f6;">Used: 36 KB (45%)</span>
+              <span style="color: #ef4444;">Unused: 44 KB (55%)</span>
+            </div>
+          </div>
+          <div>
+            <p style="margin-bottom: 10px;"><strong>vendor.js</strong> - 500 KB total</p>
+            <div class="coverage-bar">
+              <div class="coverage-used" style="width: 20%;"></div>
+              <div class="coverage-unused" style="width: 80%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.85em;">
+              <span style="color: #3b82f6;">Used: 100 KB (20%)</span>
+              <span style="color: #ef4444;">Unused: 400 KB (80%)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Viewing Unused Code</h3>
+      <ol>
+        <li>Click on a file in the Coverage panel</li>
+        <li>Sources panel opens with coverage overlay</li>
+        <li><span style="color: #3b82f6;">Blue</span> = executed code</li>
+        <li><span style="color: #ef4444;">Red</span> = unused code</li>
+      </ol>
+
+      <h3>Reducing Unused Code</h3>
+
+      <div class="code-block">
+        <div class="code-title">Strategies for Reducing Unused Code</div>
+        <pre>
+// 1. CODE SPLITTING - Load only what's needed
+// Before: Single large bundle
+import { everything } from 'huge-library';
+
+// After: Dynamic imports
+const { specificFeature } = await import('huge-library/specificFeature');
+
+// 2. TREE SHAKING - Remove dead code during build
+// webpack.config.js
+module.exports = {
+    mode: 'production',  // Enables tree shaking
+    optimization: {
+        usedExports: true,
+        sideEffects: true
+    }
+};
+
+// 3. ROUTE-BASED SPLITTING (React example)
+import { lazy, Suspense } from 'react';
+
+const Dashboard = lazy(() => import('./Dashboard'));
+const Settings = lazy(() => import('./Settings'));
+
+function App() {
+    return (
+        &lt;Suspense fallback={&lt;Loading /&gt;}&gt;
+            &lt;Routes&gt;
+                &lt;Route path="/dashboard" element={&lt;Dashboard /&gt;} /&gt;
+                &lt;Route path="/settings" element={&lt;Settings /&gt;} /&gt;
+            &lt;/Routes&gt;
+        &lt;/Suspense&gt;
+    );
+}
+
+// 4. PURGE UNUSED CSS (Tailwind example)
+// tailwind.config.js
+module.exports = {
+    content: [
+        './src/**/*.{js,jsx,ts,tsx}',
+        './public/index.html'
+    ],
+    // PurgeCSS removes unused styles in production
+};</pre>
+      </div>
+
+      <div class="warning">High unused code percentage (>50%) is a red flag! Interviewers may ask how to identify and reduce unused JavaScript/CSS.</div>
+    </section>
+
+    <!-- Section 11.8 -->
+    <section>
+      <h2>11.8 Other Useful Panels</h2>
+
+      <h3>Changes Panel</h3>
+      <p>Tracks all changes you've made to CSS and JavaScript in DevTools.</p>
+
+      <ul>
+        <li>Open: More tools → Changes</li>
+        <li>Shows diff view (green = added, red = removed)</li>
+        <li>Copy changes to clipboard</li>
+        <li>Revert individual changes</li>
+        <li>Helpful when experimenting with fixes</li>
+      </ul>
+
+      <div class="code-block">
+        <div class="code-title">Changes Panel Diff View</div>
+        <pre>
+/* styles.css */
+
+.header {
+    background: #333;
+-   padding: 10px;
++   padding: 20px;
+-   color: white;
++   color: #f472b6;
++   border-bottom: 2px solid #ec4899;
+}</pre>
+      </div>
+
+      <h3>Animations Panel</h3>
+      <p>Inspect and modify CSS animations in real-time.</p>
+
+      <ul>
+        <li>Open: More tools → Animations</li>
+        <li>Capture CSS animations and transitions</li>
+        <li>Slow down playback (25%, 10%)</li>
+        <li>Modify timing functions visually</li>
+        <li>Scrub through animation timeline</li>
+      </ul>
+
+      <h3>Rendering Panel</h3>
+      <p>Debugging tools for visual rendering.</p>
+
+      <ul>
+        <li><strong>Paint flashing:</strong> Highlights repainted areas in green</li>
+        <li><strong>Layout shift regions:</strong> Shows CLS-causing shifts</li>
+        <li><strong>Layer borders:</strong> Shows compositing layers</li>
+        <li><strong>Frame rendering stats:</strong> FPS meter overlay</li>
+        <li><strong>Scrolling performance:</strong> Identifies scroll issues</li>
+        <li><strong>Emulate CSS media:</strong> Test print styles, prefers-reduced-motion, etc.</li>
+      </ul>
+
+      <div class="tip">Enable "Paint flashing" to see which parts of the page are being repainted. Frequent full-page repaints indicate performance problems!</div>
+    </section>
+
+    <!-- Interview Questions -->
+    <section>
+      <h2>🎯 Interview Questions - Recorder & Performance Insights</h2>
+
+      <div class="concept-box">
+        <h4>Q1: What is the Recorder panel used for?</h4>
+        <p><strong>Answer:</strong> The Recorder captures user interactions (clicks, typing, scrolling) to create replayable user flows. It's used for creating E2E tests, measuring user journey performance, reproducing bugs, and generating automated test scripts for Puppeteer, Playwright, etc.</p>
+      </div>
+
+      <div class="concept-box">
+        <h4>Q2: How do you find unused CSS/JavaScript in a website?</h4>
+        <p><strong>Answer:</strong> Use the Coverage panel (Ctrl+Shift+P → "Show Coverage"). Start recording, interact with the page, then analyze results. Red indicates unused code, blue is executed code. High unused percentages suggest opportunities for code splitting and tree shaking.</p>
+      </div>
+
+      <div class="concept-box">
+        <h4>Q3: What's the difference between Performance and Performance Insights panels?</h4>
+        <p><strong>Answer:</strong> Performance panel provides detailed flame charts and raw data for deep debugging. Performance Insights provides simplified, categorized insights with direct recommendations. Insights is beginner-friendly and shows specific issues like "which element is LCP" or "what caused layout shifts."</p>
+      </div>
+
+      <div class="concept-box">
+        <h4>Q4: How would you reduce unused JavaScript in a React app?</h4>
+        <p><strong>Answer:</strong> Use code splitting with dynamic imports (React.lazy), route-based splitting, tree shaking in production builds, and analyze bundle with tools like webpack-bundle-analyzer. Also consider replacing large libraries with smaller alternatives.</p>
+      </div>
+
+      <div class="concept-box">
+        <h4>Q5: How can you identify elements causing layout shifts?</h4>
+        <p><strong>Answer:</strong> Use Performance Insights "Layout Shifts" section to see exactly which elements shifted. Or enable "Layout Shift Regions" in the Rendering panel to see shifts highlighted in real-time. Common causes: images without dimensions, dynamic content, web fonts.</p>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

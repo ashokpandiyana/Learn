@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 4: Sources Panel & Debugging - In Depth</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+      color: #e4e4e7;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+    .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+      padding: 50px 40px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      border-radius: 24px;
+      box-shadow: 0 25px 80px rgba(99, 102, 241, 0.4);
+    }
+    header h1 { font-size: 2.8em; margin-bottom: 15px; }
+    header p { opacity: 0.9; font-size: 1.2em; }
+    .chapter-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 8px 20px;
+      border-radius: 30px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    .section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      margin-bottom: 40px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .section-header {
+      background: linear-gradient(90deg, #4f46e5, #7c3aed);
+      padding: 25px 30px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .section-num {
+      background: rgba(255,255,255,0.2);
+      width: 50px;
+      height: 50px;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.3em;
+    }
+    .section-title { font-size: 1.5em; font-weight: 600; }
+    .section-content { padding: 30px; }
+    .concept {
+      background: rgba(255,255,255,0.03);
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 25px;
+      border-left: 4px solid #6366f1;
+    }
+    .concept h3 {
+      color: #a5b4fc;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .concept h4 {
+      color: #c4b5fd;
+      margin: 20px 0 12px 0;
+      font-size: 1.1em;
+    }
+    .concept p { margin-bottom: 15px; color: #d1d5db; }
+    .code-block {
+      background: #1e1e3f;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      border: 1px solid #374151;
+      position: relative;
+    }
+    .code-block::before {
+      content: attr(data-lang);
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 0.75em;
+      color: #6b7280;
+      text-transform: uppercase;
+    }
+    .code-block code {
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 0.95em;
+      line-height: 1.6;
+      color: #e4e4e7;
+    }
+    .comment { color: #6b7280; }
+    .keyword { color: #c792ea; }
+    .string { color: #c3e88d; }
+    .function { color: #82aaff; }
+    .number { color: #f78c6c; }
+    .variable { color: #ffcb6b; }
+    .note {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #1a1a2e;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+      font-weight: 500;
+    }
+    .note::before { content: "⚡ Key Concept: "; font-weight: 700; }
+    .warning {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .warning::before { content: "🚨 Interview Alert: "; font-weight: 700; }
+    .tip {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .tip::before { content: "💡 Pro Tip: "; font-weight: 700; }
+    .shortcut {
+      display: inline-block;
+      background: #374151;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.9em;
+      margin: 2px;
+      border: 1px solid #4b5563;
+    }
+    .diagram {
+      background: #1e1e3f;
+      border-radius: 16px;
+      padding: 30px;
+      margin: 25px 0;
+      text-align: center;
+      border: 1px solid #374151;
+    }
+    .diagram-title {
+      color: #a5b4fc;
+      font-weight: 600;
+      margin-bottom: 20px;
+      font-size: 1.1em;
+    }
+    .flow-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      padding: 20px;
+    }
+    .flow-box {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      padding: 15px 25px;
+      border-radius: 12px;
+      font-weight: 500;
+      min-width: 120px;
+    }
+    .flow-arrow {
+      color: #6366f1;
+      font-size: 1.5em;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .comparison-table th {
+      background: #4f46e5;
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+    }
+    .comparison-table td {
+      padding: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .comparison-table tr:last-child td { border-bottom: none; }
+    .visual-panel {
+      background: #0d1117;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 20px 0;
+      border: 1px solid #30363d;
+    }
+    .panel-header {
+      background: #161b22;
+      padding: 10px 15px;
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid #30363d;
+    }
+    .panel-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .panel-dot.red { background: #ff5f56; }
+    .panel-dot.yellow { background: #ffbd2e; }
+    .panel-dot.green { background: #27ca40; }
+    .panel-content { padding: 20px; font-family: 'Consolas', monospace; font-size: 0.9em; }
+    .line-number {
+      color: #6e7681;
+      user-select: none;
+      padding-right: 20px;
+      display: inline-block;
+      width: 40px;
+      text-align: right;
+    }
+    .breakpoint-line {
+      background: rgba(239, 68, 68, 0.2);
+      display: block;
+      margin: 0 -20px;
+      padding: 0 20px;
+    }
+    .breakpoint-marker {
+      color: #ef4444;
+      margin-right: 5px;
+    }
+    ul { margin-left: 25px; margin-bottom: 15px; }
+    li { margin: 8px 0; color: #d1d5db; }
+    strong { color: #a5b4fc; }
+    .highlight { background: rgba(99, 102, 241, 0.3); padding: 2px 6px; border-radius: 4px; }
+    .step-list { counter-reset: step; list-style: none; margin-left: 0; }
+    .step-list li {
+      counter-increment: step;
+      padding: 15px 15px 15px 60px;
+      position: relative;
+      background: rgba(255,255,255,0.03);
+      margin-bottom: 10px;
+      border-radius: 10px;
+    }
+    .step-list li::before {
+      content: counter(step);
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #6366f1;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="chapter-badge">📘 Chapter 4</div>
+      <h1>Sources Panel & Debugging</h1>
+      <p>Master JavaScript Debugging Like a Pro</p>
+    </header>
+
+    <!-- Section 4.1 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">4.1</div>
+        <span class="section-title">Understanding the Sources Panel Layout</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>📁 File Navigator Pane (Left Side)</h3>
+          <p>The left pane shows all resources loaded by the page, organized into several tabs:</p>
+          
+          <h4>Page Tab</h4>
+          <p>Displays resources grouped by origin/domain. This is your primary view for finding scripts, stylesheets, and other files loaded by the page.</p>
+          
+          <h4>Filesystem Tab</h4>
+          <p>Allows you to link a local folder to DevTools, enabling you to edit source files directly and save changes to disk. This creates a "Workspace".</p>
+          
+          <div class="code-block" data-lang="Setup Workspace">
+<code><span class="comment">// To set up a Workspace:</span>
+1. Click "Filesystem" tab
+2. Click "+ Add folder to workspace"
+3. Select your project folder
+4. Grant permission when prompted
+5. <span class="keyword">Green dot</span> appears next to synced files</code>
+          </div>
+
+          <h4>Overrides Tab</h4>
+          <p>Lets you persist changes across page reloads WITHOUT modifying the actual source files. Perfect for testing fixes on production sites.</p>
+          
+          <div class="tip">Overrides are stored locally in a folder you specify. Changes persist even after closing the browser!</div>
+
+          <h4>Content Scripts Tab</h4>
+          <p>Shows JavaScript from browser extensions running on the page. Useful for debugging extension conflicts.</p>
+
+          <h4>Snippets Tab</h4>
+          <p>Store and run custom JavaScript code snippets that persist across sessions. Great for repetitive debugging tasks.</p>
+          
+          <div class="code-block" data-lang="Example Snippet">
+<code><span class="comment">// Snippet: Log all event listeners on page</span>
+<span class="keyword">const</span> <span class="variable">allElements</span> = document.<span class="function">querySelectorAll</span>(<span class="string">'*'</span>);
+<span class="variable">allElements</span>.<span class="function">forEach</span>(<span class="variable">el</span> => {
+  <span class="keyword">const</span> <span class="variable">listeners</span> = <span class="function">getEventListeners</span>(<span class="variable">el</span>);
+  <span class="keyword">if</span> (Object.<span class="function">keys</span>(<span class="variable">listeners</span>).length > <span class="number">0</span>) {
+    console.<span class="function">log</span>(<span class="variable">el</span>, <span class="variable">listeners</span>);
+  }
+});</code>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>📝 Editor Pane (Center)</h3>
+          <p>The main code editor where you view and edit source files. Key features include:</p>
+          <ul>
+            <li><strong>Syntax highlighting</strong> for all common languages</li>
+            <li><strong>Line numbers</strong> - Click to set breakpoints</li>
+            <li><strong>Code folding</strong> - Collapse functions/blocks</li>
+            <li><strong>Multiple tabs</strong> - Open several files simultaneously</li>
+            <li><strong>Inline breakpoint indicators</strong> - Red dots on lines</li>
+            <li><strong>Source maps support</strong> - View original source code</li>
+          </ul>
+          
+          <div class="note">Press <span class="shortcut">Ctrl+G</span> to jump to a specific line number. Essential for large files!</div>
+        </div>
+
+        <div class="concept">
+          <h3>🔧 Debugger Pane (Right Side)</h3>
+          <p>Contains all debugging controls and information panels:</p>
+          
+          <div class="diagram">
+            <div class="diagram-title">Debugger Pane Components</div>
+            <div style="text-align: left; display: grid; gap: 15px;">
+              <div style="background: rgba(99,102,241,0.2); padding: 15px; border-radius: 10px;">
+                <strong>Watch</strong> - Add expressions to monitor their values
+              </div>
+              <div style="background: rgba(99,102,241,0.2); padding: 15px; border-radius: 10px;">
+                <strong>Breakpoints</strong> - List of all set breakpoints
+              </div>
+              <div style="background: rgba(99,102,241,0.2); padding: 15px; border-radius: 10px;">
+                <strong>Scope</strong> - View variables in current scope
+              </div>
+              <div style="background: rgba(99,102,241,0.2); padding: 15px; border-radius: 10px;">
+                <strong>Call Stack</strong> - Function call chain
+              </div>
+              <div style="background: rgba(99,102,241,0.2); padding: 15px; border-radius: 10px;">
+                <strong>XHR/fetch Breakpoints</strong> - Break on network requests
+              </div>
+              <div style="background: rgba(99,102,241,0.2); padding: 15px; border-radius: 10px;">
+                <strong>DOM Breakpoints</strong> - Break on DOM changes
+              </div>
+              <div style="background: rgba(99,102,241,0.2); padding: 15px; border-radius: 10px;">
+                <strong>Event Listener Breakpoints</strong> - Break on events
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4.2 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">4.2</div>
+        <span class="section-title">Breakpoints - The Heart of Debugging</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>🔴 Line-of-Code Breakpoints</h3>
+          <p>The most basic and commonly used breakpoint type. Execution pauses when the specified line is about to execute.</p>
+          
+          <div class="visual-panel">
+            <div class="panel-header">
+              <div class="panel-dot red"></div>
+              <div class="panel-dot yellow"></div>
+              <div class="panel-dot green"></div>
+              <span style="margin-left: 10px; color: #8b949e;">app.js</span>
+            </div>
+            <div class="panel-content">
+              <span class="line-number">1</span><span class="keyword">function</span> <span class="function">calculateTotal</span>(<span class="variable">items</span>) {<br>
+              <span class="line-number">2</span>  <span class="keyword">let</span> <span class="variable">total</span> = <span class="number">0</span>;<br>
+              <span class="breakpoint-line"><span class="line-number">3</span><span class="breakpoint-marker">●</span>  <span class="keyword">for</span> (<span class="keyword">let</span> <span class="variable">item</span> <span class="keyword">of</span> <span class="variable">items</span>) {</span>
+              <span class="line-number">4</span>    <span class="variable">total</span> += <span class="variable">item</span>.price;<br>
+              <span class="line-number">5</span>  }<br>
+              <span class="line-number">6</span>  <span class="keyword">return</span> <span class="variable">total</span>;<br>
+              <span class="line-number">7</span>}
+            </div>
+          </div>
+          
+          <p><strong>How to set:</strong> Click the line number in the gutter. A red dot appears.</p>
+          <p><strong>How to remove:</strong> Click the red dot again, or right-click → "Remove breakpoint"</p>
+        </div>
+
+        <div class="concept">
+          <h3>🟡 Conditional Breakpoints</h3>
+          <p>Only pause execution when a specified condition evaluates to <code>true</code>. Incredibly useful for debugging loops or functions called many times.</p>
+          
+          <div class="code-block" data-lang="Example">
+<code><span class="comment">// You want to pause only when processing item with id 42</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> <span class="variable">item</span> <span class="keyword">of</span> <span class="variable">items</span>) {
+  <span class="function">processItem</span>(<span class="variable">item</span>); <span class="comment">// Right-click line → "Add conditional breakpoint"</span>
+}
+
+<span class="comment">// Condition: item.id === 42</span>
+<span class="comment">// Now it only pauses when that specific item is being processed!</span></code>
+          </div>
+
+          <h4>Setting a Conditional Breakpoint:</h4>
+          <ol class="step-list">
+            <li>Right-click on the line number</li>
+            <li>Select "Add conditional breakpoint..."</li>
+            <li>Enter your JavaScript condition</li>
+            <li>Press Enter - Yellow/orange dot appears</li>
+          </ol>
+          
+          <div class="warning">Conditional breakpoints are a TOP interview question! Be ready to explain when you'd use them vs regular breakpoints.</div>
+        </div>
+
+        <div class="concept">
+          <h3>📝 Logpoints (Non-Breaking Breakpoints)</h3>
+          <p>Log messages to the console WITHOUT stopping execution. Perfect for adding temporary logging without modifying source code.</p>
+          
+          <div class="code-block" data-lang="Logpoint Expression">
+<code><span class="comment">// Instead of adding: console.log('User:', user.name, 'Score:', score)</span>
+<span class="comment">// Set a logpoint with expression:</span>
+<span class="string">'User:'</span>, <span class="variable">user</span>.name, <span class="string">'Score:'</span>, <span class="variable">score</span>
+
+<span class="comment">// Or use template literal:</span>
+<span class="string">`Processing user ${user.name} with score ${score}`</span></code>
+          </div>
+          
+          <p><strong>How to set:</strong> Right-click line number → "Add logpoint..."</p>
+          <p>Logpoints appear as <span style="color: #f97316;">orange diamonds</span> in the gutter.</p>
+          
+          <div class="tip">Logpoints are non-invasive. Use them in production debugging scenarios where you can't modify code!</div>
+        </div>
+
+        <div class="concept">
+          <h3>🌐 XHR/Fetch Breakpoints</h3>
+          <p>Pause execution when a network request URL matches a specified pattern. Essential for debugging API calls.</p>
+          
+          <h4>Setting XHR Breakpoints:</h4>
+          <ol class="step-list">
+            <li>In Debugger pane, find "XHR/fetch Breakpoints"</li>
+            <li>Click the + button</li>
+            <li>Enter URL substring (e.g., "api/users")</li>
+            <li>Leave empty to break on ALL XHR/fetch requests</li>
+          </ol>
+
+          <div class="code-block" data-lang="Example Usage">
+<code><span class="comment">// If you set breakpoint for "api/users"</span>
+<span class="comment">// These will trigger the breakpoint:</span>
+<span class="function">fetch</span>(<span class="string">'/api/users'</span>)           <span class="comment">// ✓ Matches</span>
+<span class="function">fetch</span>(<span class="string">'/api/users/123'</span>)       <span class="comment">// ✓ Matches</span>
+<span class="function">fetch</span>(<span class="string">'/v2/api/users/list'</span>)  <span class="comment">// ✓ Matches</span>
+<span class="function">fetch</span>(<span class="string">'/api/products'</span>)        <span class="comment">// ✗ No match</span></code>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>🎯 Event Listener Breakpoints</h3>
+          <p>Pause when specific DOM events fire. Helps trace what code runs in response to user interactions.</p>
+          
+          <div class="diagram">
+            <div class="diagram-title">Available Event Categories</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; text-align: left;">
+              <div style="background: rgba(99,102,241,0.2); padding: 15px; border-radius: 10px;">
+                <strong>Mouse</strong><br>
+                click, dblclick, mousedown, mouseup, mouseover, mouseout, wheel
+              </div>
+              <div style="background: rgba(99,102,241,0.2); padding: 15px; border-radius: 10px;">
+                <strong>Keyboard</strong><br>
+                keydown, keyup, keypress, input
+              </div>
+              <div style="background: rgba(99,102,241,0.2); padding: 15px; border-radius: 10px;">
+                <strong>Touch</strong><br>
+                touchstart, touchmove, touchend, touchcancel
+              </div>
+              <div style="background: rgba(99,102,241,0.2); padding: 15px; border-radius: 10px;">
+                <strong>Load</strong><br>
+                load, DOMContentLoaded, unload, beforeunload
+              </div>
+              <div style="background: rgba(99,102,241,0.2); padding: 15px; border-radius: 10px;">
+                <strong>Timer</strong><br>
+                setTimeout, setInterval, requestAnimationFrame
+              </div>
+              <div style="background: rgba(99,102,241,0.2); padding: 15px; border-radius: 10px;">
+                <strong>Script</strong><br>
+                Script First Statement, Script Blocked by CSP
+              </div>
+            </div>
+          </div>
+          
+          <div class="note">"Script First Statement" is incredibly useful - it pauses at the very first line of ANY script that runs!</div>
+        </div>
+
+        <div class="concept">
+          <h3>🔗 DOM Breakpoints</h3>
+          <p>Pause when the DOM is modified in specific ways. Set from the Elements panel, not Sources.</p>
+          
+          <table class="comparison-table">
+            <tr>
+              <th>Type</th>
+              <th>Triggers When</th>
+              <th>Use Case</th>
+            </tr>
+            <tr>
+              <td><strong>Subtree modifications</strong></td>
+              <td>Child elements added, removed, or moved</td>
+              <td>Debug dynamic content loading</td>
+            </tr>
+            <tr>
+              <td><strong>Attribute modifications</strong></td>
+              <td>Any attribute on the element changes</td>
+              <td>Track class or style changes</td>
+            </tr>
+            <tr>
+              <td><strong>Node removal</strong></td>
+              <td>The element itself is removed</td>
+              <td>Find what's deleting elements</td>
+            </tr>
+          </table>
+          
+          <p><strong>How to set:</strong> In Elements panel, right-click element → "Break on" → Choose type</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4.3 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">4.3</div>
+        <span class="section-title">Stepping Through Code</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>🎮 Debugging Controls</h3>
+          
+          <div class="diagram">
+            <div class="diagram-title">Step Control Buttons</div>
+            <div class="flow-diagram" style="flex-direction: column; gap: 20px;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; width: 100%;">
+                <div style="background: #10b981; padding: 20px; border-radius: 12px;">
+                  <div style="font-size: 1.5em; margin-bottom: 10px;">▶️ Resume</div>
+                  <div><span class="shortcut">F8</span></div>
+                  <div style="margin-top: 10px; font-size: 0.9em;">Continue until next breakpoint</div>
+                </div>
+                <div style="background: #3b82f6; padding: 20px; border-radius: 12px;">
+                  <div style="font-size: 1.5em; margin-bottom: 10px;">⤵️ Step Over</div>
+                  <div><span class="shortcut">F10</span></div>
+                  <div style="margin-top: 10px; font-size: 0.9em;">Execute line, skip into functions</div>
+                </div>
+                <div style="background: #8b5cf6; padding: 20px; border-radius: 12px;">
+                  <div style="font-size: 1.5em; margin-bottom: 10px;">⬇️ Step Into</div>
+                  <div><span class="shortcut">F11</span></div>
+                  <div style="margin-top: 10px; font-size: 0.9em;">Enter the function call</div>
+                </div>
+                <div style="background: #f59e0b; padding: 20px; border-radius: 12px;">
+                  <div style="font-size: 1.5em; margin-bottom: 10px;">⬆️ Step Out</div>
+                  <div><span class="shortcut">Shift+F11</span></div>
+                  <div style="margin-top: 10px; font-size: 0.9em;">Exit current function</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>📖 Step Over vs Step Into vs Step Out</h3>
+          
+          <div class="code-block" data-lang="Example Code">
+<code><span class="keyword">function</span> <span class="function">main</span>() {
+  <span class="keyword">let</span> <span class="variable">x</span> = <span class="number">5</span>;                    <span class="comment">// Line 1</span>
+  <span class="keyword">let</span> <span class="variable">y</span> = <span class="function">calculate</span>(<span class="variable">x</span>);        <span class="comment">// Line 2 ← Breakpoint here</span>
+  console.<span class="function">log</span>(<span class="variable">y</span>);              <span class="comment">// Line 3</span>
+}
+
+<span class="keyword">function</span> <span class="function">calculate</span>(<span class="variable">n</span>) {
+  <span class="keyword">let</span> <span class="variable">result</span> = <span class="variable">n</span> * <span class="number">2</span>;           <span class="comment">// Line A</span>
+  <span class="variable">result</span> = <span class="variable">result</span> + <span class="number">10</span>;         <span class="comment">// Line B</span>
+  <span class="keyword">return</span> <span class="variable">result</span>;               <span class="comment">// Line C</span>
+}</code>
+          </div>
+          
+          <p>When paused at Line 2:</p>
+          <ul>
+            <li><strong>Step Over (F10):</strong> Executes <code>calculate(x)</code> entirely, moves to Line 3</li>
+            <li><strong>Step Into (F11):</strong> Enters <code>calculate()</code>, moves to Line A</li>
+          </ul>
+          <p>When inside <code>calculate()</code> at Line B:</p>
+          <ul>
+            <li><strong>Step Out (Shift+F11):</strong> Finishes <code>calculate()</code>, returns to Line 3</li>
+          </ul>
+          
+          <div class="warning">Interview Question: "When would you use Step Over instead of Step Into?" Answer: When you trust a function works correctly and want to skip its internals!</div>
+        </div>
+
+        <div class="concept">
+          <h3>🏃 "Continue to Here"</h3>
+          <p>Right-click any line while paused and select "Continue to here" - execution resumes and pauses at that line. Faster than setting temporary breakpoints!</p>
+        </div>
+
+        <div class="concept">
+          <h3>🔄 Restart Frame</h3>
+          <p>Re-run the current function from the beginning without reloading the page. Available by right-clicking a frame in the Call Stack.</p>
+          
+          <div class="tip">Restart Frame is perfect when you want to re-test a function with modified local variables!</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4.4 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">4.4</div>
+        <span class="section-title">Scope, Variables, and the Call Stack</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>🔍 Understanding Scope</h3>
+          <p>When paused at a breakpoint, the Scope pane shows all accessible variables organized by scope level:</p>
+          
+          <div class="code-block" data-lang="Scope Example">
+<code><span class="keyword">const</span> <span class="variable">globalVar</span> = <span class="string">'global'</span>;         <span class="comment">// Global scope</span>
+
+<span class="keyword">function</span> <span class="function">outer</span>() {
+  <span class="keyword">const</span> <span class="variable">outerVar</span> = <span class="string">'outer'</span>;        <span class="comment">// Closure scope (for inner)</span>
+  
+  <span class="keyword">function</span> <span class="function">inner</span>(<span class="variable">param</span>) {
+    <span class="keyword">const</span> <span class="variable">localVar</span> = <span class="string">'local'</span>;      <span class="comment">// Local scope</span>
+    debugger;                        <span class="comment">// ← Paused here</span>
+    
+    <span class="comment">// At this point, Scope pane shows:</span>
+    <span class="comment">// Local:   localVar, param</span>
+    <span class="comment">// Closure: outerVar</span>
+    <span class="comment">// Global:  globalVar, window, etc.</span>
+  }
+  
+  <span class="function">inner</span>(<span class="string">'test'</span>);
+}</code>
+          </div>
+
+          <div class="diagram">
+            <div class="diagram-title">Scope Hierarchy When Paused</div>
+            <div style="text-align: left;">
+              <div style="background: #ef4444; padding: 15px 20px; border-radius: 10px 10px 0 0;">
+                <strong>Local</strong> - Variables in current function
+                <div style="font-family: monospace; margin-top: 10px; font-size: 0.9em;">
+                  localVar: "local"<br>
+                  param: "test"<br>
+                  this: Window
+                </div>
+              </div>
+              <div style="background: #f59e0b; padding: 15px 20px;">
+                <strong>Closure (outer)</strong> - Variables from enclosing functions
+                <div style="font-family: monospace; margin-top: 10px; font-size: 0.9em;">
+                  outerVar: "outer"
+                </div>
+              </div>
+              <div style="background: #10b981; padding: 15px 20px; border-radius: 0 0 10px 10px;">
+                <strong>Global</strong> - Window object and global variables
+                <div style="font-family: monospace; margin-top: 10px; font-size: 0.9em;">
+                  globalVar: "global"<br>
+                  window: Window {...}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>✏️ Modifying Variables at Runtime</h3>
+          <p>You can change variable values while paused to test different scenarios:</p>
+          
+          <ol class="step-list">
+            <li>Find the variable in the Scope pane</li>
+            <li>Double-click its value</li>
+            <li>Enter a new value</li>
+            <li>Press Enter to apply</li>
+            <li>Continue execution with the new value</li>
+          </ol>
+          
+          <div class="note">This is incredibly powerful for testing edge cases without changing code!</div>
+        </div>
+
+        <div class="concept">
+          <h3>👁️ Watch Expressions</h3>
+          <p>Monitor specific expressions that update at each breakpoint:</p>
+          
+          <div class="code-block" data-lang="Watch Expression Examples">
+<code><span class="comment">// Useful watch expressions:</span>
+<span class="variable">user</span>.isAuthenticated        <span class="comment">// Boolean check</span>
+<span class="variable">items</span>.length                 <span class="comment">// Array size</span>
+<span class="variable">total</span> > <span class="number">100</span>                  <span class="comment">// Condition check</span>
+<span class="keyword">typeof</span> <span class="variable">response</span>              <span class="comment">// Type check</span>
+JSON.<span class="function">stringify</span>(<span class="variable">data</span>)        <span class="comment">// Object as string</span>
+<span class="variable">performance</span>.<span class="function">now</span>()           <span class="comment">// Timing</span>
+<span class="variable">element</span>.<span class="function">getBoundingClientRect</span>()  <span class="comment">// Element position</span></code>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>📚 Call Stack Deep Dive</h3>
+          <p>The Call Stack shows the chain of function calls that led to the current execution point.</p>
+          
+          <div class="code-block" data-lang="Call Stack Example">
+<code><span class="keyword">function</span> <span class="function">handleClick</span>() {
+  <span class="function">validateForm</span>();
+}
+
+<span class="keyword">function</span> <span class="function">validateForm</span>() {
+  <span class="function">validateEmail</span>(<span class="string">'test@example.com'</span>);
+}
+
+<span class="keyword">function</span> <span class="function">validateEmail</span>(<span class="variable">email</span>) {
+  debugger; <span class="comment">// ← Paused here</span>
+  
+  <span class="comment">// Call Stack (top to bottom):</span>
+  <span class="comment">// → validateEmail     (current)</span>
+  <span class="comment">// → validateForm      (caller)</span>
+  <span class="comment">// → handleClick       (original trigger)</span>
+  <span class="comment">// → (anonymous)       (event handler)</span>
+}</code>
+          </div>
+          
+          <h4>Call Stack Features:</h4>
+          <ul>
+            <li><strong>Click frame</strong> - Jump to that function's code and see its local variables</li>
+            <li><strong>Right-click → Restart frame</strong> - Re-run from that function</li>
+            <li><strong>Right-click → Copy stack trace</strong> - Copy for bug reports</li>
+            <li><strong>Async calls</strong> - Shows async boundaries with "async" label</li>
+          </ul>
+          
+          <div class="tip">Enable "Async" stack traces in settings to see the full async call chain including setTimeout, Promises, and async/await!</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4.5 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">4.5</div>
+        <span class="section-title">Source Maps Explained</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>🗺️ What Are Source Maps?</h3>
+          <p>Source maps are files that map minified/transpiled code back to the original source code. They allow you to debug the code you wrote, not the transformed code the browser runs.</p>
+          
+          <div class="flow-diagram">
+            <div class="flow-box">Original Source<br><small>app.ts, style.scss</small></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-box" style="background: #f59e0b;">Build Process<br><small>TypeScript, Webpack</small></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-box">Bundle + Source Map<br><small>app.min.js, app.min.js.map</small></div>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>📄 Source Map Anatomy</h3>
+          
+          <div class="code-block" data-lang="Source Map (JSON)">
+<code>{
+  <span class="string">"version"</span>: <span class="number">3</span>,
+  <span class="string">"file"</span>: <span class="string">"app.min.js"</span>,
+  <span class="string">"sources"</span>: [<span class="string">"../src/utils.ts"</span>, <span class="string">"../src/app.ts"</span>],
+  <span class="string">"sourcesContent"</span>: [<span class="string">"// original source code..."</span>],
+  <span class="string">"names"</span>: [<span class="string">"calculateTotal"</span>, <span class="string">"items"</span>, <span class="string">"price"</span>],
+  <span class="string">"mappings"</span>: <span class="string">"AAAA,SAASA,cAAc..."</span>
+}</code>
+          </div>
+          
+          <p>The minified file includes a reference to the source map:</p>
+          <div class="code-block" data-lang="JavaScript">
+<code><span class="comment">// At the end of app.min.js:</span>
+<span class="comment">//# sourceMappingURL=app.min.js.map</span></code>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>⚙️ Enabling Source Maps in DevTools</h3>
+          <ol class="step-list">
+            <li>Open DevTools Settings (F1 or gear icon)</li>
+            <li>Go to "Preferences" section</li>
+            <li>Under "Sources", enable:
+              <ul>
+                <li>✓ Enable JavaScript source maps</li>
+                <li>✓ Enable CSS source maps</li>
+              </ul>
+            </li>
+          </ol>
+          
+          <div class="note">With source maps enabled, you'll see and debug your original TypeScript/ES6+/Sass files!</div>
+        </div>
+
+        <div class="concept">
+          <h3>🔧 Common Source Map Issues</h3>
+          <table class="comparison-table">
+            <tr>
+              <th>Problem</th>
+              <th>Cause</th>
+              <th>Solution</th>
+            </tr>
+            <tr>
+              <td>Source maps not loading</td>
+              <td>Maps not deployed or wrong path</td>
+              <td>Check Network panel for .map 404s</td>
+            </tr>
+            <tr>
+              <td>Wrong line numbers</td>
+              <td>Stale source maps</td>
+              <td>Rebuild project, clear cache</td>
+            </tr>
+            <tr>
+              <td>Can't set breakpoints in original source</td>
+              <td>Source maps disabled</td>
+              <td>Check DevTools settings</td>
+            </tr>
+            <tr>
+              <td>Variables show wrong names</td>
+              <td>Heavy minification</td>
+              <td>Use less aggressive minification</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4.6 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">4.6</div>
+        <span class="section-title">Advanced Debugging Techniques</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>🎯 The debugger Statement</h3>
+          <p>Programmatically trigger a breakpoint in your code:</p>
+          
+          <div class="code-block" data-lang="JavaScript">
+<code><span class="keyword">function</span> <span class="function">processData</span>(<span class="variable">data</span>) {
+  <span class="keyword">if</span> (<span class="variable">data</span>.length === <span class="number">0</span>) {
+    <span class="keyword">debugger</span>; <span class="comment">// Only pauses when data is empty</span>
+  }
+  
+  <span class="comment">// Or conditional debugging:</span>
+  <span class="variable">data</span>.<span class="function">forEach</span>((<span class="variable">item</span>, <span class="variable">index</span>) => {
+    <span class="keyword">if</span> (<span class="variable">index</span> === <span class="number">99</span>) <span class="keyword">debugger</span>; <span class="comment">// Pause on 100th item</span>
+    <span class="function">process</span>(<span class="variable">item</span>);
+  });
+}</code>
+          </div>
+          
+          <div class="warning">Remove debugger statements before production! They cause the page to pause if DevTools is open.</div>
+        </div>
+
+        <div class="concept">
+          <h3>⏸️ Pause on Exceptions</h3>
+          <p>Automatically pause when JavaScript throws an error:</p>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="background: rgba(99,102,241,0.2); padding: 20px; border-radius: 12px;">
+              <h4 style="color: #a5b4fc; margin-bottom: 10px;">Pause on caught exceptions</h4>
+              <p style="font-size: 0.9em;">Pauses even when errors are caught in try/catch blocks. Helps find silently swallowed errors.</p>
+            </div>
+            <div style="background: rgba(239,68,68,0.2); padding: 20px; border-radius: 12px;">
+              <h4 style="color: #f87171; margin-bottom: 10px;">Pause on uncaught exceptions</h4>
+              <p style="font-size: 0.9em;">Only pauses on unhandled errors that would crash. Default recommendation.</p>
+            </div>
+          </div>
+          
+          <p style="margin-top: 20px;"><strong>Toggle:</strong> Click the ⏸️ button in the Sources panel toolbar</p>
+        </div>
+
+        <div class="concept">
+          <h3>🚫 Blackboxing Scripts</h3>
+          <p>"Ignore" library code so the debugger steps over it automatically. Essential when using frameworks!</p>
+          
+          <h4>How to Blackbox:</h4>
+          <ul>
+            <li><strong>Method 1:</strong> Right-click file in Sources → "Add script to ignore list"</li>
+            <li><strong>Method 2:</strong> Settings → Ignore List → Add pattern</li>
+          </ul>
+          
+          <div class="code-block" data-lang="Common Ignore Patterns">
+<code><span class="comment">// Add these patterns to ignore list:</span>
+/node_modules/
+/jquery\.min\.js$
+/react\.production\.min\.js$
+/angular\.min\.js$
+/vue\.runtime\.esm\.js$
+/lodash/</code>
+          </div>
+          
+          <div class="tip">After blackboxing React, "Step Into" will skip React's internals and go straight to your component code!</div>
+        </div>
+
+        <div class="concept">
+          <h3>🔌 Live Edit (Hot Reloading)</h3>
+          <p>Edit JavaScript directly in DevTools and see changes immediately:</p>
+          
+          <ol class="step-list">
+            <li>Set up a Workspace or Overrides</li>
+            <li>Make changes in the Sources editor</li>
+            <li>Press <span class="shortcut">Ctrl+S</span> to save</li>
+            <li>Changes apply immediately (for some code)</li>
+          </ol>
+          
+          <h4>Limitations:</h4>
+          <ul>
+            <li>Only works for code not yet executed</li>
+            <li>Can't change already-instantiated objects</li>
+            <li>May require triggering the code path again</li>
+            <li>Structural changes might need page reload</li>
+          </ul>
+        </div>
+
+        <div class="concept">
+          <h3>🐛 Debugging Async Code</h3>
+          <p>Modern JavaScript is full of async patterns. DevTools handles them specially:</p>
+          
+          <div class="code-block" data-lang="Async Debugging">
+<code><span class="keyword">async function</span> <span class="function">fetchUserData</span>() {
+  console.<span class="function">log</span>(<span class="string">'Starting fetch'</span>);        <span class="comment">// Breakpoint 1</span>
+  
+  <span class="keyword">const</span> <span class="variable">response</span> = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/api/user'</span>);  <span class="comment">// Await point</span>
+  
+  console.<span class="function">log</span>(<span class="string">'Got response'</span>);          <span class="comment">// Breakpoint 2</span>
+  
+  <span class="keyword">const</span> <span class="variable">data</span> = <span class="keyword">await</span> <span class="variable">response</span>.<span class="function">json</span>();
+  
+  <span class="keyword">return</span> <span class="variable">data</span>;
+}
+
+<span class="comment">// Call stack will show:</span>
+<span class="comment">// → fetchUserData (async)</span>
+<span class="comment">// → (async)</span>
+<span class="comment">// → handleButtonClick</span>
+<span class="comment">// → (anonymous)</span></code>
+          </div>
+          
+          <div class="note">Enable "Async" in Settings → Experiments to see the full async call stack across await boundaries!</div>
+        </div>
+
+        <div class="concept">
+          <h3>📊 Quick Console Evaluation</h3>
+          <p>While paused, use the Console to evaluate expressions in the current scope:</p>
+          
+          <div class="code-block" data-lang="Console While Debugging">
+<code><span class="comment">// If paused in a function with variables 'items' and 'user':</span>
+
+> <span class="variable">items</span>.<span class="function">filter</span>(<span class="variable">i</span> => <span class="variable">i</span>.price > <span class="number">100</span>)
+← [{name: "Premium", price: 199}, ...]
+
+> <span class="variable">user</span>.permissions.<span class="function">includes</span>(<span class="string">'admin'</span>)
+← <span class="keyword">false</span>
+
+> <span class="variable">items</span>.<span class="function">map</span>(<span class="variable">i</span> => <span class="variable">i</span>.name).<span class="function">join</span>(<span class="string">', '</span>)
+← <span class="string">"Basic, Standard, Premium"</span>
+
+<span class="comment">// You can even modify values:</span>
+> <span class="variable">user</span>.isAdmin = <span class="keyword">true</span>
+← <span class="keyword">true</span></code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Summary -->
+    <section class="section" style="background: linear-gradient(135deg, #4f46e5, #7c3aed);">
+      <div class="section-content">
+        <h2 style="text-align: center; margin-bottom: 30px; font-size: 1.8em;">🎯 Chapter 4 Key Takeaways</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+          <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+            <h4 style="margin-bottom: 10px;">Essential Shortcuts</h4>
+            <ul style="margin-left: 20px;">
+              <li><span class="shortcut">F8</span> Resume</li>
+              <li><span class="shortcut">F10</span> Step Over</li>
+              <li><span class="shortcut">F11</span> Step Into</li>
+              <li><span class="shortcut">Ctrl+P</span> Quick Open</li>
+            </ul>
+          </div>
+          <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+            <h4 style="margin-bottom: 10px;">Interview Must-Knows</h4>
+            <ul style="margin-left: 20px;">
+              <li>Conditional breakpoints</li>
+              <li>Logpoints vs console.log</li>
+              <li>Source maps purpose</li>
+              <li>Blackboxing libraries</li>
+            </ul>
+          </div>
+          <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+            <h4 style="margin-bottom: 10px;">Pro Techniques</h4>
+            <ul style="margin-left: 20px;">
+              <li>XHR breakpoints for API</li>
+              <li>Event listener breakpoints</li>
+              <li>Async stack traces</li>
+              <li>Workspaces for live edit</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

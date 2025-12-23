@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 5: Network Panel Analysis - In Depth</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+      color: #e4e4e7;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+    .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+      padding: 50px 40px;
+      background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+      border-radius: 24px;
+      box-shadow: 0 25px 80px rgba(14, 165, 233, 0.4);
+    }
+    header h1 { font-size: 2.8em; margin-bottom: 15px; }
+    header p { opacity: 0.9; font-size: 1.2em; }
+    .chapter-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 8px 20px;
+      border-radius: 30px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    .section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      margin-bottom: 40px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .section-header {
+      background: linear-gradient(90deg, #0ea5e9, #6366f1);
+      padding: 25px 30px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .section-num {
+      background: rgba(255,255,255,0.2);
+      width: 50px;
+      height: 50px;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.3em;
+    }
+    .section-title { font-size: 1.5em; font-weight: 600; }
+    .section-content { padding: 30px; }
+    .concept {
+      background: rgba(255,255,255,0.03);
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 25px;
+      border-left: 4px solid #0ea5e9;
+    }
+    .concept h3 {
+      color: #7dd3fc;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+    }
+    .concept h4 {
+      color: #a5b4fc;
+      margin: 20px 0 12px 0;
+      font-size: 1.1em;
+    }
+    .concept p { margin-bottom: 15px; color: #d1d5db; }
+    .code-block {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      border: 1px solid #334155;
+      position: relative;
+    }
+    .code-block::before {
+      content: attr(data-lang);
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 0.75em;
+      color: #64748b;
+      text-transform: uppercase;
+    }
+    .code-block code {
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 0.95em;
+      line-height: 1.6;
+      color: #e4e4e7;
+    }
+    .comment { color: #64748b; }
+    .keyword { color: #f472b6; }
+    .string { color: #a5f3fc; }
+    .function { color: #7dd3fc; }
+    .number { color: #fcd34d; }
+    .variable { color: #c4b5fd; }
+    .note {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #1a1a2e;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+      font-weight: 500;
+    }
+    .note::before { content: "⚡ Key Concept: "; font-weight: 700; }
+    .warning {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .warning::before { content: "🚨 Interview Alert: "; font-weight: 700; }
+    .tip {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .tip::before { content: "💡 Pro Tip: "; font-weight: 700; }
+    .shortcut {
+      display: inline-block;
+      background: #334155;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.9em;
+      margin: 2px;
+      border: 1px solid #475569;
+    }
+    .diagram {
+      background: #0f172a;
+      border-radius: 16px;
+      padding: 30px;
+      margin: 25px 0;
+      border: 1px solid #334155;
+    }
+    .diagram-title {
+      color: #7dd3fc;
+      font-weight: 600;
+      margin-bottom: 20px;
+      font-size: 1.1em;
+      text-align: center;
+    }
+    .waterfall {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .waterfall-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .waterfall-label {
+      width: 120px;
+      font-size: 0.85em;
+      text-align: right;
+      color: #94a3b8;
+    }
+    .waterfall-bar-container {
+      flex: 1;
+      height: 25px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+    .waterfall-bar {
+      height: 100%;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      padding-left: 8px;
+      font-size: 0.75em;
+      color: white;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .comparison-table th {
+      background: #0ea5e9;
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+    }
+    .comparison-table td {
+      padding: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .comparison-table tr:last-child td { border-bottom: none; }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      font-weight: 600;
+    }
+    .status-2xx { background: #10b981; }
+    .status-3xx { background: #3b82f6; }
+    .status-4xx { background: #f59e0b; color: #1a1a2e; }
+    .status-5xx { background: #ef4444; }
+    ul { margin-left: 25px; margin-bottom: 15px; }
+    li { margin: 8px 0; color: #d1d5db; }
+    strong { color: #7dd3fc; }
+    .filter-example {
+      background: rgba(14, 165, 233, 0.1);
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin: 10px 0;
+      font-family: 'Consolas', monospace;
+    }
+    .headers-panel {
+      background: #1e293b;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 20px 0;
+    }
+    .headers-section {
+      border-bottom: 1px solid #334155;
+      padding: 15px 20px;
+    }
+    .headers-section:last-child { border-bottom: none; }
+    .headers-title {
+      color: #7dd3fc;
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .header-row {
+      display: flex;
+      padding: 5px 0;
+      font-family: 'Consolas', monospace;
+      font-size: 0.9em;
+    }
+    .header-name { color: #f472b6; margin-right: 10px; }
+    .header-value { color: #a5f3fc; }
+    .timing-visual {
+      display: flex;
+      height: 40px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 20px 0;
+    }
+    .timing-segment {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7em;
+      font-weight: 600;
+      min-width: 60px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="chapter-badge">📘 Chapter 5</div>
+      <h1>Network Panel Analysis</h1>
+      <p>Master HTTP Requests, Responses & Performance</p>
+    </header>
+
+    <!-- Section 5.1 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">5.1</div>
+        <span class="section-title">Network Panel Overview</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>🌐 What the Network Panel Shows</h3>
+          <p>The Network panel records ALL HTTP requests made by the page, including:</p>
+          <ul>
+            <li><strong>Documents</strong> - HTML pages, iframes</li>
+            <li><strong>Stylesheets</strong> - CSS files</li>
+            <li><strong>Scripts</strong> - JavaScript files</li>
+            <li><strong>XHR/Fetch</strong> - AJAX/API calls</li>
+            <li><strong>Fonts</strong> - Web fonts</li>
+            <li><strong>Images</strong> - All image formats</li>
+            <li><strong>Media</strong> - Video, audio files</li>
+            <li><strong>WebSocket</strong> - Real-time connections</li>
+            <li><strong>Manifest</strong> - PWA manifest files</li>
+            <li><strong>Other</strong> - Source maps, etc.</li>
+          </ul>
+          
+          <div class="note">The Network panel only records while it's open! Open DevTools BEFORE loading the page to capture all requests.</div>
+        </div>
+
+        <div class="concept">
+          <h3>📊 Network Panel Columns</h3>
+          
+          <table class="comparison-table">
+            <tr>
+              <th>Column</th>
+              <th>Description</th>
+              <th>Why It Matters</th>
+            </tr>
+            <tr>
+              <td><strong>Name</strong></td>
+              <td>Resource filename or URL path</td>
+              <td>Identify the resource</td>
+            </tr>
+            <tr>
+              <td><strong>Status</strong></td>
+              <td>HTTP status code (200, 404, etc.)</td>
+              <td>Detect errors quickly</td>
+            </tr>
+            <tr>
+              <td><strong>Type</strong></td>
+              <td>Resource type (xhr, script, css)</td>
+              <td>Filter by category</td>
+            </tr>
+            <tr>
+              <td><strong>Initiator</strong></td>
+              <td>What triggered the request</td>
+              <td>Trace request origin</td>
+            </tr>
+            <tr>
+              <td><strong>Size</strong></td>
+              <td>Transfer size / actual size</td>
+              <td>Identify large resources</td>
+            </tr>
+            <tr>
+              <td><strong>Time</strong></td>
+              <td>Total request duration</td>
+              <td>Find slow requests</td>
+            </tr>
+            <tr>
+              <td><strong>Waterfall</strong></td>
+              <td>Visual timing breakdown</td>
+              <td>Understand request phases</td>
+            </tr>
+          </table>
+          
+          <div class="tip">Right-click column headers to show/hide columns. Add "Priority" to see resource loading priority!</div>
+        </div>
+
+        <div class="concept">
+          <h3>🚦 HTTP Status Codes</h3>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div style="background: rgba(16, 185, 129, 0.2); padding: 20px; border-radius: 12px; border-left: 4px solid #10b981;">
+              <h4 style="color: #10b981; margin-bottom: 10px;">2xx Success</h4>
+              <p style="font-size: 0.9em;">
+                <span class="status-badge status-2xx">200</span> OK<br>
+                <span class="status-badge status-2xx">201</span> Created<br>
+                <span class="status-badge status-2xx">204</span> No Content
+              </p>
+            </div>
+            <div style="background: rgba(59, 130, 246, 0.2); padding: 20px; border-radius: 12px; border-left: 4px solid #3b82f6;">
+              <h4 style="color: #3b82f6; margin-bottom: 10px;">3xx Redirect</h4>
+              <p style="font-size: 0.9em;">
+                <span class="status-badge status-3xx">301</span> Moved Permanently<br>
+                <span class="status-badge status-3xx">302</span> Found (Temp)<br>
+                <span class="status-badge status-3xx">304</span> Not Modified
+              </p>
+            </div>
+            <div style="background: rgba(245, 158, 11, 0.2); padding: 20px; border-radius: 12px; border-left: 4px solid #f59e0b;">
+              <h4 style="color: #f59e0b; margin-bottom: 10px;">4xx Client Error</h4>
+              <p style="font-size: 0.9em;">
+                <span class="status-badge status-4xx">400</span> Bad Request<br>
+                <span class="status-badge status-4xx">401</span> Unauthorized<br>
+                <span class="status-badge status-4xx">403</span> Forbidden<br>
+                <span class="status-badge status-4xx">404</span> Not Found
+              </p>
+            </div>
+            <div style="background: rgba(239, 68, 68, 0.2); padding: 20px; border-radius: 12px; border-left: 4px solid #ef4444;">
+              <h4 style="color: #ef4444; margin-bottom: 10px;">5xx Server Error</h4>
+              <p style="font-size: 0.9em;">
+                <span class="status-badge status-5xx">500</span> Internal Error<br>
+                <span class="status-badge status-5xx">502</span> Bad Gateway<br>
+                <span class="status-badge status-5xx">503</span> Unavailable<br>
+                <span class="status-badge status-5xx">504</span> Gateway Timeout
+              </p>
+            </div>
+          </div>
+          
+          <div class="warning">Know status codes by heart! Common interview question: "What's the difference between 401 and 403?"</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5.2 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">5.2</div>
+        <span class="section-title">Filtering Requests</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>🔍 Filter Bar Basics</h3>
+          <p>The filter bar at the top lets you narrow down requests. Simply type to filter by name/URL.</p>
+          
+          <h4>Type Filters</h4>
+          <p>Click the buttons to filter by resource type:</p>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0;">
+            <span style="background: #3b82f6; padding: 8px 16px; border-radius: 20px;">All</span>
+            <span style="background: #334155; padding: 8px 16px; border-radius: 20px;">Fetch/XHR</span>
+            <span style="background: #334155; padding: 8px 16px; border-radius: 20px;">JS</span>
+            <span style="background: #334155; padding: 8px 16px; border-radius: 20px;">CSS</span>
+            <span style="background: #334155; padding: 8px 16px; border-radius: 20px;">Img</span>
+            <span style="background: #334155; padding: 8px 16px; border-radius: 20px;">Media</span>
+            <span style="background: #334155; padding: 8px 16px; border-radius: 20px;">Font</span>
+            <span style="background: #334155; padding: 8px 16px; border-radius: 20px;">Doc</span>
+            <span style="background: #334155; padding: 8px 16px; border-radius: 20px;">WS</span>
+            <span style="background: #334155; padding: 8px 16px; border-radius: 20px;">Manifest</span>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>🎯 Advanced Filter Syntax</h3>
+          <p>Use special operators for powerful filtering:</p>
+          
+          <h4>Domain Filtering</h4>
+          <div class="filter-example">domain:api.example.com</div>
+          <p>Shows only requests to specific domain.</p>
+          
+          <h4>Status Code Filtering</h4>
+          <div class="filter-example">status-code:404</div>
+          <div class="filter-example">status-code:500</div>
+          <p>Filter by specific HTTP status.</p>
+          
+          <h4>Negative Filtering</h4>
+          <div class="filter-example">-status-code:200</div>
+          <div class="filter-example">-domain:google.com</div>
+          <p>Exclude matching requests (show errors only).</p>
+          
+          <h4>Size Filtering</h4>
+          <div class="filter-example">larger-than:100k</div>
+          <div class="filter-example">larger-than:1M</div>
+          <p>Find large resources causing slow loads.</p>
+          
+          <h4>Method Filtering</h4>
+          <div class="filter-example">method:POST</div>
+          <div class="filter-example">method:PUT</div>
+          <p>Filter by HTTP method.</p>
+          
+          <h4>Mixed Content</h4>
+          <div class="filter-example">mixed-content:displayed</div>
+          <div class="filter-example">mixed-content:blocked</div>
+          <p>Find HTTP resources on HTTPS pages.</p>
+          
+          <h4>Has Response Header</h4>
+          <div class="filter-example">has-response-header:cache-control</div>
+          <p>Filter by presence of specific headers.</p>
+          
+          <h4>Regex Filtering</h4>
+          <div class="filter-example">/api\/v[0-9]+\//</div>
+          <p>Use regex patterns for complex matching.</p>
+          
+          <div class="note">Combine filters: <code>domain:api.example.com status-code:500</code> shows only API errors!</div>
+        </div>
+
+        <div class="concept">
+          <h3>☑️ Filter Checkboxes</h3>
+          <ul>
+            <li><strong>Invert</strong> - Show everything EXCEPT matching requests</li>
+            <li><strong>Hide data URLs</strong> - Remove inline base64 data</li>
+            <li><strong>Hide extension URLs</strong> - Remove browser extension requests</li>
+            <li><strong>Blocked response cookies</strong> - Show requests with cookie issues</li>
+            <li><strong>Blocked requests</strong> - Show ad-blocked/filtered requests</li>
+            <li><strong>3rd-party requests</strong> - Show only cross-origin requests</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5.3 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">5.3</div>
+        <span class="section-title">Request Details Deep Dive</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>📋 Headers Tab</h3>
+          <p>Click any request to see its details. The Headers tab shows the most important information.</p>
+          
+          <div class="headers-panel">
+            <div class="headers-section">
+              <div class="headers-title">▼ General</div>
+              <div class="header-row">
+                <span class="header-name">Request URL:</span>
+                <span class="header-value">https://api.example.com/users/123</span>
+              </div>
+              <div class="header-row">
+                <span class="header-name">Request Method:</span>
+                <span class="header-value">GET</span>
+              </div>
+              <div class="header-row">
+                <span class="header-name">Status Code:</span>
+                <span class="header-value">200 OK</span>
+              </div>
+              <div class="header-row">
+                <span class="header-name">Remote Address:</span>
+                <span class="header-value">93.184.216.34:443</span>
+              </div>
+            </div>
+            <div class="headers-section">
+              <div class="headers-title">▼ Response Headers</div>
+              <div class="header-row">
+                <span class="header-name">content-type:</span>
+                <span class="header-value">application/json; charset=utf-8</span>
+              </div>
+              <div class="header-row">
+                <span class="header-name">cache-control:</span>
+                <span class="header-value">max-age=3600, public</span>
+              </div>
+              <div class="header-row">
+                <span class="header-name">content-encoding:</span>
+                <span class="header-value">gzip</span>
+              </div>
+            </div>
+            <div class="headers-section">
+              <div class="headers-title">▼ Request Headers</div>
+              <div class="header-row">
+                <span class="header-name">accept:</span>
+                <span class="header-value">application/json</span>
+              </div>
+              <div class="header-row">
+                <span class="header-name">authorization:</span>
+                <span class="header-value">Bearer eyJhbGciOiJIUzI1NiIs...</span>
+              </div>
+              <div class="header-row">
+                <span class="header-name">user-agent:</span>
+                <span class="header-value">Mozilla/5.0 (Windows NT 10.0...)</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="tip">Click "view source" next to headers section to see raw header format!</div>
+        </div>
+
+        <div class="concept">
+          <h3>📦 Payload Tab (Request Body)</h3>
+          <p>Shows data sent WITH the request (POST, PUT, PATCH methods):</p>
+          
+          <div class="code-block" data-lang="Form Data">
+<code><span class="comment">// Form Data (application/x-www-form-urlencoded)</span>
+<span class="variable">username</span>: john_doe
+<span class="variable">password</span>: ********
+<span class="variable">remember</span>: true</code>
+          </div>
+          
+          <div class="code-block" data-lang="JSON Payload">
+<code><span class="comment">// JSON Payload (application/json)</span>
+{
+  <span class="string">"email"</span>: <span class="string">"user@example.com"</span>,
+  <span class="string">"preferences"</span>: {
+    <span class="string">"theme"</span>: <span class="string">"dark"</span>,
+    <span class="string">"notifications"</span>: <span class="keyword">true</span>
+  }
+}</code>
+          </div>
+          
+          <h4>Query String Parameters</h4>
+          <p>URL parameters are also shown here:</p>
+          <div class="filter-example">
+            ?page=2&limit=20&sort=date&order=desc
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>📄 Preview & Response Tabs</h3>
+          
+          <h4>Preview Tab</h4>
+          <ul>
+            <li>JSON - Pretty-printed, expandable tree view</li>
+            <li>HTML - Rendered preview of the document</li>
+            <li>Images - Visual preview</li>
+            <li>Fonts - Sample text in the font</li>
+          </ul>
+          
+          <h4>Response Tab</h4>
+          <ul>
+            <li>Raw response body (unformatted)</li>
+            <li>Useful for seeing exact server output</li>
+            <li>Can copy entire response</li>
+          </ul>
+        </div>
+
+        <div class="concept">
+          <h3>🔗 Initiator Tab</h3>
+          <p>Shows the request chain - what caused this request:</p>
+          
+          <div class="code-block" data-lang="Request Chain">
+<code><span class="comment">// Initiator chain for an API call:</span>
+
+📄 index.html
+  └── 📜 app.js (line 45)
+        └── 📜 api.js (line 23) 
+              └── 🌐 fetch('/api/users')  <span class="comment">← Current request</span>
+
+<span class="comment">// Shows the exact line of code that triggered the request!</span></code>
+          </div>
+          
+          <div class="note">Click any stack frame to jump directly to that line in the Sources panel!</div>
+        </div>
+
+        <div class="concept">
+          <h3>🍪 Cookies Tab</h3>
+          <p>Shows cookies sent with request and received in response:</p>
+          
+          <table class="comparison-table">
+            <tr>
+              <th>Cookie</th>
+              <th>Value</th>
+              <th>Domain</th>
+              <th>Attributes</th>
+            </tr>
+            <tr>
+              <td>session_id</td>
+              <td>abc123...</td>
+              <td>.example.com</td>
+              <td>HttpOnly, Secure, SameSite=Lax</td>
+            </tr>
+            <tr>
+              <td>preferences</td>
+              <td>theme=dark</td>
+              <td>example.com</td>
+              <td>Expires: 2024-12-31</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5.4 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">5.4</div>
+        <span class="section-title">Timing Breakdown (Waterfall)</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>⏱️ Understanding Request Timing</h3>
+          <p>The Timing tab breaks down exactly where time is spent during a request:</p>
+          
+          <div class="diagram">
+            <div class="diagram-title">Request Timing Phases</div>
+            <div class="timing-visual">
+              <div class="timing-segment" style="background: #94a3b8; width: 10%;">Queue</div>
+              <div class="timing-segment" style="background: #64748b; width: 8%;">Stalled</div>
+              <div class="timing-segment" style="background: #22d3ee; width: 12%;">DNS</div>
+              <div class="timing-segment" style="background: #a78bfa; width: 15%;">Connect</div>
+              <div class="timing-segment" style="background: #f472b6; width: 10%;">SSL</div>
+              <div class="timing-segment" style="background: #fb923c; width: 5%;">Send</div>
+              <div class="timing-segment" style="background: #4ade80; width: 25%;">Waiting (TTFB)</div>
+              <div class="timing-segment" style="background: #3b82f6; width: 15%;">Download</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>📊 Timing Phases Explained</h3>
+          
+          <table class="comparison-table">
+            <tr>
+              <th>Phase</th>
+              <th>What It Measures</th>
+              <th>Optimization Tips</th>
+            </tr>
+            <tr>
+              <td><strong style="color: #94a3b8;">Queueing</strong></td>
+              <td>Time waiting in browser queue</td>
+              <td>Browser limits 6 connections per host. Use HTTP/2 or CDN.</td>
+            </tr>
+            <tr>
+              <td><strong style="color: #64748b;">Stalled/Blocking</strong></td>
+              <td>Time before request could be sent</td>
+              <td>Reduce number of requests, prioritize critical resources.</td>
+            </tr>
+            <tr>
+              <td><strong style="color: #22d3ee;">DNS Lookup</strong></td>
+              <td>Resolving domain to IP address</td>
+              <td>Use DNS prefetching: <code>&lt;link rel="dns-prefetch"&gt;</code></td>
+            </tr>
+            <tr>
+              <td><strong style="color: #a78bfa;">Initial Connection</strong></td>
+              <td>TCP handshake (SYN, SYN-ACK, ACK)</td>
+              <td>Use preconnect: <code>&lt;link rel="preconnect"&gt;</code></td>
+            </tr>
+            <tr>
+              <td><strong style="color: #f472b6;">SSL/TLS</strong></td>
+              <td>TLS negotiation for HTTPS</td>
+              <td>Enable TLS 1.3, use session resumption.</td>
+            </tr>
+            <tr>
+              <td><strong style="color: #fb923c;">Request Sent</strong></td>
+              <td>Uploading request data</td>
+              <td>Reduce payload size, compress request body.</td>
+            </tr>
+            <tr>
+              <td><strong style="color: #4ade80;">Waiting (TTFB)</strong></td>
+              <td>Time To First Byte - server processing</td>
+              <td>Server optimization, caching, CDN edge caching.</td>
+            </tr>
+            <tr>
+              <td><strong style="color: #3b82f6;">Content Download</strong></td>
+              <td>Receiving response body</td>
+              <td>Enable compression (gzip/brotli), reduce response size.</td>
+            </tr>
+          </table>
+          
+          <div class="warning">TTFB is a critical performance metric! High TTFB indicates server-side issues. Interviewers often ask about this!</div>
+        </div>
+
+        <div class="concept">
+          <h3>📈 Reading the Waterfall Chart</h3>
+          
+          <div class="diagram">
+            <div class="diagram-title">Sample Waterfall Analysis</div>
+            <div class="waterfall">
+              <div class="waterfall-row">
+                <div class="waterfall-label">index.html</div>
+                <div class="waterfall-bar-container">
+                  <div class="waterfall-bar" style="background: linear-gradient(90deg, #4ade80 60%, #3b82f6 40%); width: 30%;">200ms</div>
+                </div>
+              </div>
+              <div class="waterfall-row">
+                <div class="waterfall-label">styles.css</div>
+                <div class="waterfall-bar-container">
+                  <div class="waterfall-bar" style="background: linear-gradient(90deg, #4ade80 50%, #3b82f6 50%); width: 25%; margin-left: 30%;">150ms</div>
+                </div>
+              </div>
+              <div class="waterfall-row">
+                <div class="waterfall-label">app.js</div>
+                <div class="waterfall-bar-container">
+                  <div class="waterfall-bar" style="background: linear-gradient(90deg, #4ade80 40%, #3b82f6 60%); width: 40%; margin-left: 30%;">300ms</div>
+                </div>
+              </div>
+              <div class="waterfall-row">
+                <div class="waterfall-label">api/users</div>
+                <div class="waterfall-bar-container">
+                  <div class="waterfall-bar" style="background: linear-gradient(90deg, #4ade80 70%, #3b82f6 30%); width: 25%; margin-left: 70%;">180ms</div>
+                </div>
+              </div>
+              <div class="waterfall-row">
+                <div class="waterfall-label">hero.jpg</div>
+                <div class="waterfall-bar-container">
+                  <div class="waterfall-bar" style="background: linear-gradient(90deg, #4ade80 20%, #3b82f6 80%); width: 50%; margin-left: 55%;">400ms</div>
+                </div>
+              </div>
+            </div>
+            <p style="text-align: left; margin-top: 20px; font-size: 0.9em; color: #94a3b8;">
+              <span style="color: #4ade80;">■</span> Waiting (TTFB) &nbsp;&nbsp;
+              <span style="color: #3b82f6;">■</span> Content Download &nbsp;&nbsp;
+              Bar position = start time, width = duration
+            </p>
+          </div>
+          
+          <h4>What to Look For:</h4>
+          <ul>
+            <li><strong>Long bars</strong> - Slow resources blocking others</li>
+            <li><strong>Gaps</strong> - Browser waiting (connection limits or dependencies)</li>
+            <li><strong>Cascade pattern</strong> - Resources loading in sequence (not parallel)</li>
+            <li><strong>Green (TTFB) dominates</strong> - Server is slow</li>
+            <li><strong>Blue (Download) dominates</strong> - Resource is too large</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5.5 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">5.5</div>
+        <span class="section-title">Network Throttling & Simulation</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>📶 Network Throttling Profiles</h3>
+          <p>Simulate slower connections to test how your site performs for users with poor network:</p>
+          
+          <table class="comparison-table">
+            <tr>
+              <th>Profile</th>
+              <th>Download</th>
+              <th>Upload</th>
+              <th>Latency</th>
+            </tr>
+            <tr>
+              <td><strong>Fast 3G</strong></td>
+              <td>1.5 Mb/s</td>
+              <td>750 Kb/s</td>
+              <td>563 ms</td>
+            </tr>
+            <tr>
+              <td><strong>Slow 3G</strong></td>
+              <td>500 Kb/s</td>
+              <td>500 Kb/s</td>
+              <td>2000 ms</td>
+            </tr>
+            <tr>
+              <td><strong>Offline</strong></td>
+              <td>0</td>
+              <td>0</td>
+              <td>∞</td>
+            </tr>
+            <tr>
+              <td><strong>Custom</strong></td>
+              <td>You define</td>
+              <td>You define</td>
+              <td>You define</td>
+            </tr>
+          </table>
+          
+          <h4>Creating Custom Profiles:</h4>
+          <p>Click the throttling dropdown → Add custom profile...</p>
+          
+          <div class="code-block" data-lang="Example Custom Profile">
+<code><span class="comment">// Simulate typical mobile in developing regions</span>
+<span class="variable">Download</span>: <span class="number">384</span> kb/s
+<span class="variable">Upload</span>: <span class="number">128</span> kb/s  
+<span class="variable">Latency</span>: <span class="number">300</span> ms</code>
+          </div>
+          
+          <div class="tip">Always test your site on Slow 3G before launching. If it's usable there, it's usable everywhere!</div>
+        </div>
+
+        <div class="concept">
+          <h3>📴 Offline Mode Testing</h3>
+          <p>Test Service Workers and offline functionality:</p>
+          <ul>
+            <li>Select "Offline" from throttling dropdown</li>
+            <li>All network requests will fail</li>
+            <li>Service Worker cached responses still work</li>
+            <li>Test your app's offline error states</li>
+          </ul>
+          
+          <div class="note">Offline mode + Application panel = Complete PWA testing environment!</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5.6 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">5.6</div>
+        <span class="section-title">Request Blocking & Overriding</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>🚫 Blocking Requests</h3>
+          <p>Block specific resources to test how your page behaves without them:</p>
+          
+          <h4>Method 1: Right-Click Block</h4>
+          <ul>
+            <li>Right-click any request</li>
+            <li>Select "Block request URL" or "Block request domain"</li>
+            <li>Reload page to see effect</li>
+          </ul>
+          
+          <h4>Method 2: Request Blocking Panel</h4>
+          <ul>
+            <li>Open Command Menu (<span class="shortcut">Ctrl+Shift+P</span>)</li>
+            <li>Type "Show Request Blocking"</li>
+            <li>Add URL patterns to block</li>
+            <li>Supports wildcards: <code>*.analytics.com</code></li>
+          </ul>
+          
+          <div class="code-block" data-lang="Blocking Patterns">
+<code><span class="comment">// Block patterns examples:</span>
+*google-analytics*       <span class="comment">// Block analytics</span>
+*.doubleclick.net        <span class="comment">// Block ads</span>
+*/api/tracking/*         <span class="comment">// Block tracking API</span>
+*facebook*               <span class="comment">// Block Facebook widgets</span>
+*.woff2                  <span class="comment">// Block all web fonts</span></code>
+          </div>
+          
+          <div class="tip">Block third-party scripts to measure their performance impact on your page!</div>
+        </div>
+
+        <div class="concept">
+          <h3>✏️ Request Overrides (Local Overrides)</h3>
+          <p>Replace server responses with local files - perfect for testing changes on production!</p>
+          
+          <h4>Setup Steps:</h4>
+          <ol style="margin-left: 25px;">
+            <li>Go to Sources panel → Overrides tab</li>
+            <li>Click "Select folder for overrides"</li>
+            <li>Choose/create a local folder</li>
+            <li>Grant DevTools access</li>
+            <li>Enable "Enable Local Overrides" checkbox</li>
+          </ol>
+          
+          <h4>Creating an Override:</h4>
+          <ol style="margin-left: 25px;">
+            <li>Find request in Network panel</li>
+            <li>Right-click → "Override content"</li>
+            <li>Edit the file in Sources panel</li>
+            <li>Save (<span class="shortcut">Ctrl+S</span>)</li>
+            <li>Reload - your version is served!</li>
+          </ol>
+          
+          <div class="warning">Overrides persist across browser sessions! Remember to disable when done debugging.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5.7 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">5.7</div>
+        <span class="section-title">Copy & Export Features</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>📋 Copy as cURL</h3>
+          <p>Right-click any request and copy as cURL to replay it in terminal or share with backend developers:</p>
+          
+          <div class="code-block" data-lang="bash">
+<code><span class="comment"># Copied cURL command:</span>
+curl <span class="string">'https://api.example.com/users'</span> \
+  -H <span class="string">'accept: application/json'</span> \
+  -H <span class="string">'authorization: Bearer eyJhbGc...'</span> \
+  -H <span class="string">'content-type: application/json'</span> \
+  --data-raw <span class="string">'{"name":"John"}'</span> \
+  --compressed</code>
+          </div>
+          
+          <h4>Available Copy Formats:</h4>
+          <ul>
+            <li><strong>Copy as cURL (bash)</strong> - For Mac/Linux terminals</li>
+            <li><strong>Copy as cURL (cmd)</strong> - For Windows CMD</li>
+            <li><strong>Copy as cURL (PowerShell)</strong> - For Windows PowerShell</li>
+            <li><strong>Copy as fetch</strong> - JavaScript fetch() code</li>
+            <li><strong>Copy as Node.js fetch</strong> - Node.js compatible</li>
+            <li><strong>Copy request headers</strong> - Just headers</li>
+            <li><strong>Copy response</strong> - Response body</li>
+          </ul>
+          
+          <div class="code-block" data-lang="JavaScript (Copy as Fetch)">
+<code><span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">"https://api.example.com/users"</span>, {
+  <span class="string">"headers"</span>: {
+    <span class="string">"accept"</span>: <span class="string">"application/json"</span>,
+    <span class="string">"authorization"</span>: <span class="string">"Bearer eyJhbGc..."</span>,
+    <span class="string">"content-type"</span>: <span class="string">"application/json"</span>
+  },
+  <span class="string">"body"</span>: <span class="string">"{\"name\":\"John\"}"</span>,
+  <span class="string">"method"</span>: <span class="string">"POST"</span>
+});</code>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>📁 HAR Files (HTTP Archive)</h3>
+          <p>Export all network activity to share or analyze later:</p>
+          
+          <h4>Export HAR:</h4>
+          <p>Right-click in request list → "Save all as HAR with content"</p>
+          
+          <h4>Import HAR:</h4>
+          <p>Drag and drop .har file into Network panel</p>
+          
+          <h4>HAR Use Cases:</h4>
+          <ul>
+            <li>Share network issues with team members</li>
+            <li>Attach to bug reports</li>
+            <li>Compare before/after optimization</li>
+            <li>Analyze with external tools (HAR viewers)</li>
+            <li>Automate performance testing</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5.8 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">5.8</div>
+        <span class="section-title">WebSocket & Server-Sent Events</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>🔌 WebSocket Inspection</h3>
+          <p>WebSocket connections appear in the Network panel with type "WS":</p>
+          
+          <h4>Messages Tab</h4>
+          <ul>
+            <li><span style="color: #4ade80;">Green ↑</span> - Messages sent TO server</li>
+            <li><span style="color: #ef4444;">Red ↓</span> - Messages received FROM server</li>
+            <li>Click message to see full content</li>
+            <li>Filter messages by content</li>
+          </ul>
+          
+          <div class="code-block" data-lang="WebSocket Messages">
+<code><span class="comment">// Outgoing (green):</span>
+<span style="color: #4ade80;">↑</span> {"type": "subscribe", "channel": "prices"}
+<span style="color: #4ade80;">↑</span> {"type": "ping"}
+
+<span class="comment">// Incoming (red):</span>
+<span style="color: #ef4444;">↓</span> {"type": "price_update", "BTC": 45000.50}
+<span style="color: #ef4444;">↓</span> {"type": "pong"}</code>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>📡 Server-Sent Events (SSE)</h3>
+          <p>SSE connections appear as type "eventsource":</p>
+          <ul>
+            <li>One-way server-to-client communication</li>
+            <li>View individual events in Messages tab</li>
+            <li>See event type, data, and ID</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Summary -->
+    <section class="section" style="background: linear-gradient(135deg, #0ea5e9, #6366f1);">
+      <div class="section-content">
+        <h2 style="text-align: center; margin-bottom: 30px; font-size: 1.8em;">🎯 Chapter 5 Key Takeaways</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+          <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+            <h4 style="margin-bottom: 10px;">Filter Mastery</h4>
+            <ul style="margin-left: 20px;">
+              <li><code>status-code:4xx</code></li>
+              <li><code>-domain:cdn.com</code></li>
+              <li><code>larger-than:500k</code></li>
+              <li><code>method:POST</code></li>
+            </ul>
+          </div>
+          <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+            <h4 style="margin-bottom: 10px;">Interview Essentials</h4>
+            <ul style="margin-left: 20px;">
+              <li>TTFB significance</li>
+              <li>Status code meanings</li>
+              <li>Waterfall analysis</li>
+              <li>Copy as cURL</li>
+            </ul>
+          </div>
+          <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+            <h4 style="margin-bottom: 10px;">Optimization Insights</h4>
+            <ul style="margin-left: 20px;">
+              <li>Identify slow requests</li>
+              <li>Find large resources</li>
+              <li>Test under throttling</li>
+              <li>Block third-party impact</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

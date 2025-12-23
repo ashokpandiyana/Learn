@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 12: Advanced Techniques & Interview Questions</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #0f0f0f 100%);
+      color: #e4e4e7;
+      line-height: 1.8;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    header {
+      text-align: center;
+      padding: 50px 40px;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+      border-radius: 20px;
+      margin-bottom: 40px;
+      box-shadow: 0 20px 60px rgba(245, 158, 11, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: "🏆";
+      position: absolute;
+      font-size: 150px;
+      opacity: 0.1;
+      top: -20px;
+      right: -20px;
+    }
+    header h1 { font-size: 2.5em; margin-bottom: 10px; position: relative; }
+    header p { opacity: 0.95; font-size: 1.2em; position: relative; }
+    .badge { 
+      display: inline-block; 
+      background: rgba(255,255,255,0.2); 
+      padding: 5px 15px; 
+      border-radius: 20px; 
+      font-size: 0.9em;
+      margin-top: 15px;
+      position: relative;
+    }
+    section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 35px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    h2 {
+      color: #fbbf24;
+      font-size: 1.8em;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid rgba(251, 191, 36, 0.3);
+    }
+    h3 {
+      color: #fcd34d;
+      font-size: 1.3em;
+      margin: 25px 0 15px 0;
+    }
+    h4 {
+      color: #fde68a;
+      font-size: 1.1em;
+      margin: 20px 0 10px 0;
+    }
+    p { margin-bottom: 15px; color: #d1d5db; }
+    .concept-box {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+      border-left: 4px solid #f59e0b;
+      padding: 20px 25px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .code-block {
+      background: #1e1e2e;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      border: 1px solid #333;
+    }
+    .code-block pre {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.9em;
+      color: #a6e3a1;
+      white-space: pre-wrap;
+    }
+    .code-title {
+      background: #333;
+      color: #fbbf24;
+      padding: 8px 15px;
+      border-radius: 8px 8px 0 0;
+      font-size: 0.85em;
+      margin-bottom: -12px;
+      display: inline-block;
+    }
+    .highlight { color: #fbbf24; font-weight: 600; }
+    .note {
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .note::before { content: "⚡ Key Point: "; font-weight: 700; }
+    .warning {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .warning::before { content: "🚨 Interview Alert: "; font-weight: 700; }
+    .tip {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .tip::before { content: "💡 Pro Tip: "; font-weight: 700; }
+    ul, ol { margin: 15px 0 15px 25px; }
+    li { margin: 10px 0; color: #d1d5db; }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    .comparison-table th, .comparison-table td {
+      padding: 15px;
+      text-align: left;
+      border: 1px solid #333;
+    }
+    .comparison-table th {
+      background: #374151;
+      color: #fbbf24;
+    }
+    .comparison-table td { background: rgba(255,255,255,0.02); }
+    code {
+      background: #374151;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.9em;
+      color: #a6e3a1;
+    }
+    .shortcut {
+      display: inline-block;
+      background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.9em;
+      margin: 2px;
+      border: 1px solid #4b5563;
+      color: #fbbf24;
+    }
+    .interview-card {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      border-radius: 16px;
+      padding: 25px;
+      margin: 20px 0;
+      border: 2px solid transparent;
+      transition: border-color 0.3s;
+    }
+    .interview-card:hover {
+      border-color: #f59e0b;
+    }
+    .interview-q {
+      color: #fbbf24;
+      font-size: 1.1em;
+      font-weight: 600;
+      margin-bottom: 15px;
+      display: flex;
+      gap: 10px;
+    }
+    .interview-a {
+      color: #d1d5db;
+      padding-left: 35px;
+    }
+    .difficulty {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 15px;
+      font-size: 0.75em;
+      margin-left: 10px;
+    }
+    .difficulty.easy { background: #10b981; color: white; }
+    .difficulty.medium { background: #f59e0b; color: #1a1a2e; }
+    .difficulty.hard { background: #ef4444; color: white; }
+    .checklist {
+      background: #1f2937;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #374151;
+    }
+    .checklist-item:last-child { border-bottom: none; }
+    .check-icon {
+      color: #10b981;
+      font-size: 1.2em;
+      flex-shrink: 0;
+    }
+    .device-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .device-card {
+      background: #1f2937;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+    }
+    .device-icon { font-size: 2em; margin-bottom: 10px; }
+    .sensor-card {
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+    }
+    .command-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .command-card {
+      background: #1f2937;
+      border-radius: 10px;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .command-key {
+      background: #374151;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: monospace;
+      color: #fbbf24;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎯 Chapter 12: Advanced Techniques & Interview Questions</h1>
+      <p>Master-Level DevTools Skills & Interview Preparation</p>
+      <span class="badge">🔴 Advanced Level</span>
+    </header>
+
+    <!-- Section 12.1 -->
+    <section>
+      <h2>12.1 Remote Debugging</h2>
+      
+      <p>Debug websites on real mobile devices or remote browsers using Chrome's remote debugging feature.</p>
+
+      <h3>Android Remote Debugging</h3>
+
+      <ol>
+        <li><strong>On Android Device:</strong>
+          <ul>
+            <li>Enable Developer Options (tap Build Number 7 times)</li>
+            <li>Enable USB Debugging in Developer Options</li>
+            <li>Connect device via USB</li>
+          </ul>
+        </li>
+        <li><strong>On Desktop Chrome:</strong>
+          <ul>
+            <li>Navigate to <code>chrome://inspect</code></li>
+            <li>Check "Discover USB devices"</li>
+            <li>Your device and open tabs will appear</li>
+            <li>Click "Inspect" next to any tab</li>
+          </ul>
+        </li>
+      </ol>
+
+      <h3>Port Forwarding</h3>
+      <p>Access localhost on your mobile device:</p>
+
+      <div class="code-block">
+        <div class="code-title">Port Forwarding Setup</div>
+        <pre>
+// In chrome://inspect, click "Port forwarding"
+// Add rules like:
+
+Device port: 8080  →  localhost:8080
+Device port: 3000  →  localhost:3000
+
+// Now on Android, http://localhost:8080 accesses your dev server!</pre>
+      </div>
+
+      <h3>Remote Debugging Features</h3>
+      <ul>
+        <li><strong>Screencast:</strong> Mirror device screen in DevTools</li>
+        <li><strong>Full DevTools:</strong> All panels work on mobile content</li>
+        <li><strong>Touch simulation:</strong> Click in DevTools → touch on device</li>
+        <li><strong>Inspect WebViews:</strong> Debug apps using WebView</li>
+      </ul>
+
+      <div class="tip">Remote debugging is essential for fixing mobile-specific bugs that don't reproduce in desktop emulation!</div>
+    </section>
+
+    <!-- Section 12.2 -->
+    <section>
+      <h2>12.2 Device Emulation & Sensors</h2>
+
+      <h3>Device Mode</h3>
+      <p>Press <span class="shortcut">Ctrl+Shift+M</span> or click the device icon to toggle Device Mode.</p>
+
+      <h3>Device Presets</h3>
+
+      <div class="device-grid">
+        <div class="device-card">
+          <div class="device-icon">📱</div>
+          <strong>iPhone 14 Pro Max</strong>
+          <p style="font-size: 0.8em; color: #9ca3af;">430 × 932</p>
+        </div>
+        <div class="device-card">
+          <div class="device-icon">📱</div>
+          <strong>Pixel 7</strong>
+          <p style="font-size: 0.8em; color: #9ca3af;">412 × 915</p>
+        </div>
+        <div class="device-card">
+          <div class="device-icon">📱</div>
+          <strong>Samsung Galaxy S21</strong>
+          <p style="font-size: 0.8em; color: #9ca3af;">360 × 800</p>
+        </div>
+        <div class="device-card">
+          <div class="device-icon">📲</div>
+          <strong>iPad Pro</strong>
+          <p style="font-size: 0.8em; color: #9ca3af;">1024 × 1366</p>
+        </div>
+      </div>
+
+      <h3>Custom Device Profiles</h3>
+
+      <div class="code-block">
+        <div class="code-title">Creating Custom Device</div>
+        <pre>
+// Settings → Devices → Add custom device
+
+Device Name: Custom Phone
+Width: 375
+Height: 812
+Device Pixel Ratio: 3
+User Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)...
+Type: Mobile (with touch)</pre>
+      </div>
+
+      <h3>Sensors Emulation</h3>
+
+      <div class="sensor-card">
+        <h4>📍 Geolocation Override</h4>
+        <p>Test location-based features without physically moving.</p>
+        <div class="code-block" style="margin: 10px 0;">
+          <pre>
+// Open Sensors panel: More tools → Sensors
+// Or use Command Menu → "Show Sensors"
+
+// Preset locations:
+- Berlin, Tokyo, London, Moscow, etc.
+
+// Custom coordinates:
+Latitude: 40.7128
+Longitude: -74.0060
+
+// No location:
+Simulates denied permission</pre>
+        </div>
+      </div>
+
+      <div class="sensor-card">
+        <h4>🧭 Device Orientation</h4>
+        <p>Simulate accelerometer data for motion-based features.</p>
+        <div class="code-block" style="margin: 10px 0;">
+          <pre>
+// Orientation values:
+Alpha: 0-360 (rotation around z-axis)
+Beta: -180 to 180 (front-to-back tilt)
+Gamma: -90 to 90 (left-to-right tilt)
+
+// Presets: Portrait, Landscape Left, Landscape Right, Display Up, Display Down</pre>
+        </div>
+      </div>
+
+      <div class="sensor-card">
+        <h4>👆 Touch Simulation</h4>
+        <p>Test touch events on desktop.</p>
+        <ul>
+          <li>Automatically enabled in Device Mode</li>
+          <li>Hold <code>Shift</code> + drag for pinch zoom</li>
+          <li>Touch events fire instead of mouse events</li>
+        </ul>
+      </div>
+
+      <h3>Media Feature Emulation</h3>
+
+      <div class="code-block">
+        <div class="code-title">Rendering Panel → Emulate CSS Media</div>
+        <pre>
+// Emulate CSS media type:
+print    → Test print stylesheets
+screen   → Default
+
+// Emulate CSS media features:
+prefers-color-scheme: dark | light
+prefers-reduced-motion: reduce | no-preference
+prefers-contrast: more | less | no-preference
+forced-colors: active | none
+
+// Emulate vision deficiencies:
+- Blurred vision
+- Protanopia (red-blind)
+- Deuteranopia (green-blind)
+- Tritanopia (blue-blind)
+- Achromatopsia (no color)</pre>
+      </div>
+
+      <div class="warning">Testing with vision deficiency emulation is a common accessibility interview topic. Know how to use it!</div>
+    </section>
+
+    <!-- Section 12.3 -->
+    <section>
+      <h2>12.3 Network Conditioning & Request Manipulation</h2>
+
+      <h3>Custom Throttling Profiles</h3>
+
+      <div class="code-block">
+        <div class="code-title">Creating Custom Network Profile</div>
+        <pre>
+// Network panel → Throttling dropdown → Add...
+
+Profile Name: "Emerging Markets 3G"
+Download: 400 kb/s
+Upload: 100 kb/s  
+Latency: 400 ms
+
+// Real-world profiles to consider:
+- Slow 3G: 500kb/s down, 500kb/s up, 400ms RTT
+- Fast 3G: 1.6Mb/s down, 750kb/s up, 150ms RTT
+- 4G LTE: 12Mb/s down, 5Mb/s up, 70ms RTT
+- Satellite: 5Mb/s down, 1Mb/s up, 600ms RTT</pre>
+      </div>
+
+      <h3>Request Blocking</h3>
+
+      <div class="code-block">
+        <div class="code-title">Blocking Requests</div>
+        <pre>
+// Method 1: Right-click on request
+Right-click → Block request URL
+Right-click → Block request domain
+
+// Method 2: Network request blocking panel
+1. Open drawer (Esc)
+2. More tools → Network request blocking
+3. Add patterns:
+   - *.js (block all JavaScript)
+   - *analytics* (block analytics scripts)
+   - facebook.com/* (block Facebook resources)
+   - */api/v1/* (block specific API calls)
+
+// Use cases:
+- Test how site works without JavaScript
+- Test fallbacks when resources fail
+- Block third-party scripts for performance testing
+- Test offline functionality</pre>
+      </div>
+
+      <h3>Request Override (Local Overrides)</h3>
+
+      <div class="code-block">
+        <div class="code-title">Setting Up Local Overrides</div>
+        <pre>
+// 1. Sources → Overrides → Select folder for overrides
+// 2. Grant permission when prompted
+// 3. Right-click any network request → "Save for overrides"
+// 4. Edit the saved file in Sources panel
+// 5. Refresh - your version is used!
+
+// Override types:
+- HTML pages
+- CSS stylesheets
+- JavaScript files
+- JSON API responses (great for mocking!)
+- Images
+
+// Files with overrides show purple dot in Sources panel</pre>
+      </div>
+
+      <div class="tip">Local overrides persist across page reloads! Perfect for testing fixes on production sites without access to the server.</div>
+    </section>
+
+    <!-- Section 12.4 -->
+    <section>
+      <h2>12.4 Advanced Console Techniques</h2>
+
+      <h3>Console Utilities Deep Dive</h3>
+
+      <div class="code-block">
+        <div class="code-title">Advanced Console Commands</div>
+        <pre>
+// Get all event listeners on an element
+getEventListeners(document.querySelector('button'));
+// Returns: { click: [...], mouseover: [...] }
+
+// Monitor function calls
+function secretFunction(a, b) { return a + b; }
+monitor(secretFunction);
+secretFunction(1, 2);
+// Console: function secretFunction called with arguments: 1, 2
+
+// Monitor all events on an element
+monitorEvents(document.body, ['click', 'keydown']);
+// Logs all click and keydown events
+
+// Monitor specific event types
+monitorEvents(window, 'resize');
+
+// Stop monitoring
+unmonitorEvents(document.body);
+
+// Debug a function (break when called)
+debug(myFunction);
+// Now whenever myFunction is called, debugger pauses
+
+// Stop debugging
+undebug(myFunction);
+
+// Query all elements (returns real array, not NodeList)
+$$('div.card');  // Same as [...document.querySelectorAll('div.card')]
+
+// XPath queries
+$x('//div[@class="card"]');
+
+// Copy anything to clipboard
+copy(myObject);
+copy($$('a').map(a => a.href));
+
+// Get the current selected element from Elements panel
+$0.classList
+$0.innerHTML
+
+// Last 5 selected elements
+$0, $1, $2, $3, $4
+
+// Last evaluated expression result
+$_</pre>
+      </div>
+
+      <h3>Console Styling</h3>
+
+      <div class="code-block">
+        <div class="code-title">Styled Console Output</div>
+        <pre>
+// Single style
+console.log('%cHello World!', 'color: red; font-size: 24px;');
+
+// Multiple styles
+console.log(
+    '%cSuccess! %cWarning! %cError!',
+    'color: green; font-weight: bold;',
+    'color: orange;',
+    'color: red; background: yellow; padding: 2px 5px;'
+);
+
+// Image in console!
+console.log(
+    '%c ',
+    'background: url(https://example.com/logo.png) no-repeat; ' +
+    'padding: 50px 100px; background-size: contain;'
+);
+
+// Table with specific columns
+console.table(users, ['name', 'email']);
+
+// Group related logs
+console.group('User Authentication');
+console.log('Checking credentials...');
+console.log('Token valid');
+console.groupEnd();
+
+// Collapsed group
+console.groupCollapsed('Debug Info');
+console.log('Lots of debug data...');
+console.groupEnd();</pre>
+      </div>
+
+      <h3>Live Expressions</h3>
+
+      <div class="code-block">
+        <div class="code-title">Useful Live Expressions</div>
+        <pre>
+// Click the eye icon 👁 in Console to add live expressions
+
+// Watch active element (great for focus debugging)
+document.activeElement
+
+// Watch scroll position
+window.scrollY
+
+// Watch viewport size
+`${window.innerWidth} x ${window.innerHeight}`
+
+// Watch specific state
+myApp.state.user.isLoggedIn
+
+// Performance timing
+performance.now().toFixed(2) + 'ms'
+
+// Count DOM nodes
+document.getElementsByTagName('*').length</pre>
+      </div>
+    </section>
+
+    <!-- Section 12.5 -->
+    <section>
+      <h2>12.5 Command Menu Mastery</h2>
+
+      <p>The Command Menu (<span class="shortcut">Ctrl+Shift+P</span>) is the fastest way to access any DevTools feature.</p>
+
+      <h3>Essential Commands</h3>
+
+      <div class="command-grid">
+        <div class="command-card">
+          <span class="command-key">Screenshot</span>
+          <span>Capture full page, area, or node</span>
+        </div>
+        <div class="command-card">
+          <span class="command-key">Disable JavaScript</span>
+          <span>Test no-JS experience</span>
+        </div>
+        <div class="command-card">
+          <span class="command-key">Show Coverage</span>
+          <span>Find unused code</span>
+        </div>
+        <div class="command-card">
+          <span class="command-key">Show Rendering</span>
+          <span>Paint flashing, FPS meter</span>
+        </div>
+        <div class="command-card">
+          <span class="command-key">Show Layers</span>
+          <span>3D layer visualization</span>
+        </div>
+        <div class="command-card">
+          <span class="command-key">Show Sensors</span>
+          <span>Geolocation, orientation</span>
+        </div>
+        <div class="command-card">
+          <span class="command-key">Block request URL</span>
+          <span>Network request blocking</span>
+        </div>
+        <div class="command-card">
+          <span class="command-key">Run snippet</span>
+          <span>Execute saved code</span>
+        </div>
+      </div>
+
+      <h3>Screenshot Commands</h3>
+
+      <div class="code-block">
+        <div class="code-title">Screenshot Types (Ctrl+Shift+P → Screenshot)</div>
+        <pre>
+1. "Capture screenshot"        - Visible viewport
+2. "Capture full size screenshot" - Entire page (scrolled)
+3. "Capture node screenshot"   - Selected element only
+4. "Capture area screenshot"   - Draw selection area
+
+// Pro tip: Node screenshot is perfect for grabbing 
+// specific components for documentation!</pre>
+      </div>
+
+      <h3>File Navigation</h3>
+
+      <div class="code-block">
+        <div class="code-title">Quick File Commands</div>
+        <pre>
+Ctrl+P           → Open file by name (fuzzy search)
+Ctrl+Shift+O     → Go to symbol/function in current file
+Ctrl+G           → Go to line number
+Ctrl+Shift+F     → Search across all files
+
+// In file search, use prefixes:
+:123             → Go to line 123
+@functionName    → Go to function
+!searchTerm      → Search in current file</pre>
+      </div>
+    </section>
+
+    <!-- Section 12.6 -->
+    <section>
+      <h2>12.6 Production-Grade HTML Checklist</h2>
+
+      <h3>Performance Checklist</h3>
+
+      <div class="checklist">
+        <div class="checklist-item">
+          <span class="check-icon">✅</span>
+          <div>
+            <strong>Minify HTML, CSS, JavaScript</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">Remove whitespace, comments, shorten variable names</p>
+          </div>
+        </div>
+        <div class="checklist-item">
+          <span class="check-icon">✅</span>
+          <div>
+            <strong>Optimize images</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">WebP/AVIF format, responsive srcset, lazy loading</p>
+          </div>
+        </div>
+        <div class="checklist-item">
+          <span class="check-icon">✅</span>
+          <div>
+            <strong>Enable compression</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">Gzip or Brotli for text resources</p>
+          </div>
+        </div>
+        <div class="checklist-item">
+          <span class="check-icon">✅</span>
+          <div>
+            <strong>Use CDN for static assets</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">Geographic distribution, edge caching</p>
+          </div>
+        </div>
+        <div class="checklist-item">
+          <span class="check-icon">✅</span>
+          <div>
+            <strong>Inline critical CSS</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">Above-the-fold styles in &lt;head&gt;</p>
+          </div>
+        </div>
+        <div class="checklist-item">
+          <span class="check-icon">✅</span>
+          <div>
+            <strong>Defer non-critical JavaScript</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">async/defer attributes, dynamic imports</p>
+          </div>
+        </div>
+        <div class="checklist-item">
+          <span class="check-icon">✅</span>
+          <div>
+            <strong>Preload critical resources</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">&lt;link rel="preload"&gt; for fonts, hero images</p>
+          </div>
+        </div>
+        <div class="checklist-item">
+          <span class="check-icon">✅</span>
+          <div>
+            <strong>Set proper cache headers</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">Long cache for versioned assets, short for HTML</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>Security Checklist</h3>
+
+      <div class="checklist">
+        <div class="checklist-item">
+          <span class="check-icon">🔒</span>
+          <div>
+            <strong>HTTPS everywhere</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">TLS 1.2+ with HSTS header</p>
+          </div>
+        </div>
+        <div class="checklist-item">
+          <span class="check-icon">🔒</span>
+          <div>
+            <strong>Content Security Policy</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">Restrict resource sources, prevent XSS</p>
+          </div>
+        </div>
+        <div class="checklist-item">
+          <span class="check-icon">🔒</span>
+          <div>
+            <strong>Secure cookies</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">HttpOnly, Secure, SameSite=Lax/Strict</p>
+          </div>
+        </div>
+        <div class="checklist-item">
+          <span class="check-icon">🔒</span>
+          <div>
+            <strong>No mixed content</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">All resources loaded over HTTPS</p>
+          </div>
+        </div>
+        <div class="checklist-item">
+          <span class="check-icon">🔒</span>
+          <div>
+            <strong>Subresource Integrity (SRI)</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">Hash verification for third-party scripts</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>Accessibility Checklist</h3>
+
+      <div class="checklist">
+        <div class="checklist-item">
+          <span class="check-icon">♿</span>
+          <div>
+            <strong>Semantic HTML elements</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">header, nav, main, article, footer, etc.</p>
+          </div>
+        </div>
+        <div class="checklist-item">
+          <span class="check-icon">♿</span>
+          <div>
+            <strong>Alt text for images</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">Descriptive for content, empty for decorative</p>
+          </div>
+        </div>
+        <div class="checklist-item">
+          <span class="check-icon">♿</span>
+          <div>
+            <strong>Keyboard navigation</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">All interactive elements focusable and usable</p>
+          </div>
+        </div>
+        <div class="checklist-item">
+          <span class="check-icon">♿</span>
+          <div>
+            <strong>Color contrast (4.5:1 minimum)</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">Use DevTools contrast checker</p>
+          </div>
+        </div>
+        <div class="checklist-item">
+          <span class="check-icon">♿</span>
+          <div>
+            <strong>Focus indicators</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">Visible focus styles for keyboard users</p>
+          </div>
+        </div>
+        <div class="checklist-item">
+          <span class="check-icon">♿</span>
+          <div>
+            <strong>ARIA labels where needed</strong>
+            <p style="font-size: 0.85em; color: #9ca3af;">aria-label, aria-describedby, role attributes</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>SEO Checklist</h3>
+
+      <div class="code-block">
+        <div class="code-title">Essential SEO HTML</div>
+        <pre>
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    
+    &lt;!-- SEO Essentials --&gt;
+    &lt;title&gt;Primary Keyword - Secondary | Brand (50-60 chars)&lt;/title&gt;
+    &lt;meta name="description" content="Compelling description with keywords (150-160 chars)"&gt;
+    &lt;link rel="canonical" href="https://example.com/page"&gt;
+    
+    &lt;!-- Open Graph --&gt;
+    &lt;meta property="og:title" content="Page Title"&gt;
+    &lt;meta property="og:description" content="Description"&gt;
+    &lt;meta property="og:image" content="https://example.com/og-image.jpg"&gt;
+    &lt;meta property="og:url" content="https://example.com/page"&gt;
+    &lt;meta property="og:type" content="website"&gt;
+    
+    &lt;!-- Twitter Card --&gt;
+    &lt;meta name="twitter:card" content="summary_large_image"&gt;
+    &lt;meta name="twitter:title" content="Page Title"&gt;
+    &lt;meta name="twitter:description" content="Description"&gt;
+    
+    &lt;!-- Structured Data --&gt;
+    &lt;script type="application/ld+json"&gt;
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Page Title",
+        "description": "Page description"
+    }
+    &lt;/script&gt;
+    
+    &lt;!-- Favicon --&gt;
+    &lt;link rel="icon" type="image/svg+xml" href="/favicon.svg"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;!-- Proper heading hierarchy --&gt;
+    &lt;h1&gt;Main Title (only one per page)&lt;/h1&gt;
+    &lt;h2&gt;Section titles&lt;/h2&gt;
+    &lt;h3&gt;Subsections&lt;/h3&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+      </div>
+    </section>
+
+    <!-- Section 12.7 -->
+    <section>
+      <h2>12.7 Essential Keyboard Shortcuts</h2>
+
+      <h3>Global Shortcuts</h3>
+
+      <table class="comparison-table">
+        <tr>
+          <th>Shortcut</th>
+          <th>Action</th>
+        </tr>
+        <tr>
+          <td><span class="shortcut">F12</span> / <span class="shortcut">Ctrl+Shift+I</span></td>
+          <td>Open/Close DevTools</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">Ctrl+Shift+C</span></td>
+          <td>Inspect element mode</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">Ctrl+Shift+J</span></td>
+          <td>Open Console directly</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">Ctrl+Shift+M</span></td>
+          <td>Toggle device mode</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">Ctrl+Shift+P</span></td>
+          <td>Command Menu</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">Ctrl+P</span></td>
+          <td>Open file</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">Esc</span></td>
+          <td>Toggle drawer</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">F1</span></td>
+          <td>Settings</td>
+        </tr>
+      </table>
+
+      <h3>Debugger Shortcuts</h3>
+
+      <table class="comparison-table">
+        <tr>
+          <th>Shortcut</th>
+          <th>Action</th>
+        </tr>
+        <tr>
+          <td><span class="shortcut">F8</span></td>
+          <td>Pause/Resume execution</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">F10</span></td>
+          <td>Step over</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">F11</span></td>
+          <td>Step into</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">Shift+F11</span></td>
+          <td>Step out</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">Ctrl+B</span></td>
+          <td>Toggle breakpoint</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">Ctrl+\\</span></td>
+          <td>Pause on next statement</td>
+        </tr>
+      </table>
+
+      <h3>Elements Panel Shortcuts</h3>
+
+      <table class="comparison-table">
+        <tr>
+          <th>Shortcut</th>
+          <th>Action</th>
+        </tr>
+        <tr>
+          <td><span class="shortcut">H</span></td>
+          <td>Hide element (visibility: hidden)</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">Delete</span></td>
+          <td>Delete element</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">F2</span></td>
+          <td>Edit as HTML</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">↑/↓</span></td>
+          <td>Navigate DOM tree</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">←/→</span></td>
+          <td>Collapse/expand node</td>
+        </tr>
+        <tr>
+          <td><span class="shortcut">Enter</span></td>
+          <td>Edit attribute</td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- Section 12.8 - Interview Questions -->
+    <section>
+      <h2>12.8 Top Interview Questions</h2>
+
+      <h3>Fundamentals</h3>
+
+      <div class="interview-card">
+        <div class="interview-q">
+          <span>Q1:</span> How do you debug JavaScript errors in production?
+          <span class="difficulty medium">Medium</span>
+        </div>
+        <div class="interview-a">
+          <strong>Answer:</strong> 
+          <ol>
+            <li>Check Console for error messages and stack traces</li>
+            <li>Use source maps to see original code (not minified)</li>
+            <li>Set breakpoints in Sources panel at error location</li>
+            <li>Use conditional breakpoints to catch specific conditions</li>
+            <li>Check Network panel for failed requests</li>
+            <li>Use try-catch blocks with detailed error logging</li>
+            <li>Implement error monitoring (Sentry, LogRocket, etc.)</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="interview-card">
+        <div class="interview-q">
+          <span>Q2:</span> What's the difference between $0 and $()?
+          <span class="difficulty easy">Easy</span>
+        </div>
+        <div class="interview-a">
+          <strong>Answer:</strong> <code>$0</code> refers to the currently selected element in the Elements panel ($1-$4 are previously selected). <code>$(selector)</code> is an alias for <code>document.querySelector()</code> and <code>$$(selector)</code> is for <code>querySelectorAll()</code>. Note: $(selector) only works in Console, not in page JavaScript!
+        </div>
+      </div>
+
+      <div class="interview-card">
+        <div class="interview-q">
+          <span>Q3:</span> How do you find and fix memory leaks?
+          <span class="difficulty hard">Hard</span>
+        </div>
+        <div class="interview-a">
+          <strong>Answer:</strong>
+          <ol>
+            <li>Use Performance Monitor to watch JS heap size over time</li>
+            <li>Take heap snapshots before and after suspected leak</li>
+            <li>Use Three Snapshot Technique: baseline → action → undo → compare</li>
+            <li>Look for "Detached" DOM nodes in heap snapshot</li>
+            <li>Use Retainers panel to trace why objects aren't garbage collected</li>
+            <li>Common causes: forgotten event listeners, timers, closures, global variables</li>
+            <li>Fix by removing listeners, clearing intervals, nullifying references</li>
+          </ol>
+        </div>
+      </div>
+
+      <h3>Performance</h3>
+
+      <div class="interview-card">
+        <div class="interview-q">
+          <span>Q4:</span> How would you improve a website's Core Web Vitals?
+          <span class="difficulty hard">Hard</span>
+        </div>
+        <div class="interview-a">
+          <strong>Answer:</strong>
+          <ul>
+            <li><strong>LCP (< 2.5s):</strong> Optimize server response, preload LCP image, eliminate render-blocking resources, use CDN, optimize images (WebP)</li>
+            <li><strong>INP (< 200ms):</strong> Break up long tasks, debounce handlers, use Web Workers for heavy computation, minimize main thread work</li>
+            <li><strong>CLS (< 0.1):</strong> Set dimensions on images/videos, reserve space for ads, use font-display: swap, avoid inserting content above existing content</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="interview-card">
+        <div class="interview-q">
+          <span>Q5:</span> What causes layout thrashing and how do you fix it?
+          <span class="difficulty hard">Hard</span>
+        </div>
+        <div class="interview-a">
+          <strong>Answer:</strong> Layout thrashing occurs when you read layout properties (offsetWidth, getBoundingClientRect) and then write styles in a loop, forcing the browser to recalculate layout repeatedly.
+          <div class="code-block" style="margin: 15px 0;">
+            <pre>
+// BAD - Forces layout on each iteration
+elements.forEach(el => {
+    const width = el.offsetWidth;  // Read → triggers layout
+    el.style.width = width + 10 + 'px';  // Write
+});
+
+// GOOD - Batch reads, then batch writes
+const widths = elements.map(el => el.offsetWidth);  // All reads
+elements.forEach((el, i) => {
+    el.style.width = widths[i] + 10 + 'px';  // All writes
+});</pre>
+          </div>
+        </div>
+      </div>
+
+      <h3>Debugging</h3>
+
+      <div class="interview-card">
+        <div class="interview-q">
+          <span>Q6:</span> When would you use a conditional breakpoint vs a logpoint?
+          <span class="difficulty medium">Medium</span>
+        </div>
+        <div class="interview-a">
+          <strong>Answer:</strong>
+          <ul>
+            <li><strong>Conditional breakpoint:</strong> Pause only when condition is true. Use when you want to stop at a specific case (e.g., <code>userId === 'problematic_user'</code>)</li>
+            <li><strong>Logpoint:</strong> Log values without pausing. Use when you want to trace execution flow without interrupting it. Better than adding console.log to code.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="interview-card">
+        <div class="interview-q">
+          <span>Q7:</span> How do you debug asynchronous code?
+          <span class="difficulty medium">Medium</span>
+        </div>
+        <div class="interview-a">
+          <strong>Answer:</strong>
+          <ol>
+            <li>Enable "Async" checkbox in Call Stack to see full async chain</li>
+            <li>Use async stack traces to see Promise chain</li>
+            <li>Set breakpoints in .then() handlers or after await</li>
+            <li>Use XHR/Fetch breakpoints for network requests</li>
+            <li>Step through with F9 (step) which respects async boundaries</li>
+            <li>Add Event Listener breakpoints for setTimeout/setInterval</li>
+          </ol>
+        </div>
+      </div>
+
+      <h3>Network & Security</h3>
+
+      <div class="interview-card">
+        <div class="interview-q">
+          <span>Q8:</span> How do you debug CORS errors?
+          <span class="difficulty medium">Medium</span>
+        </div>
+        <div class="interview-a">
+          <strong>Answer:</strong>
+          <ol>
+            <li>Check Console for specific CORS error message</li>
+            <li>Look at Network panel for the blocked request</li>
+            <li>Check if there's a preflight OPTIONS request</li>
+            <li>Verify server sends correct headers: Access-Control-Allow-Origin, Methods, Headers</li>
+            <li>For credentialed requests, ensure Access-Control-Allow-Credentials: true</li>
+            <li>Remember: Origin header must be exact (not wildcard) for credentials</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="interview-card">
+        <div class="interview-q">
+          <span>Q9:</span> What does TTFB indicate and how do you improve it?
+          <span class="difficulty medium">Medium</span>
+        </div>
+        <div class="interview-a">
+          <strong>Answer:</strong> TTFB (Time to First Byte) measures time from request start until first byte of response. High TTFB indicates server-side issues.
+          <ul>
+            <li>Server processing time (optimize backend code, database queries)</li>
+            <li>Network latency (use CDN for geographic distribution)</li>
+            <li>DNS lookup (use faster DNS, enable DNS prefetch)</li>
+            <li>TLS handshake (upgrade to TLS 1.3, enable session resumption)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="interview-card">
+        <div class="interview-q">
+          <span>Q10:</span> How do you find unused CSS and JavaScript?
+          <span class="difficulty easy">Easy</span>
+        </div>
+        <div class="interview-a">
+          <strong>Answer:</strong> Use the Coverage panel (Ctrl+Shift+P → "Show Coverage"). Click reload to start recording, then interact with the page. Results show percentage of used vs unused code for each file. Red lines indicate unused code. Solutions: code splitting, tree shaking, lazy loading, PurgeCSS for unused styles.
+        </div>
+      </div>
+    </section>
+
+    <!-- Final Tips -->
+    <section>
+      <h2>🏆 Final Interview Tips</h2>
+
+      <div class="concept-box">
+        <h4>Before the Interview</h4>
+        <ul>
+          <li>Practice with real websites - debug popular sites</li>
+          <li>Know 5+ Command Menu commands by heart</li>
+          <li>Be ready to demonstrate debugging live</li>
+          <li>Understand Core Web Vitals deeply</li>
+          <li>Practice explaining concepts simply</li>
+        </ul>
+      </div>
+
+      <div class="concept-box">
+        <h4>During the Interview</h4>
+        <ul>
+          <li>Think out loud - show your debugging process</li>
+          <li>Start with simple tools before advanced ones</li>
+          <li>Mention trade-offs (e.g., Performance vs Insights panel)</li>
+          <li>Connect DevTools to real production scenarios</li>
+          <li>Ask clarifying questions about the problem</li>
+        </ul>
+      </div>
+
+      <div class="concept-box">
+        <h4>Key Topics to Master</h4>
+        <ul>
+          <li>Memory leaks (Heap snapshots, Detached DOM)</li>
+          <li>Performance optimization (LCP, CLS, TBT/INP)</li>
+          <li>Network analysis (TTFB, Waterfall, CORS)</li>
+          <li>Security (CSP, Mixed content, SameSite cookies)</li>
+          <li>Debugging techniques (Breakpoints, Call stack, Async)</li>
+        </ul>
+      </div>
+
+      <div class="tip">The best DevTools users don't just know the features - they know WHEN to use each tool. Practice identifying problems first, then selecting the right panel!</div>
+    </section>
+
+  </div>
+</body>
+</html>

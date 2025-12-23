@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 7: Memory Panel & Leak Detection</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+      color: #e4e4e7;
+      line-height: 1.8;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    header {
+      text-align: center;
+      padding: 50px 40px;
+      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+      border-radius: 20px;
+      margin-bottom: 40px;
+      box-shadow: 0 20px 60px rgba(220, 38, 38, 0.3);
+    }
+    header h1 { font-size: 2.5em; margin-bottom: 10px; }
+    header p { opacity: 0.9; font-size: 1.2em; }
+    .badge { 
+      display: inline-block; 
+      background: rgba(255,255,255,0.2); 
+      padding: 5px 15px; 
+      border-radius: 20px; 
+      font-size: 0.9em;
+      margin-top: 15px;
+    }
+    section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 35px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    h2 {
+      color: #f87171;
+      font-size: 1.8em;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid rgba(248, 113, 113, 0.3);
+    }
+    h3 {
+      color: #fca5a5;
+      font-size: 1.3em;
+      margin: 25px 0 15px 0;
+    }
+    h4 {
+      color: #fecaca;
+      font-size: 1.1em;
+      margin: 20px 0 10px 0;
+    }
+    p { margin-bottom: 15px; color: #d1d5db; }
+    .concept-box {
+      background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(153, 27, 27, 0.1));
+      border-left: 4px solid #dc2626;
+      padding: 20px 25px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .code-block {
+      background: #1e1e2e;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      border: 1px solid #333;
+    }
+    .code-block pre {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.9em;
+      color: #a6e3a1;
+      white-space: pre-wrap;
+    }
+    .code-title {
+      background: #333;
+      color: #f87171;
+      padding: 8px 15px;
+      border-radius: 8px 8px 0 0;
+      font-size: 0.85em;
+      margin-bottom: -12px;
+      display: inline-block;
+    }
+    .highlight { color: #f87171; font-weight: 600; }
+    .note {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #1a1a2e;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .note::before { content: "⚡ Key Point: "; font-weight: 700; }
+    .warning {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .warning::before { content: "🚨 Interview Alert: "; font-weight: 700; }
+    .tip {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .tip::before { content: "💡 Pro Tip: "; font-weight: 700; }
+    .visual-diagram {
+      background: #1a1a2e;
+      border-radius: 16px;
+      padding: 30px;
+      margin: 25px 0;
+      border: 2px solid #333;
+    }
+    .diagram-title {
+      text-align: center;
+      color: #f87171;
+      font-weight: 600;
+      margin-bottom: 20px;
+      font-size: 1.1em;
+    }
+    .memory-visual {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .memory-block {
+      background: linear-gradient(180deg, #374151 0%, #1f2937 100%);
+      border-radius: 12px;
+      padding: 20px;
+      min-width: 200px;
+      text-align: center;
+    }
+    .memory-block h5 {
+      color: #fca5a5;
+      margin-bottom: 15px;
+      font-size: 1em;
+    }
+    .memory-bar {
+      height: 20px;
+      border-radius: 10px;
+      margin: 8px 0;
+      position: relative;
+    }
+    .heap-bar { background: linear-gradient(90deg, #10b981, #059669); }
+    .stack-bar { background: linear-gradient(90deg, #3b82f6, #1d4ed8); }
+    .leak-bar { background: linear-gradient(90deg, #ef4444, #991b1b); }
+    .flow-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      padding: 20px;
+    }
+    .flow-step {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      padding: 15px 25px;
+      border-radius: 10px;
+      font-weight: 500;
+      font-size: 0.9em;
+    }
+    .flow-arrow {
+      color: #f87171;
+      font-size: 1.5em;
+    }
+    ul, ol { margin: 15px 0 15px 25px; }
+    li { margin: 10px 0; color: #d1d5db; }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    .comparison-table th, .comparison-table td {
+      padding: 15px;
+      text-align: left;
+      border: 1px solid #333;
+    }
+    .comparison-table th {
+      background: #374151;
+      color: #f87171;
+    }
+    .comparison-table td { background: rgba(255,255,255,0.02); }
+    code {
+      background: #374151;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.9em;
+      color: #a6e3a1;
+    }
+    .leak-pattern {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+    }
+    .leak-pattern h4 { color: #f87171; }
+    .good-code { border-left: 4px solid #10b981; }
+    .bad-code { border-left: 4px solid #ef4444; }
+    .snapshot-visual {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .snapshot-card {
+      background: #1f2937;
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid #374151;
+    }
+    .snapshot-card h5 {
+      color: #fca5a5;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #333;
+    }
+    .metric:last-child { border-bottom: none; }
+    .metric-value { color: #a6e3a1; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📊 Chapter 7: Memory Panel & Leak Detection</h1>
+      <p>Master JavaScript Memory Management & Find Memory Leaks</p>
+      <span class="badge">🔴 Advanced Level</span>
+    </header>
+
+    <!-- Section 7.1 -->
+    <section>
+      <h2>7.1 Understanding JavaScript Memory</h2>
+      
+      <p>Before diving into DevTools, you need to understand how JavaScript manages memory. Unlike languages like C or C++, JavaScript automatically allocates and deallocates memory through a process called <span class="highlight">Garbage Collection (GC)</span>.</p>
+
+      <div class="visual-diagram">
+        <div class="diagram-title">JavaScript Memory Architecture</div>
+        <div class="memory-visual">
+          <div class="memory-block">
+            <h5>📚 STACK</h5>
+            <p style="font-size:0.85em; margin-bottom:10px;">Primitive values & references</p>
+            <div class="memory-bar stack-bar"></div>
+            <p style="font-size:0.8em; color:#9ca3af;">Fast, Fixed Size, LIFO</p>
+          </div>
+          <div class="memory-block">
+            <h5>🗃️ HEAP</h5>
+            <p style="font-size:0.85em; margin-bottom:10px;">Objects, Arrays, Functions</p>
+            <div class="memory-bar heap-bar"></div>
+            <p style="font-size:0.8em; color:#9ca3af;">Dynamic, Larger, Unstructured</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>Stack Memory</h3>
+      <p>The stack stores:</p>
+      <ul>
+        <li><strong>Primitive values:</strong> numbers, strings, booleans, null, undefined, symbols, bigint</li>
+        <li><strong>References:</strong> pointers to objects in the heap</li>
+        <li><strong>Function call frames:</strong> local variables and execution context</li>
+      </ul>
+
+      <div class="code-block">
+        <div class="code-title">Stack Memory Example</div>
+        <pre>
+function calculateSum() {
+    let a = 10;        // Stored in stack
+    let b = 20;        // Stored in stack
+    let sum = a + b;   // Stored in stack
+    return sum;        // After return, all popped from stack
+}
+
+// When function completes, stack frame is automatically cleaned up
+calculateSum();</pre>
+      </div>
+
+      <h3>Heap Memory</h3>
+      <p>The heap stores:</p>
+      <ul>
+        <li><strong>Objects:</strong> <code>{ name: 'John', age: 30 }</code></li>
+        <li><strong>Arrays:</strong> <code>[1, 2, 3, 4, 5]</code></li>
+        <li><strong>Functions:</strong> Function objects</li>
+        <li><strong>Closures:</strong> Variables captured by inner functions</li>
+      </ul>
+
+      <div class="code-block">
+        <div class="code-title">Heap Memory Example</div>
+        <pre>
+let user = {          // 'user' reference in stack
+    name: 'Alice',    // Object stored in heap
+    age: 25,
+    hobbies: ['reading', 'coding']  // Nested array also in heap
+};
+
+let anotherRef = user;  // Another reference pointing to SAME heap object
+// Now the object has 2 references pointing to it</pre>
+      </div>
+
+      <h3>Garbage Collection (Mark-and-Sweep)</h3>
+      <p>JavaScript uses the <span class="highlight">Mark-and-Sweep</span> algorithm:</p>
+
+      <div class="visual-diagram">
+        <div class="diagram-title">Garbage Collection Process</div>
+        <div class="flow-diagram">
+          <div class="flow-step">1. Start from Roots<br>(global, stack)</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">2. Mark all<br>reachable objects</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">3. Sweep unmarked<br>objects</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">4. Free memory<br>for reuse</div>
+        </div>
+      </div>
+
+      <div class="concept-box">
+        <h4>GC Roots Include:</h4>
+        <ul>
+          <li>Global objects (<code>window</code> in browsers)</li>
+          <li>Currently executing functions</li>
+          <li>Local variables and parameters</li>
+          <li>Variables in closure scope chains</li>
+        </ul>
+      </div>
+
+      <div class="note">An object is "garbage" when it's unreachable from any GC root. Memory leaks occur when objects remain reachable unintentionally!</div>
+    </section>
+
+    <!-- Section 7.2 -->
+    <section>
+      <h2>7.2 Heap Snapshots - Deep Dive</h2>
+
+      <p>Heap snapshots capture the entire state of JavaScript memory at a specific moment. This is your primary tool for finding memory leaks.</p>
+
+      <h3>How to Take a Heap Snapshot</h3>
+      <ol>
+        <li>Open DevTools → Memory panel</li>
+        <li>Select "Heap snapshot"</li>
+        <li>Click "Take snapshot" button</li>
+        <li>Wait for snapshot to complete (can take seconds for large apps)</li>
+      </ol>
+
+      <div class="tip">Always force garbage collection (click the trash icon 🗑️) before taking a snapshot to get accurate results!</div>
+
+      <h3>Understanding Snapshot Views</h3>
+
+      <table class="comparison-table">
+        <tr>
+          <th>View</th>
+          <th>Purpose</th>
+          <th>When to Use</th>
+        </tr>
+        <tr>
+          <td><strong>Summary</strong></td>
+          <td>Groups objects by constructor name</td>
+          <td>Initial exploration, finding object types</td>
+        </tr>
+        <tr>
+          <td><strong>Comparison</strong></td>
+          <td>Shows diff between two snapshots</td>
+          <td>Finding what was allocated between actions</td>
+        </tr>
+        <tr>
+          <td><strong>Containment</strong></td>
+          <td>Shows object ownership hierarchy</td>
+          <td>Understanding object relationships</td>
+        </tr>
+        <tr>
+          <td><strong>Statistics</strong></td>
+          <td>Pie chart of memory by type</td>
+          <td>Quick overview of memory distribution</td>
+        </tr>
+      </table>
+
+      <h3>Key Columns Explained</h3>
+
+      <div class="snapshot-visual">
+        <div class="snapshot-card">
+          <h5>📏 Shallow Size</h5>
+          <p style="font-size:0.9em; color:#9ca3af;">Memory held by the object itself (not including referenced objects)</p>
+          <div class="metric">
+            <span>String "hello"</span>
+            <span class="metric-value">~10 bytes</span>
+          </div>
+          <div class="metric">
+            <span>Empty Object {}</span>
+            <span class="metric-value">~32 bytes</span>
+          </div>
+          <div class="metric">
+            <span>Empty Array []</span>
+            <span class="metric-value">~32 bytes</span>
+          </div>
+        </div>
+        <div class="snapshot-card">
+          <h5>📦 Retained Size</h5>
+          <p style="font-size:0.9em; color:#9ca3af;">Memory that would be freed if this object was deleted</p>
+          <div class="metric">
+            <span>Object with children</span>
+            <span class="metric-value">Shallow + Children</span>
+          </div>
+          <div class="metric">
+            <span>DOM Node</span>
+            <span class="metric-value">Can be MB!</span>
+          </div>
+          <div class="metric">
+            <span>Large retained = Leak!</span>
+            <span class="metric-value">⚠️ Investigate</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="warning">In interviews, you'll be asked: "What's the difference between shallow size and retained size?" Retained size is what matters for leaks!</div>
+
+      <h3>Reading the Summary View</h3>
+
+      <div class="code-block">
+        <div class="code-title">Typical Summary View Structure</div>
+        <pre>
+Constructor          | Distance | Shallow Size | Retained Size
+---------------------|----------|--------------|---------------
+(array)              |    3     |   125,000    |    250,000
+(string)             |    4     |    85,000    |     85,000
+(object)             |    3     |    45,000    |    180,000
+HTMLDivElement       |    5     |    12,000    |    500,000   ← Large retained!
+Detached HTMLDivElement |  7    |     8,000    |    350,000   ← LEAK!
+MyComponent          |    4     |     2,000    |    120,000
+(closure)            |    5     |    15,000    |     75,000</pre>
+      </div>
+
+      <h3>Distance from GC Root</h3>
+      <p>The <span class="highlight">Distance</span> column shows how many references away an object is from a GC root:</p>
+      <ul>
+        <li><strong>Distance 1:</strong> Directly referenced by a global/root</li>
+        <li><strong>Distance 2-3:</strong> Normal application objects</li>
+        <li><strong>Distance 5+:</strong> Deeply nested, possibly in closures</li>
+        <li><strong>High distance + Detached:</strong> Likely a leak path</li>
+      </ul>
+    </section>
+
+    <!-- Section 7.3 -->
+    <section>
+      <h2>7.3 Finding Memory Leaks - The Three Snapshot Technique</h2>
+
+      <p>The most reliable way to find memory leaks is the <span class="highlight">Three Snapshot Technique</span>:</p>
+
+      <div class="visual-diagram">
+        <div class="diagram-title">Three Snapshot Technique</div>
+        <div class="flow-diagram">
+          <div class="flow-step">📸 Snapshot 1<br>Baseline</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">🔄 Perform<br>Action</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">📸 Snapshot 2<br>After Action</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">🔄 Undo<br>Action</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">📸 Snapshot 3<br>Compare to 1</div>
+        </div>
+      </div>
+
+      <h3>Step-by-Step Process</h3>
+
+      <div class="code-block">
+        <div class="code-title">Example: Finding a Modal Component Leak</div>
+        <pre>
+// Step 1: Load page, wait for it to stabilize
+// Step 2: Force GC (click trash icon)
+// Step 3: Take Snapshot 1 (baseline)
+
+// Step 4: Open the modal
+openModal();
+
+// Step 5: Close the modal  
+closeModal();
+
+// Step 6: Force GC again
+// Step 7: Take Snapshot 2
+
+// Step 8: In Snapshot 2, select "Objects allocated between Snapshot 1 and 2"
+// Step 9: Look for objects that should have been cleaned up
+
+// If modal DOM elements still exist → MEMORY LEAK!</pre>
+      </div>
+
+      <h3>Using Comparison View</h3>
+      <p>Select two snapshots and use Comparison view to see:</p>
+      <ul>
+        <li><strong># New:</strong> Objects allocated between snapshots</li>
+        <li><strong># Deleted:</strong> Objects freed between snapshots</li>
+        <li><strong># Delta:</strong> Net change (positive = potential leak)</li>
+        <li><strong>Alloc. Size:</strong> Memory allocated</li>
+        <li><strong>Freed Size:</strong> Memory released</li>
+        <li><strong>Size Delta:</strong> Net memory change</li>
+      </ul>
+
+      <div class="note">If you open and close a modal 10 times and see 10 modal objects in memory instead of 0, you have a leak!</div>
+    </section>
+
+    <!-- Section 7.4 -->
+    <section>
+      <h2>7.4 Common Memory Leak Patterns</h2>
+
+      <p>Here are the most common memory leak patterns you'll encounter (and be asked about in interviews):</p>
+
+      <!-- Leak Pattern 1 -->
+      <div class="leak-pattern">
+        <h4>🔴 Pattern 1: Forgotten Event Listeners</h4>
+        <p>Event listeners keep references to their callback functions and the elements they're attached to.</p>
+        
+        <div class="code-block bad-code">
+          <div class="code-title">❌ BAD - Event Listener Leak</div>
+          <pre>
+class VideoPlayer {
+    constructor() {
+        this.videoEl = document.createElement('video');
+        document.body.appendChild(this.videoEl);
+        
+        // This listener is NEVER removed!
+        window.addEventListener('resize', this.handleResize.bind(this));
+    }
+    
+    handleResize() {
+        // Resize video based on window size
+        this.videoEl.style.width = window.innerWidth + 'px';
+    }
+    
+    destroy() {
+        this.videoEl.remove();
+        // ❌ Forgot to remove event listener!
+        // The window still holds a reference to handleResize
+        // which holds a reference to 'this' (the VideoPlayer instance)
+    }
+}</pre>
+        </div>
+
+        <div class="code-block good-code">
+          <div class="code-title">✅ GOOD - Properly Cleaned Up</div>
+          <pre>
+class VideoPlayer {
+    constructor() {
+        this.videoEl = document.createElement('video');
+        document.body.appendChild(this.videoEl);
+        
+        // Store reference to bound function for removal
+        this.boundHandleResize = this.handleResize.bind(this);
+        window.addEventListener('resize', this.boundHandleResize);
+    }
+    
+    handleResize() {
+        this.videoEl.style.width = window.innerWidth + 'px';
+    }
+    
+    destroy() {
+        this.videoEl.remove();
+        // ✅ Remove the event listener!
+        window.removeEventListener('resize', this.boundHandleResize);
+        this.boundHandleResize = null;
+    }
+}</pre>
+        </div>
+      </div>
+
+      <!-- Leak Pattern 2 -->
+      <div class="leak-pattern">
+        <h4>🔴 Pattern 2: Detached DOM Trees</h4>
+        <p>DOM nodes removed from the document but still referenced in JavaScript.</p>
+
+        <div class="code-block bad-code">
+          <div class="code-title">❌ BAD - Detached DOM Leak</div>
+          <pre>
+let elements = [];
+
+function createList() {
+    const list = document.createElement('ul');
+    
+    for (let i = 0; i < 1000; i++) {
+        const item = document.createElement('li');
+        item.textContent = `Item ${i}`;
+        list.appendChild(item);
+    }
+    
+    document.body.appendChild(list);
+    elements.push(list);  // ❌ Storing reference in array!
+}
+
+function removeList() {
+    const list = document.querySelector('ul');
+    if (list) {
+        list.remove();
+        // ❌ 'elements' array still holds reference!
+        // The DOM tree is "detached" but not garbage collected
+    }
+}
+
+// After 10 create/remove cycles, you have 10 detached DOM trees!</pre>
+        </div>
+
+        <div class="code-block good-code">
+          <div class="code-title">✅ GOOD - Clean Reference Management</div>
+          <pre>
+let currentList = null;  // Single reference
+
+function createList() {
+    // Clean up existing list first
+    if (currentList) {
+        removeList();
+    }
+    
+    currentList = document.createElement('ul');
+    
+    for (let i = 0; i < 1000; i++) {
+        const item = document.createElement('li');
+        item.textContent = `Item ${i}`;
+        currentList.appendChild(item);
+    }
+    
+    document.body.appendChild(currentList);
+}
+
+function removeList() {
+    if (currentList) {
+        currentList.remove();
+        currentList = null;  // ✅ Clear the reference!
+    }
+}</pre>
+        </div>
+
+        <div class="warning">Search for "Detached" in heap snapshots! Detached DOM trees are the #1 cause of memory leaks in web apps.</div>
+      </div>
+
+      <!-- Leak Pattern 3 -->
+      <div class="leak-pattern">
+        <h4>🔴 Pattern 3: Closures Capturing Large Objects</h4>
+        <p>Closures can accidentally capture and retain large objects in their scope.</p>
+
+        <div class="code-block bad-code">
+          <div class="code-title">❌ BAD - Closure Leak</div>
+          <pre>
+function processData() {
+    const hugeData = new Array(1000000).fill('x');  // ~1MB
+    
+    // This closure captures the entire 'hugeData' array!
+    return function getDataLength() {
+        return hugeData.length;  // Only needs length, but keeps ALL data
+    };
+}
+
+const getLength = processData();
+// hugeData is now retained forever because getLength references it</pre>
+        </div>
+
+        <div class="code-block good-code">
+          <div class="code-title">✅ GOOD - Capture Only What You Need</div>
+          <pre>
+function processData() {
+    const hugeData = new Array(1000000).fill('x');
+    const dataLength = hugeData.length;  // Extract needed value
+    
+    // hugeData can now be garbage collected after this function returns
+    return function getDataLength() {
+        return dataLength;  // Only captures the number, not the array
+    };
+}
+
+const getLength = processData();
+// hugeData is garbage collected, only 'dataLength' (8 bytes) is retained</pre>
+        </div>
+      </div>
+
+      <!-- Leak Pattern 4 -->
+      <div class="leak-pattern">
+        <h4>🔴 Pattern 4: Forgotten Timers and Intervals</h4>
+        <p>Timers keep their callbacks (and anything in their closure) alive.</p>
+
+        <div class="code-block bad-code">
+          <div class="code-title">❌ BAD - Timer Leak</div>
+          <pre>
+class Dashboard {
+    constructor() {
+        this.data = new Array(10000).fill({ /* large data */ });
+        
+        // This interval runs FOREVER!
+        setInterval(() => {
+            this.updateDisplay();
+        }, 1000);
+    }
+    
+    updateDisplay() {
+        console.log('Updating with', this.data.length, 'items');
+    }
+    
+    destroy() {
+        // ❌ No way to stop the interval!
+        // Even after destroy(), the interval keeps running
+        // and keeps 'this' (and this.data) alive
+    }
+}</pre>
+        </div>
+
+        <div class="code-block good-code">
+          <div class="code-title">✅ GOOD - Properly Managed Timer</div>
+          <pre>
+class Dashboard {
+    constructor() {
+        this.data = new Array(10000).fill({ /* large data */ });
+        
+        // Store interval ID for cleanup
+        this.intervalId = setInterval(() => {
+            this.updateDisplay();
+        }, 1000);
+    }
+    
+    updateDisplay() {
+        console.log('Updating with', this.data.length, 'items');
+    }
+    
+    destroy() {
+        // ✅ Clear the interval!
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+        }
+        this.data = null;  // Release large data
+    }
+}</pre>
+        </div>
+      </div>
+
+      <!-- Leak Pattern 5 -->
+      <div class="leak-pattern">
+        <h4>🔴 Pattern 5: Accidental Global Variables</h4>
+        <p>Variables without <code>let</code>, <code>const</code>, or <code>var</code> become global!</p>
+
+        <div class="code-block bad-code">
+          <div class="code-title">❌ BAD - Accidental Global</div>
+          <pre>
+function processUserData(user) {
+    // ❌ Missing 'let' - becomes window.processedData!
+    processedData = transformData(user);
+    
+    // ❌ Typo creates new global 'usr' instead of using 'user'
+    usr = { ...user, processed: true };
+    
+    return processedData;
+}
+
+// Now window.processedData and window.usr exist forever!</pre>
+        </div>
+
+        <div class="code-block good-code">
+          <div class="code-title">✅ GOOD - Use Strict Mode</div>
+          <pre>
+'use strict';  // Add at top of file/function
+
+function processUserData(user) {
+    // Now this would throw ReferenceError!
+    // processedData = transformData(user);  // Error!
+    
+    const processedData = transformData(user);  // ✅ Correct
+    const processedUser = { ...user, processed: true };  // ✅ Correct
+    
+    return processedData;
+}</pre>
+        </div>
+      </div>
+
+      <!-- Leak Pattern 6 -->
+      <div class="leak-pattern">
+        <h4>🔴 Pattern 6: Forgotten Observers</h4>
+        <p>MutationObserver, IntersectionObserver, ResizeObserver must be disconnected.</p>
+
+        <div class="code-block bad-code">
+          <div class="code-title">❌ BAD - Observer Leak</div>
+          <pre>
+class InfiniteScroll {
+    constructor(container) {
+        this.container = container;
+        this.items = [];
+        
+        // Observer never disconnected!
+        this.observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    this.loadMore();
+                }
+            });
+        });
+        
+        this.observer.observe(this.container);
+    }
+    
+    destroy() {
+        this.container.remove();
+        // ❌ Observer still watching, holds references!
+    }
+}</pre>
+        </div>
+
+        <div class="code-block good-code">
+          <div class="code-title">✅ GOOD - Disconnect Observer</div>
+          <pre>
+class InfiniteScroll {
+    constructor(container) {
+        this.container = container;
+        this.items = [];
+        
+        this.observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    this.loadMore();
+                }
+            });
+        });
+        
+        this.observer.observe(this.container);
+    }
+    
+    destroy() {
+        // ✅ Disconnect observer first!
+        if (this.observer) {
+            this.observer.disconnect();
+            this.observer = null;
+        }
+        
+        if (this.container) {
+            this.container.remove();
+            this.container = null;
+        }
+        
+        this.items = null;
+    }
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 7.5 -->
+    <section>
+      <h2>7.5 Allocation Timeline</h2>
+
+      <p>The Allocation Timeline shows memory allocations over time, making it easier to correlate allocations with user actions.</p>
+
+      <h3>How to Use</h3>
+      <ol>
+        <li>Select "Allocation instrumentation on timeline"</li>
+        <li>Click Start</li>
+        <li>Perform the actions you want to analyze</li>
+        <li>Click Stop</li>
+        <li>Analyze the timeline</li>
+      </ol>
+
+      <div class="visual-diagram">
+        <div class="diagram-title">Understanding the Allocation Timeline</div>
+        <div style="padding: 20px;">
+          <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center;">
+            <div style="width: 40px; height: 20px; background: #3b82f6;"></div>
+            <span>Blue bars = Memory allocated (still in use)</span>
+          </div>
+          <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center;">
+            <div style="width: 40px; height: 20px; background: #6b7280;"></div>
+            <span>Gray bars = Memory freed (garbage collected)</span>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <div style="width: 40px; height: 20px; background: #ef4444;"></div>
+            <span>Remaining blue at end = Potential memory leak!</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="note">Click on any blue bar to see the allocation stack trace - this shows exactly what code allocated that memory!</div>
+
+      <h3>Filtering Results</h3>
+      <ul>
+        <li>Select a time range by clicking and dragging on the timeline</li>
+        <li>Filter by constructor name in the search box</li>
+        <li>Focus on objects with large retained sizes</li>
+        <li>Look for patterns - repeated allocations during the same action</li>
+      </ul>
+    </section>
+
+    <!-- Section 7.6 -->
+    <section>
+      <h2>7.6 Allocation Sampling</h2>
+
+      <p>Allocation Sampling is a lower-overhead alternative to the Allocation Timeline. It uses statistical sampling instead of recording every allocation.</p>
+
+      <table class="comparison-table">
+        <tr>
+          <th>Feature</th>
+          <th>Allocation Timeline</th>
+          <th>Allocation Sampling</th>
+        </tr>
+        <tr>
+          <td>Accuracy</td>
+          <td>Records every allocation</td>
+          <td>Statistical sampling</td>
+        </tr>
+        <tr>
+          <td>Performance Impact</td>
+          <td>Higher (can slow app)</td>
+          <td>Lower (suitable for production)</td>
+        </tr>
+        <tr>
+          <td>Output</td>
+          <td>Timeline + object list</td>
+          <td>Call tree with allocation sizes</td>
+        </tr>
+        <tr>
+          <td>Best For</td>
+          <td>Precise debugging</td>
+          <td>Finding hot allocation paths</td>
+        </tr>
+      </table>
+
+      <div class="tip">Use Allocation Sampling first to identify which functions allocate the most memory, then use Allocation Timeline for detailed investigation.</div>
+    </section>
+
+    <!-- Section 7.7 -->
+    <section>
+      <h2>7.7 Retainers Panel - Tracing Leak Paths</h2>
+
+      <p>When you find a suspicious object in a heap snapshot, the Retainers panel shows <strong>why</strong> it's still in memory - what's preventing it from being garbage collected.</p>
+
+      <h3>Reading the Retainers Panel</h3>
+
+      <div class="code-block">
+        <div class="code-title">Example Retainer Path</div>
+        <pre>
+Selected Object: Detached HTMLDivElement @123456
+
+Retainers:
+├── modalContent in ModalComponent @789
+│   └── currentModal in Window @1
+│       └── (GC root)
+│
+└── callback in closure @456
+    └── listeners["click"][0] in Window @1
+        └── (GC root)</pre>
+      </div>
+
+      <p>This tells us:</p>
+      <ul>
+        <li>The detached div is kept alive by two paths</li>
+        <li>Path 1: <code>window.currentModal.modalContent</code> references it</li>
+        <li>Path 2: A click event listener's callback closure references it</li>
+        <li>To fix: set <code>currentModal = null</code> AND remove the click listener</li>
+      </ul>
+
+      <div class="warning">Interviewers love asking: "How do you trace why an object isn't being garbage collected?" Answer: Use the Retainers panel to find the path to GC roots!</div>
+    </section>
+
+    <!-- Section 7.8 -->
+    <section>
+      <h2>7.8 Performance Monitor - Real-Time Memory Tracking</h2>
+
+      <p>The Performance Monitor provides real-time metrics without taking snapshots:</p>
+
+      <h3>How to Open</h3>
+      <ol>
+        <li>Press <code>Ctrl+Shift+P</code> → Type "Performance Monitor"</li>
+        <li>Or: More tools → Performance Monitor</li>
+      </ol>
+
+      <h3>Key Metrics for Memory</h3>
+
+      <div class="snapshot-visual">
+        <div class="snapshot-card">
+          <h5>📊 JS Heap Size</h5>
+          <p style="font-size:0.85em; color:#9ca3af;">Current JavaScript heap usage</p>
+          <div class="metric">
+            <span>Watch for</span>
+            <span class="metric-value">Continuous growth</span>
+          </div>
+        </div>
+        <div class="snapshot-card">
+          <h5>📋 DOM Nodes</h5>
+          <p style="font-size:0.85em; color:#9ca3af;">Total DOM nodes in document</p>
+          <div class="metric">
+            <span>After navigation</span>
+            <span class="metric-value">Should stabilize</span>
+          </div>
+        </div>
+        <div class="snapshot-card">
+          <h5>👂 JS Event Listeners</h5>
+          <p style="font-size:0.85em; color:#9ca3af;">Number of event listeners</p>
+          <div class="metric">
+            <span>Growing count</span>
+            <span class="metric-value">= Leak indicator</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip">Navigate around your SPA while watching the Performance Monitor. If DOM Nodes or Event Listeners keep growing without decreasing, you have a leak!</div>
+
+      <h3>Memory Leak Detection Workflow</h3>
+
+      <div class="visual-diagram">
+        <div class="diagram-title">Complete Memory Debugging Workflow</div>
+        <ol style="padding: 0 20px;">
+          <li style="padding: 10px 0;"><strong>Monitor:</strong> Use Performance Monitor to identify if there's a problem</li>
+          <li style="padding: 10px 0;"><strong>Reproduce:</strong> Find the action that causes memory growth</li>
+          <li style="padding: 10px 0;"><strong>Baseline:</strong> Force GC, take heap snapshot</li>
+          <li style="padding: 10px 0;"><strong>Action:</strong> Perform the leaking action multiple times</li>
+          <li style="padding: 10px 0;"><strong>Compare:</strong> Take another snapshot, compare to baseline</li>
+          <li style="padding: 10px 0;"><strong>Identify:</strong> Look for growing object counts, detached DOM</li>
+          <li style="padding: 10px 0;"><strong>Trace:</strong> Use Retainers to find why objects are retained</li>
+          <li style="padding: 10px 0;"><strong>Fix:</strong> Remove event listeners, null references, disconnect observers</li>
+          <li style="padding: 10px 0;"><strong>Verify:</strong> Repeat the process to confirm the fix</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Interview Questions -->
+    <section>
+      <h2>🎯 Interview Questions - Memory Panel</h2>
+
+      <div class="concept-box">
+        <h4>Q1: What's the difference between shallow size and retained size?</h4>
+        <p><strong>Answer:</strong> Shallow size is the memory used by the object itself. Retained size is the total memory that would be freed if this object was garbage collected, including all objects it references exclusively.</p>
+      </div>
+
+      <div class="concept-box">
+        <h4>Q2: How do you find memory leaks in a web application?</h4>
+        <p><strong>Answer:</strong> Use the Three Snapshot Technique: take a baseline snapshot, perform the suspected leaking action, undo it, force GC, take another snapshot, and compare. Look for objects that should have been cleaned up but weren't, especially "Detached" DOM elements.</p>
+      </div>
+
+      <div class="concept-box">
+        <h4>Q3: What are common causes of memory leaks?</h4>
+        <p><strong>Answer:</strong> Forgotten event listeners, detached DOM trees, closures capturing large objects, timers/intervals not cleared, accidental global variables, and observers not disconnected.</p>
+      </div>
+
+      <div class="concept-box">
+        <h4>Q4: What does "Detached" mean in a heap snapshot?</h4>
+        <p><strong>Answer:</strong> A detached DOM node is one that has been removed from the document but is still referenced by JavaScript. It can't be garbage collected and represents a memory leak.</p>
+      </div>
+
+      <div class="concept-box">
+        <h4>Q5: How does JavaScript garbage collection work?</h4>
+        <p><strong>Answer:</strong> JavaScript uses the Mark-and-Sweep algorithm. It starts from GC roots (global object, stack), marks all reachable objects, then sweeps (frees) unmarked objects. Objects are garbage collected when they become unreachable from any root.</p>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

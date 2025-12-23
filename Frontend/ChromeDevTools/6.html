@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 6: Performance Panel & Optimization - In Depth</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 100%);
+      color: #e4e4e7;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+    .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+      padding: 50px 40px;
+      background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+      border-radius: 24px;
+      box-shadow: 0 25px 80px rgba(236, 72, 153, 0.4);
+    }
+    header h1 { font-size: 2.8em; margin-bottom: 15px; }
+    header p { opacity: 0.9; font-size: 1.2em; }
+    .chapter-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 8px 20px;
+      border-radius: 30px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    .section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      margin-bottom: 40px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .section-header {
+      background: linear-gradient(90deg, #ec4899, #8b5cf6);
+      padding: 25px 30px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .section-num {
+      background: rgba(255,255,255,0.2);
+      width: 50px;
+      height: 50px;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.3em;
+    }
+    .section-title { font-size: 1.5em; font-weight: 600; }
+    .section-content { padding: 30px; }
+    .concept {
+      background: rgba(255,255,255,0.03);
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 25px;
+      border-left: 4px solid #ec4899;
+    }
+    .concept h3 {
+      color: #f9a8d4;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+    }
+    .concept h4 {
+      color: #c4b5fd;
+      margin: 20px 0 12px 0;
+      font-size: 1.1em;
+    }
+    .concept p { margin-bottom: 15px; color: #d1d5db; }
+    .code-block {
+      background: #1a0a2e;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      border: 1px solid #4c1d95;
+      position: relative;
+    }
+    .code-block::before {
+      content: attr(data-lang);
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 0.75em;
+      color: #7c3aed;
+      text-transform: uppercase;
+    }
+    .code-block code {
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 0.95em;
+      line-height: 1.6;
+      color: #e4e4e7;
+    }
+    .comment { color: #6b7280; }
+    .keyword { color: #f472b6; }
+    .string { color: #a5f3fc; }
+    .function { color: #c084fc; }
+    .number { color: #fcd34d; }
+    .variable { color: #86efac; }
+    .note {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #1a1a2e;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+      font-weight: 500;
+    }
+    .note::before { content: "⚡ Key Concept: "; font-weight: 700; }
+    .warning {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .warning::before { content: "🚨 Interview Alert: "; font-weight: 700; }
+    .tip {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .tip::before { content: "💡 Pro Tip: "; font-weight: 700; }
+    .shortcut {
+      display: inline-block;
+      background: #4c1d95;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.9em;
+      margin: 2px;
+      border: 1px solid #6d28d9;
+    }
+    .diagram {
+      background: #1a0a2e;
+      border-radius: 16px;
+      padding: 30px;
+      margin: 25px 0;
+      border: 1px solid #4c1d95;
+    }
+    .diagram-title {
+      color: #f9a8d4;
+      font-weight: 600;
+      margin-bottom: 20px;
+      font-size: 1.1em;
+      text-align: center;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .comparison-table th {
+      background: #ec4899;
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+    }
+    .comparison-table td {
+      padding: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .comparison-table tr:last-child td { border-bottom: none; }
+    ul { margin-left: 25px; margin-bottom: 15px; }
+    li { margin: 8px 0; color: #d1d5db; }
+    strong { color: #f9a8d4; }
+    .metric-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 25px;
+      text-align: center;
+      border: 2px solid;
+    }
+    .metric-card h4 { font-size: 1.1em; margin-bottom: 10px; }
+    .metric-card .value { font-size: 2em; font-weight: bold; margin: 10px 0; }
+    .metric-card .threshold { font-size: 0.85em; opacity: 0.8; }
+    .good { border-color: #10b981; }
+    .good .value { color: #10b981; }
+    .needs-improvement { border-color: #f59e0b; }
+    .needs-improvement .value { color: #f59e0b; }
+    .poor { border-color: #ef4444; }
+    .poor .value { color: #ef4444; }
+    .flame-chart {
+      background: #0f0520;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+    .flame-row {
+      display: flex;
+      margin-bottom: 4px;
+      height: 24px;
+    }
+    .flame-block {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7em;
+      color: white;
+      border-radius: 3px;
+      margin-right: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      padding: 0 5px;
+    }
+    .js-block { background: #fbbf24; color: #1a1a2e; }
+    .render-block { background: #a855f7; }
+    .paint-block { background: #22c55e; }
+    .load-block { background: #3b82f6; }
+    .idle-block { background: #6b7280; }
+    .long-task { 
+      background: repeating-linear-gradient(45deg, #ef4444, #ef4444 10px, #dc2626 10px, #dc2626 20px);
+    }
+    .rendering-pipeline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 20px;
+    }
+    .pipeline-step {
+      padding: 15px 25px;
+      border-radius: 12px;
+      font-weight: 500;
+      text-align: center;
+      min-width: 100px;
+    }
+    .pipeline-arrow { font-size: 1.5em; color: #ec4899; }
+    .cwv-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="chapter-badge">📘 Chapter 6</div>
+      <h1>Performance Panel & Optimization</h1>
+      <p>Master Runtime Performance Analysis & Core Web Vitals</p>
+    </header>
+
+    <!-- Section 6.1 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">6.1</div>
+        <span class="section-title">Understanding the Browser Rendering Pipeline</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>🔄 The Critical Rendering Path</h3>
+          <p>Before diving into the Performance panel, you must understand HOW browsers render pages:</p>
+          
+          <div class="diagram">
+            <div class="diagram-title">Browser Rendering Pipeline</div>
+            <div class="rendering-pipeline">
+              <div class="pipeline-step" style="background: #3b82f6;">JavaScript</div>
+              <div class="pipeline-arrow">→</div>
+              <div class="pipeline-step" style="background: #a855f7;">Style</div>
+              <div class="pipeline-arrow">→</div>
+              <div class="pipeline-step" style="background: #ec4899;">Layout</div>
+              <div class="pipeline-arrow">→</div>
+              <div class="pipeline-step" style="background: #22c55e;">Paint</div>
+              <div class="pipeline-arrow">→</div>
+              <div class="pipeline-step" style="background: #14b8a6;">Composite</div>
+            </div>
+          </div>
+          
+          <h4>1. JavaScript</h4>
+          <p>JavaScript code runs that might change the DOM or CSSOM (CSS Object Model).</p>
+          
+          <h4>2. Style Calculation</h4>
+          <p>Browser matches CSS selectors to elements and calculates final styles.</p>
+          
+          <h4>3. Layout (Reflow)</h4>
+          <p>Browser calculates the geometry - where elements are positioned and their size.</p>
+          
+          <h4>4. Paint</h4>
+          <p>Browser fills in pixels - colors, images, text, shadows, etc.</p>
+          
+          <h4>5. Composite</h4>
+          <p>Browser combines painted layers in the correct order (z-index).</p>
+          
+          <div class="warning">Understanding this pipeline is CRITICAL for performance optimization and interviews. Know which CSS properties trigger which stages!</div>
+        </div>
+
+        <div class="concept">
+          <h3>⚠️ What Triggers Each Stage</h3>
+          
+          <table class="comparison-table">
+            <tr>
+              <th>Property Type</th>
+              <th>Triggers</th>
+              <th>Examples</th>
+              <th>Performance Cost</th>
+            </tr>
+            <tr>
+              <td><strong>Geometry Properties</strong></td>
+              <td>Layout → Paint → Composite</td>
+              <td>width, height, margin, padding, top, left, font-size</td>
+              <td style="color: #ef4444;">HIGH 🔴</td>
+            </tr>
+            <tr>
+              <td><strong>Paint-Only Properties</strong></td>
+              <td>Paint → Composite</td>
+              <td>color, background, box-shadow, border-color</td>
+              <td style="color: #f59e0b;">MEDIUM 🟡</td>
+            </tr>
+            <tr>
+              <td><strong>Composite-Only Properties</strong></td>
+              <td>Composite only</td>
+              <td>transform, opacity</td>
+              <td style="color: #10b981;">LOW 🟢</td>
+            </tr>
+          </table>
+          
+          <div class="code-block" data-lang="Performance Best Practices">
+<code><span class="comment">/* ❌ SLOW - Triggers Layout */</span>
+.animate-bad {
+  <span class="variable">left</span>: <span class="number">100px</span>;     <span class="comment">/* Triggers full pipeline */</span>
+  <span class="variable">width</span>: <span class="number">200px</span>;    <span class="comment">/* Triggers full pipeline */</span>
+}
+
+<span class="comment">/* ✅ FAST - Only Composite */</span>
+.animate-good {
+  <span class="variable">transform</span>: <span class="function">translateX</span>(<span class="number">100px</span>);  <span class="comment">/* GPU accelerated! */</span>
+  <span class="variable">opacity</span>: <span class="number">0.5</span>;                   <span class="comment">/* GPU accelerated! */</span>
+}</code>
+          </div>
+          
+          <div class="note">For smooth 60fps animations, ONLY use transform and opacity. These skip Layout and Paint entirely!</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6.2 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">6.2</div>
+        <span class="section-title">Recording Performance Profiles</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>🎬 Starting a Recording</h3>
+          
+          <h4>Method 1: Manual Recording</h4>
+          <ol style="margin-left: 25px;">
+            <li>Open Performance panel</li>
+            <li>Click the Record button (⏺️) or press <span class="shortcut">Ctrl+E</span></li>
+            <li>Perform actions you want to analyze</li>
+            <li>Click Stop or press <span class="shortcut">Ctrl+E</span> again</li>
+          </ol>
+          
+          <h4>Method 2: Record Page Load</h4>
+          <ol style="margin-left: 25px;">
+            <li>Click the Reload button (🔄) in Performance panel</li>
+            <li>Page reloads and recording starts automatically</li>
+            <li>Recording stops after page fully loads</li>
+          </ol>
+        </div>
+
+        <div class="concept">
+          <h3>⚙️ Recording Options</h3>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div style="background: rgba(236, 72, 153, 0.1); padding: 20px; border-radius: 12px; border-left: 4px solid #ec4899;">
+              <h4 style="color: #f9a8d4; margin-bottom: 10px;">☑️ Screenshots</h4>
+              <p style="font-size: 0.9em;">Capture visual timeline of page rendering. Essential for identifying visual bottlenecks.</p>
+            </div>
+            <div style="background: rgba(139, 92, 246, 0.1); padding: 20px; border-radius: 12px; border-left: 4px solid #8b5cf6;">
+              <h4 style="color: #c4b5fd; margin-bottom: 10px;">☑️ Memory</h4>
+              <p style="font-size: 0.9em;">Show JS heap size over time. Helps identify memory leaks.</p>
+            </div>
+            <div style="background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 12px; border-left: 4px solid #10b981;">
+              <h4 style="color: #6ee7b7; margin-bottom: 10px;">☑️ Web Vitals</h4>
+              <p style="font-size: 0.9em;">Mark LCP, FCP, CLS events on timeline. Critical for Core Web Vitals debugging.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>🐌 CPU Throttling</h3>
+          <p>Simulate slower devices to test real-world performance:</p>
+          
+          <table class="comparison-table">
+            <tr>
+              <th>Setting</th>
+              <th>Effect</th>
+              <th>Simulates</th>
+            </tr>
+            <tr>
+              <td>No throttling</td>
+              <td>Full CPU speed</td>
+              <td>Your development machine</td>
+            </tr>
+            <tr>
+              <td>4x slowdown</td>
+              <td>CPU runs at 25% speed</td>
+              <td>Mid-range mobile device</td>
+            </tr>
+            <tr>
+              <td>6x slowdown</td>
+              <td>CPU runs at ~17% speed</td>
+              <td>Low-end mobile device</td>
+            </tr>
+          </table>
+          
+          <div class="tip">ALWAYS test with 4x CPU throttling! Your fast dev machine isn't representative of user devices.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6.3 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">6.3</div>
+        <span class="section-title">Reading the Performance Timeline</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>📊 Timeline Overview</h3>
+          <p>The Performance panel shows several tracks from top to bottom:</p>
+          
+          <div class="diagram">
+            <div class="diagram-title">Performance Panel Layout</div>
+            <div style="text-align: left;">
+              <div style="background: #3b82f6; padding: 15px; margin-bottom: 5px; border-radius: 8px;">
+                <strong>CPU Chart</strong> - Color-coded activity breakdown (yellow=JS, purple=render, green=paint)
+              </div>
+              <div style="background: #6b7280; padding: 15px; margin-bottom: 5px; border-radius: 8px;">
+                <strong>Network</strong> - Request waterfall during recording
+              </div>
+              <div style="background: #22c55e; padding: 15px; margin-bottom: 5px; border-radius: 8px;">
+                <strong>Screenshots</strong> - Visual filmstrip of page rendering
+              </div>
+              <div style="background: #f59e0b; padding: 15px; margin-bottom: 5px; border-radius: 8px;">
+                <strong>Frames</strong> - Frame rate over time (aim for 60fps)
+              </div>
+              <div style="background: #fbbf24; padding: 15px; margin-bottom: 5px; border-radius: 8px;">
+                <strong>Main Thread</strong> - Detailed flame chart of all activities
+              </div>
+              <div style="background: #a855f7; padding: 15px; margin-bottom: 5px; border-radius: 8px;">
+                <strong>Raster</strong> - Image rasterization work
+              </div>
+              <div style="background: #ec4899; padding: 15px; border-radius: 8px;">
+                <strong>GPU</strong> - Graphics processing work
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>🎨 Color Coding in the CPU Chart</h3>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div style="background: #fbbf24; color: #1a1a2e; padding: 20px; border-radius: 12px; text-align: center;">
+              <strong>Yellow</strong><br>JavaScript/Scripting
+            </div>
+            <div style="background: #a855f7; color: white; padding: 20px; border-radius: 12px; text-align: center;">
+              <strong>Purple</strong><br>Rendering (Style, Layout)
+            </div>
+            <div style="background: #22c55e; color: white; padding: 20px; border-radius: 12px; text-align: center;">
+              <strong>Green</strong><br>Painting
+            </div>
+            <div style="background: #3b82f6; color: white; padding: 20px; border-radius: 12px; text-align: center;">
+              <strong>Blue</strong><br>Loading (HTML, CSS parsing)
+            </div>
+            <div style="background: #6b7280; color: white; padding: 20px; border-radius: 12px; text-align: center;">
+              <strong>Gray</strong><br>Idle / System
+            </div>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>🔥 Reading Flame Charts</h3>
+          <p>The Main thread track shows a flame chart - a visual representation of function calls:</p>
+          
+          <div class="flame-chart">
+            <div class="flame-row">
+              <div class="flame-block js-block" style="width: 100%;">Task</div>
+            </div>
+            <div class="flame-row">
+              <div class="flame-block js-block" style="width: 70%;">handleClick</div>
+              <div class="flame-block idle-block" style="width: 30%;">idle</div>
+            </div>
+            <div class="flame-row">
+              <div class="flame-block js-block" style="width: 40%;">fetchData</div>
+              <div class="flame-block js-block" style="width: 30%;">processResults</div>
+            </div>
+            <div class="flame-row">
+              <div class="flame-block js-block" style="width: 20%;">fetch</div>
+              <div class="flame-block js-block" style="width: 20%;">parse</div>
+              <div class="flame-block render-block" style="width: 15%;">Style</div>
+              <div class="flame-block render-block" style="width: 15%;">Layout</div>
+            </div>
+          </div>
+          
+          <h4>How to Read:</h4>
+          <ul>
+            <li><strong>Width</strong> = Duration (wider = longer)</li>
+            <li><strong>Vertical stacking</strong> = Call stack (parent calls child)</li>
+            <li><strong>Left to right</strong> = Time progression</li>
+            <li><strong>Red corner</strong> = Long Task (>50ms) - problematic!</li>
+          </ul>
+          
+          <div class="warning">Tasks over 50ms are "Long Tasks" and cause jank. This is a key interview topic!</div>
+        </div>
+
+        <div class="concept">
+          <h3>⚡ Identifying Long Tasks</h3>
+          <p>Long Tasks block the main thread, causing:</p>
+          <ul>
+            <li>Unresponsive UI (can't scroll, click)</li>
+            <li>Dropped frames (janky animations)</li>
+            <li>Poor Interaction to Next Paint (INP)</li>
+          </ul>
+          
+          <div class="flame-chart">
+            <div class="flame-row">
+              <div class="flame-block long-task" style="width: 80%;">
+                ⚠️ Long Task (150ms) - handleClick
+              </div>
+              <div class="flame-block idle-block" style="width: 20%;">idle</div>
+            </div>
+          </div>
+          
+          <p>Long tasks have a <strong>red flag/corner</strong> in the flame chart. Click to see details.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6.4 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">6.4</div>
+        <span class="section-title">Core Web Vitals Deep Dive</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>📈 What Are Core Web Vitals?</h3>
+          <p>Google's metrics that measure real user experience. They directly affect SEO rankings!</p>
+          
+          <div class="cwv-grid">
+            <div class="metric-card good">
+              <h4>LCP</h4>
+              <p style="font-size: 0.85em;">Largest Contentful Paint</p>
+              <div class="value">&lt; 2.5s</div>
+              <div class="threshold">Good | 2.5-4s Needs Improvement | &gt;4s Poor</div>
+            </div>
+            <div class="metric-card good">
+              <h4>INP</h4>
+              <p style="font-size: 0.85em;">Interaction to Next Paint</p>
+              <div class="value">&lt; 200ms</div>
+              <div class="threshold">Good | 200-500ms Needs Improvement | &gt;500ms Poor</div>
+            </div>
+            <div class="metric-card good">
+              <h4>CLS</h4>
+              <p style="font-size: 0.85em;">Cumulative Layout Shift</p>
+              <div class="value">&lt; 0.1</div>
+              <div class="threshold">Good | 0.1-0.25 Needs Improvement | &gt;0.25 Poor</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>🖼️ LCP (Largest Contentful Paint)</h3>
+          <p>Measures loading performance - when the largest visible element finishes rendering.</p>
+          
+          <h4>What Counts as LCP Element:</h4>
+          <ul>
+            <li>&lt;img&gt; elements</li>
+            <li>&lt;image&gt; inside SVG</li>
+            <li>&lt;video&gt; poster images</li>
+            <li>Elements with background-image</li>
+            <li>Block-level elements with text</li>
+          </ul>
+          
+          <h4>Common LCP Problems:</h4>
+          <div class="code-block" data-lang="Issues & Fixes">
+<code><span class="comment">/* Problem: Render-blocking resources */</span>
+&lt;link rel=<span class="string">"stylesheet"</span> href=<span class="string">"huge.css"</span>&gt;  <span class="comment">// Blocks rendering</span>
+
+<span class="comment">/* Fix: Preload critical resources */</span>
+&lt;link rel=<span class="string">"preload"</span> href=<span class="string">"hero.jpg"</span> as=<span class="string">"image"</span>&gt;
+
+<span class="comment">/* Problem: Lazy loading LCP image */</span>
+&lt;img src=<span class="string">"hero.jpg"</span> loading=<span class="string">"lazy"</span>&gt;  <span class="comment">// Don't lazy load LCP!</span>
+
+<span class="comment">/* Fix: Eager load + fetchpriority */</span>
+&lt;img src=<span class="string">"hero.jpg"</span> fetchpriority=<span class="string">"high"</span>&gt;</code>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>⚡ INP (Interaction to Next Paint)</h3>
+          <p>Measures responsiveness - time from user interaction to visual feedback.</p>
+          
+          <h4>INP Includes:</h4>
+          <ul>
+            <li>Click/tap handlers</li>
+            <li>Key presses</li>
+            <li>Any interaction that triggers visual change</li>
+          </ul>
+          
+          <h4>Improving INP:</h4>
+          <div class="code-block" data-lang="JavaScript">
+<code><span class="comment">// ❌ BAD: Long synchronous task</span>
+button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, () => {
+  <span class="comment">// 200ms of synchronous work</span>
+  <span class="function">heavyCalculation</span>();  <span class="comment">// Blocks main thread!</span>
+  <span class="function">updateUI</span>();
+});
+
+<span class="comment">// ✅ GOOD: Break up long tasks</span>
+button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, <span class="keyword">async</span> () => {
+  <span class="comment">// Immediate visual feedback</span>
+  <span class="function">showLoadingState</span>();
+  
+  <span class="comment">// Yield to browser</span>
+  <span class="keyword">await</span> <span class="function">scheduler</span>.<span class="function">yield</span>();
+  
+  <span class="comment">// Then do heavy work</span>
+  <span class="keyword">await</span> <span class="function">heavyCalculation</span>();
+  <span class="function">updateUI</span>();
+});</code>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>📐 CLS (Cumulative Layout Shift)</h3>
+          <p>Measures visual stability - how much elements move unexpectedly.</p>
+          
+          <h4>Common CLS Causes:</h4>
+          <ul>
+            <li>Images without dimensions</li>
+            <li>Ads, embeds, iframes without reserved space</li>
+            <li>Dynamically injected content</li>
+            <li>Web fonts causing FOIT/FOUT</li>
+          </ul>
+          
+          <div class="code-block" data-lang="HTML">
+<code><span class="comment">&lt;!-- ❌ BAD: No dimensions - causes layout shift --&gt;</span>
+&lt;img src=<span class="string">"photo.jpg"</span>&gt;
+
+<span class="comment">&lt;!-- ✅ GOOD: Always include dimensions --&gt;</span>
+&lt;img src=<span class="string">"photo.jpg"</span> width=<span class="string">"800"</span> height=<span class="string">"600"</span>&gt;
+
+<span class="comment">&lt;!-- ✅ BETTER: Use aspect-ratio --&gt;</span>
+&lt;img src=<span class="string">"photo.jpg"</span> style=<span class="string">"aspect-ratio: 4/3; width: 100%;"</span>&gt;</code>
+          </div>
+          
+          <div class="note">CLS only counts shifts that occur WITHOUT user interaction. Shifts from clicking a button don't count.</div>
+        </div>
+
+        <div class="concept">
+          <h3>🔍 Finding Web Vitals in Performance Panel</h3>
+          <p>Enable "Web Vitals" checkbox to see markers on the timeline:</p>
+          <ul>
+            <li><strong>FP</strong> - First Paint (any pixels)</li>
+            <li><strong>FCP</strong> - First Contentful Paint</li>
+            <li><strong>LCP</strong> - Largest Contentful Paint</li>
+            <li><strong>DCL</strong> - DOMContentLoaded event</li>
+            <li><strong>L</strong> - Load event</li>
+          </ul>
+          <p>Click any marker to see details and the element involved.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6.5 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">6.5</div>
+        <span class="section-title">Layout Thrashing & Forced Reflows</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>🔄 What is Layout Thrashing?</h3>
+          <p>Layout thrashing (forced synchronous layout) happens when you read layout properties immediately after writing to the DOM, forcing the browser to recalculate layout multiple times.</p>
+          
+          <div class="code-block" data-lang="JavaScript">
+<code><span class="comment">// ❌ BAD: Layout Thrashing</span>
+<span class="keyword">const</span> <span class="variable">boxes</span> = document.<span class="function">querySelectorAll</span>(<span class="string">'.box'</span>);
+
+<span class="variable">boxes</span>.<span class="function">forEach</span>(<span class="variable">box</span> => {
+  <span class="comment">// READ (forces layout calculation)</span>
+  <span class="keyword">const</span> <span class="variable">width</span> = <span class="variable">box</span>.offsetWidth;
+  
+  <span class="comment">// WRITE (invalidates layout)</span>
+  <span class="variable">box</span>.style.width = (<span class="variable">width</span> * <span class="number">2</span>) + <span class="string">'px'</span>;
+  
+  <span class="comment">// Next iteration: READ again = forced reflow!</span>
+});
+
+<span class="comment">// Result: N layout calculations for N elements! 🐌</span></code>
+          </div>
+          
+          <div class="code-block" data-lang="JavaScript">
+<code><span class="comment">// ✅ GOOD: Batch reads, then batch writes</span>
+<span class="keyword">const</span> <span class="variable">boxes</span> = document.<span class="function">querySelectorAll</span>(<span class="string">'.box'</span>);
+
+<span class="comment">// BATCH READ all values first</span>
+<span class="keyword">const</span> <span class="variable">widths</span> = [...<span class="variable">boxes</span>].<span class="function">map</span>(<span class="variable">box</span> => <span class="variable">box</span>.offsetWidth);
+
+<span class="comment">// BATCH WRITE all values</span>
+<span class="variable">boxes</span>.<span class="function">forEach</span>((<span class="variable">box</span>, <span class="variable">i</span>) => {
+  <span class="variable">box</span>.style.width = (<span class="variable">widths</span>[<span class="variable">i</span>] * <span class="number">2</span>) + <span class="string">'px'</span>;
+});
+
+<span class="comment">// Result: Only 1 layout calculation! 🚀</span></code>
+          </div>
+          
+          <div class="warning">Layout thrashing is one of the most common performance issues and a TOP interview question!</div>
+        </div>
+
+        <div class="concept">
+          <h3>📋 Properties That Trigger Layout</h3>
+          <p>Reading these properties forces immediate layout calculation:</p>
+          
+          <table class="comparison-table">
+            <tr>
+              <th>Category</th>
+              <th>Properties</th>
+            </tr>
+            <tr>
+              <td><strong>Box Metrics</strong></td>
+              <td>offsetWidth, offsetHeight, offsetTop, offsetLeft, offsetParent</td>
+            </tr>
+            <tr>
+              <td><strong>Client Metrics</strong></td>
+              <td>clientWidth, clientHeight, clientTop, clientLeft</td>
+            </tr>
+            <tr>
+              <td><strong>Scroll Metrics</strong></td>
+              <td>scrollWidth, scrollHeight, scrollTop, scrollLeft</td>
+            </tr>
+            <tr>
+              <td><strong>Methods</strong></td>
+              <td>getBoundingClientRect(), getComputedStyle(), getClientRects()</td>
+            </tr>
+            <tr>
+              <td><strong>Window</strong></td>
+              <td>innerWidth, innerHeight, scrollX, scrollY</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="concept">
+          <h3>🔍 Detecting Layout Thrashing in Performance Panel</h3>
+          <p>In the flame chart, look for:</p>
+          <ul>
+            <li>Purple "Recalculate Style" blocks</li>
+            <li>Purple "Layout" blocks</li>
+            <li>⚠️ Warning triangles indicating forced layout</li>
+            <li>Pattern: JS → Layout → JS → Layout (should be JS → Layout once)</li>
+          </ul>
+          
+          <p>Hover over Layout blocks to see:</p>
+          <ul>
+            <li>What function triggered it</li>
+            <li>"Forced reflow is a likely performance bottleneck" warning</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6.6 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">6.6</div>
+        <span class="section-title">Bottom-Up, Call Tree & Event Log</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>📊 Analysis Tabs (Below Flame Chart)</h3>
+          <p>After recording, use these tabs to analyze data differently:</p>
+        </div>
+
+        <div class="concept">
+          <h3>⬆️ Bottom-Up Tab</h3>
+          <p>Shows activities sorted by time spent (most time-consuming first).</p>
+          
+          <h4>Key Columns:</h4>
+          <ul>
+            <li><strong>Self Time</strong> - Time spent in this function only (not children)</li>
+            <li><strong>Total Time</strong> - Time including all child calls</li>
+            <li><strong>Activity</strong> - Function/activity name</li>
+          </ul>
+          
+          <div class="tip">Sort by "Self Time" to find the actual bottleneck functions, not just parent callers!</div>
+        </div>
+
+        <div class="concept">
+          <h3>🌳 Call Tree Tab</h3>
+          <p>Shows hierarchical view of function calls (root activity → children).</p>
+          
+          <div class="code-block" data-lang="Example Call Tree">
+<code>▼ Task (100ms)
+  ▼ handleClick (95ms)
+      ▼ processData (60ms)
+          ▶ parseJSON (30ms)
+          ▶ transform (25ms)
+      ▶ renderResults (30ms)
+  ▶ Minor GC (5ms)</code>
+          </div>
+          
+          <p>Useful for understanding the full execution flow from trigger to completion.</p>
+        </div>
+
+        <div class="concept">
+          <h3>📝 Event Log Tab</h3>
+          <p>Chronological list of all events during recording:</p>
+          <ul>
+            <li>Function calls</li>
+            <li>Layout calculations</li>
+            <li>Paint events</li>
+            <li>Garbage collection</li>
+            <li>Network requests</li>
+          </ul>
+          <p>Filter by category to focus on specific event types.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6.7 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">6.7</div>
+        <span class="section-title">Paint & Rendering Tools</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>🎨 Rendering Panel</h3>
+          <p>Access via: More Tools → Rendering (or Command Menu)</p>
+          
+          <h4>Paint Flashing</h4>
+          <p>Highlights areas being repainted in green. Excessive repaints = performance issue.</p>
+          
+          <h4>Layout Shift Regions</h4>
+          <p>Shows blue rectangles where layout shifts occur. Essential for debugging CLS.</p>
+          
+          <h4>Layer Borders</h4>
+          <p>Shows orange borders around composited layers. Helps understand layer structure.</p>
+          
+          <h4>Frame Rendering Stats</h4>
+          <p>Shows real-time FPS meter, GPU memory, and frame timing. Aim for consistent 60fps.</p>
+          
+          <div class="tip">Use Paint Flashing while scrolling - if the whole page flashes green, you have a paint problem!</div>
+        </div>
+
+        <div class="concept">
+          <h3>🏗️ Layers Panel</h3>
+          <p>3D visualization of composited layers:</p>
+          <ul>
+            <li>See layer hierarchy</li>
+            <li>Understand compositing reasons</li>
+            <li>Identify unnecessary layers (memory overhead)</li>
+            <li>View memory usage per layer</li>
+          </ul>
+          
+          <h4>Why Layers Matter:</h4>
+          <div class="code-block" data-lang="CSS">
+<code><span class="comment">/* Force element to its own layer */</span>
+.animated-element {
+  <span class="variable">will-change</span>: transform;
+  <span class="comment">/* or */</span>
+  <span class="variable">transform</span>: <span class="function">translateZ</span>(<span class="number">0</span>);
+}
+
+<span class="comment">/* Benefits: 
+   - Animation only repaints this layer
+   - GPU accelerated
+   - No impact on other elements
+   
+   Drawbacks:
+   - Uses GPU memory
+   - Too many layers = performance issue
+*/</span></code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6.8 -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">6.8</div>
+        <span class="section-title">Performance Optimization Strategies</span>
+      </div>
+      <div class="section-content">
+        <div class="concept">
+          <h3>🚀 JavaScript Optimization</h3>
+          
+          <div class="code-block" data-lang="JavaScript">
+<code><span class="comment">// 1. DEFER non-critical JavaScript</span>
+&lt;script src=<span class="string">"analytics.js"</span> defer&gt;&lt;/script&gt;
+
+<span class="comment">// 2. CODE SPLIT - Dynamic imports</span>
+button.<span class="function">addEventListener</span>(<span class="string">'click'</span>, <span class="keyword">async</span> () => {
+  <span class="keyword">const</span> { <span class="variable">heavyModule</span> } = <span class="keyword">await</span> <span class="function">import</span>(<span class="string">'./heavy-module.js'</span>);
+  <span class="variable">heavyModule</span>.<span class="function">doSomething</span>();
+});
+
+<span class="comment">// 3. USE requestIdleCallback for non-urgent work</span>
+<span class="function">requestIdleCallback</span>(() => {
+  <span class="function">nonCriticalTask</span>();
+});
+
+<span class="comment">// 4. DEBOUNCE expensive operations</span>
+<span class="keyword">const</span> <span class="function">debouncedSearch</span> = <span class="function">debounce</span>(<span class="variable">search</span>, <span class="number">300</span>);
+input.<span class="function">addEventListener</span>(<span class="string">'input'</span>, <span class="function">debouncedSearch</span>);
+
+<span class="comment">// 5. USE Web Workers for heavy computation</span>
+<span class="keyword">const</span> <span class="variable">worker</span> = <span class="keyword">new</span> <span class="function">Worker</span>(<span class="string">'worker.js'</span>);
+<span class="variable">worker</span>.<span class="function">postMessage</span>(<span class="variable">data</span>);</code>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>🎨 CSS Optimization</h3>
+          
+          <div class="code-block" data-lang="CSS">
+<code><span class="comment">/* 1. USE contain for isolated components */</span>
+.card {
+  <span class="variable">contain</span>: layout style paint;
+}
+
+<span class="comment">/* 2. USE content-visibility for off-screen content */</span>
+.below-fold {
+  <span class="variable">content-visibility</span>: auto;
+  <span class="variable">contain-intrinsic-size</span>: <span class="number">0</span> <span class="number">500px</span>;
+}
+
+<span class="comment">/* 3. AVOID expensive selectors */</span>
+<span class="comment">/* ❌ Slow */</span> .container > div > ul > li > a { }
+<span class="comment">/* ✅ Fast */</span> .nav-link { }
+
+<span class="comment">/* 4. USE transform for animations, not margin/top/left */</span>
+.animated {
+  <span class="variable">transform</span>: <span class="function">translateX</span>(<span class="number">100px</span>);
+  <span class="variable">transition</span>: transform <span class="number">0.3s</span>;
+}</code>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>📦 Resource Loading Optimization</h3>
+          
+          <div class="code-block" data-lang="HTML">
+<code><span class="comment">&lt;!-- 1. PRELOAD critical resources --&gt;</span>
+&lt;link rel=<span class="string">"preload"</span> href=<span class="string">"critical.css"</span> as=<span class="string">"style"</span>&gt;
+&lt;link rel=<span class="string">"preload"</span> href=<span class="string">"hero.jpg"</span> as=<span class="string">"image"</span>&gt;
+
+<span class="comment">&lt;!-- 2. PRECONNECT to important origins --&gt;</span>
+&lt;link rel=<span class="string">"preconnect"</span> href=<span class="string">"https://api.example.com"</span>&gt;
+&lt;link rel=<span class="string">"preconnect"</span> href=<span class="string">"https://fonts.googleapis.com"</span>&gt;
+
+<span class="comment">&lt;!-- 3. DNS-PREFETCH for less critical origins --&gt;</span>
+&lt;link rel=<span class="string">"dns-prefetch"</span> href=<span class="string">"https://analytics.com"</span>&gt;
+
+<span class="comment">&lt;!-- 4. LAZY LOAD below-fold images --&gt;</span>
+&lt;img src=<span class="string">"photo.jpg"</span> loading=<span class="string">"lazy"</span> width=<span class="string">"800"</span> height=<span class="string">"600"</span>&gt;
+
+<span class="comment">&lt;!-- 5. FETCHPRIORITY for LCP images --&gt;</span>
+&lt;img src=<span class="string">"hero.jpg"</span> fetchpriority=<span class="string">"high"</span>&gt;</code>
+          </div>
+        </div>
+
+        <div class="concept">
+          <h3>📋 Performance Checklist</h3>
+          <ul>
+            <li>☐ LCP element loads in under 2.5s</li>
+            <li>☐ No Long Tasks over 50ms during interaction</li>
+            <li>☐ CLS score under 0.1</li>
+            <li>☐ JavaScript deferred or async where possible</li>
+            <li>☐ Critical CSS inlined</li>
+            <li>☐ Images optimized (WebP/AVIF) with dimensions</li>
+            <li>☐ Fonts preloaded with font-display: swap</li>
+            <li>☐ No layout thrashing in animations</li>
+            <li>☐ Using transform/opacity for animations</li>
+            <li>☐ Heavy work offloaded to Web Workers</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Summary -->
+    <section class="section" style="background: linear-gradient(135deg, #ec4899, #8b5cf6);">
+      <div class="section-content">
+        <h2 style="text-align: center; margin-bottom: 30px; font-size: 1.8em;">🎯 Chapter 6 Key Takeaways</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+          <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+            <h4 style="margin-bottom: 10px;">Core Web Vitals</h4>
+            <ul style="margin-left: 20px;">
+              <li>LCP &lt; 2.5s (Loading)</li>
+              <li>INP &lt; 200ms (Interactivity)</li>
+              <li>CLS &lt; 0.1 (Stability)</li>
+            </ul>
+          </div>
+          <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+            <h4 style="margin-bottom: 10px;">Interview Must-Knows</h4>
+            <ul style="margin-left: 20px;">
+              <li>Rendering pipeline</li>
+              <li>Layout thrashing</li>
+              <li>Long Tasks (&gt;50ms)</li>
+              <li>transform vs top/left</li>
+            </ul>
+          </div>
+          <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+            <h4 style="margin-bottom: 10px;">Optimization Strategies</h4>
+            <ul style="margin-left: 20px;">
+              <li>Batch DOM reads/writes</li>
+              <li>Use GPU layers wisely</li>
+              <li>Defer non-critical JS</li>
+              <li>Preload critical resources</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chrome DevTools Mastery Guide</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e4e4e7;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+      padding: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+    }
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    header p { opacity: 0.9; font-size: 1.1em; }
+    .chapter {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      margin-bottom: 30px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .chapter:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    }
+    .chapter-header {
+      background: linear-gradient(90deg, #4f46e5, #7c3aed);
+      padding: 20px 25px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .chapter-num {
+      background: rgba(255,255,255,0.2);
+      width: 45px;
+      height: 45px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+    .chapter-title { font-size: 1.4em; font-weight: 600; }
+    .chapter-content { padding: 25px; }
+    .topic {
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-left: 4px solid #667eea;
+    }
+    .topic h3 {
+      color: #a5b4fc;
+      margin-bottom: 12px;
+      font-size: 1.15em;
+    }
+    .subtopic {
+      margin: 10px 0 10px 20px;
+      padding: 12px 15px;
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 8px;
+    }
+    .subtopic h4 {
+      color: #c4b5fd;
+      font-size: 1em;
+      margin-bottom: 8px;
+    }
+    .subtopic ul { margin-left: 20px; }
+    .subtopic li { margin: 5px 0; color: #d1d5db; }
+    .note {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #1a1a2e;
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+      font-weight: 500;
+    }
+    .note::before { content: "⚡ Important: "; font-weight: 700; }
+    .warning {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+    }
+    .warning::before { content: "🚨 Interview Alert: "; font-weight: 700; }
+    .tip {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+    }
+    .tip::before { content: "💡 Pro Tip: "; font-weight: 700; }
+    .shortcut {
+      display: inline-block;
+      background: #374151;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.9em;
+      margin: 2px;
+      border: 1px solid #4b5563;
+    }
+    code {
+      background: #374151;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.9em;
+    }
+    .level-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75em;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+    .beginner { background: #10b981; }
+    .intermediate { background: #f59e0b; color: #1a1a2e; }
+    .advanced { background: #ef4444; }
+    .toc {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 40px;
+    }
+    .toc h2 { color: #a5b4fc; margin-bottom: 20px; }
+    .toc-list { list-style: none; }
+    .toc-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .toc-list a {
+      color: #d1d5db;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .toc-list a:hover { color: #667eea; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🛠️ Chrome DevTools Mastery</h1>
+      <p>Complete Guide for Hard-Level Interviews & Production-Grade Development</p>
+    </header>
+
+    <nav class="toc">
+      <h2>📚 Table of Contents</h2>
+      <ol class="toc-list">
+        <li><a href="#ch1">Chapter 1: DevTools Fundamentals & Setup</a></li>
+        <li><a href="#ch2">Chapter 2: Elements Panel Deep Dive</a></li>
+        <li><a href="#ch3">Chapter 3: Console Panel Mastery</a></li>
+        <li><a href="#ch4">Chapter 4: Sources Panel & Debugging</a></li>
+        <li><a href="#ch5">Chapter 5: Network Panel Analysis</a></li>
+        <li><a href="#ch6">Chapter 6: Performance Panel & Optimization</a></li>
+        <li><a href="#ch7">Chapter 7: Memory Panel & Leak Detection</a></li>
+        <li><a href="#ch8">Chapter 8: Application Panel</a></li>
+        <li><a href="#ch9">Chapter 9: Lighthouse & Auditing</a></li>
+        <li><a href="#ch10">Chapter 10: Security Panel</a></li>
+        <li><a href="#ch11">Chapter 11: Recorder & Performance Insights</a></li>
+        <li><a href="#ch12">Chapter 12: Advanced Techniques & Interview Questions</a></li>
+      </ol>
+    </nav>
+
+    <!-- Chapter 1 -->
+    <section class="chapter" id="ch1">
+      <div class="chapter-header">
+        <div class="chapter-num">01</div>
+        <span class="chapter-title">DevTools Fundamentals & Setup</span>
+        <span class="level-badge beginner">Beginner</span>
+      </div>
+      <div class="chapter-content">
+        <div class="topic">
+          <h3>1.1 Opening DevTools</h3>
+          <div class="subtopic">
+            <h4>Keyboard Shortcuts</h4>
+            <ul>
+              <li><span class="shortcut">F12</span> - Toggle DevTools</li>
+              <li><span class="shortcut">Ctrl+Shift+I</span> / <span class="shortcut">Cmd+Option+I</span> - Open DevTools</li>
+              <li><span class="shortcut">Ctrl+Shift+J</span> / <span class="shortcut">Cmd+Option+J</span> - Open Console</li>
+              <li><span class="shortcut">Ctrl+Shift+C</span> / <span class="shortcut">Cmd+Option+C</span> - Inspect Element Mode</li>
+            </ul>
+          </div>
+          <div class="note">Right-click → "Inspect" is the most common way but knowing shortcuts shows proficiency in interviews.</div>
+        </div>
+
+        <div class="topic">
+          <h3>1.2 DevTools Panels Overview</h3>
+          <div class="subtopic">
+            <h4>Core Panels</h4>
+            <ul>
+              <li><strong>Elements</strong> - DOM & CSS inspection/manipulation</li>
+              <li><strong>Console</strong> - JavaScript execution & logging</li>
+              <li><strong>Sources</strong> - Debugging & file navigation</li>
+              <li><strong>Network</strong> - HTTP requests analysis</li>
+              <li><strong>Performance</strong> - Runtime performance profiling</li>
+              <li><strong>Memory</strong> - Memory usage & leak detection</li>
+              <li><strong>Application</strong> - Storage, Service Workers, PWA</li>
+              <li><strong>Security</strong> - HTTPS & certificate info</li>
+              <li><strong>Lighthouse</strong> - Automated auditing</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>1.3 DevTools Settings & Customization</h3>
+          <div class="subtopic">
+            <h4>Essential Settings</h4>
+            <ul>
+              <li>Theme (Light/Dark/System)</li>
+              <li>Panel layout (horizontal/vertical/auto)</li>
+              <li>Enable CSS source maps</li>
+              <li>Enable JavaScript source maps</li>
+              <li>Disable cache (while DevTools is open)</li>
+              <li>Preserve log across navigation</li>
+            </ul>
+          </div>
+          <div class="tip">Access settings via <span class="shortcut">F1</span> or gear icon. Enable "Experiments" for cutting-edge features.</div>
+        </div>
+
+        <div class="topic">
+          <h3>1.4 Command Menu</h3>
+          <div class="subtopic">
+            <h4>Power User Feature</h4>
+            <ul>
+              <li><span class="shortcut">Ctrl+Shift+P</span> / <span class="shortcut">Cmd+Shift+P</span> - Open Command Menu</li>
+              <li>Run commands like "Screenshot", "Disable JavaScript", etc.</li>
+              <li><span class="shortcut">Ctrl+P</span> - Quick file open</li>
+              <li><span class="shortcut">Ctrl+Shift+O</span> - Go to symbol/function</li>
+            </ul>
+          </div>
+          <div class="warning">Interviewers love asking about Command Menu. Know at least 5-10 useful commands!</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 2 -->
+    <section class="chapter" id="ch2">
+      <div class="chapter-header">
+        <div class="chapter-num">02</div>
+        <span class="chapter-title">Elements Panel Deep Dive</span>
+        <span class="level-badge beginner">Beginner</span>
+      </div>
+      <div class="chapter-content">
+        <div class="topic">
+          <h3>2.1 DOM Tree Navigation</h3>
+          <div class="subtopic">
+            <h4>Navigation Techniques</h4>
+            <ul>
+              <li>Expand/collapse nodes with arrow keys</li>
+              <li><span class="shortcut">Ctrl+F</span> - Search DOM by string, selector, or XPath</li>
+              <li>Scroll into view - Right-click element → "Scroll into view"</li>
+              <li><code>$0</code> - Reference currently selected element in Console</li>
+              <li><code>$1</code> to <code>$4</code> - Previously selected elements</li>
+            </ul>
+          </div>
+          <div class="note">XPath search: <code>//div[@class='container']</code> | CSS search: <code>div.container</code></div>
+        </div>
+
+        <div class="topic">
+          <h3>2.2 DOM Manipulation</h3>
+          <div class="subtopic">
+            <h4>Edit Operations</h4>
+            <ul>
+              <li>Double-click to edit text content</li>
+              <li>Double-click attribute to edit</li>
+              <li><span class="shortcut">F2</span> - Edit as HTML</li>
+              <li>Drag & drop to reorder elements</li>
+              <li>Delete element - <span class="shortcut">Delete</span> or <span class="shortcut">Backspace</span></li>
+              <li>Hide element - <span class="shortcut">H</span> key</li>
+              <li>Duplicate element - Right-click → "Duplicate element"</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Copy Operations</h4>
+            <ul>
+              <li>Copy → outerHTML / selector / JS path / XPath / Styles</li>
+              <li>Cut, Copy, Paste elements</li>
+              <li>Copy element with styles for debugging</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>2.3 Styles Panel</h3>
+          <div class="subtopic">
+            <h4>CSS Inspection</h4>
+            <ul>
+              <li>View computed styles vs authored styles</li>
+              <li>Strikethrough = overridden styles</li>
+              <li>Gray text = inherited styles</li>
+              <li>Click property value to edit inline</li>
+              <li>Click color swatch for color picker</li>
+              <li>Click timing function for bezier curve editor</li>
+              <li>Click shadow for shadow editor</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Adding New Styles</h4>
+            <ul>
+              <li><code>element.style {}</code> - Add inline styles</li>
+              <li>Click <code>+</code> button to add new rule</li>
+              <li>Type property: value and press <span class="shortcut">Tab</span></li>
+            </ul>
+          </div>
+          <div class="warning">Know the CSS specificity order: inline > ID > class > element. Interviewers test this!</div>
+        </div>
+
+        <div class="topic">
+          <h3>2.4 Computed Panel</h3>
+          <div class="subtopic">
+            <h4>Features</h4>
+            <ul>
+              <li>Final computed values after cascade</li>
+              <li>Box model visualization (margin, border, padding, content)</li>
+              <li>Click values to see source rule</li>
+              <li>Filter computed properties</li>
+              <li>"Show all" to see browser defaults</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>2.5 Layout Panel</h3>
+          <div class="subtopic">
+            <h4>Grid & Flexbox Tools</h4>
+            <ul>
+              <li>Grid overlay visualization</li>
+              <li>Flexbox overlay visualization</li>
+              <li>Line numbers, area names display</li>
+              <li>Extend grid lines option</li>
+              <li>Container queries inspection</li>
+            </ul>
+          </div>
+          <div class="tip">Click the grid/flex badge next to elements to toggle overlays. Essential for layout debugging!</div>
+        </div>
+
+        <div class="topic">
+          <h3>2.6 Event Listeners</h3>
+          <div class="subtopic">
+            <h4>Inspection Features</h4>
+            <ul>
+              <li>View all attached event listeners</li>
+              <li>Filter by event type</li>
+              <li>"Ancestors" checkbox to show bubbled listeners</li>
+              <li>"Framework listeners" for React/Angular/Vue events</li>
+              <li>Click to navigate to handler source code</li>
+              <li>Remove listeners for debugging</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>2.7 DOM Breakpoints</h3>
+          <div class="subtopic">
+            <h4>Types of DOM Breakpoints</h4>
+            <ul>
+              <li><strong>Subtree modifications</strong> - Break when children change</li>
+              <li><strong>Attribute modifications</strong> - Break when attributes change</li>
+              <li><strong>Node removal</strong> - Break when element is removed</li>
+            </ul>
+          </div>
+          <div class="note">DOM breakpoints are crucial for debugging dynamic content changes and framework behavior!</div>
+        </div>
+
+        <div class="topic">
+          <h3>2.8 Accessibility Panel</h3>
+          <div class="subtopic">
+            <h4>A11y Features</h4>
+            <ul>
+              <li>Accessibility tree view</li>
+              <li>ARIA attributes inspection</li>
+              <li>Computed accessibility properties</li>
+              <li>Contrast ratio checker</li>
+              <li>Source order viewer</li>
+            </ul>
+          </div>
+          <div class="warning">Accessibility knowledge is increasingly tested in interviews. Know ARIA roles and semantic HTML!</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 3 -->
+    <section class="chapter" id="ch3">
+      <div class="chapter-header">
+        <div class="chapter-num">03</div>
+        <span class="chapter-title">Console Panel Mastery</span>
+        <span class="level-badge intermediate">Intermediate</span>
+      </div>
+      <div class="chapter-content">
+        <div class="topic">
+          <h3>3.1 Console API Methods</h3>
+          <div class="subtopic">
+            <h4>Basic Logging</h4>
+            <ul>
+              <li><code>console.log()</code> - General output</li>
+              <li><code>console.info()</code> - Informational</li>
+              <li><code>console.warn()</code> - Warning (yellow)</li>
+              <li><code>console.error()</code> - Error (red)</li>
+              <li><code>console.debug()</code> - Debug level (hidden by default)</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Advanced Logging</h4>
+            <ul>
+              <li><code>console.table(array/object)</code> - Tabular display</li>
+              <li><code>console.dir(object)</code> - Object properties</li>
+              <li><code>console.dirxml(node)</code> - XML/HTML view</li>
+              <li><code>console.group() / groupEnd()</code> - Group messages</li>
+              <li><code>console.groupCollapsed()</code> - Collapsed group</li>
+              <li><code>console.count(label)</code> - Count calls</li>
+              <li><code>console.countReset(label)</code> - Reset counter</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Timing & Profiling</h4>
+            <ul>
+              <li><code>console.time(label)</code> - Start timer</li>
+              <li><code>console.timeEnd(label)</code> - End timer & log</li>
+              <li><code>console.timeLog(label)</code> - Log intermediate time</li>
+              <li><code>console.profile() / profileEnd()</code> - CPU profile</li>
+              <li><code>console.trace()</code> - Print stack trace</li>
+            </ul>
+          </div>
+          <div class="note">console.table() is a game-changer for debugging arrays of objects!</div>
+        </div>
+
+        <div class="topic">
+          <h3>3.2 Console Utilities API</h3>
+          <div class="subtopic">
+            <h4>Selection Helpers</h4>
+            <ul>
+              <li><code>$(selector)</code> - Alias for document.querySelector()</li>
+              <li><code>$$(selector)</code> - Alias for document.querySelectorAll()</li>
+              <li><code>$x(xpath)</code> - Evaluate XPath expression</li>
+              <li><code>$0 - $4</code> - Recently selected elements</li>
+              <li><code>$_</code> - Last evaluated expression result</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Inspection Helpers</h4>
+            <ul>
+              <li><code>inspect(object/function)</code> - Jump to element/source</li>
+              <li><code>getEventListeners(element)</code> - Get all listeners</li>
+              <li><code>keys(object)</code> - Object keys</li>
+              <li><code>values(object)</code> - Object values</li>
+              <li><code>copy(object)</code> - Copy to clipboard</li>
+              <li><code>clear()</code> - Clear console</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Monitoring Functions</h4>
+            <ul>
+              <li><code>monitor(function)</code> - Log function calls</li>
+              <li><code>unmonitor(function)</code> - Stop monitoring</li>
+              <li><code>monitorEvents(element, [events])</code> - Log events</li>
+              <li><code>unmonitorEvents(element)</code> - Stop event monitoring</li>
+              <li><code>debug(function)</code> - Break on function call</li>
+              <li><code>undebug(function)</code> - Remove breakpoint</li>
+            </ul>
+          </div>
+          <div class="warning">monitorEvents() and getEventListeners() are frequently asked in interviews!</div>
+        </div>
+
+        <div class="topic">
+          <h3>3.3 String Formatting</h3>
+          <div class="subtopic">
+            <h4>Format Specifiers</h4>
+            <ul>
+              <li><code>%s</code> - String</li>
+              <li><code>%d</code> or <code>%i</code> - Integer</li>
+              <li><code>%f</code> - Float</li>
+              <li><code>%o</code> - Object (expandable)</li>
+              <li><code>%O</code> - Object (non-expandable)</li>
+              <li><code>%c</code> - CSS styling</li>
+            </ul>
+          </div>
+          <div class="tip">Style console output: <code>console.log('%cStyled!', 'color: red; font-size: 20px;')</code></div>
+        </div>
+
+        <div class="topic">
+          <h3>3.4 Console Settings</h3>
+          <div class="subtopic">
+            <h4>Options</h4>
+            <ul>
+              <li>Preserve log - Keep logs across navigation</li>
+              <li>Show timestamps</li>
+              <li>Autocomplete from history</li>
+              <li>Group similar messages</li>
+              <li>Eager evaluation</li>
+              <li>Log XMLHttpRequests</li>
+              <li>Selected context only (for iframes)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>3.5 Live Expressions</h3>
+          <div class="subtopic">
+            <h4>Real-time Watching</h4>
+            <ul>
+              <li>Click eye icon to add live expression</li>
+              <li>Expression updates in real-time</li>
+              <li>Great for watching variables/DOM state</li>
+              <li>Example: <code>document.activeElement</code></li>
+              <li>Example: <code>performance.now()</code></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>3.6 Console Assertions</h3>
+          <div class="subtopic">
+            <h4>Testing in Console</h4>
+            <ul>
+              <li><code>console.assert(condition, message)</code></li>
+              <li>Only logs if condition is false</li>
+              <li>Useful for runtime assertions</li>
+              <li>Example: <code>console.assert(arr.length > 0, 'Array is empty!')</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 4 -->
+    <section class="chapter" id="ch4">
+      <div class="chapter-header">
+        <div class="chapter-num">04</div>
+        <span class="chapter-title">Sources Panel & Debugging</span>
+        <span class="level-badge intermediate">Intermediate</span>
+      </div>
+      <div class="chapter-content">
+        <div class="topic">
+          <h3>4.1 File Navigation</h3>
+          <div class="subtopic">
+            <h4>File Tree</h4>
+            <ul>
+              <li>Page resources organized by domain</li>
+              <li>Filesystem - Link local folder for live editing</li>
+              <li>Overrides - Persist changes across reloads</li>
+              <li>Content scripts - Browser extension scripts</li>
+              <li>Snippets - Save & run custom scripts</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Quick Open</h4>
+            <ul>
+              <li><span class="shortcut">Ctrl+P</span> - Open file by name</li>
+              <li><span class="shortcut">Ctrl+Shift+O</span> - Go to function/symbol</li>
+              <li><span class="shortcut">Ctrl+G</span> - Go to line number</li>
+              <li><span class="shortcut">Ctrl+Shift+F</span> - Search across all files</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>4.2 Breakpoints</h3>
+          <div class="subtopic">
+            <h4>Breakpoint Types</h4>
+            <ul>
+              <li><strong>Line breakpoint</strong> - Click line number</li>
+              <li><strong>Conditional breakpoint</strong> - Right-click → Add conditional</li>
+              <li><strong>Logpoint</strong> - Log without breaking (Right-click → Add logpoint)</li>
+              <li><strong>DOM breakpoint</strong> - Break on DOM changes</li>
+              <li><strong>XHR/Fetch breakpoint</strong> - Break on URL pattern</li>
+              <li><strong>Event listener breakpoint</strong> - Break on events</li>
+              <li><strong>Exception breakpoint</strong> - Pause on exceptions</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Managing Breakpoints</h4>
+            <ul>
+              <li>Breakpoints panel shows all breakpoints</li>
+              <li>Checkbox to enable/disable</li>
+              <li>Right-click for options</li>
+              <li>"Deactivate breakpoints" button</li>
+              <li>"Pause on exceptions" button</li>
+            </ul>
+          </div>
+          <div class="warning">Conditional breakpoints and logpoints are interview favorites. Know when to use each!</div>
+        </div>
+
+        <div class="topic">
+          <h3>4.3 Debugging Controls</h3>
+          <div class="subtopic">
+            <h4>Step Controls</h4>
+            <ul>
+              <li><span class="shortcut">F8</span> - Resume/Pause execution</li>
+              <li><span class="shortcut">F10</span> - Step over (next line)</li>
+              <li><span class="shortcut">F11</span> - Step into function</li>
+              <li><span class="shortcut">Shift+F11</span> - Step out of function</li>
+              <li><span class="shortcut">F9</span> - Step (into async)</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Advanced Controls</h4>
+            <ul>
+              <li>Right-click → "Continue to here"</li>
+              <li>Right-click → "Restart frame"</li>
+              <li>Right-click → "Never pause here"</li>
+              <li>"Ignore listed scripts" for blackboxing</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>4.4 Scope & Variables</h3>
+          <div class="subtopic">
+            <h4>Scope Panel</h4>
+            <ul>
+              <li><strong>Local</strong> - Current function scope</li>
+              <li><strong>Closure</strong> - Variables from outer scopes</li>
+              <li><strong>Script</strong> - Module-level variables</li>
+              <li><strong>Global</strong> - Window/global object</li>
+              <li>Edit variable values by double-clicking</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Watch Expressions</h4>
+            <ul>
+              <li>Add custom expressions to watch</li>
+              <li>Updates at each breakpoint</li>
+              <li>Right-click to add, edit, delete</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>4.5 Call Stack</h3>
+          <div class="subtopic">
+            <h4>Features</h4>
+            <ul>
+              <li>View function call chain</li>
+              <li>Click to navigate to frame</li>
+              <li>Show async call stacks</li>
+              <li>Copy stack trace</li>
+              <li>"Restart frame" to re-run function</li>
+            </ul>
+          </div>
+          <div class="note">Async stack traces are invaluable for debugging Promises and async/await code!</div>
+        </div>
+
+        <div class="topic">
+          <h3>4.6 Source Maps</h3>
+          <div class="subtopic">
+            <h4>Understanding Source Maps</h4>
+            <ul>
+              <li>Map minified code to original source</li>
+              <li>Debug TypeScript, Sass, etc. directly</li>
+              <li><code>//# sourceMappingURL=file.map</code></li>
+              <li>Enable in Settings → Preferences</li>
+              <li>View authored vs deployed code</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>4.7 Workspaces & Overrides</h3>
+          <div class="subtopic">
+            <h4>Local Overrides</h4>
+            <ul>
+              <li>Persist changes across page reloads</li>
+              <li>Sources → Overrides → Select folder</li>
+              <li>Right-click file → "Save for overrides"</li>
+              <li>Purple dot indicates overridden file</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Workspaces</h4>
+            <ul>
+              <li>Link DevTools to local filesystem</li>
+              <li>Edit source files directly</li>
+              <li>Auto-save changes to disk</li>
+              <li>Green dot indicates linked file</li>
+            </ul>
+          </div>
+          <div class="tip">Overrides are perfect for testing fixes on production sites without touching server code!</div>
+        </div>
+
+        <div class="topic">
+          <h3>4.8 Snippets</h3>
+          <div class="subtopic">
+            <h4>Custom Scripts</h4>
+            <ul>
+              <li>Save reusable JavaScript code</li>
+              <li>Run with <span class="shortcut">Ctrl+Enter</span></li>
+              <li>Access via Command Menu: "Run snippet"</li>
+              <li>Great for repetitive debugging tasks</li>
+              <li>Persist across sessions</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 5 -->
+    <section class="chapter" id="ch5">
+      <div class="chapter-header">
+        <div class="chapter-num">05</div>
+        <span class="chapter-title">Network Panel Analysis</span>
+        <span class="level-badge intermediate">Intermediate</span>
+      </div>
+      <div class="chapter-content">
+        <div class="topic">
+          <h3>5.1 Network Request List</h3>
+          <div class="subtopic">
+            <h4>Request Information</h4>
+            <ul>
+              <li><strong>Name</strong> - Resource filename/URL</li>
+              <li><strong>Status</strong> - HTTP status code</li>
+              <li><strong>Type</strong> - Resource type (XHR, JS, CSS, etc.)</li>
+              <li><strong>Initiator</strong> - What triggered the request</li>
+              <li><strong>Size</strong> - Transfer size / resource size</li>
+              <li><strong>Time</strong> - Total request duration</li>
+              <li><strong>Waterfall</strong> - Visual timing breakdown</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Filtering Requests</h4>
+            <ul>
+              <li>Filter by type: XHR, JS, CSS, Img, Media, Font, Doc, WS, Wasm, Manifest, Other</li>
+              <li>Text filter: <code>domain:example.com</code></li>
+              <li>Negative filter: <code>-status-code:200</code></li>
+              <li><code>larger-than:100k</code>, <code>method:POST</code></li>
+              <li>Regex support: <code>/api\/v[0-9]+/</code></li>
+              <li>"Invert" checkbox for inverse filtering</li>
+            </ul>
+          </div>
+          <div class="warning">Know network filter syntax! Common interview question: "How do you filter for failed requests?"</div>
+        </div>
+
+        <div class="topic">
+          <h3>5.2 Request Details</h3>
+          <div class="subtopic">
+            <h4>Headers Tab</h4>
+            <ul>
+              <li><strong>General</strong> - URL, method, status, remote address</li>
+              <li><strong>Response Headers</strong> - Server-sent headers</li>
+              <li><strong>Request Headers</strong> - Browser-sent headers</li>
+              <li>View source vs parsed headers</li>
+              <li>Provisional headers warning</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Other Tabs</h4>
+            <ul>
+              <li><strong>Payload</strong> - Request body/query params</li>
+              <li><strong>Preview</strong> - Formatted response preview</li>
+              <li><strong>Response</strong> - Raw response body</li>
+              <li><strong>Initiator</strong> - Request chain/stack trace</li>
+              <li><strong>Timing</strong> - Detailed timing breakdown</li>
+              <li><strong>Cookies</strong> - Request/response cookies</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>5.3 Timing Breakdown</h3>
+          <div class="subtopic">
+            <h4>Timing Phases</h4>
+            <ul>
+              <li><strong>Queueing</strong> - Waiting in browser queue</li>
+              <li><strong>Stalled</strong> - Waiting to send (connection limits)</li>
+              <li><strong>DNS Lookup</strong> - Domain resolution</li>
+              <li><strong>Initial Connection</strong> - TCP handshake</li>
+              <li><strong>SSL</strong> - TLS negotiation</li>
+              <li><strong>Request Sent</strong> - Sending request</li>
+              <li><strong>Waiting (TTFB)</strong> - Time to first byte</li>
+              <li><strong>Content Download</strong> - Receiving response</li>
+            </ul>
+          </div>
+          <div class="note">TTFB (Time to First Byte) is critical for performance. High TTFB = server/network issue!</div>
+        </div>
+
+        <div class="topic">
+          <h3>5.4 Network Throttling</h3>
+          <div class="subtopic">
+            <h4>Preset Profiles</h4>
+            <ul>
+              <li>Fast 3G, Slow 3G</li>
+              <li>Offline mode</li>
+              <li>Custom profiles (download, upload, latency)</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Use Cases</h4>
+            <ul>
+              <li>Test loading states</li>
+              <li>Debug race conditions</li>
+              <li>Test offline functionality</li>
+              <li>Simulate poor network conditions</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>5.5 Request Blocking</h3>
+          <div class="subtopic">
+            <h4>How to Block</h4>
+            <ul>
+              <li>Right-click request → "Block request URL"</li>
+              <li>Right-click → "Block request domain"</li>
+              <li>Network request blocking panel</li>
+              <li>Pattern matching with wildcards</li>
+            </ul>
+          </div>
+          <div class="tip">Block analytics/tracking to see how your site performs without them!</div>
+        </div>
+
+        <div class="topic">
+          <h3>5.6 HAR Files</h3>
+          <div class="subtopic">
+            <h4>Export/Import</h4>
+            <ul>
+              <li>HAR = HTTP Archive format</li>
+              <li>Export: Right-click → "Save all as HAR"</li>
+              <li>Import: Drag HAR file into Network panel</li>
+              <li>Share network issues with team</li>
+              <li>Analyze with third-party tools</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>5.7 WebSocket Inspection</h3>
+          <div class="subtopic">
+            <h4>WS Tab Features</h4>
+            <ul>
+              <li>View WebSocket connections</li>
+              <li>Messages tab - sent/received frames</li>
+              <li>Color coding: green=sent, red=received</li>
+              <li>Binary/text message inspection</li>
+              <li>Connection timing</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>5.8 Copy Options</h3>
+          <div class="subtopic">
+            <h4>Right-click Copy Menu</h4>
+            <ul>
+              <li>Copy as cURL (bash/cmd/PowerShell)</li>
+              <li>Copy as fetch</li>
+              <li>Copy request headers</li>
+              <li>Copy response</li>
+              <li>Copy all as HAR</li>
+            </ul>
+          </div>
+          <div class="warning">"Copy as cURL" is essential for reproducing API issues. Know this well!</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 6 -->
+    <section class="chapter" id="ch6">
+      <div class="chapter-header">
+        <div class="chapter-num">06</div>
+        <span class="chapter-title">Performance Panel & Optimization</span>
+        <span class="level-badge advanced">Advanced</span>
+      </div>
+      <div class="chapter-content">
+        <div class="topic">
+          <h3>6.1 Recording Performance</h3>
+          <div class="subtopic">
+            <h4>Recording Options</h4>
+            <ul>
+              <li>Record button or <span class="shortcut">Ctrl+E</span></li>
+              <li>Record and reload page</li>
+              <li>Screenshots checkbox</li>
+              <li>Memory checkbox</li>
+              <li>Web Vitals checkbox</li>
+              <li>CPU throttling (4x, 6x slowdown)</li>
+              <li>Network throttling integration</li>
+            </ul>
+          </div>
+          <div class="note">Always test with CPU throttling to simulate real-world devices!</div>
+        </div>
+
+        <div class="topic">
+          <h3>6.2 Performance Timeline</h3>
+          <div class="subtopic">
+            <h4>Timeline Sections</h4>
+            <ul>
+              <li><strong>CPU chart</strong> - Color-coded activity</li>
+              <li><strong>NET chart</strong> - Network requests</li>
+              <li><strong>Screenshots</strong> - Visual progression</li>
+              <li><strong>Frames</strong> - Frame rendering</li>
+              <li><strong>Main thread</strong> - JavaScript execution</li>
+              <li><strong>Compositor</strong> - GPU composition</li>
+              <li><strong>Raster</strong> - Image rasterization</li>
+              <li><strong>GPU</strong> - GPU tasks</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>6.3 Main Thread Analysis</h3>
+          <div class="subtopic">
+            <h4>Color Coding</h4>
+            <ul>
+              <li><strong style="color:#f5c400">Yellow</strong> - JavaScript execution</li>
+              <li><strong style="color:#9b59b6">Purple</strong> - Rendering (layout, paint)</li>
+              <li><strong style="color:#28b463">Green</strong> - Painting & compositing</li>
+              <li><strong style="color:#3498db">Blue</strong> - Loading (parsing HTML/CSS)</li>
+              <li><strong style="color:#95a5a6">Gray</strong> - System/idle</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Reading Flame Charts</h4>
+            <ul>
+              <li>Width = duration</li>
+              <li>Hierarchy = call stack</li>
+              <li>Click to see details</li>
+              <li>Red corner = long task (>50ms)</li>
+              <li>Zoom with scroll/drag</li>
+            </ul>
+          </div>
+          <div class="warning">Long tasks (>50ms) block the main thread. Interview favorite: "What causes jank?"</div>
+        </div>
+
+        <div class="topic">
+          <h3>6.4 Core Web Vitals</h3>
+          <div class="subtopic">
+            <h4>Key Metrics</h4>
+            <ul>
+              <li><strong>LCP</strong> (Largest Contentful Paint) - Loading: &lt;2.5s good</li>
+              <li><strong>INP</strong> (Interaction to Next Paint) - Interactivity: &lt;200ms good</li>
+              <li><strong>CLS</strong> (Cumulative Layout Shift) - Stability: &lt;0.1 good</li>
+              <li><strong>FCP</strong> (First Contentful Paint)</li>
+              <li><strong>TTFB</strong> (Time to First Byte)</li>
+            </ul>
+          </div>
+          <div class="note">Core Web Vitals directly affect SEO rankings. Critical interview topic!</div>
+        </div>
+
+        <div class="topic">
+          <h3>6.5 Bottom-Up & Call Tree</h3>
+          <div class="subtopic">
+            <h4>Analysis Views</h4>
+            <ul>
+              <li><strong>Bottom-Up</strong> - Most time-consuming activities first</li>
+              <li><strong>Call Tree</strong> - Hierarchical view of calls</li>
+              <li><strong>Event Log</strong> - Chronological events</li>
+              <li>Self Time vs Total Time</li>
+              <li>Filter by activity type</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>6.6 Layout Thrashing</h3>
+          <div class="subtopic">
+            <h4>Identifying Forced Reflows</h4>
+            <ul>
+              <li>Purple "Recalculate Style" bars</li>
+              <li>Purple "Layout" bars</li>
+              <li>Warning triangles indicate forced layout</li>
+              <li>Hover to see what forced layout</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Properties That Trigger Layout</h4>
+            <ul>
+              <li><code>offsetWidth</code>, <code>offsetHeight</code></li>
+              <li><code>clientWidth</code>, <code>clientHeight</code></li>
+              <li><code>getBoundingClientRect()</code></li>
+              <li><code>scrollTop</code>, <code>scrollLeft</code></li>
+              <li><code>getComputedStyle()</code></li>
+            </ul>
+          </div>
+          <div class="warning">Layout thrashing is a classic interview question. Know how to batch DOM reads/writes!</div>
+        </div>
+
+        <div class="topic">
+          <h3>6.7 Paint Analysis</h3>
+          <div class="subtopic">
+            <h4>Rendering Panel (Drawer)</h4>
+            <ul>
+              <li>Paint flashing - Highlight repainted areas</li>
+              <li>Layout Shift Regions</li>
+              <li>Layer borders</li>
+              <li>Frame rendering stats (FPS meter)</li>
+              <li>Scrolling performance issues</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>6.8 Layers Panel</h3>
+          <div class="subtopic">
+            <h4>Compositing Layers</h4>
+            <ul>
+              <li>3D view of page layers</li>
+              <li>See what promotes elements to layers</li>
+              <li>Identify unnecessary layers</li>
+              <li>Memory usage per layer</li>
+              <li>Compositing reasons</li>
+            </ul>
+          </div>
+          <div class="tip">Use <code>will-change</code> or <code>transform: translateZ(0)</code> to promote elements to their own layer for smooth animations.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 7 -->
+    <section class="chapter" id="ch7">
+      <div class="chapter-header">
+        <div class="chapter-num">07</div>
+        <span class="chapter-title">Memory Panel & Leak Detection</span>
+        <span class="level-badge advanced">Advanced</span>
+      </div>
+      <div class="chapter-content">
+        <div class="topic">
+          <h3>7.1 Memory Overview</h3>
+          <div class="subtopic">
+            <h4>JavaScript Memory Concepts</h4>
+            <ul>
+              <li><strong>Heap</strong> - Where objects are stored</li>
+              <li><strong>Stack</strong> - Primitive values & references</li>
+              <li><strong>Garbage Collection</strong> - Automatic memory management</li>
+              <li><strong>Memory Leak</strong> - Unreleased memory that grows</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>7.2 Heap Snapshots</h3>
+          <div class="subtopic">
+            <h4>Taking Snapshots</h4>
+            <ul>
+              <li>Click "Take heap snapshot"</li>
+              <li>Shows all objects in memory</li>
+              <li>Compare multiple snapshots</li>
+              <li>Force garbage collection first (trash icon)</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Views</h4>
+            <ul>
+              <li><strong>Summary</strong> - Objects grouped by constructor</li>
+              <li><strong>Comparison</strong> - Diff between snapshots</li>
+              <li><strong>Containment</strong> - Object hierarchy</li>
+              <li><strong>Statistics</strong> - Memory breakdown pie chart</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Key Columns</h4>
+            <ul>
+              <li><strong>Shallow Size</strong> - Object's own memory</li>
+              <li><strong>Retained Size</strong> - Memory freed if object deleted</li>
+              <li><strong>Distance</strong> - Distance from GC root</li>
+            </ul>
+          </div>
+          <div class="note">Retained Size is what matters for memory leaks - large retained sizes indicate problem areas!</div>
+        </div>
+
+        <div class="topic">
+          <h3>7.3 Allocation Timeline</h3>
+          <div class="subtopic">
+            <h4>Features</h4>
+            <ul>
+              <li>Record memory allocations over time</li>
+              <li>Blue bars = allocated, gray = freed</li>
+              <li>Remaining blue bars = potential leaks</li>
+              <li>Click bar to see allocation stack</li>
+              <li>Filter by constructor name</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>7.4 Allocation Sampling</h3>
+          <div class="subtopic">
+            <h4>Low-Overhead Profiling</h4>
+            <ul>
+              <li>Statistical sampling approach</li>
+              <li>Lower overhead than timeline</li>
+              <li>Good for production profiling</li>
+              <li>Shows allocation call stacks</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>7.5 Common Memory Leak Patterns</h3>
+          <div class="subtopic">
+            <h4>What to Look For</h4>
+            <ul>
+              <li><strong>Detached DOM trees</strong> - DOM nodes referenced but not in document</li>
+              <li><strong>Event listeners</strong> - Not removed on cleanup</li>
+              <li><strong>Closures</strong> - Capturing large objects</li>
+              <li><strong>Global variables</strong> - Accidental globals</li>
+              <li><strong>Timers</strong> - setInterval not cleared</li>
+              <li><strong>Observers</strong> - Not disconnected</li>
+            </ul>
+          </div>
+          <div class="warning">Search for "Detached" in heap snapshots to find detached DOM trees - a classic leak!</div>
+        </div>
+
+        <div class="topic">
+          <h3>7.6 Finding Leaks Workflow</h3>
+          <div class="subtopic">
+            <h4>Step-by-Step Process</h4>
+            <ul>
+              <li>1. Take baseline heap snapshot</li>
+              <li>2. Perform suspected leaking action</li>
+              <li>3. Force garbage collection</li>
+              <li>4. Take another snapshot</li>
+              <li>5. Compare snapshots for growth</li>
+              <li>6. Look at "Objects allocated between"</li>
+              <li>7. Trace retaining paths</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>7.7 Retainers & Paths</h3>
+          <div class="subtopic">
+            <h4>Understanding Retention</h4>
+            <ul>
+              <li>Retainers panel shows what keeps object alive</li>
+              <li>Follow path from object to GC root</li>
+              <li>Look for unexpected retainers</li>
+              <li>Yellow = direct reference</li>
+              <li>Red = indirect (through closure)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>7.8 Performance Monitor</h3>
+          <div class="subtopic">
+            <h4>Real-time Metrics</h4>
+            <ul>
+              <li>Open from Command Menu or More tools</li>
+              <li>CPU usage</li>
+              <li>JS heap size</li>
+              <li>DOM nodes count</li>
+              <li>JS event listeners</li>
+              <li>Documents / Frames / Layouts per second</li>
+            </ul>
+          </div>
+          <div class="tip">Watch DOM node count while navigating SPA - should stay stable or you have a leak!</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 8 -->
+    <section class="chapter" id="ch8">
+      <div class="chapter-header">
+        <div class="chapter-num">08</div>
+        <span class="chapter-title">Application Panel</span>
+        <span class="level-badge intermediate">Intermediate</span>
+      </div>
+      <div class="chapter-content">
+        <div class="topic">
+          <h3>8.1 Storage Overview</h3>
+          <div class="subtopic">
+            <h4>Storage Types</h4>
+            <ul>
+              <li><strong>Local Storage</strong> - Persistent key-value (5-10MB)</li>
+              <li><strong>Session Storage</strong> - Tab-scoped key-value</li>
+              <li><strong>IndexedDB</strong> - Client-side database</li>
+              <li><strong>Cookies</strong> - Small data with expiration</li>
+              <li><strong>Cache Storage</strong> - Service Worker caches</li>
+              <li><strong>Web SQL</strong> - Deprecated database</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>8.2 Local & Session Storage</h3>
+          <div class="subtopic">
+            <h4>Management Features</h4>
+            <ul>
+              <li>View all stored key-value pairs</li>
+              <li>Double-click to edit values</li>
+              <li>Right-click to delete items</li>
+              <li>Clear all storage for domain</li>
+              <li>Filter/search keys</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>8.3 IndexedDB</h3>
+          <div class="subtopic">
+            <h4>Inspection Features</h4>
+            <ul>
+              <li>View databases and object stores</li>
+              <li>Browse stored objects</li>
+              <li>View indexes</li>
+              <li>Delete databases/stores</li>
+              <li>Refresh to see updates</li>
+            </ul>
+          </div>
+          <div class="note">IndexedDB is crucial for offline-first apps. Know how to inspect transaction data!</div>
+        </div>
+
+        <div class="topic">
+          <h3>8.4 Cookies</h3>
+          <div class="subtopic">
+            <h4>Cookie Attributes</h4>
+            <ul>
+              <li><strong>Name/Value</strong> - Cookie data</li>
+              <li><strong>Domain</strong> - Scope of cookie</li>
+              <li><strong>Path</strong> - URL path scope</li>
+              <li><strong>Expires</strong> - Expiration date</li>
+              <li><strong>Size</strong> - Cookie size in bytes</li>
+              <li><strong>HttpOnly</strong> - No JavaScript access</li>
+              <li><strong>Secure</strong> - HTTPS only</li>
+              <li><strong>SameSite</strong> - CSRF protection (Strict/Lax/None)</li>
+            </ul>
+          </div>
+          <div class="warning">SameSite cookies are essential for security. Know Strict vs Lax vs None!</div>
+        </div>
+
+        <div class="topic">
+          <h3>8.5 Service Workers</h3>
+          <div class="subtopic">
+            <h4>SW Management</h4>
+            <ul>
+              <li>View registered service workers</li>
+              <li>Update/Unregister workers</li>
+              <li>Debug with Sources panel</li>
+              <li>Bypass for network (checkbox)</li>
+              <li>Update on reload</li>
+              <li>Push/Sync simulation</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Lifecycle States</h4>
+            <ul>
+              <li>Installing, Waiting, Active, Redundant</li>
+              <li>Skip waiting button</li>
+              <li>Clients (controlled pages)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>8.6 Cache Storage</h3>
+          <div class="subtopic">
+            <h4>Features</h4>
+            <ul>
+              <li>View cached responses</li>
+              <li>Preview cached content</li>
+              <li>Delete individual items</li>
+              <li>Clear entire cache</li>
+              <li>See cache size</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>8.7 Manifest (PWA)</h3>
+          <div class="subtopic">
+            <h4>Web App Manifest</h4>
+            <ul>
+              <li>App name, icons, theme color</li>
+              <li>Display mode (standalone/fullscreen)</li>
+              <li>Start URL</li>
+              <li>Installability status</li>
+              <li>Add to homescreen simulation</li>
+            </ul>
+          </div>
+          <div class="tip">Test PWA installability directly in DevTools before deploying!</div>
+        </div>
+
+        <div class="topic">
+          <h3>8.8 Clear Storage</h3>
+          <div class="subtopic">
+            <h4>Bulk Clear Options</h4>
+            <ul>
+              <li>Clear site data button</li>
+              <li>Select specific storage types</li>
+              <li>Unregister service workers</li>
+              <li>See total storage usage</li>
+              <li>Storage quota information</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>8.9 Background Services</h3>
+          <div class="subtopic">
+            <h4>Debugging Background Features</h4>
+            <ul>
+              <li>Background Fetch</li>
+              <li>Background Sync</li>
+              <li>Notifications</li>
+              <li>Payment Handler</li>
+              <li>Periodic Background Sync</li>
+              <li>Push Messaging</li>
+              <li>Reporting API</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 9 -->
+    <section class="chapter" id="ch9">
+      <div class="chapter-header">
+        <div class="chapter-num">09</div>
+        <span class="chapter-title">Lighthouse & Auditing</span>
+        <span class="level-badge intermediate">Intermediate</span>
+      </div>
+      <div class="chapter-content">
+        <div class="topic">
+          <h3>9.1 Lighthouse Overview</h3>
+          <div class="subtopic">
+            <h4>Audit Categories</h4>
+            <ul>
+              <li><strong>Performance</strong> - Loading & runtime performance</li>
+              <li><strong>Accessibility</strong> - A11y best practices</li>
+              <li><strong>Best Practices</strong> - Web standards compliance</li>
+              <li><strong>SEO</strong> - Search engine optimization</li>
+              <li><strong>PWA</strong> - Progressive Web App requirements</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>9.2 Running Audits</h3>
+          <div class="subtopic">
+            <h4>Configuration Options</h4>
+            <ul>
+              <li>Device: Mobile or Desktop</li>
+              <li>Categories to audit</li>
+              <li>Throttling: Simulated or DevTools</li>
+              <li>Clear storage option</li>
+            </ul>
+          </div>
+          <div class="note">Always test with Mobile + Simulated throttling for realistic scores!</div>
+        </div>
+
+        <div class="topic">
+          <h3>9.3 Performance Metrics</h3>
+          <div class="subtopic">
+            <h4>Key Metrics Explained</h4>
+            <ul>
+              <li><strong>FCP</strong> - First Contentful Paint (first content visible)</li>
+              <li><strong>LCP</strong> - Largest Contentful Paint (main content loaded)</li>
+              <li><strong>TBT</strong> - Total Blocking Time (main thread blocked)</li>
+              <li><strong>CLS</strong> - Cumulative Layout Shift (visual stability)</li>
+              <li><strong>Speed Index</strong> - How quickly content is visible</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Scoring</h4>
+            <ul>
+              <li>0-49: Poor (red)</li>
+              <li>50-89: Needs improvement (orange)</li>
+              <li>90-100: Good (green)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>9.4 Opportunities & Diagnostics</h3>
+          <div class="subtopic">
+            <h4>Opportunities</h4>
+            <ul>
+              <li>Estimated savings in seconds</li>
+              <li>Actionable suggestions</li>
+              <li>Image optimization</li>
+              <li>Unused CSS/JS removal</li>
+              <li>Resource prioritization</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Diagnostics</h4>
+            <ul>
+              <li>DOM size warnings</li>
+              <li>JavaScript execution time</li>
+              <li>Critical request chains</li>
+              <li>Font display issues</li>
+            </ul>
+          </div>
+          <div class="warning">Interview tip: Know how to improve each Lighthouse opportunity!</div>
+        </div>
+
+        <div class="topic">
+          <h3>9.5 Accessibility Audit</h3>
+          <div class="subtopic">
+            <h4>Common Issues</h4>
+            <ul>
+              <li>Missing alt text on images</li>
+              <li>Low color contrast</li>
+              <li>Missing form labels</li>
+              <li>Missing document language</li>
+              <li>Incorrect heading order</li>
+              <li>Missing landmark regions</li>
+              <li>Non-descriptive link text</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>9.6 Best Practices Audit</h3>
+          <div class="subtopic">
+            <h4>Checks Include</h4>
+            <ul>
+              <li>HTTPS usage</li>
+              <li>No vulnerable libraries</li>
+              <li>Console errors</li>
+              <li>Correct aspect ratios</li>
+              <li>Geolocation/notification permissions</li>
+              <li>Deprecated APIs</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>9.7 SEO Audit</h3>
+          <div class="subtopic">
+            <h4>Checks Include</h4>
+            <ul>
+              <li>Meta description</li>
+              <li>Crawlable links</li>
+              <li>Valid robots.txt</li>
+              <li>Tap targets sized appropriately</li>
+              <li>Document has title</li>
+              <li>Hreflang for international pages</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>9.8 Exporting Reports</h3>
+          <div class="subtopic">
+            <h4>Export Options</h4>
+            <ul>
+              <li>Save as JSON</li>
+              <li>Save as HTML</li>
+              <li>Open in Viewer</li>
+              <li>Print report</li>
+              <li>Compare reports over time</li>
+            </ul>
+          </div>
+          <div class="tip">Save baseline reports before optimization to show improvement metrics!</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 10 -->
+    <section class="chapter" id="ch10">
+      <div class="chapter-header">
+        <div class="chapter-num">10</div>
+        <span class="chapter-title">Security Panel</span>
+        <span class="level-badge intermediate">Intermediate</span>
+      </div>
+      <div class="chapter-content">
+        <div class="topic">
+          <h3>10.1 Security Overview</h3>
+          <div class="subtopic">
+            <h4>Security States</h4>
+            <ul>
+              <li><strong>Secure</strong> - Valid HTTPS, no mixed content</li>
+              <li><strong>Info</strong> - HTTP (not secure)</li>
+              <li><strong>Not Secure</strong> - Mixed content or invalid cert</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>10.2 Certificate Information</h3>
+          <div class="subtopic">
+            <h4>Certificate Details</h4>
+            <ul>
+              <li>Certificate issuer</li>
+              <li>Validity period</li>
+              <li>Subject name</li>
+              <li>Public key info</li>
+              <li>Signature algorithm</li>
+              <li>Certificate chain</li>
+            </ul>
+          </div>
+          <div class="note">Click "View certificate" to see full certificate details in a new window.</div>
+        </div>
+
+        <div class="topic">
+          <h3>10.3 Connection Security</h3>
+          <div class="subtopic">
+            <h4>Connection Details</h4>
+            <ul>
+              <li>Protocol (TLS 1.2/1.3)</li>
+              <li>Key exchange (ECDHE)</li>
+              <li>Cipher suite</li>
+              <li>Certificate transparency</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>10.4 Mixed Content</h3>
+          <div class="subtopic">
+            <h4>Types of Mixed Content</h4>
+            <ul>
+              <li><strong>Passive mixed content</strong> - Images, video, audio</li>
+              <li><strong>Active mixed content</strong> - Scripts, iframes (blocked)</li>
+              <li>View all mixed content resources</li>
+              <li>Click to see in Network panel</li>
+            </ul>
+          </div>
+          <div class="warning">Mixed content breaks the padlock and user trust. Always fix these issues!</div>
+        </div>
+
+        <div class="topic">
+          <h3>10.5 Origin Security</h3>
+          <div class="subtopic">
+            <h4>Per-Origin Details</h4>
+            <ul>
+              <li>Main origin security</li>
+              <li>Third-party origin security</li>
+              <li>Resources from each origin</li>
+              <li>Certificate validity per origin</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>10.6 Security Headers</h3>
+          <div class="subtopic">
+            <h4>Important Security Headers</h4>
+            <ul>
+              <li><code>Strict-Transport-Security</code> (HSTS)</li>
+              <li><code>Content-Security-Policy</code> (CSP)</li>
+              <li><code>X-Content-Type-Options</code></li>
+              <li><code>X-Frame-Options</code></li>
+              <li><code>X-XSS-Protection</code> (deprecated)</li>
+              <li><code>Referrer-Policy</code></li>
+              <li><code>Permissions-Policy</code></li>
+            </ul>
+          </div>
+          <div class="tip">Check security headers in Network panel → Response Headers for each request.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 11 -->
+    <section class="chapter" id="ch11">
+      <div class="chapter-header">
+        <div class="chapter-num">11</div>
+        <span class="chapter-title">Recorder & Performance Insights</span>
+        <span class="level-badge intermediate">Intermediate</span>
+      </div>
+      <div class="chapter-content">
+        <div class="topic">
+          <h3>11.1 Recorder Panel</h3>
+          <div class="subtopic">
+            <h4>User Flow Recording</h4>
+            <ul>
+              <li>Record click, type, scroll actions</li>
+              <li>Create replayable user journeys</li>
+              <li>Edit recorded steps</li>
+              <li>Add assertions</li>
+              <li>Measure performance of flows</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Export Options</h4>
+            <ul>
+              <li>Export as JSON</li>
+              <li>Export as Puppeteer script</li>
+              <li>Export as Puppeteer with Lighthouse</li>
+              <li>Export as @puppeteer/replay</li>
+              <li>Third-party extension exports</li>
+            </ul>
+          </div>
+          <div class="note">Recorder is perfect for creating E2E test scripts quickly!</div>
+        </div>
+
+        <div class="topic">
+          <h3>11.2 Performance Insights Panel</h3>
+          <div class="subtopic">
+            <h4>Simplified Performance View</h4>
+            <ul>
+              <li>Insights-based approach</li>
+              <li>Actionable recommendations</li>
+              <li>Render blocking resources</li>
+              <li>Layout shifts identification</li>
+              <li>Long tasks highlighting</li>
+              <li>LCP element identification</li>
+            </ul>
+          </div>
+          <div class="tip">Performance Insights is more beginner-friendly than the full Performance panel!</div>
+        </div>
+
+        <div class="topic">
+          <h3>11.3 Coverage Panel</h3>
+          <div class="subtopic">
+            <h4>Code Coverage Analysis</h4>
+            <ul>
+              <li>Open from drawer or Command Menu</li>
+              <li>Record coverage during interaction</li>
+              <li>See unused CSS/JS percentage</li>
+              <li>Red = unused, Blue = used</li>
+              <li>Click to open file with coverage overlay</li>
+            </ul>
+          </div>
+          <div class="warning">High unused code percentage? Time to code-split or remove dead code!</div>
+        </div>
+
+        <div class="topic">
+          <h3>11.4 Changes Panel</h3>
+          <div class="subtopic">
+            <h4>Track Your Modifications</h4>
+            <ul>
+              <li>Shows diff of all changes made</li>
+              <li>Green = additions, Red = deletions</li>
+              <li>Copy changes to clipboard</li>
+              <li>Revert individual changes</li>
+              <li>Apply changes to sources</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>11.5 Animations Panel</h3>
+          <div class="subtopic">
+            <h4>Animation Inspection</h4>
+            <ul>
+              <li>Capture CSS animations</li>
+              <li>Adjust animation timing</li>
+              <li>Slow down playback (25%, 10%)</li>
+              <li>Modify bezier curves</li>
+              <li>Inspect keyframes</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 12 -->
+    <section class="chapter" id="ch12">
+      <div class="chapter-header">
+        <div class="chapter-num">12</div>
+        <span class="chapter-title">Advanced Techniques & Interview Questions</span>
+        <span class="level-badge advanced">Advanced</span>
+      </div>
+      <div class="chapter-content">
+        <div class="topic">
+          <h3>12.1 Remote Debugging</h3>
+          <div class="subtopic">
+            <h4>Mobile Debugging</h4>
+            <ul>
+              <li>Enable USB debugging on Android</li>
+              <li><code>chrome://inspect</code> for device list</li>
+              <li>Port forwarding for localhost</li>
+              <li>Screencast device screen</li>
+              <li>Inspect WebViews</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>12.2 Device Emulation</h3>
+          <div class="subtopic">
+            <h4>Device Mode Features</h4>
+            <ul>
+              <li>Responsive viewport testing</li>
+              <li>Device presets (iPhone, Pixel, etc.)</li>
+              <li>Custom device profiles</li>
+              <li>Touch event simulation</li>
+              <li>Geolocation override</li>
+              <li>Device pixel ratio</li>
+              <li>Media type emulation (print/screen)</li>
+              <li>Reduced motion preference</li>
+              <li>Color scheme (dark/light)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>12.3 Sensors Emulation</h3>
+          <div class="subtopic">
+            <h4>Override Sensors</h4>
+            <ul>
+              <li>Geolocation (latitude/longitude)</li>
+              <li>Orientation (alpha/beta/gamma)</li>
+              <li>Touch simulation</li>
+              <li>Idle state</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>12.4 Network Conditions</h3>
+          <div class="subtopic">
+            <h4>Advanced Network Features</h4>
+            <ul>
+              <li>Custom throttling profiles</li>
+              <li>Disable cache</li>
+              <li>Block specific requests</li>
+              <li>Override User-Agent</li>
+              <li>Override Accepted-Language</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>12.5 CSP Debugging</h3>
+          <div class="subtopic">
+            <h4>Content Security Policy</h4>
+            <ul>
+              <li>CSP violations in Console</li>
+              <li>Report-only mode testing</li>
+              <li>Issues panel for CSP errors</li>
+              <li>Network panel shows blocked resources</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>12.6 CORS Debugging</h3>
+          <div class="subtopic">
+            <h4>Cross-Origin Issues</h4>
+            <ul>
+              <li>CORS errors in Console</li>
+              <li>Check Access-Control headers in Network</li>
+              <li>Preflight OPTIONS requests</li>
+              <li>Credentials mode issues</li>
+            </ul>
+          </div>
+          <div class="warning">CORS is a top interview topic. Know the difference between simple and preflighted requests!</div>
+        </div>
+
+        <div class="topic">
+          <h3>12.7 Common Interview Questions</h3>
+          <div class="subtopic">
+            <h4>Fundamentals</h4>
+            <ul>
+              <li>How do you debug JavaScript errors?</li>
+              <li>What's the difference between $0 and $()?</li>
+              <li>How do you find memory leaks?</li>
+              <li>Explain the Network waterfall</li>
+              <li>What causes layout thrashing?</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Performance</h4>
+            <ul>
+              <li>How do you improve Core Web Vitals?</li>
+              <li>What's the critical rendering path?</li>
+              <li>How do you reduce JavaScript bundle size?</li>
+              <li>Explain paint and composite layers</li>
+              <li>What causes cumulative layout shift?</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Debugging</h4>
+            <ul>
+              <li>How do you debug async code?</li>
+              <li>When would you use a conditional breakpoint?</li>
+              <li>How do you debug third-party scripts?</li>
+              <li>How do you test on slow networks?</li>
+              <li>How do you find unused CSS/JS?</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>12.8 Production-Grade HTML Checklist</h3>
+          <div class="subtopic">
+            <h4>Performance</h4>
+            <ul>
+              <li>✓ Minified HTML/CSS/JS</li>
+              <li>✓ Optimized images (WebP, AVIF)</li>
+              <li>✓ Lazy loading for images/iframes</li>
+              <li>✓ Resource hints (preload, prefetch)</li>
+              <li>✓ Critical CSS inlined</li>
+              <li>✓ Deferred non-critical JS</li>
+              <li>✓ Gzip/Brotli compression</li>
+              <li>✓ CDN for static assets</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Security</h4>
+            <ul>
+              <li>✓ HTTPS everywhere</li>
+              <li>✓ CSP headers configured</li>
+              <li>✓ No inline scripts (if CSP)</li>
+              <li>✓ Subresource integrity (SRI)</li>
+              <li>✓ Secure cookies</li>
+              <li>✓ No mixed content</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>Accessibility</h4>
+            <ul>
+              <li>✓ Semantic HTML elements</li>
+              <li>✓ Alt text for images</li>
+              <li>✓ ARIA labels where needed</li>
+              <li>✓ Keyboard navigation</li>
+              <li>✓ Color contrast compliance</li>
+              <li>✓ Focus indicators</li>
+            </ul>
+          </div>
+          <div class="subtopic">
+            <h4>SEO & Meta</h4>
+            <ul>
+              <li>✓ Title and meta description</li>
+              <li>✓ Open Graph tags</li>
+              <li>✓ Canonical URLs</li>
+              <li>✓ Structured data (JSON-LD)</li>
+              <li>✓ robots.txt and sitemap</li>
+              <li>✓ Mobile-friendly viewport</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="topic">
+          <h3>12.9 Essential Keyboard Shortcuts Summary</h3>
+          <div class="subtopic">
+            <h4>Most Used Shortcuts</h4>
+            <ul>
+              <li><span class="shortcut">F12</span> / <span class="shortcut">Ctrl+Shift+I</span> - Open DevTools</li>
+              <li><span class="shortcut">Ctrl+Shift+C</span> - Inspect element mode</li>
+              <li><span class="shortcut">Ctrl+Shift+P</span> - Command Menu</li>
+              <li><span class="shortcut">Ctrl+P</span> - Quick file open</li>
+              <li><span class="shortcut">Ctrl+Shift+F</span> - Search all files</li>
+              <li><span class="shortcut">Ctrl+F</span> - Search current panel</li>
+              <li><span class="shortcut">F8</span> - Pause/Resume script</li>
+              <li><span class="shortcut">F10</span> / <span class="shortcut">F11</span> - Step over/into</li>
+              <li><span class="shortcut">Ctrl+\\</span> - Pause on next statement</li>
+              <li><span class="shortcut">Esc</span> - Toggle Console drawer</li>
+              <li><span class="shortcut">Ctrl+]</span> / <span class="shortcut">Ctrl+[</span> - Next/prev panel</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer style="text-align: center; padding: 40px; opacity: 0.7;">
+      <p>Master these topics and you'll ace any DevTools interview! 🚀</p>
+      <p style="margin-top: 10px; font-size: 0.9em;">Keep practicing with real-world scenarios</p>
+    </footer>
+  </div>
+</body>
+</html>
