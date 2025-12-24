@@ -1,0 +1,43 @@
+graph LR
+    subgraph "Event Producers"
+        A[User Service]
+        B[Order Service]
+        C[Payment Service]
+    end
+    
+    subgraph "Event Bus / Message Broker"
+        D[Event Stream<br/>Kafka/RabbitMQ]
+    end
+    
+    subgraph "Event Consumers"
+        E[Email Service]
+        F[Analytics Service]
+        G[Notification Service]
+        H[Audit Service]
+    end
+    
+    subgraph "Event Store"
+        I[(Event Store<br/>Immutable Log)]
+    end
+    
+    A -->|UserCreated| D
+    B -->|OrderPlaced| D
+    B -->|OrderShipped| D
+    C -->|PaymentProcessed| D
+    
+    D -->|Subscribe| E
+    D -->|Subscribe| F
+    D -->|Subscribe| G
+    D -->|Subscribe| H
+    
+    D -.->|Persist| I
+    
+    style A fill:#e1f5ff
+    style B fill:#e1f5ff
+    style C fill:#e1f5ff
+    style D fill:#ffe1e1
+    style E fill:#e1ffe1
+    style F fill:#e1ffe1
+    style G fill:#e1ffe1
+    style H fill:#e1ffe1
+    style I fill:#fff4e1

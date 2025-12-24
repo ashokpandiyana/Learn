@@ -1,0 +1,67 @@
+graph TB
+    subgraph "External Actors (Primary)"
+        A[Web UI]
+        B[Mobile App]
+        C[CLI]
+    end
+    
+    subgraph "Primary Adapters (Input)"
+        D[REST Controller]
+        E[GraphQL Resolver]
+        F[CLI Handler]
+    end
+    
+    subgraph "Ports (Interfaces)"
+        G[Primary Ports<br/>Application Services]
+        H[Secondary Ports<br/>Repository Interfaces]
+    end
+    
+    subgraph "Core Domain (Hexagon)"
+        I[Business Logic<br/>Domain Models<br/>Use Cases]
+    end
+    
+    subgraph "Secondary Adapters (Output)"
+        J[PostgreSQL Adapter]
+        K[MongoDB Adapter]
+        L[Email Adapter]
+        M[Payment Gateway Adapter]
+    end
+    
+    subgraph "External Systems (Secondary)"
+        N[(PostgreSQL DB)]
+        O[(MongoDB)]
+        P[Email Service]
+        Q[Payment API]
+    end
+    
+    A --> D
+    B --> D
+    C --> F
+    
+    D --> G
+    E --> G
+    F --> G
+    
+    G --> I
+    I --> H
+    
+    H --> J
+    H --> K
+    H --> L
+    H --> M
+    
+    J --> N
+    K --> O
+    L --> P
+    M --> Q
+    
+    style I fill:#ffe1e1
+    style G fill:#e1f5ff
+    style H fill:#e1f5ff
+    style D fill:#e1ffe1
+    style E fill:#e1ffe1
+    style F fill:#e1ffe1
+    style J fill:#fff4e1
+    style K fill:#fff4e1
+    style L fill:#fff4e1
+    style M fill:#fff4e1

@@ -1,0 +1,63 @@
+graph TB
+    subgraph "Client Layer"
+        Client[Web/Mobile Client]
+    end
+    
+    subgraph "API Gateway"
+        Gateway[API Gateway<br/>Authentication<br/>Rate Limiting<br/>Routing]
+    end
+    
+    subgraph "Microservices"
+        UserService[User Service<br/>User Management]
+        OrderService[Order Service<br/>Order Processing]
+        ProductService[Product Service<br/>Catalog Management]
+        PaymentService[Payment Service<br/>Payment Processing]
+        NotificationService[Notification Service<br/>Email/SMS]
+    end
+    
+    subgraph "Data Stores"
+        UserDB[(User DB<br/>PostgreSQL)]
+        OrderDB[(Order DB<br/>PostgreSQL)]
+        ProductDB[(Product DB<br/>MongoDB)]
+        Cache[(Redis Cache)]
+    end
+    
+    subgraph "Message Broker"
+        MessageQueue[Message Queue<br/>RabbitMQ/Kafka]
+    end
+    
+    subgraph "Service Discovery"
+        Registry[Service Registry<br/>Consul/Eureka]
+    end
+    
+    Client -->|HTTPS| Gateway
+    Gateway -->|REST/gRPC| UserService
+    Gateway -->|REST/gRPC| OrderService
+    Gateway -->|REST/gRPC| ProductService
+    Gateway -->|REST/gRPC| PaymentService
+    
+    UserService -->|Queries| UserDB
+    OrderService -->|Queries| OrderDB
+    ProductService -->|Queries| ProductDB
+    
+    OrderService -.->|Publishes Events| MessageQueue
+    PaymentService -.->|Subscribes| MessageQueue
+    NotificationService -.->|Subscribes| MessageQueue
+    
+    UserService -.->|Registers| Registry
+    OrderService -.->|Registers| Registry
+    ProductService -.->|Registers| Registry
+    PaymentService -.->|Registers| Registry
+    
+    OrderService -.->|Cache| Cache
+    ProductService -.->|Cache| Cache
+    
+    style Client fill:#e1f5ff
+    style Gateway fill:#ffe1e1
+    style UserService fill:#e1ffe1
+    style OrderService fill:#e1ffe1
+    style ProductService fill:#e1ffe1
+    style PaymentService fill:#e1ffe1
+    style NotificationService fill:#e1ffe1
+    style MessageQueue fill:#fff4e1
+    style Registry fill:#f0e1ff

@@ -1,0 +1,39 @@
+graph TB
+    subgraph "Software Architecture Layers"
+        A[Business Requirements] --> B[Architecture Decisions]
+        B --> C[Design Decisions]
+        C --> D[Implementation]
+    end
+    
+    subgraph "Quality Attributes"
+        E[Performance]
+        F[Scalability]
+        G[Maintainability]
+        H[Security]
+        I[Availability]
+        J[Testability]
+    end
+    
+    B --> E
+    B --> F
+    B --> G
+    B --> H
+    B --> I
+    B --> J
+    
+    subgraph "Architectural Concerns"
+        K[Structure]
+        L[Communication]
+        M[Data Flow]
+        N[Deployment]
+    end
+    
+    B --> K
+    B --> L
+    B --> M
+    B --> N
+    
+    style A fill:#e1f5ff
+    style B fill:#ffe1e1
+    style C fill:#e1ffe1
+    style D fill:#fff4e1
