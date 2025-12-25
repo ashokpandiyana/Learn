@@ -1,0 +1,62 @@
+graph TB
+    subgraph "Circuit Breaker Pattern"
+        A[Service A]
+        B{Circuit Breaker}
+        C[Service B]
+        D[State: CLOSED<br/>Allow requests]
+        E[State: OPEN<br/>Block requests]
+        F[State: HALF-OPEN<br/>Test recovery]
+        
+        A --> B
+        B -->|Success| C
+        B -.->|Too many failures| E
+        E -.->|After timeout| F
+        F -.->|Test succeeds| D
+    end
+    
+    subgraph "Bulkhead Pattern"
+        G[Thread Pool 1<br/>Payment Service]
+        H[Thread Pool 2<br/>Email Service]
+        I[Thread Pool 3<br/>Notification Service]
+        J[Shared Resources<br/>Isolated Pools]
+        
+        G -.-> J
+        H -.-> J
+        I -.-> J
+    end
+    
+    subgraph "Retry Pattern"
+        K[Request]
+        L{Attempt 1}
+        M{Attempt 2}
+        N{Attempt 3}
+        O[Success]
+        P[Failure]
+        
+        K --> L
+        L -->|Fail| M
+        M -->|Fail| N
+        N -->|Fail| P
+        L -->|Success| O
+        M -->|Success| O
+        N -->|Success| O
+    end
+    
+    subgraph "Timeout Pattern"
+        Q[Request]
+        R[Wait max 5s]
+        S[Response or Timeout]
+        
+        Q --> R
+        R --> S
+    end
+    
+    style B fill:#ffe1e1
+    style D fill:#e1ffe1
+    style E fill:#ffcccc
+    style F fill:#fff4e1
+    style G fill:#e1f5ff
+    style H fill:#e1f5ff
+    style I fill:#e1f5ff
+    style O fill:#e1ffe1
+    style P fill:#ffcccc

@@ -1,0 +1,42 @@
+graph TB
+    subgraph "Cloud Service Models"
+        A[On-Premises<br/>You manage everything]
+        B[IaaS<br/>Infrastructure as a Service<br/>You manage: Apps, Data, Runtime, OS<br/>Provider: Servers, Storage, Network]
+        C[PaaS<br/>Platform as a Service<br/>You manage: Apps, Data<br/>Provider: Runtime, OS, Servers, etc]
+        D[SaaS<br/>Software as a Service<br/>You manage: Nothing<br/>Provider: Everything]
+    end
+    
+    subgraph "IaaS Examples"
+        E[AWS EC2<br/>Google Compute Engine<br/>Azure VMs]
+    end
+    
+    subgraph "PaaS Examples"
+        F[AWS Elastic Beanstalk<br/>Google App Engine<br/>Heroku<br/>Azure App Service]
+    end
+    
+    subgraph "SaaS Examples"
+        G[Gmail<br/>Salesforce<br/>Office 365<br/>Slack]
+    end
+    
+    subgraph "Deployment Models"
+        H[Public Cloud<br/>AWS, Azure, GCP]
+        I[Private Cloud<br/>On-premise cloud<br/>OpenStack, VMware]
+        J[Hybrid Cloud<br/>Mix of public + private]
+        K[Multi-Cloud<br/>Multiple providers<br/>AWS + Azure + GCP]
+    end
+    
+    B --> E
+    C --> F
+    D --> G
+    
+    style A fill:#ffcccc
+    style B fill:#ffe1e1
+    style C fill:#fff4e1
+    style D fill:#e1ffe1
+    style E fill:#e1f5ff
+    style F fill:#e1f5ff
+    style G fill:#e1f5ff
+    style H fill:#f0e1ff
+    style I fill:#f0e1ff
+    style J fill:#f0e1ff
+    style K fill:#f0e1ff

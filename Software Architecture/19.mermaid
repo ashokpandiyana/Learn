@@ -1,0 +1,76 @@
+graph TB
+    subgraph "Multi-Region Architecture"
+        A[Route 53<br/>DNS Failover<br/>Health Checks]
+    end
+    
+    subgraph "Region 1 - US East - PRIMARY"
+        B[Load Balancer]
+        C[App Server 1]
+        D[App Server 2]
+        E[App Server 3]
+        F[(Primary DB)]
+        G[Redis Cluster]
+    end
+    
+    subgraph "Region 2 - US West - STANDBY"
+        H[Load Balancer]
+        I[App Server 1]
+        J[App Server 2]
+        K[(Replica DB)]
+        L[Redis Cluster]
+    end
+    
+    subgraph "Region 3 - EU - STANDBY"
+        M[Load Balancer]
+        N[App Server 1]
+        O[App Server 2]
+        P[(Replica DB)]
+        Q[Redis Cluster]
+    end
+    
+    subgraph "Monitoring & Health"
+        R[Health Checks<br/>/health endpoint<br/>Every 30s]
+        S[Failover Trigger<br/>3 consecutive fails<br/>= Switch region]
+    end
+    
+    A -->|Primary| B
+    A -.->|Failover| H
+    A -.->|Failover| M
+    
+    B --> C
+    B --> D
+    B --> E
+    
+    C --> F
+    D --> F
+    E --> F
+    
+    C --> G
+    D --> G
+    E --> G
+    
+    H --> I
+    H --> J
+    I --> K
+    J --> K
+    
+    M --> N
+    M --> O
+    N --> P
+    O --> P
+    
+    F -.->|Replication| K
+    F -.->|Replication| P
+    
+    R -.->|Monitor| B
+    R -.->|Monitor| H
+    R -.->|Monitor| M
+    
+    S -.->|Control| A
+    
+    style F fill:#ffe1e1
+    style K fill:#e1ffe1
+    style P fill:#e1ffe1
+    style A fill:#e1f5ff
+    style R fill:#fff4e1
+    style S fill:#ffcccc

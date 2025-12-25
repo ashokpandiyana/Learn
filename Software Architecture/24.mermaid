@@ -1,0 +1,67 @@
+graph TB
+    subgraph "Internet"
+        A[Public Users]
+        B[Potential Attackers]
+    end
+    
+    subgraph "DDoS Protection Layer"
+        C[CloudFlare / AWS Shield<br/>DDoS Mitigation<br/>Rate Limiting]
+    end
+    
+    subgraph "WAF - Web Application Firewall"
+        D[WAF Rules<br/>SQL Injection Block<br/>XSS Block<br/>Bot Detection]
+    end
+    
+    subgraph "VPC - Virtual Private Cloud"
+        E[Internet Gateway]
+        
+        subgraph "Public Subnet - DMZ"
+            F[Load Balancer<br/>Security Group: Allow 80, 443]
+            G[NAT Gateway]
+        end
+        
+        subgraph "Private Subnet - App Tier"
+            H[App Server 1<br/>SG: Allow from LB only]
+            I[App Server 2<br/>SG: Allow from LB only]
+        end
+        
+        subgraph "Private Subnet - Data Tier"
+            J[(Database<br/>SG: Allow from App only)]
+            K[Redis Cache<br/>SG: Allow from App only]
+        end
+    end
+    
+    subgraph "Monitoring & Logging"
+        L[VPC Flow Logs<br/>CloudWatch<br/>SIEM]
+    end
+    
+    A --> C
+    B -.->|Blocked| C
+    
+    C --> D
+    D --> E
+    E --> F
+    
+    F --> H
+    F --> I
+    
+    H --> J
+    I --> J
+    H --> K
+    I --> K
+    
+    H -.->|Outbound Internet| G
+    I -.->|Outbound Internet| G
+    
+    E -.->|Monitor| L
+    F -.->|Monitor| L
+    H -.->|Monitor| L
+    
+    style C fill:#ffe1e1
+    style D fill:#ffcccc
+    style F fill:#e1f5ff
+    style H fill:#e1ffe1
+    style I fill:#e1ffe1
+    style J fill:#fff4e1
+    style K fill:#fff4e1
+    style L fill:#f0e1ff

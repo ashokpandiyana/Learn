@@ -1,0 +1,49 @@
+graph TB
+    subgraph "Without Service Mesh"
+        A[Service A]
+        B[Service B]
+        C[Service C]
+        
+        A -->|HTTP| B
+        B -->|HTTP| C
+        A -->|HTTP| C
+        
+        D[Each service handles:<br/>- Load balancing<br/>- Retries<br/>- Timeouts<br/>- Circuit breaking<br/>- Metrics<br/>- Tracing]
+    end
+    
+    subgraph "With Service Mesh"
+        E[Service A]
+        F[Sidecar Proxy A]
+        G[Service B]
+        H[Sidecar Proxy B]
+        I[Service C]
+        J[Sidecar Proxy C]
+        
+        E -.-> F
+        G -.-> H
+        I -.-> J
+        
+        F -->|mTLS| H
+        H -->|mTLS| J
+        F -->|mTLS| J
+        
+        K[Control Plane<br/>Istio/Linkerd<br/>- Configuration<br/>- Service discovery<br/>- Certificate management]
+        
+        K -.->|Configure| F
+        K -.->|Configure| H
+        K -.->|Configure| J
+    end
+    
+    subgraph "Service Mesh Features"
+        L[Traffic Management<br/>- Load balancing<br/>- Circuit breaking<br/>- Retries<br/>- Timeouts]
+        M[Security<br/>- mTLS<br/>- Authorization<br/>- Authentication]
+        N[Observability<br/>- Metrics<br/>- Tracing<br/>- Logging]
+    end
+    
+    style F fill:#e1f5ff
+    style H fill:#e1f5ff
+    style J fill:#e1f5ff
+    style K fill:#ffe1e1
+    style L fill:#e1ffe1
+    style M fill:#fff4e1
+    style N fill:#f0e1ff

@@ -1,0 +1,45 @@
+graph TB
+    subgraph "Performance Optimization Layers"
+        A[Client Browser<br/>Minification, Bundling<br/>Lazy Loading]
+    end
+    
+    subgraph "Network Layer"
+        B[CDN<br/>Edge Caching<br/>Compression]
+        C[HTTP/2, HTTP/3<br/>Multiplexing<br/>Server Push]
+    end
+    
+    subgraph "Application Layer"
+        D[Code Optimization<br/>Async Processing<br/>Caching]
+        E[Connection Pool<br/>Object Pool<br/>Thread Pool]
+    end
+    
+    subgraph "Database Layer"
+        F[Query Optimization<br/>Indexing<br/>Denormalization]
+        G[N+1 Prevention<br/>Eager Loading<br/>Batch Queries]
+    end
+    
+    subgraph "Monitoring"
+        H[Profiling Tools<br/>APM<br/>Metrics]
+        I[Bottleneck Detection<br/>Slow Query Log<br/>Tracing]
+    end
+    
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+    
+    H -.->|Monitor| D
+    H -.->|Monitor| F
+    I -.->|Identify| G
+    
+    style A fill:#e1f5ff
+    style B fill:#ffe1e1
+    style C fill:#ffe1e1
+    style D fill:#e1ffe1
+    style E fill:#e1ffe1
+    style F fill:#fff4e1
+    style G fill:#fff4e1
+    style H fill:#f0e1ff
+    style I fill:#f0e1ff

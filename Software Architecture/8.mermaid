@@ -1,0 +1,40 @@
+graph TB
+    subgraph "Outer Layer - Frameworks & Drivers"
+        A[Web Framework<br/>UI/Controllers]
+        B[Database<br/>SQL/NoSQL]
+        C[External APIs<br/>Third-party Services]
+        D[Devices<br/>Hardware]
+    end
+    
+    subgraph "Interface Adapters"
+        E[Controllers<br/>Presenters<br/>Gateways]
+        F[Repository<br/>Implementations]
+    end
+    
+    subgraph "Application Business Rules"
+        G[Use Cases<br/>Application Services<br/>Interactors]
+    end
+    
+    subgraph "Enterprise Business Rules - Core"
+        H[Entities<br/>Domain Models<br/>Business Objects]
+    end
+    
+    A --> E
+    B --> F
+    C --> F
+    D --> F
+    
+    E --> G
+    F --> G
+    
+    G --> H
+    
+    style H fill:#ffe1e1
+    style G fill:#fff4e1
+    style E fill:#e1ffe1
+    style F fill:#e1ffe1
+    style A fill:#e1f5ff
+    style B fill:#e1f5ff
+    style C fill:#e1f5ff
+    style D fill:#e1f5ff
+    

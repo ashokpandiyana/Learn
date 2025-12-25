@@ -1,0 +1,46 @@
+graph LR
+    subgraph "CI/CD Pipeline Flow"
+        A[Developer<br/>Commits Code]
+        B[Version Control<br/>GitHub, GitLab]
+        C[CI Server<br/>Jenkins, CircleCI<br/>GitHub Actions]
+        D[Build<br/>Compile, Package]
+        E[Test<br/>Unit, Integration, E2E]
+        F[Security Scan<br/>SAST, Dependency Check]
+        G[Artifact<br/>Docker Image, JAR]
+        H[Deploy to Staging<br/>Auto-deploy]
+        I[Integration Tests<br/>Smoke Tests]
+        J[Deploy to Production<br/>Manual approval or auto]
+        K[Production<br/>Rolling Update, Blue-Green]
+        
+        A --> B
+        B --> C
+        C --> D
+        D --> E
+        E --> F
+        F --> G
+        G --> H
+        H --> I
+        I --> J
+        J --> K
+    end
+    
+    subgraph "Deployment Strategies"
+        L[Rolling Update<br/>Gradual replacement]
+        M[Blue-Green<br/>Switch traffic]
+        N[Canary<br/>Gradual traffic shift]
+        O[Feature Flags<br/>Toggle features]
+    end
+    
+    subgraph "Quality Gates"
+        P[Gate 1: Tests Pass<br/>100% unit tests]
+        Q[Gate 2: Coverage<br/>>80% code coverage]
+        R[Gate 3: Security<br/>No high vulnerabilities]
+        S[Gate 4: Performance<br/>Load tests pass]
+    end
+    
+    style C fill:#ffe1e1
+    style D fill:#fff4e1
+    style E fill:#e1ffe1
+    style F fill:#ffcccc
+    style G fill:#e1f5ff
+    style K fill:#e1ffe1

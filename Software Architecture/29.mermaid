@@ -1,0 +1,48 @@
+graph TB
+    subgraph "ER Diagram Components"
+        A[Entity<br/>Customer]
+        B[Entity<br/>Order]
+        C[Entity<br/>Product]
+        
+        A -->|Places| B
+        B -->|Contains| C
+    end
+    
+    subgraph "Data Warehouse Schemas"
+        D[Star Schema<br/>Central Fact Table<br/>+ Dimension Tables]
+        E[Snowflake Schema<br/>Normalized Dimensions<br/>Less redundancy]
+        F[Fact Table<br/>Sales Facts]
+        G[Dim: Time]
+        H[Dim: Product]
+        I[Dim: Customer]
+        
+        F --> G
+        F --> H
+        F --> I
+    end
+    
+    subgraph "Data Lake vs Data Warehouse"
+        J[Data Lake<br/>Raw, unstructured<br/>Schema on read<br/>S3, HDFS]
+        K[Data Warehouse<br/>Structured, processed<br/>Schema on write<br/>Redshift, Snowflake]
+        
+        L[Raw Data] --> J
+        J -->|ETL| K
+        K -->|BI Tools| M[Reports & Analytics]
+    end
+    
+    subgraph "NoSQL Data Models"
+        N[Document Model<br/>MongoDB<br/>Nested JSON]
+        O[Key-Value<br/>Redis, DynamoDB<br/>Simple lookups]
+        P[Column Family<br/>Cassandra<br/>Wide columns]
+        Q[Graph<br/>Neo4j<br/>Relationships]
+    end
+    
+    style A fill:#e1f5ff
+    style B fill:#e1f5ff
+    style C fill:#e1f5ff
+    style F fill:#ffe1e1
+    style G fill:#e1ffe1
+    style H fill:#e1ffe1
+    style I fill:#e1ffe1
+    style J fill:#fff4e1
+    style K fill:#f0e1ff

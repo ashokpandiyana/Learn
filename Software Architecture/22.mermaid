@@ -1,0 +1,50 @@
+graph TB
+    subgraph "OAuth 2.0 Flow"
+        A[User/Client]
+        B[Authorization Server]
+        C[Resource Server]
+        
+        A -->|1. Request authorization| B
+        B -->|2. Authorization code| A
+        A -->|3. Exchange code for token| B
+        B -->|4. Access token + Refresh token| A
+        A -->|5. API request with token| C
+        C -->|6. Verify token| B
+        C -->|7. Protected resource| A
+    end
+    
+    subgraph "JWT Structure"
+        D[Header<br/>Algorithm, Type]
+        E[Payload<br/>Claims, User data]
+        F[Signature<br/>Verification]
+        
+        D -.-> G[Encoded JWT Token]
+        E -.-> G
+        F -.-> G
+    end
+    
+    subgraph "RBAC - Role-Based Access Control"
+        H[User: Alice]
+        I[Role: Admin]
+        J[Permissions:<br/>user:read<br/>user:write<br/>user:delete]
+        
+        H -->|has| I
+        I -->|has| J
+    end
+    
+    subgraph "Multi-Factor Authentication"
+        K[Password<br/>Something you know]
+        L[Phone/SMS<br/>Something you have]
+        M[Fingerprint<br/>Something you are]
+        N[Login Success]
+        
+        K --> N
+        L --> N
+        M --> N
+    end
+    
+    style B fill:#ffe1e1
+    style C fill:#e1ffe1
+    style G fill:#fff4e1
+    style I fill:#e1f5ff
+    style N fill:#e1ffe1

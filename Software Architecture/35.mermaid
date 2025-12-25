@@ -1,0 +1,50 @@
+graph TB
+    subgraph "Three Pillars of Observability"
+        A[Logs<br/>Discrete events<br/>What happened]
+        B[Metrics<br/>Numerical measurements<br/>System health]
+        C[Traces<br/>Request flow<br/>Distributed timeline]
+    end
+    
+    subgraph "Logging Stack - ELK"
+        D[Application<br/>Generates logs]
+        E[Filebeat/Fluentd<br/>Log shipper]
+        F[Logstash<br/>Parse & transform]
+        G[Elasticsearch<br/>Search & store]
+        H[Kibana<br/>Visualize]
+        
+        D --> E
+        E --> F
+        F --> G
+        G --> H
+    end
+    
+    subgraph "Metrics Stack"
+        I[Application<br/>Exposes metrics]
+        J[Prometheus<br/>Scrape & store]
+        K[Grafana<br/>Visualize]
+        L[Alertmanager<br/>Alert on thresholds]
+        
+        I --> J
+        J --> K
+        J --> L
+    end
+    
+    subgraph "Tracing Stack"
+        M[Service A<br/>Span 1]
+        N[Service B<br/>Span 2]
+        O[Service C<br/>Span 3]
+        P[Jaeger/Zipkin<br/>Collect traces]
+        Q[Trace Visualization<br/>Timeline view]
+        
+        M --> P
+        N --> P
+        O --> P
+        P --> Q
+    end
+    
+    style A fill:#ffe1e1
+    style B fill:#e1ffe1
+    style C fill:#e1f5ff
+    style G fill:#fff4e1
+    style J fill:#f0e1ff
+    style P fill:#ffe1e1

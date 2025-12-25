@@ -1,0 +1,47 @@
+graph TB
+    subgraph "Security Layers - Defense in Depth"
+        A[Layer 1: Network Security<br/>Firewall, VPN, DDoS Protection]
+        B[Layer 2: Application Security<br/>Input Validation, Output Encoding]
+        C[Layer 3: Authentication<br/>MFA, Strong Passwords]
+        D[Layer 4: Authorization<br/>RBAC, Least Privilege]
+        E[Layer 5: Data Security<br/>Encryption at Rest & Transit]
+        F[Layer 6: Monitoring<br/>Logging, Alerting, SIEM]
+    end
+    
+    subgraph "OWASP Top 10 Vulnerabilities"
+        G[1. Injection<br/>SQL, XSS, Command]
+        H[2. Broken Auth<br/>Weak passwords, Session theft]
+        I[3. Sensitive Data Exposure<br/>Unencrypted data]
+        J[4. XXE<br/>XML External Entities]
+        K[5. Broken Access Control<br/>Authorization bypass]
+    end
+    
+    subgraph "Prevention Mechanisms"
+        L[Input Validation<br/>Whitelist, Sanitize]
+        M[Parameterized Queries<br/>Prevent SQL Injection]
+        N[Content Security Policy<br/>Prevent XSS]
+        O[HTTPS/TLS<br/>Encrypt transit]
+        P[Encryption at Rest<br/>AES-256]
+    end
+    
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    
+    G -.->|Prevented by| L
+    G -.->|Prevented by| M
+    G -.->|Prevented by| N
+    I -.->|Prevented by| O
+    I -.->|Prevented by| P
+    
+    style A fill:#ffe1e1
+    style B fill:#fff4e1
+    style C fill:#e1ffe1
+    style D fill:#e1f5ff
+    style E fill:#f0e1ff
+    style F fill:#e1ffe1
+    style G fill:#ffcccc
+    style H fill:#ffcccc
+    style I fill:#ffcccc

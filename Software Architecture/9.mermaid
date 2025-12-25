@@ -1,0 +1,61 @@
+graph TB
+    subgraph "Client Layer"
+        A[Web Client]
+        B[Mobile App]
+    end
+    
+    subgraph "API Gateway / CDN"
+        C[API Gateway<br/>CloudFront]
+    end
+    
+    subgraph "Function as a Service - FaaS"
+        D[Lambda: Create User]
+        E[Lambda: Get User]
+        F[Lambda: Process Order]
+        G[Lambda: Send Email]
+    end
+    
+    subgraph "Backend as a Service - BaaS"
+        H[Authentication<br/>Cognito/Auth0]
+        I[Database<br/>DynamoDB]
+        J[Storage<br/>S3]
+        K[Queue<br/>SQS]
+    end
+    
+    subgraph "Event Sources"
+        L[API Events]
+        M[S3 Events]
+        N[Schedule Events]
+        O[Stream Events]
+    end
+    
+    A --> C
+    B --> C
+    
+    C --> D
+    C --> E
+    C --> F
+    
+    L --> D
+    M --> G
+    N --> F
+    O --> G
+    
+    D --> H
+    D --> I
+    E --> I
+    F --> I
+    F --> K
+    G --> J
+    
+    K --> G
+    
+    style D fill:#ffe1e1
+    style E fill:#ffe1e1
+    style F fill:#ffe1e1
+    style G fill:#ffe1e1
+    style H fill:#e1ffe1
+    style I fill:#e1ffe1
+    style J fill:#e1ffe1
+    style K fill:#e1ffe1
+    style C fill:#e1f5ff

@@ -1,0 +1,50 @@
+graph TB
+    subgraph "Production Environment"
+        A[Primary Region<br/>US East]
+        B[Application Servers]
+        C[(Primary Database)]
+        D[Object Storage]
+    end
+    
+    subgraph "Backup Strategies"
+        E[Full Backup<br/>Daily 2 AM<br/>Complete snapshot]
+        F[Incremental Backup<br/>Every 4 hours<br/>Changes only]
+        G[Transaction Logs<br/>Continuous<br/>WAL/Binlog]
+    end
+    
+    subgraph "Disaster Recovery Site"
+        H[DR Region<br/>US West]
+        I[Standby Servers]
+        J[(Replica Database)]
+        K[Replicated Storage]
+    end
+    
+    subgraph "Recovery Objectives"
+        L[RPO: 5 minutes<br/>Max data loss]
+        M[RTO: 1 hour<br/>Max recovery time]
+    end
+    
+    subgraph "Backup Storage"
+        N[S3 Glacier<br/>Long-term archives<br/>7 year retention]
+    end
+    
+    C -->|Daily| E
+    C -->|4 hours| F
+    C -->|Continuous| G
+    
+    E --> N
+    F --> N
+    G --> N
+    
+    C -.->|Replication| J
+    D -.->|Replication| K
+    
+    A -.->|Disaster| H
+    
+    style A fill:#e1ffe1
+    style H fill:#ffe1e1
+    style C fill:#e1f5ff
+    style J fill:#fff4e1
+    style N fill:#f0e1ff
+    style L fill:#ffcccc
+    style M fill:#ffcccc

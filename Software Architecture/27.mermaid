@@ -1,0 +1,44 @@
+graph TB
+    subgraph "Consistency Spectrum - Strongest to Weakest"
+        A[Linearizability<br/>Strongest<br/>Real-time ordering]
+        B[Sequential Consistency<br/>Program order preserved]
+        C[Causal Consistency<br/>Cause-effect preserved]
+        D[Eventual Consistency<br/>Weakest<br/>Eventually same]
+    end
+    
+    subgraph "Read Consistency Guarantees"
+        E[Strong Consistency<br/>Always latest value]
+        F[Bounded Staleness<br/>Max lag defined]
+        G[Session Consistency<br/>Own writes visible]
+        H[Consistent Prefix<br/>Ordered sequence]
+        I[Eventual<br/>Eventually consistent]
+    end
+    
+    subgraph "Implementation Trade-offs"
+        J[Strong Consistency<br/>Pros: Correct<br/>Cons: Slow, Less available]
+        K[Eventual Consistency<br/>Pros: Fast, Highly available<br/>Cons: Stale reads possible]
+    end
+    
+    subgraph "Real Systems"
+        L[Spanner<br/>Strong external consistency<br/>Globally distributed]
+        M[DynamoDB<br/>Eventually consistent by default<br/>Strong consistent reads option]
+        N[Cassandra<br/>Tunable consistency<br/>AP by default]
+    end
+    
+    A --> B
+    B --> C
+    C --> D
+    
+    E --> F
+    F --> G
+    G --> H
+    H --> I
+    
+    style A fill:#ffcccc
+    style B fill:#ffdddd
+    style C fill:#ffeeee
+    style D fill:#e1ffe1
+    style E fill:#ffe1e1
+    style I fill:#e1ffe1
+    style J fill:#fff4e1
+    style K fill:#e1f5ff

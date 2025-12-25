@@ -1,0 +1,48 @@
+graph TB
+    subgraph "Vertical Scaling - Scale UP"
+        A1[Server<br/>2 CPU, 4GB RAM]
+        A2[Server<br/>4 CPU, 8GB RAM]
+        A3[Server<br/>8 CPU, 16GB RAM]
+        A4[Server<br/>16 CPU, 32GB RAM]
+        
+        A1 -->|Upgrade| A2
+        A2 -->|Upgrade| A3
+        A3 -->|Upgrade| A4
+    end
+    
+    subgraph "Horizontal Scaling - Scale OUT"
+        B1[Server 1<br/>2 CPU, 4GB]
+        B2[Server 2<br/>2 CPU, 4GB]
+        B3[Server 3<br/>2 CPU, 4GB]
+        B4[Server 4<br/>2 CPU, 4GB]
+        
+        LB[Load Balancer]
+        
+        LB --> B1
+        LB --> B2
+        LB --> B3
+        LB --> B4
+    end
+    
+    subgraph "Stateless vs Stateful"
+        C1[Stateless Service<br/>No local state<br/>Easy to scale]
+        C2[Stateful Service<br/>Local sessions<br/>Hard to scale]
+        
+        D[Shared State Store<br/>Redis/Database]
+        
+        C1 -.->|Optional| D
+        C2 -->|Required| D
+    end
+    
+    style A1 fill:#ffcccc
+    style A2 fill:#ffaaaa
+    style A3 fill:#ff8888
+    style A4 fill:#ff6666
+    style B1 fill:#e1ffe1
+    style B2 fill:#e1ffe1
+    style B3 fill:#e1ffe1
+    style B4 fill:#e1ffe1
+    style LB fill:#ffe1e1
+    style C1 fill:#e1f5ff
+    style C2 fill:#ffe1e1
+    style D fill:#fff4e1

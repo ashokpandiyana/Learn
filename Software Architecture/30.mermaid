@@ -1,0 +1,57 @@
+graph LR
+    subgraph "ETL Pipeline - Extract, Transform, Load"
+        A[Data Sources<br/>APIs, Databases<br/>Files, Logs]
+        B[Extract<br/>Pull data from sources]
+        C[Transform<br/>Clean, enrich<br/>Aggregate, join]
+        D[Load<br/>Insert into warehouse]
+        E[Data Warehouse<br/>Redshift, Snowflake]
+        
+        A --> B
+        B --> C
+        C --> D
+        D --> E
+    end
+    
+    subgraph "ELT Pipeline - Extract, Load, Transform"
+        F[Data Sources]
+        G[Extract]
+        H[Load<br/>Raw data to warehouse]
+        I[Data Warehouse<br/>with processing power]
+        J[Transform<br/>SQL in warehouse]
+        K[Transformed Tables]
+        
+        F --> G
+        G --> H
+        H --> I
+        I --> J
+        J --> K
+    end
+    
+    subgraph "Stream Processing"
+        L[Event Stream<br/>Kafka, Kinesis]
+        M[Stream Processor<br/>Kafka Streams<br/>Flink, Spark Streaming]
+        N[Real-time Output<br/>Dashboard, Alerts<br/>Database]
+        
+        L --> M
+        M --> N
+    end
+    
+    subgraph "Orchestration"
+        O[Scheduler<br/>Apache Airflow<br/>Cron, AWS Step Functions]
+        P[Task 1: Extract]
+        Q[Task 2: Transform]
+        R[Task 3: Load]
+        S[Task 4: Quality Check]
+        
+        O --> P
+        P --> Q
+        Q --> R
+        R --> S
+    end
+    
+    style B fill:#e1f5ff
+    style C fill:#ffe1e1
+    style D fill:#e1ffe1
+    style E fill:#fff4e1
+    style M fill:#f0e1ff
+    style O fill:#ffe1e1

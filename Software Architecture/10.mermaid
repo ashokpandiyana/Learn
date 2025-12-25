@@ -1,0 +1,57 @@
+graph TB
+    subgraph "Clients"
+        A[Client 1]
+        B[Client 2]
+        C[Client 3]
+        D[Client 4]
+    end
+    
+    subgraph "Load Balancer Layer"
+        E[Load Balancer<br/>Nginx/HAProxy/ALB<br/>Distributes Traffic]
+    end
+    
+    subgraph "Health Checks"
+        F[Health Monitor<br/>Checks Server Status]
+    end
+    
+    subgraph "Backend Servers"
+        G[Server 1<br/>Healthy]
+        H[Server 2<br/>Healthy]
+        I[Server 3<br/>Down]
+        J[Server 4<br/>Healthy]
+    end
+    
+    subgraph "Database"
+        K[(Database<br/>Primary)]
+        L[(Database<br/>Replica)]
+    end
+    
+    A --> E
+    B --> E
+    C --> E
+    D --> E
+    
+    E -->|Round Robin| G
+    E -->|Least Connections| H
+    E -.->|Avoid| I
+    E -->|IP Hash| J
+    
+    F -.->|Check| G
+    F -.->|Check| H
+    F -.->|Check| I
+    F -.->|Check| J
+    
+    G --> K
+    H --> K
+    J --> L
+    
+    style E fill:#ffe1e1
+    style G fill:#e1ffe1
+    style H fill:#e1ffe1
+    style I fill:#ffcccc
+    style J fill:#e1ffe1
+    style F fill:#fff4e1
+    style A fill:#e1f5ff
+    style B fill:#e1f5ff
+    style C fill:#e1f5ff
+    style D fill:#e1f5ff

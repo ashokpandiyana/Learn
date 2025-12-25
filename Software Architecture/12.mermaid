@@ -1,0 +1,49 @@
+graph TB
+    subgraph "Application Layer"
+        A[Application Servers]
+    end
+    
+    subgraph "Read/Write Split"
+        B[Primary/Master<br/>Handles Writes<br/>Source of Truth]
+        C[Read Replica 1<br/>Handles Reads]
+        D[Read Replica 2<br/>Handles Reads]
+        E[Read Replica 3<br/>Handles Reads]
+    end
+    
+    subgraph "Sharding - Horizontal Partitioning"
+        F[Shard 1<br/>Users A-F]
+        G[Shard 2<br/>Users G-M]
+        H[Shard 3<br/>Users N-Z]
+    end
+    
+    subgraph "Database Types"
+        I[(Relational<br/>PostgreSQL<br/>MySQL)]
+        J[(NoSQL Document<br/>MongoDB)]
+        K[(NoSQL Key-Value<br/>Redis<br/>DynamoDB)]
+        L[(NoSQL Graph<br/>Neo4j)]
+    end
+    
+    A -->|Writes| B
+    A -->|Reads| C
+    A -->|Reads| D
+    A -->|Reads| E
+    
+    B -.->|Replication| C
+    B -.->|Replication| D
+    B -.->|Replication| E
+    
+    A -->|Hash User ID| F
+    A -->|Hash User ID| G
+    A -->|Hash User ID| H
+    
+    style B fill:#ffe1e1
+    style C fill:#e1ffe1
+    style D fill:#e1ffe1
+    style E fill:#e1ffe1
+    style F fill:#fff4e1
+    style G fill:#fff4e1
+    style H fill:#fff4e1
+    style I fill:#e1f5ff
+    style J fill:#e1f5ff
+    style K fill:#e1f5ff
+    style L fill:#e1f5ff

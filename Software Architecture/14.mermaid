@@ -1,0 +1,61 @@
+graph TB
+    subgraph "Client Applications"
+        A[Web App]
+        B[Mobile App]
+        C[Third-party Apps]
+    end
+    
+    subgraph "API Gateway / Load Balancer"
+        D[API Gateway<br/>Authentication<br/>Rate Limiting<br/>API Versioning]
+    end
+    
+    subgraph "API Types"
+        E[REST API<br/>JSON/HTTP<br/>Resource-based]
+        F[GraphQL API<br/>Single Endpoint<br/>Query Language]
+        G[gRPC API<br/>Protocol Buffers<br/>High Performance]
+    end
+    
+    subgraph "Backend Services"
+        H[User Service]
+        I[Product Service]
+        J[Order Service]
+    end
+    
+    subgraph "Data Layer"
+        K[(Database)]
+        L[Cache]
+    end
+    
+    A --> D
+    B --> D
+    C --> D
+    
+    D --> E
+    D --> F
+    D --> G
+    
+    E --> H
+    E --> I
+    E --> J
+    
+    F --> H
+    F --> I
+    F --> J
+    
+    G --> H
+    G --> I
+    
+    H --> K
+    I --> K
+    J --> K
+    
+    H --> L
+    I --> L
+    
+    style D fill:#ffe1e1
+    style E fill:#e1ffe1
+    style F fill:#e1ffe1
+    style G fill:#e1ffe1
+    style H fill:#e1f5ff
+    style I fill:#e1f5ff
+    style J fill:#e1f5ff

@@ -1,0 +1,44 @@
+graph TB
+    subgraph "CAP Theorem - Pick 2 of 3"
+        A[Consistency<br/>All nodes see same data]
+        B[Availability<br/>Every request gets response]
+        C[Partition Tolerance<br/>System works despite network failures]
+        
+        A -.->|CP Systems| D[MongoDB<br/>HBase<br/>Redis]
+        B -.->|AP Systems| E[Cassandra<br/>DynamoDB<br/>CouchDB]
+        A -.->|CA Systems| F[Traditional RDBMS<br/>Single node only]
+        B -.-> F
+    end
+    
+    subgraph "Consensus Algorithms"
+        G[Leader Election]
+        H[Raft Algorithm]
+        I[Paxos Algorithm]
+        
+        G --> H
+        G --> I
+    end
+    
+    subgraph "Distributed Transactions"
+        J[2PC - Two Phase Commit<br/>Coordinator + Participants]
+        K[3PC - Three Phase Commit<br/>Improved 2PC]
+        L[Saga Pattern<br/>Compensating transactions]
+    end
+    
+    subgraph "Clock Synchronization"
+        M[Physical Clocks<br/>NTP synchronization]
+        N[Logical Clocks<br/>Lamport timestamps]
+        O[Vector Clocks<br/>Causality tracking]
+    end
+    
+    style A fill:#ffe1e1
+    style B fill:#e1ffe1
+    style C fill:#fff4e1
+    style D fill:#e1f5ff
+    style E fill:#e1f5ff
+    style F fill:#e1f5ff
+    style H fill:#f0e1ff
+    style I fill:#f0e1ff
+    style J fill:#ffcccc
+    style K fill:#ffcccc
+    style L fill:#e1ffe1

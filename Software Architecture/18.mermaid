@@ -1,0 +1,67 @@
+graph TB
+    subgraph "Users - Global"
+        A[User in US]
+        B[User in Europe]
+        C[User in Asia]
+    end
+    
+    subgraph "CDN Edge Locations"
+        D[CDN Edge<br/>San Francisco<br/>Cache: Images, CSS, JS]
+        E[CDN Edge<br/>London<br/>Cache: Images, CSS, JS]
+        F[CDN Edge<br/>Tokyo<br/>Cache: Images, CSS, JS]
+    end
+    
+    subgraph "Regional Load Balancers"
+        G[LB - US West]
+        H[LB - EU West]
+        I[LB - Asia Pacific]
+    end
+    
+    subgraph "Application Servers"
+        J[App Servers<br/>US Region]
+        K[App Servers<br/>EU Region]
+        L[App Servers<br/>Asia Region]
+    end
+    
+    subgraph "Origin Servers"
+        M[Origin Server<br/>Primary Data Center<br/>US East]
+        N[(Database<br/>Primary)]
+        O[Object Storage<br/>S3/GCS]
+    end
+    
+    A -->|1. Request| D
+    D -->|Cache Hit| A
+    D -.->|Cache Miss| G
+    
+    B -->|1. Request| E
+    E -->|Cache Hit| B
+    E -.->|Cache Miss| H
+    
+    C -->|1. Request| F
+    F -->|Cache Hit| C
+    F -.->|Cache Miss| I
+    
+    G --> J
+    H --> K
+    I --> L
+    
+    J --> N
+    K --> N
+    L --> N
+    
+    J --> O
+    K --> O
+    L --> O
+    
+    D -.->|Origin Fetch| M
+    E -.->|Origin Fetch| M
+    F -.->|Origin Fetch| M
+    
+    M --> O
+    
+    style D fill:#e1f5ff
+    style E fill:#e1f5ff
+    style F fill:#e1f5ff
+    style M fill:#ffe1e1
+    style N fill:#e1ffe1
+    style O fill:#fff4e1

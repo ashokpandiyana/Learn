@@ -1,0 +1,53 @@
+graph LR
+    subgraph "Producers"
+        A[Web API]
+        B[Mobile API]
+        C[Scheduled Job]
+    end
+    
+    subgraph "Message Queue"
+        D[Queue: Email<br/>FIFO]
+        E[Queue: Image Processing<br/>Priority]
+        F[Queue: Notifications<br/>Pub/Sub]
+    end
+    
+    subgraph "Consumers/Workers"
+        G[Email Worker 1]
+        H[Email Worker 2]
+        I[Image Worker 1]
+        J[Image Worker 2]
+        K[Image Worker 3]
+        L[Notification Worker]
+    end
+    
+    subgraph "Dead Letter Queue"
+        M[DLQ: Failed Messages<br/>For retry/investigation]
+    end
+    
+    A -->|Publish| D
+    A -->|Publish| E
+    B -->|Publish| F
+    C -->|Publish| D
+    
+    D -->|Consume| G
+    D -->|Consume| H
+    
+    E -->|Consume| I
+    E -->|Consume| J
+    E -->|Consume| K
+    
+    F -->|Broadcast| L
+    
+    G -.->|Failed| M
+    I -.->|Failed| M
+    
+    style D fill:#ffe1e1
+    style E fill:#ffe1e1
+    style F fill:#ffe1e1
+    style G fill:#e1ffe1
+    style H fill:#e1ffe1
+    style I fill:#e1ffe1
+    style J fill:#e1ffe1
+    style K fill:#e1ffe1
+    style L fill:#e1ffe1
+    style M fill:#ffcccc

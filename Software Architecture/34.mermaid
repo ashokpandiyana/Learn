@@ -1,0 +1,58 @@
+graph TB
+    subgraph "VM vs Container"
+        A[Virtual Machines<br/>Full OS per VM<br/>Hypervisor<br/>Heavy]
+        B[Containers<br/>Shared OS kernel<br/>Container Runtime<br/>Lightweight]
+    end
+    
+    subgraph "Docker Architecture"
+        C[Docker Client<br/>docker build, run]
+        D[Docker Daemon<br/>dockerd]
+        E[Container Runtime<br/>containerd]
+        F[Containers<br/>Running apps]
+        G[Images<br/>Read-only templates]
+        H[Registry<br/>Docker Hub, ECR]
+        
+        C --> D
+        D --> E
+        E --> F
+        G --> F
+        H --> G
+    end
+    
+    subgraph "Kubernetes Architecture"
+        I[Control Plane<br/>Master Node]
+        J[API Server<br/>kubectl gateway]
+        K[Scheduler<br/>Assign pods to nodes]
+        L[Controller Manager<br/>Maintain desired state]
+        M[etcd<br/>Distributed key-value store]
+        
+        I --> J
+        I --> K
+        I --> L
+        I --> M
+    end
+    
+    subgraph "Worker Nodes"
+        N[Node 1<br/>kubelet, kube-proxy]
+        O[Node 2<br/>kubelet, kube-proxy]
+        P[Node 3<br/>kubelet, kube-proxy]
+        
+        Q[Pod 1<br/>Containers]
+        R[Pod 2<br/>Containers]
+        S[Pod 3<br/>Containers]
+        
+        N --> Q
+        O --> R
+        P --> S
+    end
+    
+    J --> N
+    J --> O
+    J --> P
+    
+    style A fill:#ffcccc
+    style B fill:#e1ffe1
+    style D fill:#ffe1e1
+    style F fill:#e1f5ff
+    style J fill:#fff4e1
+    style M fill:#f0e1ff

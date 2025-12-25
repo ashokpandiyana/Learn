@@ -1,0 +1,52 @@
+graph TB
+    subgraph "Lambda Architecture"
+        A[Data Sources<br/>Events, Logs]
+        B[Batch Layer<br/>Hadoop, Spark<br/>Complete, accurate]
+        C[Speed Layer<br/>Storm, Flink<br/>Fast, approximate]
+        D[Serving Layer<br/>Merge views]
+        E[Query<br/>Combined results]
+        
+        A --> B
+        A --> C
+        B --> D
+        C --> D
+        D --> E
+    end
+    
+    subgraph "Kappa Architecture"
+        F[Data Sources]
+        G[Stream Processing<br/>Kafka, Flink<br/>Everything as stream]
+        H[Serving Layer<br/>Real-time views]
+        I[Query]
+        
+        F --> G
+        G --> H
+        H --> I
+    end
+    
+    subgraph "Hadoop Ecosystem"
+        J[HDFS<br/>Distributed Storage]
+        K[MapReduce<br/>Batch Processing]
+        L[YARN<br/>Resource Manager]
+        M[Hive<br/>SQL on Hadoop]
+        N[HBase<br/>NoSQL Database]
+        O[Spark<br/>Fast Processing]
+        
+        J --> K
+        J --> M
+        J --> N
+        L --> K
+        L --> O
+    end
+    
+    subgraph "Processing Models"
+        P[Batch<br/>Hadoop MapReduce<br/>Apache Spark]
+        Q[Stream<br/>Apache Flink<br/>Kafka Streams]
+        R[Hybrid<br/>Spark Streaming<br/>Mini-batches]
+    end
+    
+    style B fill:#ffe1e1
+    style C fill:#e1f5ff
+    style D fill:#e1ffe1
+    style G fill:#f0e1ff
+    style J fill:#fff4e1

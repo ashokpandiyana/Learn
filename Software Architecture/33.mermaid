@@ -1,0 +1,43 @@
+graph TB
+    subgraph "Traditional Infrastructure"
+        A[Manual Server Setup<br/>SSH into servers<br/>Run commands<br/>Document in wiki]
+        B[Problems:<br/>- Not reproducible<br/>- Configuration drift<br/>- Hard to scale<br/>- Error-prone]
+    end
+    
+    subgraph "Infrastructure as Code"
+        C[Code Defines Infrastructure<br/>Terraform, CloudFormation<br/>Ansible, Pulumi]
+        D[Version Control<br/>Git repository<br/>Code review<br/>History tracking]
+        E[Automated Deployment<br/>CI/CD pipeline<br/>Consistent, repeatable]
+        F[Benefits:<br/>- Reproducible<br/>- Testable<br/>- Documented<br/>- Scalable]
+    end
+    
+    subgraph "IaC Tools"
+        G[Provisioning<br/>Terraform<br/>CloudFormation<br/>Pulumi]
+        H[Configuration<br/>Ansible<br/>Chef<br/>Puppet]
+        I[Container Orchestration<br/>Kubernetes<br/>Docker Compose]
+    end
+    
+    subgraph "IaC Workflow"
+        J[Write Config<br/>.tf files]
+        K[Plan Changes<br/>terraform plan]
+        L[Review<br/>Code review]
+        M[Apply<br/>terraform apply]
+        N[Infrastructure<br/>Created/Updated]
+    end
+    
+    A --> B
+    C --> D
+    D --> E
+    E --> F
+    
+    J --> K
+    K --> L
+    L --> M
+    M --> N
+    
+    style A fill:#ffcccc
+    style C fill:#e1ffe1
+    style F fill:#e1f5ff
+    style G fill:#ffe1e1
+    style H fill:#fff4e1
+    style I fill:#f0e1ff

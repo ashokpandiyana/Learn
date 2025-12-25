@@ -1,0 +1,58 @@
+graph TB
+    subgraph "Connection Pooling"
+        A[App Server 1<br/>Pool: 10 connections]
+        B[App Server 2<br/>Pool: 10 connections]
+        C[App Server 3<br/>Pool: 10 connections]
+        D[(Database<br/>Max: 100 connections)]
+        
+        A -.->|Reuse connections| D
+        B -.->|Reuse connections| D
+        C -.->|Reuse connections| D
+    end
+    
+    subgraph "Sharding Strategies"
+        E[Shard Router]
+        F[(Shard 1<br/>Users A-G)]
+        G[(Shard 2<br/>Users H-N)]
+        H[(Shard 3<br/>Users O-Z)]
+        
+        E -->|Hash/Range| F
+        E -->|Hash/Range| G
+        E -->|Hash/Range| H
+    end
+    
+    subgraph "Consistent Hashing"
+        I[Hash Ring]
+        J[(Node 1)]
+        K[(Node 2)]
+        L[(Node 3)]
+        M[(Node 4)]
+        
+        I -->|Key 1| J
+        I -->|Key 2| K
+        I -->|Key 3| L
+        I -->|Key 4| M
+    end
+    
+    subgraph "Partitioning"
+        N[Users Table]
+        O[Partition 1<br/>2020 data]
+        P[Partition 2<br/>2021 data]
+        Q[Partition 3<br/>2022-2024 data]
+        
+        N --> O
+        N --> P
+        N --> Q
+    end
+    
+    style D fill:#e1ffe1
+    style F fill:#e1f5ff
+    style G fill:#e1f5ff
+    style H fill:#e1f5ff
+    style J fill:#fff4e1
+    style K fill:#fff4e1
+    style L fill:#fff4e1
+    style M fill:#fff4e1
+    style O fill:#ffe1e1
+    style P fill:#ffe1e1
+    style Q fill:#ffe1e1
